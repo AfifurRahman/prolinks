@@ -1,0 +1,127 @@
+<?php
+
+namespace App\Http\Controllers\Superadmin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
+use App\Models\User;
+use App\Models\Pricing;
+use Auth;
+use Illuminate\Support\Facades\Hash;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\DB;
+
+class PricingController extends Controller
+{
+    public function index(Request $request)
+    {
+    	$titles = "PRICING";
+    	$pricing = $this->get_pricing(NULL, $request);
+    	
+        return view('superadmin.pricing.index', compact('pricing', 'titles'));
+    }
+
+    public function save(Request $request)
+    {
+    	try {
+		  	\DB::beginTransaction();
+
+		  	$id = $request->input('id');
+
+		  	if ($id != NULL) {
+		  		$update = Pricing::where('id', $id)->update([
+		  			'pricing_name' => $request->input('pricing_name'),
+		  			'pricing_desc' => $request->input('pricing_desc'),
+		  			'pricing_type' => $request->input('pricing_type'),
+		  			'duration' => $request->input('duration'),
+		  			'allocation_size' => $request->input('allocation_size'),
+		  			'updated_by' => Auth::guard('backend')->user()->id,
+		  			'updated_at' => date("Y-m-d H:i:s")
+		  		]);
+
+		  		if ($update) {
+			  		Alert::success('Success', 'Client updated !');
+			  	}else{
+			  		Alert::error('Error', 'Failed');
+			  	}
+		  	}else{
+		  		$pricing = new Pricing;
+		  		$pricing->pricing_id = Str::uuid(4);
+		  		$pricing->pricing_name = $request->input('pricing_name');
+		  		$pricing->pricing_desc = $request->input('pricing_desc');
+	  			$pricing->pricing_type = $request->input('pricing_type');
+	  			$pricing->duration = $request->input('duration');
+	  			$pricing->allocation_size = $request->input('allocation_size');
+	  			$pricing->pricing_status = 1;
+	  			$pricing->created_by = Auth::guard('backend')->user()->id;
+	  			$pricing->created_at = date("Y-m-d H:i:s");
+
+		  		if ($pricing->save()) {
+			  		Alert::success('Success', 'Pricing added !');
+			  	}else{
+			  		Alert::error('Error', 'Failed');
+			  	}
+		  	}
+
+		  	\DB::commit();
+		} catch (\Exception $e) {
+			\DB::rollback();
+			Alert::error('Error', $e->getMessage());
+			return back();
+		}
+
+    	return redirect(route('backend.pricing.list'));
+    }
+
+    public function delete($id)
+    {
+    	try {
+    		\DB::beginTransaction();
+
+    		$delete = Pricing::where('pricing_id', $id)->delete();
+
+    		if ($delete) {
+		  		Alert::success('Success', 'Pricing deleted !');
+		  	}else{
+		  		Alert::error('Error', 'Failed');
+		  	}
+
+    		\DB::commit();
+    	} catch (\Exception $e) {
+    		\DB::rollback();
+			Alert::error('Error', $e->getMessage());
+    	}
+
+    	return back();
+    }
+
+    private function get_pricing($client_id=NULL, $request)
+    {
+    	$model = Pricing::select('*');
+
+    	if (!empty($request->input('pricing_name'))) {
+            $model->where('pricing_name', $request->input('pricing_name'));
+        }
+
+        if (!empty($request->input('pricing_type'))) {
+            $model->where('pricing_type', $request->input('pricing_type'));
+        }
+
+        if (!empty($request->input('pricing_status'))) {
+            $model->where('pricing_status', $request->input('pricing_status'));
+        }
+
+        if (!empty($request->input('created_by'))) {
+            $model->where('created_by', $request->input('created_by'));
+        }
+
+        if ($client_id != NULL) {
+        	return $model->where('client_id', $client_id)->first();
+        }else{
+        	return $model->get();
+        }
+        
+    }
+}
