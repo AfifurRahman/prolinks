@@ -38,8 +38,8 @@
 <body class="fixed-left">
     <div id="wrapper">
         <div class="topbar">
-            <div class="topbar-left">
-                <a href="{{ route('backend.dashboard') }}" class="logo"><span>Admin<span>Prolinks</span></span><i class="mdi mdi-layers"></i></a>
+            <div class="topbar-left" style="background: #F1F5F9;">
+                <img src="{{ url('template/images/logo2.png') }}" width="100%">
             </div>
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
@@ -73,41 +73,12 @@
             </div>
         </div>
         
-        <div class="left side-menu">
-            <div class="sidebar-inner slimscrollleft">
-                <div id="sidebar-menu">
-                    <ul>
-                        <li class="menu-title">Navigation</li>
-                        <li>
-                            <a href="{{ route('backend.dashboard') }}" class="waves-effect"><i class="mdi mdi-view-dashboard"></i><span> Dashboard </span></a>
-                        </li>
-                        <li>
-                            <a href="{{ route('backend.pricing.list') }}" class="waves-effect"><i class="mdi mdi-calculator"></i><span> Pricing </span></a>
-                        </li>
-                        <li class="has_sub">
-                            <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-account-location"></i><span> Manage Client </span> <span class="menu-arrow"></span></a>
-                            <ul class="list-unstyled">
-                                <li><a href="{{ route('backend.client.list') }}">Client</a></li>
-                            </ul>
-                        </li>
-                        <li class="has_sub">
-                            <a href="javascript:void(0);" class="waves-effect"><i class="mdi mdi-account-key"></i><span> User Access </span> <span class="menu-arrow"></span></a>
-                            <ul class="list-unstyled">
-                                <li><a href="xxx">Role</a></li>
-                                <li><a href="xxx">Access Management</a></li>
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="calendar.html" class="waves-effect"><i class="mdi mdi-laptop-mac"></i><span> Monitoring </span></a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+        @include('layouts.navigation')
+        
         <div class="content-page">
             <div class="content">
                 <div class="container">
-                     <div class="row">
+                    <div class="row">
                         <div class="col-xs-12">
                             <div class="page-title-box">
                                 <h4 class="page-title panel-title">{{ !empty($titles) ? $titles : '' }}</h4>

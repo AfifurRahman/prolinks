@@ -188,6 +188,7 @@ return [
         'NoCaptcha' => Anhskohbo\NoCaptcha\Facades\NoCaptcha::class,
         'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
         'globals' => App\Helpers\GlobalHelper::class,
+        'role' => App\Helpers\RolesHelper::class,
     ])->toArray(),
 
 ];

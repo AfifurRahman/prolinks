@@ -24,7 +24,7 @@
                     <div class="col-sm-12">
                         <div class="wrapper-page">
                             <div align="center">
-                                <img src="{{ url('template/images/logo.png') }}" width="300" height="80">
+                                <img src="{{ url('template/images/logo2.png') }}" width="300" height="100">
                             </div>
                             <div class="m-t-20 account-pages">
                                 <div class="text-center account-logo-box">
