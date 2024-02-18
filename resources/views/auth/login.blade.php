@@ -1,76 +1,89 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- CSRF Token -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Prolinks | Login</title>
+        <link href="{{ url('template/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+        <style type="text/css">
+            body {
+                width: 100%;
+                overflow: hidden;
+            }
 
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            @if(Session::has('message'))
-            <div class="alert alert-warning">{{ Session::get('message') }}</div>
-            @endif
-            <div class="card">
-                <div class="card-header">{{ __('Login') }}</div>
+            .card {
+                width: 60%;
+                margin: 0 auto;
+                margin-top: 50px;
+            }
 
-                <div class="card-body">
-                    <form method="POST" action="{{ route('login') }}">
-                        @csrf
+            .card img {
+                width: 200px;
+                height: 70px;
+            }
 
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">{{ __('Email Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6 offset-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-
-                                    <label class="form-check-label" for="remember">
-                                        {{ __('Remember Me') }}
-                                    </label>
+            .card h3 {
+                font-size: 28px;
+            }
+        </style>
+    </head>
+        <body>
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="{{ url('template/images/banner_login.png') }}">
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        @if(Session::has('message'))
+                            <div class="alert alert-warning">{{ Session::get('message') }}</div>
+                        @endif
+                        <img src="{{ url('template/images/logo2.png') }}" width="100%">
+                        <h3>Welcome Back !</h3><br>
+                        <div class="card-body">
+                            <form method="POST" action="{{ route('login') }}">
+                                @csrf
+                                <div class="form-group">
+                                    <label for="email">{{ __('Email Address') }}</label>
+                                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                                    @error('email')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="row mb-0">
-                            <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Login') }}
-                                </button>
-
-                                @if (Route::has('password.request'))
-                                    <a class="btn btn-link" href="{{ route('password.request') }}">
-                                        {{ __('Forgot Your Password?') }}
-                                    </a>
-                                @endif
-                            </div>
+                                <div class="form-group">
+                                    <label for="password">{{ __('Password') }}</label>
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                                    @error('password')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                        Sign in
+                                    </button>
+                                    <hr>
+                                    @if (Route::has('password.request'))
+                                        <a href="{{ route('password.request') }}">
+                                            {{ __('Forgot Password?') }}
+                                        </a>
+                                    @endif
+                                    <div class="copyright">
+                                        <p>
+                                            Copyright ©2024 Prolink&nbsp;&nbsp; • Privacy policy&nbsp;&nbsp; • Terms of use
+                                        </p>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-@endsection
+        </body>
+</html>
+

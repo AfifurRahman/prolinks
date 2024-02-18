@@ -28,7 +28,9 @@
 							<td>-</td>
 							<td>-</td>
 							<td>
-								<a href="{{ route('backend.monitoring.detail', $client->client_id) }}" class="btn btn-primary btn-sm"><i class="fa fa-search"></i></a>
+								@if(\role::get_permission(array('detail-monitoring')))
+									<a href="{{ route('backend.monitoring.detail', $client->client_id) }}" class="btn btn-primary btn-sm"><i class="fa fa-search"></i></a>
+								@endif
 							</td>
 						</tr>
 					@endforeach

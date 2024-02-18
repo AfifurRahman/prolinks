@@ -13,12 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Auth::routes(['verify' => true]);
-
 /* SUPERADMIN */
 Route::get('/backend/login', 'App\Http\Controllers\Superadmin\Auth\LoginController@index')->name('backend-login');
 Route::post('/backend/process-login', 'App\Http\Controllers\Superadmin\Auth\LoginController@process_login')->name('process-login-backend');
@@ -68,3 +62,9 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Auth::routes(['verify' => true]);
+Route::group(['middleware' => ['auth', 'verified']], function () {
+	
+});
