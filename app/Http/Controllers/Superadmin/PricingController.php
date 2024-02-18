@@ -17,6 +17,8 @@ class PricingController extends Controller
 {
     public function index(Request $request)
     {
+    	\role::check_permission(array('list-pricing'));
+        
     	$titles = "PRICING";
     	$pricing = $this->get_pricing(NULL, $request);
     	
@@ -25,6 +27,8 @@ class PricingController extends Controller
 
     public function save(Request $request)
     {
+        \role::check_permission(array('add-pricing'));
+        
     	try {
 		  	\DB::beginTransaction();
 
@@ -77,6 +81,8 @@ class PricingController extends Controller
 
     public function delete($id)
     {
+    	\role::check_permission(array('delete-client'));
+       	
     	try {
     		\DB::beginTransaction();
 

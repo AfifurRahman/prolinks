@@ -7,7 +7,9 @@
 		}
 	</style>
 	<div class="card-box">
-		<a href="{{ route('backend.client.add') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Add Client</a>
+		@if(\role::get_permission(array('add-client')))
+			<a href="{{ route('backend.client.add') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Add Client</a>
+		@endif
 		<a href="{{ route('backend.client.list') }}" data-toggle="tooltip" title="reload page" class="btn btn-success"><i class="fa fa-refresh"></i></a><br><br>
 		<table id="tableClients" class="table table-bordered table-hover">
 			<thead>
@@ -40,9 +42,17 @@
 									<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Action
 									<span class="caret"></span></button>
 									<ul class="dropdown-menu">
-									    <li><a href="{{ route('backend.client.send-email', $client->client_id) }}" onclick="return confirm('are you sure send email this item ?')"><i class="fa fa-envelope"></i> Send Email</a></li>
-									    <li><a href="{{ route('backend.client.edit', $client->client_id) }}"><i class="fa fa-edit"></i> Edit</a></li>
-									    <li><a href="{{ route('backend.client.delete', $client->client_id) }}" onclick="return confirm('are you sure delete this item ?')"><i class="fa fa-trash"></i> Delete</a></li>
+										@if(\role::get_permission(array('send-email-client')))
+									    	<li><a href="{{ route('backend.client.send-email', $client->client_id) }}" onclick="return confirm('are you sure send email this item ?')"><i class="fa fa-envelope"></i> Send Email</a></li>
+									    @endif
+
+									    @if(\role::get_permission(array('edit-client')))
+									    	<li><a href="{{ route('backend.client.edit', $client->client_id) }}"><i class="fa fa-edit"></i> Edit</a></li>
+									    @endif
+
+									    @if(\role::get_permission(array('delete-client')))
+									    	<li><a href="{{ route('backend.client.delete', $client->client_id) }}" onclick="return confirm('are you sure delete this item ?')"><i class="fa fa-trash"></i> Delete</a></li>
+								  		@endif
 								  	</ul>
 								</div>
 							</td>

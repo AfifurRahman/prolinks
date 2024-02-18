@@ -19,6 +19,8 @@ class ClientController extends Controller
 {
     public function index(Request $request)
     {
+    	\role::check_permission(array('list-client'));
+
     	$titles = "CLIENTS";
     	$clients = $this->get_clients(NULL, $request);
     	
@@ -27,8 +29,9 @@ class ClientController extends Controller
 
     public function add($id=NULL)
     {
+        \role::check_permission(array('add-client'));
+      	
     	$titles = "ADD CLIENTS";
-    	
     	$clients = [];
     	if ($id != NULL) {
     		$titles = "EDIT CLIENTS";
@@ -41,6 +44,8 @@ class ClientController extends Controller
 
     public function save(Request $request)
     {
+    	\role::check_permission(array('add-client'));
+
     	try {
 		  	\DB::beginTransaction();
 
@@ -131,6 +136,8 @@ class ClientController extends Controller
 
     public function delete($id)
     {
+    	\role::check_permission(array('delete-client'));
+
     	try {
     		\DB::beginTransaction();
 
@@ -153,6 +160,8 @@ class ClientController extends Controller
 
     public function send_email($id)
     {
+    	\role::check_permission(array('send-email-client'));
+
     	try {
     		$users = User::select('users.id','users.email', 'clients.client_name')->join('clients', 'users.id', 'clients.user_id')->where('clients.client_id', $id)->first();
     		//send mail

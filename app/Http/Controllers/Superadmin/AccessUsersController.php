@@ -16,14 +16,9 @@ class AccessUsersController extends Controller
 {
     public function admin_management(Request $request)
     {
+        \role::check_permission(array('list-users'));
+
         $titles = "ADMIN MANAGEMENT";
-
-        /* set permission */
-        $permission = \role::get_permission(array('list-users'));
-        if ($permission == false) {
-            return redirect(route('backend.not-found'));
-        }
-
         $role = Role::get();
         $admin = AdminBackend::get();
 
@@ -32,14 +27,9 @@ class AccessUsersController extends Controller
 
     public function add_admin($id=NULL)
     {
+        \role::check_permission(array('add-users'));
+
         $titles = "ADD ADMIN MANAGEMENT";
-
-        /* set permission */
-        $permission = \role::get_permission(array('add-users'));
-        if ($permission == false) {
-            return redirect(route('backend.not-found'));
-        }
-
         $role = Role::get();
         $admin = [];
         if ($id != NULL) {
@@ -52,6 +42,8 @@ class AccessUsersController extends Controller
 
     public function save_admin(Request $request)
     {
+        \role::check_permission(array('add-users'));
+
         $id = $request->input('id');
         try {
             \DB::beginTransaction();
@@ -96,28 +88,18 @@ class AccessUsersController extends Controller
 
     public function role(Request $request)
     {
+        \role::check_permission(array('add-role'));
+        
         $titles = "ROLE";
-
-        /* set permission */
-        $permission = \role::get_permission(array('list-role'));
-        if ($permission == false) {
-            return redirect(route('backend.not-found'));
-        }
-
         $role = Role::get();
     	return view('superadmin.access_users.role', compact('titles','role'));
     }
 
     public function add_role($id=NULL)
     {
+        \role::check_permission(array('add-role'));
+
         $titles = "ADD ROLE";
-
-        /* set permission */
-        $permission = \role::get_permission(array('add-role'));
-        if ($permission == false) {
-            return redirect(route('backend.not-found'));
-        }
-
         $role = [];
         if ($id != NULL) {
             $titles = "EDIT ROLE";
@@ -129,6 +111,8 @@ class AccessUsersController extends Controller
 
     public function save_role(Request $request)
     {
+        \role::check_permission(array('add-role'));
+
         $id = $request->input('id');
         $access = $request->input('menu_access');
         try {
@@ -171,6 +155,8 @@ class AccessUsersController extends Controller
 
     public function delete_role($id)
     {
+        \role::check_permission(array('delete-role'));
+
         $delete = Role::where('id', $id)->delete();
         if ($delete) {
             Alert::success("Success", "role deleted !");

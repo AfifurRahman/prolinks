@@ -7,7 +7,9 @@
 		}
 	</style>
 	<div class="card-box">
-		<a href="#modal-add-pricing" data-toggle="modal" class="btn btn-primary"><i class="fa fa-plus"></i> Add Pricing</a>
+		@if(\role::get_permission(array('add-pricing')))
+			<a href="#modal-add-pricing" data-toggle="modal" class="btn btn-primary"><i class="fa fa-plus"></i> Add Pricing</a>
+		@endif
 		<a href="{{ route('backend.pricing.list') }}" data-toggle="tooltip" title="reload page" class="btn btn-success"><i class="fa fa-refresh"></i></a><br><br>
 		<table id="tablePricing" class="table table-bordered table-hover">
 			<thead>
@@ -36,8 +38,13 @@
 									<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Action
 									<span class="caret"></span></button>
 									<ul class="dropdown-menu">
-									    <li><a href="#modal-add-pricing" data-title="Edit Pricing" data-query="{{ $pricings }}" onclick="getDetail(this)" data-toggle="modal"><i class="fa fa-edit"></i> Edit</a></li>
-									    <li><a href="{{ route('backend.pricing.delete', $pricings->pricing_id) }}" onclick="return confirm('are you sure delete this item ?')"><i class="fa fa-trash"></i> Delete</a></li>
+										@if(\role::get_permission(array('edit-pricing')))
+									    	<li><a href="#modal-add-pricing" data-title="Edit Pricing" data-query="{{ $pricings }}" onclick="getDetail(this)" data-toggle="modal"><i class="fa fa-edit"></i> Edit</a></li>
+									    @endif
+
+									    @if(\role::get_permission(array('delete-pricing')))
+									    	<li><a href="{{ route('backend.pricing.delete', $pricings->pricing_id) }}" onclick="return confirm('are you sure delete this item ?')"><i class="fa fa-trash"></i> Delete</a></li>
+								  		@endif
 								  	</ul>
 								</div>
 							</td>

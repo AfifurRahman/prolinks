@@ -27,4 +27,12 @@ class RolesHelper
 
         return $result;
     }
+
+    public static function check_permission($allow_access)
+    {
+        $permission = \role::get_permission($allow_access);
+        if ($permission == false) {
+            abort(redirect(route('backend.not-found')));
+        }
+    }
 }

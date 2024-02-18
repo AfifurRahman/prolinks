@@ -15,28 +15,18 @@ class MonitoringClientController extends Controller
 {
     public function list()
     {
+        \role::check_permission(array('list-monitoring'));
+
         $titles = "MONITORING CLIENT";
-
-        /* set permission */
-        $permission = \role::get_permission(array('list-monitoring'));
-        if ($permission == false) {
-            return redirect(route('backend.not-found'));
-        }
-
         $clients = Client::where('client_status', \globals::set_status_active())->get();
     	return view('superadmin.monitoring_client.index', compact('titles', 'clients'));
     }
 
     public function detail($id)
     {
+        \role::check_permission(array('detail-monitoring'));
+
         $titles = "DETAIL MONITORING CLIENT";
-
-        /* set permission */
-        $permission = \role::get_permission(array('detail-monitoring'));
-        if ($permission == false) {
-            return redirect(route('backend.not-found'));
-        }
-
         $clients = Client::where('client_status', \globals::set_status_active())->where('client_id', $id)->first();
     	return view('superadmin.monitoring_client.detail', compact('titles', 'clients'));
     }
