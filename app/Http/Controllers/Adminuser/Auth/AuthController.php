@@ -21,6 +21,10 @@ class AuthController extends Controller
 
     public function save_password(Request $request, $token, $email)
     {
+        $this->validate($request, [
+            'password' => 'required|same:confirm_password',
+        ]);
+
     	try {
     		\DB::beginTransaction();
 
