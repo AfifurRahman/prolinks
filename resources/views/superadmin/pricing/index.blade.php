@@ -31,7 +31,7 @@
 							<td>{{ $pricings->pricing_name }}</td>
 							<td>{!! \globals::label_type_pricing($pricings->pricing_type) !!}</td>
 							<td>{{ !empty($pricings->duration) ? $pricings->duration.' Month' : '-' }}</td>
-							<td>{{ $pricings->allocation_size }}</td>
+							<td>{{ $pricings->allocation_size }} MB</td>
 							<td>{!! \globals::label_status($pricings->pricing_status) !!}</td>
 							<td>
 								<div class="dropdown">

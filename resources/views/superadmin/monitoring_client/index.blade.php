@@ -24,7 +24,7 @@
 						<tr>
 							<td>{{ $loop->iteration }}</td>
 							<td>{{ $client->client_name }}</td>
-							<td>-</td>
+							<td>{{ !empty($client->RefPricing->pricing_name) ? $client->RefPricing->pricing_name : '' }}</td>
 							<td>-</td>
 							<td>-</td>
 							<td>

@@ -39,7 +39,7 @@
     <div id="wrapper">
         <div class="topbar">
             <div class="topbar-left" style="background: #F1F5F9;">
-                <img src="{{ url('template/images/logo2.png') }}" width="100%">
+                <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 10px;">
             </div>
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
@@ -78,7 +78,7 @@
         <div class="content-page">
             <div class="content">
                 <div class="container">
-                    <div class="card-box" style="margin-top: 20px;">
+                    <div class="card-boxxs" style="margin-top: 20px;">
                         @yield('content')
                     </div>
                 </div>

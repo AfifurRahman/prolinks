@@ -237,6 +237,7 @@ body.fixed-left .side-menu.left {
   text-decoration: none;
   /*background-color: #313a46;*/
   background-color: #FFFFFF;
+  border-radius: 10px;
 }
 #sidebar-menu > ul > li > a > span {
   vertical-align: middle;
@@ -262,6 +263,7 @@ body.fixed-left .side-menu.left {
   background-color: #313a46;*/
   color: #586474 !important;
   background-color: #FFFFFF;
+  border-radius: 10px;
 }
 .menu-title {
   padding: 12px 20px !important;

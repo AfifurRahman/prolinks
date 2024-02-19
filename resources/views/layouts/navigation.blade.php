@@ -57,7 +57,7 @@
     }
 @endphp
 
-<div class="left side-menu" style="background: #F1F5F9;">
+<div class="left side-menu" style="background: #F1F5F9; padding: 10px;">
     <div class="sidebar-inner slimscrollleft">
         <div id="sidebar-menu">
             <ul>
