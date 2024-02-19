@@ -154,4 +154,14 @@ class GlobalHelper
 
         return $results;
     }
+
+    public static function create_pswd_client_yes()
+    {
+        return 1;
+    }
+
+    public static function create_pswd_client_no()
+    {
+        return 2;
+    }
 }

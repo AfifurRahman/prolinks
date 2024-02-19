@@ -15,6 +15,11 @@ class AuthController extends Controller
 {
     public function create_password(Request $request, $token)
     {
+        $check_set_pswd = $this->validate_check_set_pswd($token, $request->input('email'));
+        if ($check_set_pswd) {
+            return redirect(route('login'));
+        }
+
     	$email = $request->input('email');
     	return view('adminuser.auth.create_password', compact('email', 'token'));
     }
@@ -33,7 +38,8 @@ class AuthController extends Controller
     			$update = User::where('email', $email)->where('remember_token', $token)->update([
     				'email_verified_at' => date('Y-m-d H:i:s'),
     				'password' => Hash::make($request->input('password')),
-    			]);
+    			    'password_created' => \globals::create_pswd_client_yes()
+                ]);
 
     			if ($update) {
     				Session::flash('message', 'Password created !'); 
@@ -51,5 +57,17 @@ class AuthController extends Controller
     	}
 
     	return redirect(route('login'));
+    }
+
+    public function validate_check_set_pswd($token, $email)
+    {
+        $get_users = User::where('remember_token', $token)->where('email', $email)->first();
+
+        $result = false;
+        if (!empty($get_users->email) && $get_users->password_created == \globals::create_pswd_client_yes()) {
+            $result = true;
+        }
+
+        return $result;
     }
 }
