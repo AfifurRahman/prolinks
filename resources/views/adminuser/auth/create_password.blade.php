@@ -5,7 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>Prolinks | Login</title>
+        <title>Prolinks | Create Password</title>
+        <link rel="icon" type="image/x-icon" href="{{ url('template/images/favicon.png') }}">
         <link href="{{ url('template/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
         <style type="text/css">
             body {

@@ -41,7 +41,7 @@
         <div class="topbar">
             <div class="topbar-left" style="background: #F1F5F9;">
                 <a href="{{ route('backend.dashboard') }}">
-                    <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 8px;">
+                    <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 10px;">
                 </a>
             </div>
             <div class="navbar navbar-default" role="navigation">

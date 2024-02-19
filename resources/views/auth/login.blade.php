@@ -6,6 +6,7 @@
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Prolinks | Login</title>
+        <link rel="icon" type="image/x-icon" href="{{ url('template/images/favicon.png') }}">
         <link href="{{ url('template/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
         <style type="text/css">
             body {
@@ -26,6 +27,19 @@
 
             .card h3 {
                 font-size: 28px;
+            }
+
+            .copyright {
+                margin-top: 20px;
+            }
+
+            .copyright p {
+                color: #999;
+                font-size: 11px;
+            }
+
+            .copyright a {
+                color: #999;
             }
         </style>
     </head>
@@ -75,7 +89,7 @@
                                     @endif
                                     <div class="copyright">
                                         <p>
-                                            Copyright ©2024 Prolink&nbsp;&nbsp; • Privacy policy&nbsp;&nbsp; • Terms of use
+                                            Copyright ©2024 Prolinks&nbsp;&nbsp; • <a href="">Privacy policy</a>&nbsp;&nbsp; • <a href="">Terms of use</a>
                                         </p>
                                     </div>
                                 </div>
