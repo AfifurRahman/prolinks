@@ -367,5 +367,5 @@
         	<td class="container">
           		<div class="content">
           			<div align="center" style="margin-bottom: 10px;">
-          				<img class="fluid image-responsive image-size" src="{{ url('template/images/logo.png') }}" alt="Prolinks Logo" style="width: 128px; height: 34px;">
+          				<img class="fluid image-responsive image-size" src="{{ url('template/images/logo2.png') }}" alt="Prolinks Logo" style="width: 128px; height: 34px;">
           			</div>

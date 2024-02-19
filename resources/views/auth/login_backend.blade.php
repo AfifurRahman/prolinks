@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Prolinks | Backend Login</title>
+        <link rel="icon" type="image/x-icon" href="{{ url('template/images/favicon.png') }}">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -24,7 +25,7 @@
                     <div class="col-sm-12">
                         <div class="wrapper-page">
                             <div align="center">
-                                <img src="{{ url('template/images/logo2.png') }}" width="300" height="100">
+                                <img src="{{ url('template/images/logo2.png') }}" width="300" height="80">
                             </div>
                             <div class="m-t-20 account-pages">
                                 <div class="text-center account-logo-box">

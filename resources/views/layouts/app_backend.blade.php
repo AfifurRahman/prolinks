@@ -8,6 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Prolinks | Backend') }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url('template/images/favicon.png') }}">
     <link href="{{ url('template/plugins/datatables/jquery.dataTables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ url('template/plugins/datatables/dataTables.bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
 
@@ -39,7 +40,9 @@
     <div id="wrapper">
         <div class="topbar">
             <div class="topbar-left" style="background: #F1F5F9;">
-                <img src="{{ url('template/images/logo2.png') }}" width="100%">
+                <a href="{{ route('backend.dashboard') }}">
+                    <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 8px;">
+                </a>
             </div>
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">

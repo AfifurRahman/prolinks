@@ -21,7 +21,7 @@
 
             .card img {
                 width: 200px;
-                height: 70px;
+                height: 50px;
             }
 
             .card h3 {
