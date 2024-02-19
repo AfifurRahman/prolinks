@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/run-migrations', function () {
+    return Artisan::call('migrate', ["--path" => "database/migrations", "--force" => true]);
+});
 
 /* SUPERADMIN */
 Route::get('/backend/login', 'App\Http\Controllers\Superadmin\Auth\LoginController@index')->name('backend-login');
