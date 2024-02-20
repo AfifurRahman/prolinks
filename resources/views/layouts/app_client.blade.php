@@ -45,9 +45,10 @@
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
-                        <li style="margin-left: -30px;">
+                        <li style="margin-left: -35px;">
                             <button class="button-menu-mobile open-left waves-effect">
-                                <i class="fa fa-chevron-circle-left" style="color: #666;"></i>
+                                <img src="{{ url('template/images/icon-expand.png') }}" style="margin-top: 20px;" width="30" height="30">
+                                <!-- <i class="fa fa-chevron-circle-left" style="color: #666;"></i> -->
                             </button>
                         </li>
                         <li style="margin-top: 10px;">
