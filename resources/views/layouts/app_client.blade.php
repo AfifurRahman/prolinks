@@ -39,15 +39,18 @@
     <div id="wrapper">
         <div class="topbar">
             <div class="topbar-left" style="background: #F1F5F9;">
-                <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 10px;">
+                <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 12px;">
             </div>
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
-                        <li>
+                        <li style="margin-left: -30px;">
                             <button class="button-menu-mobile open-left waves-effect">
-                                <i class="mdi mdi-menu"></i>
+                                <i class="fa fa-chevron-circle-left" style="color: #666;"></i>
                             </button>
+                        </li>
+                        <li style="margin-top: 10px;">
+                            <h2>Activities</h2>
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
