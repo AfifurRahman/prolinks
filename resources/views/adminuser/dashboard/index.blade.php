@@ -222,7 +222,7 @@
 		        },
 		        series: [{
 		        	type: 'areaspline',
-		            name: 'New Users',
+		            name: 'Users',
 		            data: userData
 		        }],
 		        responsive: {

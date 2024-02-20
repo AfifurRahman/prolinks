@@ -18,8 +18,12 @@
       $("#wrapper").addClass("forced");
 
       if($("#wrapper").hasClass("enlarged") && $("body").hasClass("fixed-left")) {
+        $("#view_primary_logo").css("display", "none");
+        $("#view_fav_logo").css("display", "block");
         $("body").removeClass("fixed-left").addClass("fixed-left-void");
       } else if(!$("#wrapper").hasClass("enlarged") && $("body").hasClass("fixed-left-void")) {
+        $("#view_primary_logo").css("display", "block");
+        $("#view_fav_logo").css("display", "none");
         $("body").removeClass("fixed-left-void").addClass("fixed-left");
       }
 
