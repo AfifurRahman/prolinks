@@ -65,6 +65,18 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 	Route::get('/not-found', 'App\Http\Controllers\Superadmin\DashboardController@not_found')->name('backend.not-found');
 });
 
+/* ADMINUSER AUTH */
+
+
+Route::group(['middleware' => 'auth'], function () {
+	Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
+	Route::get('/users/invite-user', 'App\Http\Controllers\Adminuser\AccessUsersController@invite_user')->name('adminuser.access-users.invite-user');
+	Route::get('/users/create-group', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
+	
+});
+
+
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

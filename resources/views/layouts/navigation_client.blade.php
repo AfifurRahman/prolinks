@@ -12,7 +12,7 @@
                     <a href="www" class="waves-effect"><i class="mdi mdi-view-dashboard"></i><span> Activities </span></a>
                 </li>
                 <li>
-                    <a href="qqq" class="waves-effect"><i class="fa fa-key"></i><span> Access Users </span></a>
+                    <a href="{{ route('adminuser.access-users.list') }}" class="waves-effect"><i class="fa fa-key"></i><span> Access Users </span></a>
                 </li>
                 <li>
                     <a href="kkk" class="waves-effect"><i class="fa fa-cogs"></i><span> Project </span></a>
