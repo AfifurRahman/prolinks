@@ -9,7 +9,7 @@
             <ul>
                 <li class="menu-title">MAIN MENU</li>
                 <li>
-                    <a href="www" class="waves-effect"><i class="mdi mdi-view-dashboard"></i><span> Activities </span></a>
+                    <a href="/" class="waves-effect"><i class="mdi mdi-view-dashboard"></i><span> Activities </span></a>
                 </li>
                 <li>
                     <a href="{{ route('adminuser.access-users.list') }}" class="waves-effect"><i class="fa fa-key"></i><span> Access Users </span></a>

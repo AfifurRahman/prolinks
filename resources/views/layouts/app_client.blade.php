@@ -57,27 +57,14 @@
                             </button>
                         </li>
                         <li style="margin-top: 10px;">
-                            <h2>Activities</h2>
+                            <h2 id="title" style="color:black">Activities</h2>
                         </li>
                     </ul>
+                    
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown user-box">
-                            <a href="javascript:void(0);" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown" aria-expanded="true">
-                                <img src="{{ url('template/images/default-user.png') }}" alt="user-img" class="img-circle user-img">
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right user-list notify-list">
-                                <li>
-                                    <h5>Hi, {{ Auth::user()->name }}</h5>
-                                </li>
-                                <li><a href="{{ route('backend.profile') }}"><i class="ti-user m-r-5"></i> Profile</a></li>
-                                <li>
-                                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
+                        <div style="margin-top: 10px;">
+                            @yield('navigationbar')
+                        </div>
                     </ul>
                 </div>
             </div>
