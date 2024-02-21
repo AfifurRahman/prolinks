@@ -65,10 +65,11 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 	Route::get('/not-found', 'App\Http\Controllers\Superadmin\DashboardController@not_found')->name('backend.not-found');
 });
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
 Auth::routes(['verify' => true]);
 Route::group(['middleware' => ['auth', 'verified']], function () {
-	
+	Route::get('/project/create-new-project', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('create-new-project');
+	Route::group(['middleware' => ['verify_project']], function () {
+		Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+		Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+	});
 });
