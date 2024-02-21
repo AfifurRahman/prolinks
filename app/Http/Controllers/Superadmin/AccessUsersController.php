@@ -20,7 +20,7 @@ class AccessUsersController extends Controller
 
         $titles = "ADMIN MANAGEMENT";
         $role = Role::get();
-        $admin = AdminBackend::get();
+        $admin = AdminBackend::where('id', '!=', Auth::guard('backend')->user()->id)->get();
 
     	return view('superadmin.access_users.admin_management', compact('titles', 'role', 'admin'));
     }

@@ -8,6 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Prolinks | Backend') }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url('template/images/favicon.png') }}">
     <link href="{{ url('template/plugins/datatables/jquery.dataTables.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ url('template/plugins/datatables/dataTables.bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
 
@@ -39,15 +40,24 @@
     <div id="wrapper">
         <div class="topbar">
             <div class="topbar-left" style="background: #F1F5F9;">
-                <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 10px;">
+                <div id="view_primary_logo" style="display: block;">
+                    <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 12px;">
+                </div>
+                <div id="view_fav_logo" style="display: none;">
+                    <img src="{{ url('template/images/logo_fav.png') }}" width="90%">
+                </div>
             </div>
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
-                        <li>
+                        <li style="margin-left: -35px;">
                             <button class="button-menu-mobile open-left waves-effect">
-                                <i class="mdi mdi-menu"></i>
+                                <img src="{{ url('template/images/icon-expand.png') }}" style="margin-top: 20px;" width="30" height="30">
+                                <!-- <i class="fa fa-chevron-circle-left" style="color: #666;"></i> -->
                             </button>
+                        </li>
+                        <li style="margin-top: 10px;">
+                            <h2>Activities</h2>
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
