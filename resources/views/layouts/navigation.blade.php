@@ -61,7 +61,7 @@
     <div class="sidebar-inner slimscrollleft">
         <div id="sidebar-menu">
             <ul>
-                <li class="menu-title">Navigation</li>
+                <li class="menu-title">MAIN MENU</li>
                 @if(in_array("dashboard", $userRole))
                     <li>
                         <a href="{{ route('backend.dashboard') }}" class="waves-effect"><i class="mdi mdi-view-dashboard"></i><span> Dashboard </span></a>
@@ -103,6 +103,15 @@
                         <a href="{{ route('backend.monitoring.list') }}" class="waves-effect"><i class="mdi mdi-laptop-mac"></i><span> Monitoring </span></a>
                     </li>
                 @endif
+            </ul>
+            <ul style="margin-top: 230px;">
+                <li><a href="{{ route('backend.profile') }}"><i class="ti-user m-r-5"></i> Profile</a></li>
+                <li>
+                    <a href="{{ route('backend-logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
+                    <form id="logout-form" action="{{ route('backend-logout') }}" method="POST" class="d-none">
+                        @csrf
+                    </form>
+                </li>
             </ul>
         </div>
     </div>

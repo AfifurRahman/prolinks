@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\URL;
 use Auth;
 use App\Models\User;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\Project;
 
 class GlobalHelper
 {
@@ -87,9 +88,9 @@ class GlobalHelper
     {
         $results = "";
         if($status == \globals::set_status_active()){
-            $results = '<label class="label label-success"><i class="fa fa-check"></i> ACTIVE</label>';
+            $results = '<label class="label label-success" style="border-radius:10px;"><i class="fa fa-check"></i> ACTIVE</label>';
         }elseif($status == \globals::set_status_nonactive()){
-            $results = '<label class="label label-danger"><i class="fa fa-remove"></i> NON ACTIVE</label>';
+            $results = '<label class="label label-danger" style="border-radius:10px;"><i class="fa fa-remove"></i> NON ACTIVE</label>';
         }
 
         return $results;
@@ -147,9 +148,9 @@ class GlobalHelper
     {
         $results = "";
         if($type == \globals::set_type_pricing_allocation_only()){
-            $results = '<label class="label label-inverse"> Allocation Only</label>';
+            $results = '<label class="label label-inverse" style="border-radius:10px;"> Allocation Only</label>';
         }elseif($type == \globals::set_type_pricing_allocation_date()){
-            $results = '<label class="label label-inverse"> Allocation & Duration</label>';
+            $results = '<label class="label label-inverse" style="border-radius:10px;"> Allocation & Duration</label>';
         }
 
         return $results;
@@ -163,5 +164,11 @@ class GlobalHelper
     public static function create_pswd_client_no()
     {
         return 2;
+    }
+
+    public static function get_project_sidebar()
+    {
+        $models = Project::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->get();
+        return $models;
     }
 }

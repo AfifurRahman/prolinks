@@ -1,6 +1,10 @@
 @extends('layouts.app_backend')
 
 @section('content')
+    <script type="text/javascript">
+        var title = document.getElementById('title');
+        title.textContent = "Dashboard";
+    </script>
 	<div class="row">
         <div class="col-lg-2 col-md-4 col-sm-6">
             <div class="card-box widget-box-one">

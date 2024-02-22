@@ -41,36 +41,31 @@
         <div class="topbar">
             <div class="topbar-left" style="background: #F1F5F9;">
                 <a href="{{ route('backend.dashboard') }}">
-                    <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 10px;">
+                    <div id="view_primary_logo" style="display: block;">
+                        <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 10px;">
+                    </div>
+                    <div id="view_fav_logo" style="display: none;">
+                        <img src="{{ url('template/images/logo_fav.png') }}" width="90%">
+                    </div>
                 </a>
             </div>
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
-                        <li>
+                        <li style="margin-left: -35px;">
                             <button class="button-menu-mobile open-left waves-effect">
-                                <i class="mdi mdi-menu"></i>
+                                <img src="{{ url('template/images/icon-expand.png') }}" style="margin-top: 20px;" width="30" height="30">
+                                <!-- <i class="fa fa-chevron-circle-left" style="color: #666;"></i> -->
                             </button>
+                        </li>
+                        <li style="margin-top: 10px;">
+                            <h2 id="title" style="color:black">Dashboard</h2>
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown user-box">
-                            <a href="javascript:void(0);" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown" aria-expanded="true">
-                                <img src="{{ url('template/images/default-user.png') }}" alt="user-img" class="img-circle user-img">
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right user-list notify-list">
-                                <li>
-                                    <h5>Hi, {{ Auth::guard('backend')->user()->first_name." ".Auth::guard('backend')->user()->last_name }}</h5>
-                                </li>
-                                <li><a href="{{ route('backend.profile') }}"><i class="ti-user m-r-5"></i> Profile</a></li>
-                                <li>
-                                    <a href="{{ route('backend-logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
-                                    <form id="logout-form" action="{{ route('backend-logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
+                        <div style="margin-top: 13px;">
+                            @yield('navigations')
+                        </div>
                     </ul>
                 </div>
             </div>
@@ -81,18 +76,9 @@
         <div class="content-page">
             <div class="content">
                 <div class="container">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="page-title-box">
-                                <h4 class="page-title panel-title">{{ !empty($titles) ? $titles : '' }}</h4>
-                                <ol class="breadcrumb p-0 m-0">
-                                    {!! globals::get_breadcumbs_backend() !!}
-                                </ol>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
+                    <div style="padding: 20px; margin-top: 10px;">
+                        @yield('content')
                     </div>
-                    @yield('content')
                 </div>
             </div>
         </div>

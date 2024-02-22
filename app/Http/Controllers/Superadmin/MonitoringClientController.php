@@ -28,6 +28,7 @@ class MonitoringClientController extends Controller
 
         $titles = "DETAIL MONITORING CLIENT";
         $clients = Client::where('client_status', \globals::set_status_active())->where('client_id', $id)->first();
-    	return view('superadmin.monitoring_client.detail', compact('titles', 'clients'));
+    	$client = Client::where('client_status', \globals::set_status_active())->get();
+        return view('superadmin.monitoring_client.detail', compact('titles', 'clients', 'client'));
     }
 }

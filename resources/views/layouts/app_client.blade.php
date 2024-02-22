@@ -22,6 +22,10 @@
     <link href="{{ url('template/css/pages.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ url('template/css/menu.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ url('template/css/responsive.css') }}" rel="stylesheet" type="text/css" />
+    
+    <link href="{{ url('template/plugins/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ url('template/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" />
+
     <style type="text/css">
         .box-saldo {
             border: dashed 1px #CCC;
@@ -57,27 +61,14 @@
                             </button>
                         </li>
                         <li style="margin-top: 10px;">
-                            <h2>Activities</h2>
+                            <h2 id="title" style="color:black">Activities</h2>
                         </li>
                     </ul>
+                    
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown user-box">
-                            <a href="javascript:void(0);" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown" aria-expanded="true">
-                                <img src="{{ url('template/images/default-user.png') }}" alt="user-img" class="img-circle user-img">
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right user-list notify-list">
-                                <li>
-                                    <h5>Hi, {{ Auth::user()->name }}</h5>
-                                </li>
-                                <li><a href="{{ route('backend.profile') }}"><i class="ti-user m-r-5"></i> Profile</a></li>
-                                <li>
-                                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
+                        <div style="margin-top: 10px;">
+                            @yield('navigationbar')
+                        </div>
                     </ul>
                 </div>
             </div>
@@ -125,6 +116,9 @@
 
     <script src="{{ url('template/js/jquery.dashboard.js') }}"></script>
 
+    <!-- select2 -->
+    <script src="{{ url('template/plugins/select2/js/select2.min.js') }}" type="text/javascript"></script>
+    <script src="{{ url('template/plugins/bootstrap-select/js/bootstrap-select.min.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
         $("input[data-type='currency']").on({
             keyup: function() {
@@ -133,6 +127,12 @@
             blur: function() { 
               formatCurrency($(this), "blur");
             }
+        });
+
+        $(".select2").select2();
+
+        $("#main_project_id").change(function(){
+            $("#app-change-project").submit();
         });
 
         function formatNumber(n) {

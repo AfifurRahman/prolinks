@@ -46,7 +46,7 @@ class PricingController extends Controller
 		  		]);
 
 		  		if ($update) {
-			  		Alert::success('Success', 'Client updated !');
+			  		Alert::success('Success', 'Pricing updated !');
 			  	}else{
 			  		Alert::error('Error', 'Failed');
 			  	}
@@ -81,7 +81,7 @@ class PricingController extends Controller
 
     public function delete($id)
     {
-    	\role::check_permission(array('delete-client'));
+    	\role::check_permission(array('delete-pricing'));
        	
     	try {
     		\DB::beginTransaction();
@@ -103,7 +103,7 @@ class PricingController extends Controller
     	return back();
     }
 
-    private function get_pricing($client_id=NULL, $request)
+    private function get_pricing($pricing_id=NULL, $request)
     {
     	$model = Pricing::select('*');
 
@@ -123,10 +123,10 @@ class PricingController extends Controller
             $model->where('created_by', $request->input('created_by'));
         }
 
-        if ($client_id != NULL) {
-        	return $model->where('client_id', $client_id)->first();
+        if ($pricing_id != NULL) {
+        	return $model->where('pricing_id', $pricing_id)->first();
         }else{
-        	return $model->get();
+        	return $model->orderBy('id', 'DESC')->get();
         }
         
     }
