@@ -66,8 +66,6 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 });
 
 /* ADMINUSER AUTH */
-
-
 Route::group(['middleware' => 'auth'], function () {
 	Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
 	Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
@@ -76,8 +74,17 @@ Route::group(['middleware' => 'auth'], function () {
 });
 
 
-
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Auth::routes(['verify' => true]);
+Route::group(['middleware' => ['auth', 'verified']], function () {
+	Route::get('/project/create-new-project', 'App\Http\Controllers\Adminuser\FirstProjectController@create_first_project')->name('create-new-project');
+	Route::post('/project/save-first-project', 'App\Http\Controllers\Adminuser\FirstProjectController@save_first_project')->name('project.save-first-project');
+	Route::group(['middleware' => ['verify_project']], function () {
+		Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+		Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+		Route::post('change-main-project', 'App\Http\Controllers\Adminuser\ProjectController@change_main_project')->name('project.change-main-project');
+	});
+});
+

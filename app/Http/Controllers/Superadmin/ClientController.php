@@ -93,6 +93,7 @@ class ClientController extends Controller
 		  		if ($clients->save()) {
 
 		  			$users = new User;
+		  			$users->user_id = Str::uuid(4);
 		  			$users->name = $clients->client_name;
 		  			$users->email = $clients->client_email;
 		  			$users->type = \globals::set_usertype_admin();
@@ -100,7 +101,7 @@ class ClientController extends Controller
 		  			
 		  			if ($users->save()) {
 		  				Client::where('id', $clients->id)->update([
-		  					'user_id' => $users->id
+		  					'user_id' => $users->user_id
 		  				]);
 
 		  				//send mail
@@ -213,7 +214,7 @@ class ClientController extends Controller
         if ($client_id != NULL) {
         	return $model->where('client_id', $client_id)->first();
         }else{
-        	return $model->get();
+        	return $model->orderBy('id', 'DESC')->get();
         }
         
     }

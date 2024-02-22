@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\URL;
 use Auth;
 use App\Models\User;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\Project;
 
 class GlobalHelper
 {
@@ -38,18 +39,33 @@ class GlobalHelper
         return $bytes;
 	}
 
-    public static function formatBytes2($bytes, $precision = 2) { 
-        $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
-       
-        $bytes = max($bytes, 0); 
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-        $pow = min($pow, count($units) - 1); 
-       
-        // Uncomment one of the following alternatives
-        // $bytes /= pow(1024, $pow);
-        // $bytes /= (1 << (10 * $pow)); 
-       
-        return round($bytes, $precision) . $units[$pow]; 
+    public static function formatBytes2($bytes) { 
+        if ($bytes >= 1073741824)
+        {
+            $bytes = number_format($bytes / 1073741824);
+        }
+        elseif ($bytes >= 1048576)
+        {
+            $bytes = number_format($bytes / 1048576);
+        }
+        elseif ($bytes >= 1024)
+        {
+            $bytes = number_format($bytes / 1024);
+        }
+        elseif ($bytes > 1)
+        {
+            $bytes = $bytes;
+        }
+        elseif ($bytes == 1)
+        {
+            $bytes = $bytes;
+        }
+        else
+        {
+            $bytes = 0;
+        }
+
+        return $bytes;
     } 
 	
 	public static function get_breadcumbs_backend()
@@ -87,9 +103,9 @@ class GlobalHelper
     {
         $results = "";
         if($status == \globals::set_status_active()){
-            $results = '<label class="label label-success"><i class="fa fa-check"></i> ACTIVE</label>';
+            $results = '<label class="label label-success" style="border-radius:10px;"><i class="fa fa-check"></i> ACTIVE</label>';
         }elseif($status == \globals::set_status_nonactive()){
-            $results = '<label class="label label-danger"><i class="fa fa-remove"></i> NON ACTIVE</label>';
+            $results = '<label class="label label-danger" style="border-radius:10px;"><i class="fa fa-remove"></i> NON ACTIVE</label>';
         }
 
         return $results;
@@ -147,9 +163,9 @@ class GlobalHelper
     {
         $results = "";
         if($type == \globals::set_type_pricing_allocation_only()){
-            $results = '<label class="label label-inverse"> Allocation Only</label>';
+            $results = '<label class="label label-inverse" style="border-radius:10px;"> Allocation Only</label>';
         }elseif($type == \globals::set_type_pricing_allocation_date()){
-            $results = '<label class="label label-inverse"> Allocation & Duration</label>';
+            $results = '<label class="label label-inverse" style="border-radius:10px;"> Allocation & Duration</label>';
         }
 
         return $results;
@@ -163,5 +179,11 @@ class GlobalHelper
     public static function create_pswd_client_no()
     {
         return 2;
+    }
+
+    public static function get_project_sidebar()
+    {
+        $models = Project::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->get();
+        return $models;
     }
 }

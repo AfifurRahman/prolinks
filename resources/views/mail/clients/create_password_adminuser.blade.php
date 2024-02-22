@@ -6,7 +6,7 @@
         <tr>
           <td>
             <hr class="hr-custom">
-            Dear, {{ !empty($details['client_name']) ? $details['client_name'] : '' }} <br><br>
+            Dear {{ !empty($details['client_name']) ? $details['client_name'] : '' }}, <br><br>
             Your account has been created, <br>
             please create your password click on the button below : <br><br>
             <a href="{{ !empty($details['link']) ? $details['link'] : '' }}" class="btn-custom">Create Password</a><br><br>

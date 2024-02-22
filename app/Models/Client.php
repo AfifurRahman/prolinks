@@ -13,7 +13,7 @@ class Client extends Model
 
     public function RefUser()
     {
-        return $this->hasOne('App\Models\User', 'id' , 'user_id');
+        return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
     }
 
     public function RefPricing()
