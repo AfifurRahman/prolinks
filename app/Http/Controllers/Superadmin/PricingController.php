@@ -35,13 +35,29 @@ class PricingController extends Controller
 		  	$id = $request->input('id');
 
 		  	if ($id != NULL) {
+                $size_type = $request->input('size_type');
+                $convt_allocation = 0;
+                if ($size_type == "MB") {
+                    $convt_allocation = \globals::formatBytes2($request->input('allocation_size')) * 1048576;
+                }elseif ($size_type == "GB") {
+                    $convt_allocation = \globals::formatBytes2($request->input('allocation_size')) * 1073741824;
+                }
+
+                $new_size_type = "";
+                if ($convt_allocation >= 1073741824){
+                    $new_size_type = "GB";
+                }elseif ($convt_allocation >= 1048576) {
+                    $new_size_type = "MB";
+                }
+
 		  		$update = Pricing::where('id', $id)->update([
 		  			'pricing_name' => $request->input('pricing_name'),
 		  			'pricing_desc' => $request->input('pricing_desc'),
 		  			'pricing_type' => $request->input('pricing_type'),
 		  			'duration' => $request->input('duration'),
-		  			'allocation_size' => $request->input('allocation_size'),
-		  			'updated_by' => Auth::guard('backend')->user()->id,
+		  			'allocation_size' => $convt_allocation,
+		  			'size_type' => $new_size_type,
+                    'updated_by' => Auth::guard('backend')->user()->id,
 		  			'updated_at' => date("Y-m-d H:i:s")
 		  		]);
 
@@ -70,9 +86,9 @@ class PricingController extends Controller
                 }
 
                 $new_size_type = "";
-                if ($size_type >= 1073741824){
+                if ($convt_allocation >= 1073741824){
                     $new_size_type = "GB";
-                }elseif ($size_type >= 1048576) {
+                }elseif ($convt_allocation >= 1048576) {
                     $new_size_type = "MB";
                 }
 
