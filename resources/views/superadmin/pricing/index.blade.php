@@ -75,7 +75,7 @@
 						<td>{{ $pricings->pricing_name }}</td>
 						<td>{!! \globals::label_type_pricing($pricings->pricing_type) !!}</td>
 						<td>{{ !empty($pricings->duration) ? $pricings->duration.' Month' : '-' }}</td>
-						<td>{{ $pricings->allocation_size }} MB</td>
+						<td>{{ \globals::formatBytes($pricings->allocation_size) }}</td>
 						<td>{!! \globals::label_status($pricings->pricing_status) !!}</td>
 						<td width="120">
 							<div class="dropdown">
@@ -84,7 +84,7 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-top">
 									@if(\role::get_permission(array('edit-pricing')))
-								    	<li><a href="#modal-add-pricing" data-title="Edit Pricing" data-query="{{ $pricings }}" onclick="getDetail(this)" data-toggle="modal"><i class="fa fa-edit"></i> Edit</a></li>
+								    	<li><a href="#modal-add-pricing" data-title="Edit Pricing" data-query="{{ $pricings }}" data-size="{{ \globals::formatBytes2($pricings->allocation_size) }}" onclick="getDetail(this)" data-toggle="modal"><i class="fa fa-edit"></i> Edit</a></li>
 								    @endif
 
 								    @if(\role::get_permission(array('delete-pricing')))
@@ -123,11 +123,23 @@
 							<label>Pricing Name <span class="text-danger">*</span></label>
 							<input required type="text" name="pricing_name" id="pricing_name" class="form-control">
 						</div>
-						<div class="form-group" id="filterAllocation" style="display: none;">
-							<label>Allocation Size <span class="text-danger">*</span></label>
-							<div class="input-group">
+						<div id="filterAllocation" class="row" style="margin-bottom: 15px; display: none;">
+							<div class="col-md-9">
+								<label>Allocation Size <span class="text-danger">*</span></label>
 								<input type="text" name="allocation_size" id="allocation_size" class="form-control">
-								<span class="input-group-addon">MB</span>
+								<div style="border: solid 2px #CCC; border-radius: 10px; margin-top: 5px; padding: 5px;">
+									<small class="text-danger">
+										Guide : <br>
+										1 GB = 1,024 MB
+									</small>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<label>&nbsp;</label>
+								<select name="size_type" id="size_type" class="form-control">
+									<option value="MB">MB</option>
+									<option value="GB">GB</option>
+								</select>
 							</div>
 						</div>
 						<div class="form-group" id="filterDuration" style="display: none;">
@@ -186,15 +198,17 @@
         function getDetail(element) {
         	var title = $(element).data('title');
         	var query = $(element).data('query');
-
+        	var allocation_sizes = $(element).data('size');
+        	
         	$("#titleModal").html(title);
         	
         	$("#id").val(query.id);
         	$("#pricing_type").val(query.pricing_type).trigger('change');
-	    		$("#pricing_name").val(query.pricing_name);
-	    		$("#allocation_size").val(query.allocation_size);
-	    		$("#duration").val(query.duration);
-	    		$("#pricing_desc").val(query.pricing_desc);
+    		$("#pricing_name").val(query.pricing_name);
+    		$("#allocation_size").val(allocation_sizes);
+    		$("#size_type").val(query.size_type).trigger('change');
+    		$("#duration").val(query.duration);
+    		$("#pricing_desc").val(query.pricing_desc);
 
         	if (query.pricing_type == 1) {
         		$("#filterPricingName").css("display", "block");

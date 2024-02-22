@@ -39,18 +39,33 @@ class GlobalHelper
         return $bytes;
 	}
 
-    public static function formatBytes2($bytes, $precision = 2) { 
-        $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
-       
-        $bytes = max($bytes, 0); 
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-        $pow = min($pow, count($units) - 1); 
-       
-        // Uncomment one of the following alternatives
-        // $bytes /= pow(1024, $pow);
-        // $bytes /= (1 << (10 * $pow)); 
-       
-        return round($bytes, $precision) . $units[$pow]; 
+    public static function formatBytes2($bytes) { 
+        if ($bytes >= 1073741824)
+        {
+            $bytes = number_format($bytes / 1073741824);
+        }
+        elseif ($bytes >= 1048576)
+        {
+            $bytes = number_format($bytes / 1048576);
+        }
+        elseif ($bytes >= 1024)
+        {
+            $bytes = number_format($bytes / 1024);
+        }
+        elseif ($bytes > 1)
+        {
+            $bytes = $bytes;
+        }
+        elseif ($bytes == 1)
+        {
+            $bytes = $bytes;
+        }
+        else
+        {
+            $bytes = 0;
+        }
+
+        return $bytes;
     } 
 	
 	public static function get_breadcumbs_backend()

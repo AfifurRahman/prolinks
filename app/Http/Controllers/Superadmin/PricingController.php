@@ -57,10 +57,27 @@ class PricingController extends Controller
 		  		$pricing->pricing_desc = $request->input('pricing_desc');
 	  			$pricing->pricing_type = $request->input('pricing_type');
 	  			$pricing->duration = $request->input('duration');
-	  			$pricing->allocation_size = $request->input('allocation_size');
 	  			$pricing->pricing_status = 1;
 	  			$pricing->created_by = Auth::guard('backend')->user()->id;
 	  			$pricing->created_at = date("Y-m-d H:i:s");
+
+                $size_type = $request->input('size_type');
+                $convt_allocation = 0;
+                if ($size_type == "MB") {
+                    $convt_allocation = (int)$request->input('allocation_size') * 1048576;
+                }elseif ($size_type == "GB") {
+                    $convt_allocation = (int)$request->input('allocation_size') * 1073741824;
+                }
+
+                $new_size_type = "";
+                if ($size_type >= 1073741824){
+                    $new_size_type = "GB";
+                }elseif ($size_type >= 1048576) {
+                    $new_size_type = "MB";
+                }
+
+                $pricing->allocation_size = $convt_allocation;
+                $pricing->size_type = $new_size_type;
 
 		  		if ($pricing->save()) {
 			  		Alert::success('Success', 'Pricing added !');
