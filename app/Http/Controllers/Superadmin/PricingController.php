@@ -64,9 +64,9 @@ class PricingController extends Controller
                 $size_type = $request->input('size_type');
                 $convt_allocation = 0;
                 if ($size_type == "MB") {
-                    $convt_allocation = (int)$request->input('allocation_size') * 1048576;
+                    $convt_allocation = $request->input('allocation_size') * 1048576;
                 }elseif ($size_type == "GB") {
-                    $convt_allocation = (int)$request->input('allocation_size') * 1073741824;
+                    $convt_allocation = $request->input('allocation_size') * 1073741824;
                 }
 
                 $new_size_type = "";
