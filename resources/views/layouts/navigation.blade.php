@@ -107,7 +107,7 @@
             
             
         </div>
-        <div style="position: absolute; bottom: 0; margin-bottom: 40px; border-top: solid 1px #CCC; padding: 10px; width: 90%;">
+        <div style="position: absolute; bottom: 0; margin-bottom: 40px; border-top: solid 1px #CCC; padding: 10px;">
             <div class="btn-group dropup">
                 <button type="button" class="btn" style="border: solid 0px; background: transparent;">
                     <div class="auth-client-name">
