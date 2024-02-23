@@ -33,6 +33,21 @@
             height: 100%;
             border-radius: 50%;
         }
+
+        .auth-client-name {
+            display: inline-block;
+        }
+
+        .auth-client-name h5 {
+            text-align: left;
+        }
+
+        .auth-client-name span {
+            text-align: left;
+            display: block;
+            text-align: left;
+            line-height: 5px;
+        }
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
 </head>
