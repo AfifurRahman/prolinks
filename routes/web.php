@@ -68,10 +68,14 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 /* ADMINUSER AUTH */
 Route::group(['middleware' => 'auth'], function () {
 	Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
-	Route::get('/users/invite-user', 'App\Http\Controllers\Adminuser\AccessUsersController@invite_user')->name('adminuser.access-users.invite-user');
-	Route::get('/users/create-group', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
-	
+	Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
+	Route::post('/users/create-group', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
+	Route::post('/users/move-group', 'App\Http\Controllers\Adminuser\AccessUsersController@move_group')->name('adminuser.access-users.move-group');
 });
+
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Auth::routes(['verify' => true]);
 Route::group(['middleware' => ['auth', 'verified']], function () {
@@ -83,3 +87,4 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::post('change-main-project', 'App\Http\Controllers\Adminuser\ProjectController@change_main_project')->name('project.change-main-project');
 	});
 });
+
