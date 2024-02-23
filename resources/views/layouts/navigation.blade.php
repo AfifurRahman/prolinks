@@ -107,13 +107,13 @@
             
             
         </div>
-        <div style="position: absolute; bottom: 0; margin-bottom: 40px; border-top: solid 1px #CCC; padding: 10px;">
+        <div style="position: absolute; bottom: 0; margin-bottom: 40px; border-top: solid 1px #CCC; padding: 10px; width: 90%;">
             <div class="btn-group dropup">
                 <button type="button" class="btn" style="border: solid 0px; background: transparent;">
                     <div class="auth-client-name">
                         <h5 data-toggle="tooltip" data-placement="top" title="{{ Auth::guard('backend')->user()->first_name." ".Auth::guard('backend')->user()->last_name }}">{!! Str::limit(Auth::guard('backend')->user()->first_name." ".Auth::guard('backend')->user()->last_name, 18) !!}</h5>
                         <span class="text-muted">
-                            OWNER
+                            {{ !empty($admin->RefRole->role_name) ? $admin->RefRole->role_name : '-' }}
                         </span>
                     </div>
                 </button>
