@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('email_address');
             $table->integer('role');
-            $table->string('role_param');
+            $table->string('role_param')->nullable();
             $table->integer('group_id')->default(0);
-            $table->integer('status');
+            $table->integer('status')->default(0);
             $table->timestamp('last_login')->nullable();
             $table->timestamps();
         });

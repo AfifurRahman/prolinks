@@ -25,7 +25,9 @@
     
     <link href="{{ url('template/plugins/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ url('template/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" />
-
+    
+    <!-- Tag Input CSS -->
+    <link href="{{ url('template/plugins/bootstrap-tagsinput/css/bootstrap-tagsinput.css') }}" rel="stylesheet" />
     <style type="text/css">
         .box-saldo {
             border: dashed 1px #CCC;
@@ -64,7 +66,9 @@
                             <h2 id="title" style="color:black">Activities</h2>
                         </li>
                     </ul>
-                    
+
+                    @yield('notification')
+
                     <ul class="nav navbar-nav navbar-right">
                         <div style="margin-top: 10px;">
                             @yield('navigationbar')
@@ -119,6 +123,10 @@
     <!-- select2 -->
     <script src="{{ url('template/plugins/select2/js/select2.min.js') }}" type="text/javascript"></script>
     <script src="{{ url('template/plugins/bootstrap-select/js/bootstrap-select.min.js') }}" type="text/javascript"></script>
+
+    <!-- taginput -->
+    <script src="{{ url('template/plugins/bootstrap-tagsinput/js/bootstrap-tagsinput.min.js') }}" type="text/javascript"></script>
+
     <script type="text/javascript">
         $("input[data-type='currency']").on({
             keyup: function() {
