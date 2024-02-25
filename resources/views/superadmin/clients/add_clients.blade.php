@@ -54,7 +54,7 @@
 					<input type="text" name="client_city" id="client_city" value="{{ !empty($clients->client_city) ? $clients->client_city : '' }}" class="form-control" placeholder="ex: Bogor">
 				</div>
 				<div class="form-group">
-					<label>State</label>
+					<label>Province</label>
 					<input type="text" name="client_state" id="client_state" value="{{ !empty($clients->client_state) ? $clients->client_state : '' }}" class="form-control">
 				</div>
 				<div class="form-group">

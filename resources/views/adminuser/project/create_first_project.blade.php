@@ -59,30 +59,6 @@
 							<label>Project Name <span class="text-danger">*</span></label>
 							<input required type="text" name="project_name" id="project_name" class="form-control">
 						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<div class="form-group">
-									<label>Start Date</label>
-									<div class="input-group">
-										<span class="input-group-addon">
-											<i class="fa fa-calendar"></i>
-										</span>
-										<input type="date" name="start_date" id="start_date" class="form-control">
-									</div>
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="form-group">
-									<label>Deadline</label>
-									<div class="input-group">
-										<span class="input-group-addon">
-											<i class="fa fa-calendar"></i>
-										</span>
-										<input type="date" name="deadline" id="deadline" class="form-control">
-									</div>
-								</div>
-							</div>
-						</div>
 						<div class="form-group">
 							<label>Project Desc </label>
 							<textarea name="project_desc" id="project_desc" class="form-control"></textarea>

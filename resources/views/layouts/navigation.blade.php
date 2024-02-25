@@ -104,15 +104,33 @@
                     </li>
                 @endif
             </ul>
-            <ul style="margin-top: 230px;">
-                <li><a href="{{ route('backend.profile') }}"><i class="ti-user m-r-5"></i> Profile</a></li>
-                <li>
-                    <a href="{{ route('backend-logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
-                    <form id="logout-form" action="{{ route('backend-logout') }}" method="POST" class="d-none">
-                        @csrf
-                    </form>
-                </li>
-            </ul>
+            
+            
+        </div>
+        <div style="position: absolute; bottom: 0; margin-bottom: 40px; border-top: solid 1px #CCC; padding: 10px;">
+            <div class="btn-group dropup">
+                <button type="button" class="btn" style="border: solid 0px; background: transparent;">
+                    <div class="auth-client-name">
+                        <h5 data-toggle="tooltip" data-placement="top" title="{{ Auth::guard('backend')->user()->first_name." ".Auth::guard('backend')->user()->last_name }}">{!! Str::limit(Auth::guard('backend')->user()->first_name." ".Auth::guard('backend')->user()->last_name, 18) !!}</h5>
+                        <span class="text-muted">
+                            {{ !empty($admin->RefRole->role_name) ? $admin->RefRole->role_name : '-' }}
+                        </span>
+                    </div>
+                </button>
+                <button type="button" class="btn dropdown-toggle" style="border: solid 0px; background: transparent;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v" style="font-size: 1.5em; padding-top: 15px;"></i>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ route('backend.profile') }}"><i class="ti-user m-r-5"></i> Profile</a></li>
+                    <li>
+                        <a href="{{ route('backend-logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
+                        <form id="logout-form" action="{{ route('backend-logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
