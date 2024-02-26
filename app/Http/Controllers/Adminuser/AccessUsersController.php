@@ -29,34 +29,55 @@ class AccessUsersController extends Controller
 
     public function create_user(Request $request)
     {
-        $emailAddresses = explode(',', $request->email_address);
+        try {
+            $emailAddresses = explode(',', $request->email_address);
 
-        foreach ($emailAddresses as $email) {
-            ClientUser::create([
-                'email_address' => $email,
-                'role' => $request->role,
-            ]);
-        };
+            foreach ($emailAddresses as $email) {
+                if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    // Check if the email already exists
+                    $existingUser = ClientUser::where('email_address', $email)->first();
+                    
+                    if (!$existingUser) {
+                        // If the email doesn't exist, create a new user
+                        ClientUser::create([
+                            'email_address' => $email,
+                            'role' => $request->role,
+                        ]);
+        
+                        $users = new User;
+                        $users->user_id = Str::uuid(4);
+                        $users->name = $email;
+                        $users->email = $email;
+                        $users->type = \globals::set_usertype_client();
+                        $users->password = Hash::make(bcrypt(Str::random(255)));
+                        $users->save();
+        
+                        $token = Password::getRepository()->create($users);
+                        $details = [
+                            'client_name' => $email,
+                            'link' => URL::to('/create-password') . '/' . $token . '?email=' . str_replace("@", "%40", $email),
+                        ];
+        
+                        $sendMail = \Mail::to($users->email)->send(new \App\Mail\CreateAdminClientPassword($details));
 
-        $users = new User;
-        $users->user_id = Str::uuid(4);
-        $users->name = $request->email_address;
-        $users->email = $request->email_address;
-        $users->type = \globals::set_usertype_client();
-        $users->password = Hash::make(bcrypt(Str::random(255)));
-        $users->save();
+                        if ($sendMail) {
+                          User::where('id', $users->id)->update([
+                              'remember_token' => $token
+                          ]);
+                        }
 
-        $token = Password::getRepository()->create($users);
-        $details = [
-            'client_name' => $request->email_address,
-            'link' => URL::to('/create-password') . '/' . $token . '?email=' . str_replace("@", "%40", $request->email_address),
-        ];
-
-        $sendMail = \Mail::to($users->email)->send(new \App\Mail\CreateAdminClientPassword($details));
-
-        $notification = "Users invited";
-
-        return back()->with('notification', $notification);
+                        $notification = "User invited";
+                    } else {
+                        $notification = "User already exist!";
+                    };
+                } else {
+                    $notification = "Invalid email";
+                }
+            };
+        } catch (\Exception $e) {
+            $notification = "Can't invite user";
+        }
+        return back()->with('notification', $notification);   
     }
 
     public function create_group(Request $request)

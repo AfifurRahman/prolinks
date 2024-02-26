@@ -339,14 +339,13 @@
             </div>
             
             <div class="modal-body">
-                <form action="{{ route('adminuser.access-users.create')}}" method="POST" novalidate>
+                <form action="{{ route('adminuser.access-users.create')}}" method="POST">
                     @csrf
                     <label for="email_address">Email address</label><br>
                     <div class="tags-default">
-                        <input type="email" name="email_address" id="email_address" required/>
+                        <input name="email_address" id="email_address" required/>
                     </div>
-                    <br>
-                    <br>
+                    <h5>Role</h5>
                     <label>
                         <input type="radio" name="role" value="0" required>Administrator
                         <p>Have full access to manage documents, QnA contents, invite users and access to all reports.</p>
