@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Adminuser\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ClientUser;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Session;
+
 
 class AuthController extends Controller
 {
@@ -34,7 +36,9 @@ class AuthController extends Controller
     		\DB::beginTransaction();
 
     		$check_users = User::where('email', $email)->where('remember_token', $token)->first();
-    		if (!empty($check_users->email)) {
+    		$users_type = User::where('email', $email)->value('type');
+
+			if (!empty($check_users->email)) {
     			$update = User::where('email', $email)->where('remember_token', $token)->update([
     				'email_verified_at' => date('Y-m-d H:i:s'),
     				'password' => Hash::make($request->input('password')),
@@ -43,6 +47,9 @@ class AuthController extends Controller
 
     			if ($update) {
     				Session::flash('message', 'Password created !'); 
+					if ($users_type == 2) {
+						ClientUser::where('email_address',$email)->update(['status' => 1]);
+					}
     			}
     		}else{
     			Session::flash('message', 'Failed, client not found'); 
