@@ -18,13 +18,15 @@ class AccessUsersController extends Controller
 {
     public function index()
     {
-        $clientuser = ClientUser::orderBy('group_id', 'ASC')->get();
+        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('company', Auth::user()->name)->get();
 
         $groupid = ClientUserGroup::pluck('id')->toArray();
+
+        $owners = User::where('type', 1)->where('name', Auth::user()->name)->get();
         
         array_unshift($groupid, 0);
 
-        return view('adminuser.users.index', compact('clientuser','groupid'));
+        return view('adminuser.users.index', compact('clientuser','groupid','owners'));
     }
 
     public function create_user(Request $request)
@@ -41,12 +43,13 @@ class AccessUsersController extends Controller
                         // If the email doesn't exist, create a new user
                         ClientUser::create([
                             'email_address' => $email,
+                            'company' => Auth::user()->name,
                             'role' => $request->role,
                         ]);
         
                         $users = new User;
                         $users->user_id = Str::uuid(4);
-                        $users->name = $email;
+                        $users->name = Auth::user()->name;
                         $users->email = $email;
                         $users->type = \globals::set_usertype_client();
                         $users->password = Hash::make(bcrypt(Str::random(255)));

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('client_users', function (Blueprint $table) {
             $table->id();
             $table->string('email_address');
+            $table->string('company');
             $table->integer('role');
             $table->string('role_param')->nullable();
             $table->integer('group_id')->default(0);

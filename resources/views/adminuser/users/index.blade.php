@@ -434,30 +434,106 @@
                 </tr>
             </thead>
             <tbody>
-                @if(count($clientuser) > 0)
-                    @foreach($groupid as $groupId)
-                        <tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="checkbox"/>
+                    </td>
+                    <td>
+                        <image id="downarrow" onclick="toggleGroup('company-group')"src="{{ url('template/images/icon_menu/downarrow.png') }}"></image>
+                        <image id="usericon" src="{{ url('template/images/icon_menu/group.png') }}"></image>
+                        {{ Auth::user()->name}}
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <button class="button_ico">
+                            <image src="{{ url('template/images/icon_menu/button_ico.png') }}"></image>
+                        </button>
+                    </td>
+                </tr>
+
+                @if(count($owners) > 0)
+                    @foreach($owners as $owner)
+                        <tr class="company-group">
                             <td>
                                 <input type="checkbox" id="checkbox"/>
                             </td>
                             <td>
-                                <image id="downarrow" onclick="toggleGroup('group{{$groupId}}')"src="{{ url('template/images/icon_menu/downarrow.png') }}"></image>
-                                <image id="usericon" src="{{ url('template/images/icon_menu/group.png') }}"></image>
-                                @if( $groupId == 0)
-                                    Unassigned
+                                <span id="emptybox"></span>
+                                <image id="usericon" src="{{ url('template/images/Avatar.png') }}"></image>
+                                {{ $owner->email }}
+                            </td>
+                            <td>
+                                Owner
+                            </td> 
+                            <td>
+                                @if(is_null($owner->last_signed))
+                                    -
                                 @else
-                                    {{ DB::table('client_user_groups')->where('id', $groupId)->value('group_name') }}
+                                    {{ date('d M Y, H:i', strtotime($owner->last_signed)) }}
                                 @endif
                             </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
                             <td>
-                                <button class="button_ico">
-                                    <image src="{{ url('template/images/icon_menu/button_ico.png') }}"></image>
-                                </button>
+                                @if(Auth::user()->email == $owner->email)
+                                    <span class="active_status">You</span>
+                                @else
+                                    <span class="active_status">Active</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="button_ico dropdown-toggle" data-toggle="dropdown" disabled>
+                                        <img src="{{ url('template/images/icon_menu/button_ico.png') }}" alt="Dropdown Button">
+                                    </button>
+                                </div>
                             </td>
                         </tr>
+                    @endforeach
+                @endif
+                
+
+                @if(count($clientuser) > 0)
+                    @foreach($groupid as $groupId)
+                        @if($clientuser->where('group_id',0)->count() > 0 && $groupId == 0)
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="checkbox"/>
+                                </td>
+                                <td>
+                                    <image id="downarrow" onclick="toggleGroup('group{{$groupId}}')"src="{{ url('template/images/icon_menu/downarrow.png') }}"></image>
+                                    <image id="usericon" src="{{ url('template/images/icon_menu/group.png') }}"></image>
+                                    Unassigned
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <button class="button_ico">
+                                        <image src="{{ url('template/images/icon_menu/button_ico.png') }}"></image>
+                                    </button>
+                                </td>
+                            </tr>
+                        @elseif(!$groupId == 0)
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="checkbox"/>
+                                </td>
+                                <td>
+                                    <image id="downarrow" onclick="toggleGroup('group{{$groupId}}')"src="{{ url('template/images/icon_menu/downarrow.png') }}"></image>
+                                    <image id="usericon" src="{{ url('template/images/icon_menu/group.png') }}"></image>
+                                    {{ DB::table('client_user_groups')->where('id', $groupId)->value('group_name') }}
+                                </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <button class="button_ico">
+                                        <image src="{{ url('template/images/icon_menu/button_ico.png') }}"></image>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endif
 
                         @foreach($clientuser->where('group_id', $groupId) as $user)
                             <tr class="group{{$groupId}}">
@@ -477,17 +553,19 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if(is_null($user->last_login))
+                                    @if(is_null(App\Models\User::where('email', $user->email_address)->first()->last_signed))
                                         -
                                     @else
-                                        {{ date('d M Y, H:i', strtotime($user->last_login)) }}
+                                        {{ date('d M Y, H:i', strtotime(App\Models\User::where('email', $user->email_address)->first()->last_signed)) }}
                                     @endif
                                 </td>
                                 <td>
-                                    @if($user->status == 0)
-                                        <span class="invited_status">Invited</span>
+                                    @if($user->email_address == Auth::User()->email)
+                                        <span class="active_status">You</span>
                                     @elseif($user->status == 1)
                                         <span class="active_status">Active</span>
+                                    @elseif($user->status == 0)
+                                        <span class="invited_status">Invited</span>
                                     @endif
                                 </td>
                                 <td>
