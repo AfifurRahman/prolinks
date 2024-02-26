@@ -154,9 +154,22 @@
         width:18px;
     }
 
+    #inviteuser-text{
+        margin-top:6px;
+        margin-left:10px;
+        font-size:15px;
+        font-weight:600;
+    }
+
     #modal-close-ico{
+        margin-top:-6px;
         width:24px;
         height:24px;
+    }
+
+    #table {
+        overflow:auto;
+        max-height:70vh;
     }
 
     ::placeholder{
@@ -183,7 +196,6 @@
         width: 100%;
         height: 100%;
         overflow: auto;
-        border-radius:0px;
         background-color: rgba(0,0,0,0.65);
         
     }
@@ -198,7 +210,11 @@
     .modal-topbar {
         display:flex;
         border-bottom: 1px solid #D0D5DD;
+        background: #F9FAFB;
         justify-content: space-between;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+        padding:10px 14px 0px 20px;
     }
 
     .modal-close {
@@ -229,31 +245,63 @@
         border-radius:25px;
     }
 
-    .dropdown {
-        position: relative;
-        display: inline-block;
-    }
-
-    .dropdown-content {
-        display: none;
+    .notificationlayer {
         position: absolute;
-        background-color: #f9f9f9;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        padding: 12px 16px;
+        width:100%;
+        height:50px;
         z-index: 1;
-        left:-120px;
+        pointer-events: none;
     }
 
-    .dropdown:hover .dropdown-content {
-        display: block;
+    #notification {
+        background-color: #FFFFFF;
+        border: 2px solid #12B76A;
+        border-radius: 8px;
+        display: flex;
+        color: #232933;
+        margin: 50px auto;
+        text-align: center;
+        height: 48px;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: top 0.5s ease; 
+        
     }
 
+    .notificationicon {
+        width:20px;
+        height:20px;
+        margin-top:11px;
+        margin-left:15px;
+    }
+
+    .notificationtext{
+        margin-top:11px;
+        margin-left:8px;
+        margin-right:13px;
+        font-size:14px;
+    }
+    
 </style>
+
+
 
 @section('navigationbar')
     <button id="create_group" onclick="document.getElementById('create-group').style.display='block'">Create Group</button>
     <button id="invite_user" onclick="document.getElementById('inviteuser_form').style.display='block'"><image id="addimg" src="{{ url('template/images/icon_menu/add.png') }}"></image>Invite User</button>
+@endsection
+
+@section('notification')
+    @if(session('notification'))
+        <div class="notificationlayer">
+            <div class="notification" id="notification">
+                <image class="notificationicon" src="{{ url('template/images/icon_menu/checklist.png') }}"></image>
+                <p class="notificationtext">{{ session('notification') }}</p>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @section('content')
@@ -261,6 +309,8 @@
         var title = document.getElementById('title');
         title.textContent = 'Users';
     </script>
+
+    
 
     <div id="box_helper">
         <div>
@@ -280,7 +330,7 @@
             <div class="modal-topbar">
                 <div id="inviteuser-title">
                     <image id="inviteuser-ico" src="{{ url('template/images/icon_menu/invite_user.png') }}"></image>
-                    <h5>Invite users</h5>
+                    <h5 id="inviteuser-text">Invite users</h5>
                 </div>
                 
                 <button class="modal-close" onclick="document.getElementById('inviteuser_form').style.display='none'">
@@ -289,19 +339,21 @@
             </div>
             
             <div class="modal-body">
-                <form action="{{ route('adminuser.access-users.create')}}" method="POST">
+                <form action="{{ route('adminuser.access-users.create')}}" method="POST" novalidate>
                     @csrf
                     <label for="email_address">Email address</label><br>
-                    <input type="email" name="email_address" id="email_address" placeholder="Enter email address, seperate by comma">
+                    <div class="tags-default">
+                        <input type="email" name="email_address" id="email_address" required/>
+                    </div>
                     <br>
                     <br>
                     <label>
-                        <input type="radio" name="role" value="0">Administrator
+                        <input type="radio" name="role" value="0" required>Administrator
                         <p>Have full access to manage documents, QnA contents, invite users and access to all reports.</p>
                     </label>
                     <br>
                     <label>
-                        <input type="radio" name="role" value="1">Collabolator
+                        <input type="radio" name="role" value="1" required>Collabolator
                         <p>Can view, upload, download, and ask questions based on their group permissions.</p>
                     </label><br>
                     <button>Cancel</button>
@@ -337,7 +389,7 @@
                     <button type="submit">Create</button>
                 </form>
             </div>
-        </div>      
+        </div>
     </div>
 
     <div id="moveuser" class="modal">
@@ -395,7 +447,7 @@
                                 @if( $groupId == 0)
                                     Unassigned
                                 @else
-                                    {{ $groupnames[$groupId-1] }}
+                                    {{ DB::table('client_user_groups')->where('id', $groupId)->value('group_name') }}
                                 @endif
                             </td>
                             <td></td>
@@ -441,12 +493,13 @@
                                 </td>
                                 <td>
                                     <div class="dropdown">
-                                        <button class="button_ico">
+                                        <button class="button_ico dropdown-toggle" data-toggle="dropdown">
                                             <img src="{{ url('template/images/icon_menu/button_ico.png') }}" alt="Dropdown Button">
                                         </button>
-                                        <div class="dropdown-content">
-                                            <a onclick="document.getElementById('moveuser').style.display='block'">Move to group</a>
-                                        </div>
+                                        <ul class="dropdown-menu dropdown-menu-top">
+                                            <li><a onclick="document.getElementById('moveuser').style.display='block'">Move to group</a></li>
+                                            <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i> Send Email</a></li>
+                                        </ul>
                                     </div>
                                 </td>
                             </tr>
@@ -459,6 +512,8 @@
 
     @push('scripts')
     <script>
+        $('#email_address').tagsinput();
+
        function toggleGroup(groupName) {
             const rows = document.querySelectorAll('.' + groupName);
             rows.forEach(row => {
@@ -480,6 +535,14 @@
                 table.search($(this).val()).draw();
             });
         });
+
+        function hideNotification() {
+        setTimeout(function() {
+            $('#notification').fadeOut();
+            }, 2000);
+        };
+
+        hideNotification();
     </script>
     @endpush
 @endsection
