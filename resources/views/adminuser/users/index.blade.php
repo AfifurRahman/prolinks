@@ -154,8 +154,8 @@
         width:18px;
     }
 
-    #inviteuser-text{
-        margin-top:6px;
+    .modaltitle-text{
+        margin-top:5px;
         margin-left:10px;
         font-size:15px;
         font-weight:600;
@@ -266,8 +266,13 @@
         top: 0;
         left: 50%;
         transform: translateX(-50%);
-        transition: top 0.5s ease; 
-        
+        transition: top 0.5s ease;    
+    }
+
+    #creategroup-ico {
+        height:22px;
+        width:22px;
+        margin-right:-3px;
     }
 
     .notificationicon {
@@ -283,7 +288,73 @@
         margin-right:13px;
         font-size:14px;
     }
-    
+
+    .tags-default {
+        width: 100%; /* Adjust this width as needed */
+    }
+
+    .tag-email{
+        width:100%;
+    }
+
+    .userform{
+        color:#1D2939;
+        font-size:15px;
+    }
+
+    .userrole{
+        color:#1D2939;
+        font-size:15px;
+        margin-top:24px;
+    }
+
+    .roleselect{
+        display:flex;
+        align-items: start;
+    }
+
+    .roletitle{
+        font-weight:500;
+        font-size:15px;
+        color:#1D2939;
+    }
+
+    .roledetail{
+        margin-left:10px;
+    }
+
+    .roledesc{
+        margin-top:-12px;
+    }
+
+    .formbutton{
+        width:100%;
+        display: flex;
+        justify-content: flex-end;
+        margin-top:18px;
+        margin-bottom:-14px;
+    }
+
+    .cancelbtn{
+        padding: 11px 16px 9px 16px;
+        border:none;
+        background:none;
+        color:#586474;
+        margin-right:10px;
+        cursor:pointer;
+    }
+
+    .createbtn{
+        padding: 11px 16px 9px 16px;
+        border:none;
+        border-radius:6px;
+        background:#1570EF;
+        color:#FFFFFF;
+    }
+
+    .modal-body{
+        margin:0px 4px 0px 4px;
+    }
 </style>
 
 
@@ -330,7 +401,7 @@
             <div class="modal-topbar">
                 <div id="inviteuser-title">
                     <image id="inviteuser-ico" src="{{ url('template/images/icon_menu/invite_user.png') }}"></image>
-                    <h5 id="inviteuser-text">Invite users</h5>
+                    <h5 class="modaltitle-text">Invite users</h5>
                 </div>
                 
                 <button class="modal-close" onclick="document.getElementById('inviteuser_form').style.display='none'">
@@ -341,22 +412,32 @@
             <div class="modal-body">
                 <form action="{{ route('adminuser.access-users.create')}}" method="POST">
                     @csrf
-                    <label for="email_address">Email address</label><br>
-                    <div class="tags-default">
-                        <input name="email_address" id="email_address" required/>
+                    <h5 class="userform">Email address</h5>
+                    <div class="tags-default tag-email">
+                        <input name="email_address" id="email_address" placeholder="Enter email address" required/>
                     </div>
-                    <h5>Role</h5>
-                    <label>
-                        <input type="radio" name="role" value="0" required>Administrator
-                        <p>Have full access to manage documents, QnA contents, invite users and access to all reports.</p>
-                    </label>
-                    <br>
-                    <label>
-                        <input type="radio" name="role" value="1" required>Collabolator
-                        <p>Can view, upload, download, and ask questions based on their group permissions.</p>
-                    </label><br>
-                    <button>Cancel</button>
-                    <button type="submit">Invite</button>
+                    
+                    <h5 class="userrole">Role</h5>
+                    <div class="roleselect">
+                        <input type="radio" name="role" value="0" required>
+                        <div class="roledetail">
+                            <p class="roletitle">Administrator<p>
+                            <p class="roledesc">Have full access to manage documents, QnA contents, invite users and access to all reports.</p>
+                        </div>
+                    </div>
+
+                    <div class="roleselect">
+                        <input type="radio" name="role" value="1" required>
+                        <div class="roledetail">
+                            <p class="roletitle">Collaborator<p>
+                            <p class="roledesc">Can view, upload, download, and ask questions based on their group permissions.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="formbutton">
+                        <a class="cancelbtn" onclick="document.getElementById('inviteuser_form').style.display='none'">Cancel</a>
+                        <button class="createbtn" type="submit">Invite</button>
+                    </div>
                 </form>
             </div>
         </div>      
@@ -366,8 +447,8 @@
         <div class="modal-content">
             <div class="modal-topbar">
                 <div id="inviteuser-title">
-                    <image id="inviteuser-ico" src="{{ url('template/images/icon_menu/invite_user.png') }}"></image>
-                    <h5>Create Group</h5>
+                    <image id="creategroup-ico" src="{{ url('template/images/icon_menu/group.png') }}"></image>
+                    <h5 class="modaltitle-text">Create Group</h5>
                 </div>
                 
                 <button class="modal-close" onclick="document.getElementById('create-group').style.display='none'">
@@ -384,8 +465,16 @@
                     <label for="group_description">Group description (optional)</label><br>
                     <input type="text" name="group_description" placeholder="Enter group description">
                     <br>
-                    <button>Cancel</button>
-                    <button type="submit">Create</button>
+                    <select class="select2 form-control select2-multiple" name="users" multiple="multiple" multiple data-placeholder="Choose ...">
+                        @foreach($clientuser->where('group_id', 0) as $user)
+                            <option value="{{$user->email_address}}">{{$user->email_address}}</option>
+                        @endforeach
+                    </select>
+                    <br>
+                    <div class="formbutton">
+                        <a class="cancelbtn" onclick="document.getElementById('create-group').style.display='none'">Cancel</a>
+                        <button class="createbtn" type="submit">Create</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -573,7 +662,7 @@
                                         <button class="button_ico dropdown-toggle" data-toggle="dropdown">
                                             <img src="{{ url('template/images/icon_menu/button_ico.png') }}" alt="Dropdown Button">
                                         </button>
-                                        <ul class="dropdown-menu dropdown-menu-top">
+                                        <ul class="dropdown-menu dropdown-menu-left">
                                             <li><a onclick="document.getElementById('moveuser').style.display='block'">Move to group</a></li>
                                             <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i> Send Email</a></li>
                                         </ul>
@@ -613,6 +702,7 @@
             });
         });
 
+
         function hideNotification() {
         setTimeout(function() {
             $('#notification').fadeOut();
@@ -620,6 +710,8 @@
         };
 
         hideNotification();
+
+        
     </script>
     @endpush
 @endsection

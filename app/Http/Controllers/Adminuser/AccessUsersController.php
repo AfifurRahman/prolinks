@@ -85,13 +85,24 @@ class AccessUsersController extends Controller
 
     public function create_group(Request $request)
     {
-        ClientUserGroup::create([
-            'group_name' => $request->group_name,
-            'group_description' => $request->group_description,
-        ]);
+        try {
+            $users = explode(',', $request->users);
 
-        $notification = "Group created";
+            $group = ClientUserGroup::create([
+                'group_name' => $request->group_name,
+                'group_description' => $request->group_description,
+            ]);
 
+            foreach($users as $user) {
+                ClientUser::where('email_address', $user)->update([
+                    'group_id' => $group->id,  
+                ]);
+            };
+
+            $notification = "Group created";
+        } catch (\Exception $e) {
+            $notification = "Can't add group";
+        }
         return back()->with('notification', $notification);
     }
 
