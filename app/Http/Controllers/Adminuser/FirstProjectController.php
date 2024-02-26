@@ -15,6 +15,11 @@ class FirstProjectController extends Controller
 {
     public function create_first_project()
     {
+        $models = Project::where('user_id', Auth::user()->user_id)->get();
+        if ($models->count() > 0) {
+            return redirect(route('home'));
+        }
+
         return view('adminuser.project.create_first_project');
     }
 
