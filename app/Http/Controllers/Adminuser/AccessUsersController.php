@@ -108,7 +108,7 @@ class AccessUsersController extends Controller
 
     public function move_group(Request $request)
     {
-        $users = $request->username;
+        $users = base64_decode($request->username);
 
         $group = $request->group_num;
 
