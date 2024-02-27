@@ -186,4 +186,26 @@ class GlobalHelper
         $models = Project::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->get();
         return $models;
     }
+
+    public static function set_status_company_active()
+    {
+        return 1;
+    }
+
+    public static function set_status_company_disabled()
+    {
+        return 2;
+    }
+
+    public static function label_status_company($status)
+    {
+        $results = "";
+        if($status == \globals::set_status_company_active()){
+            $results = '<label class="label label-success" style="border-radius:5px;"> Active</label>';
+        }elseif($status == \globals::set_status_company_disabled()){
+            $results = '<label class="label label-danger" style="border-radius:5px;"> Disabled</label>';
+        }
+
+        return $results;
+    }
 }

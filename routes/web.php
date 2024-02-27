@@ -86,6 +86,23 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 		Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 		Route::post('change-main-project', 'App\Http\Controllers\Adminuser\ProjectController@change_main_project')->name('project.change-main-project');
+		
+		/* Companies */
+		Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');
+		Route::get('/company/detail/{id}', 'App\Http\Controllers\Adminuser\CompanyController@detail_company')->name('company.detail-company');
+		Route::post('/company/save', 'App\Http\Controllers\Adminuser\CompanyController@save')->name('company.save-company');
+		Route::get('/company/delete/{id}', 'App\Http\Controllers\Adminuser\CompanyController@delete')->name('company.delete-company');
+		Route::get('/company/disable/{id}', 'App\Http\Controllers\Adminuser\CompanyController@disable_company')->name('company.disable-company');
+		Route::post('/company/get-detail-company', 'App\Http\Controllers\Adminuser\CompanyController@get_detail_company')->name('company.get-detail-company');
+
+		/* Project */
+		Route::get('/project/list-project', 'App\Http\Controllers\Adminuser\ProjectController@list_project')->name('project.list-project');
+		Route::get('/project/detail-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@detail_project')->name('project.detail-project');
+		Route::post('/project/detail-role-users', 'App\Http\Controllers\Adminuser\ProjectController@detail_role_users')->name('project.detail-role-users');
+		Route::get('/project/create-project', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.create-project');
+		Route::get('/project/edit-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.edit-project');
+		Route::post('/project/save-project', 'App\Http\Controllers\Adminuser\ProjectController@save_project')->name('project.save-project');
+		Route::get('/project/delete-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_project')->name('project.delete-project');
 	});
 });
 

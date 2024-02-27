@@ -19,29 +19,45 @@
                     <a href="/" class="waves-effect"><i class="mdi mdi-view-dashboard"></i><span> Activities </span></a>
                 </li>
                 <li>
+                    <a href="{{ route('company.list-company') }}" class="waves-effect"><i class="fa fa-users"></i><span> Companies </span></a>
+                </li>
+                <li>
                     <a href="{{ route('adminuser.access-users.list') }}" class="waves-effect"><i class="fa fa-key"></i><span> Access Users </span></a>
                 </li>
                 <li>
-                    <a href="kkk" class="waves-effect"><i class="fa fa-cogs"></i><span> Project </span></a>
-                </li>
-                <li>
-                    <a href="ddd" class="waves-effect"><i class="fa fa-users"></i><span> Client & Contact </span></a>
-                </li>
-                <li>
-                    <a href="yyy" class="waves-effect"><i class="fa fa-folder"></i><span> Documents </span></a>
+                    <a href="{{ route('project.list-project') }}" class="waves-effect"><i class="fa fa-cogs"></i><span> Project </span></a>
                 </li>
                 <li>
                     <a href="xxx" class="waves-effect"><i class="fa fa-comments"></i><span> Q & A </span></a>
                 </li>
-            </ul>
-            <ul style="margin-top: 200px;">
                 <li>
-                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                        @csrf
-                    </form>
+                    <a href="xxx" class="waves-effect"><i class="fa fa-list-alt"></i><span> Reports </span></a>
                 </li>
             </ul>
+        </div>
+        <div style="position: absolute; bottom: 0; margin-bottom: 40px; border-top: solid 1px #CCC; padding: 10px;">
+            <div class="btn-group dropup">
+                <button type="button" class="btn" style="border: solid 0px; background: transparent;">
+                    <div class="auth-client-name">
+                        <h5 data-toggle="tooltip" data-placement="top" title="{{ Auth::user()->name }}">{!! Str::limit(Auth::user()->name, 18) !!}</h5>
+                        <span class="text-muted">
+                            {{ Auth::user()->email }}
+                        </span>
+                    </div>
+                </button>
+                <button type="button" class="btn dropdown-toggle" style="border: solid 0px; background: transparent;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v" style="font-size: 1.5em; padding-top: 15px;"></i>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
