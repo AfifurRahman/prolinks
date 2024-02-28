@@ -174,18 +174,10 @@
         max-height:70vh;
     }
 
-    #group_name{
-        width:100%;
-        height:38px;
-        border: 1px solid #aaa;
-        border-radius:5px;
-    }
-
-    #group_description{
-        width:100%;
-        height:38px;
-        border: 1px solid #aaa;
-        border-radius:5px;
+    #creategroup-ico {
+        height:22px;
+        width:22px;
+        margin-right:-3px;
     }
 
     ::placeholder{
@@ -294,12 +286,6 @@
         transition: top 0.5s ease;    
     }
 
-    #creategroup-ico {
-        height:22px;
-        width:22px;
-        margin-right:-3px;
-    }
-
     .notificationicon {
         width:20px;
         height:20px;
@@ -331,6 +317,16 @@
         color:#1D2939;
         font-size:15px;
         margin-top:24px;
+    }
+
+    .usercompany{
+        color:#1D2939;
+        font-size:15px;
+        margin-top:12px;
+    }
+
+    .company_id{
+        margin-bottom:32px;
     }
 
     .roleselect{
@@ -461,6 +457,18 @@
                         </div>
                     </div>
                     
+                    <div class="company_id">
+                        <h5 class="usercompany">Company</h5>
+                        <select class="form-control select2" name="company">
+                            @foreach($companies as $company)
+                                @if($company == 0)
+                                    <option value="0">Unassigned</option>
+                                @else
+                                    <option value="{{$company}}">{{ DB::table('companies')->where('company_id', $company)->value('company_name') }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="formbutton">
                         <a class="cancelbtn" onclick="document.getElementById('inviteuser_form').style.display='none'">Cancel</a>
                         <button class="createbtn" type="submit">Invite</button>
@@ -470,50 +478,12 @@
         </div>      
     </div>
 
-    <div id="create-group" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div id="inviteuser-title">
-                    <image id="creategroup-ico" src="{{ url('template/images/icon_menu/group.png') }}"></image>
-                    <h5 class="modaltitle-text">Create Group</h5>
-                </div>
-                
-                <button class="modal-close" onclick="document.getElementById('create-group').style.display='none'">
-                    <image id="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-            
-            <div class="modal-body">
-                <form action="{{ route('adminuser.access-users.create-group')}}" method="POST">
-                    @csrf
-                    <h5 class="userform">Group name</h5>
-                    <input type="text" name="group_name" id="group_name" placeholder="Enter group name">
-                    <br>
-                    <h5 class="userrole">Group description (optional)</h5>
-                    <input type="text" name="group_description" id="group_description" placeholder="Enter group description">
-                    <h5 class="userrole">Invite users (optional)</h5>
-                    <select class="select2 form-control select2-multiple" name="users" multiple="multiple" multiple data-placeholder="Choose ...">
-                        @foreach($clientuser->where('group_id', 0) as $user)
-                            <option value="{{$user->email_address}}">{{$user->email_address}}</option>
-                        @endforeach
-                    </select>
-                    <br>
-                    <br>
-                    <div class="formbutton">
-                        <a class="cancelbtn" onclick="document.getElementById('create-group').style.display='none'">Cancel</a>
-                        <button class="createbtn" type="submit">Create</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div id="moveuser" class="modal">
         <div class="modal-content">
             <div class="modal-topbar">
                 <div id="inviteuser-title">
                     <image id="creategroup-ico" src="{{ url('template/images/icon_menu/group.png') }}"></image>
-                    <h5 class="modaltitle-text">Move to group</h5>
+                    <h5 class="modaltitle-text">Move to company</h5>
                 </div>
                 
                 <button class="modal-close" onclick="document.getElementById('moveuser').style.display='none'">
@@ -527,11 +497,11 @@
                     <input type="hidden" name="username" id="username">
                     <br>
                     <select class="form-control select2" name="group_num">
-                        @foreach($groupid as $groupId)
-                            @if($groupId == 0)
+                        @foreach($companies as $company)
+                            @if($company == 0)
                                 <option value="0">Unassigned</option>
                             @else
-                                <option value="{{$groupId}}">{{ DB::table('client_user_groups')->where('id', $groupId)->value('group_name') }}</option>
+                                <option value="{{$company}}">{{ DB::table('companies')->where('company_id', $company)->value('company_name') }}</option>
                             @endif
                         @endforeach
                     </select>
@@ -606,7 +576,7 @@
 
                 @if(count($clientuser) > 0)
                     @foreach($clientuser as $user)
-                        <tr class="group{{$groupId}}">
+                        <tr>
                             <td>
                                 <input type="checkbox" id="checkbox"/>
                             </td>
@@ -615,7 +585,7 @@
                                 {{ $user->email_address }}
                             </td>
                             <td>
-                                {{ DB::table('client_user_groups')->where('id', $user->group_id)->value('group_name') }}
+                                {{ DB::table('companies')->where('company_id', $user->group_id)->value('company_name') }}
                             </td>
                             <td>
                                 @if($user->role == 0) 
@@ -646,7 +616,7 @@
                                         <img src="{{ url('template/images/icon_menu/button_ico.png') }}" alt="Dropdown Button">
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                        <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
+                                        <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to company</a></li>
                                         <li><a>Make as owner</a></li>
                                         <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i> Send Email</a></li>
                                     </ul>
@@ -663,13 +633,6 @@
     <script>
         $('#email_address').tagsinput();
 
-       function toggleGroup(groupName) {
-            const rows = document.querySelectorAll('.' + groupName);
-            rows.forEach(row => {
-                row.classList.toggle('hidden');
-            });
-        };
-
 		$(document).ready(function () {
             $('#tableUser').dataTable({
                 "bPaginate": true,
@@ -684,7 +647,6 @@
                 table.search($(this).val()).draw();
             });
         });
-
 
         function hideNotification() {
         setTimeout(function() {

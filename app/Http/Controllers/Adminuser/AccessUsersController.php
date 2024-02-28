@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Adminuser;
 use Auth;
 use App\Models\User;
 use App\Models\ClientUser;
-use App\Models\ClientUserGroup;
+use App\Models\Company;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -20,13 +20,13 @@ class AccessUsersController extends Controller
     {
         $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('company', Auth::user()->name)->get();
 
-        $groupid = ClientUserGroup::pluck('id')->toArray();
+        $companies = Company::pluck('company_id')->toArray();
 
         $owners = User::where('type', 1)->where('name', Auth::user()->name)->get();
         
-        array_unshift($groupid, 0);
+        array_unshift($companies, 0);
 
-        return view('adminuser.users.index', compact('clientuser','groupid','owners'));
+        return view('adminuser.users.index', compact('clientuser','companies','owners'));
     }
 
     public function create_user(Request $request)
@@ -45,6 +45,7 @@ class AccessUsersController extends Controller
                             'email_address' => $email,
                             'company' => Auth::user()->name,
                             'role' => $request->role,
+                            'group_id' => $request->company,
                         ]);
         
                         $users = new User;
@@ -81,29 +82,6 @@ class AccessUsersController extends Controller
             $notification = "Can't invite user";
         }
         return back()->with('notification', $notification);   
-    }
-
-    public function create_group(Request $request)
-    {
-        try {
-            $users = explode(',', $request->users);
-
-            $group = ClientUserGroup::create([
-                'group_name' => $request->group_name,
-                'group_description' => $request->group_description,
-            ]);
-
-            foreach($users as $user) {
-                ClientUser::where('email_address', $user)->update([
-                    'group_id' => $group->id,  
-                ]);
-            };
-
-            $notification = "Group created";
-        } catch (\Exception $e) {
-            $notification = "Can't add group";
-        }
-        return back()->with('notification', $notification);
     }
 
     public function move_group(Request $request)

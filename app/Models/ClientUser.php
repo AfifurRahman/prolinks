@@ -16,6 +16,5 @@ class ClientUser extends Model
         'role_param',
         'group_id',
         'status',
-        'last_login',
     ];
 }

@@ -17,9 +17,8 @@ return new class extends Migration
             $table->string('company');
             $table->integer('role');
             $table->string('role_param')->nullable();
-            $table->integer('group_id')->default(0);
+            $table->string('group_id')->default(0);
             $table->integer('status')->default(0);
-            $table->timestamp('last_login')->nullable();
             $table->timestamps();
         });
     }
