@@ -126,9 +126,6 @@
                                 <img src="{{ url('template/images/icon-expand.png') }}" width="26px" height="24px">
                             </button>
                         </li>
-                        <li style="margin-top: 10px;">
-                            <h2 id="title" style="color:black">Activities</h2>
-                        </li>
                     </ul>
 
                     @yield('notification')
