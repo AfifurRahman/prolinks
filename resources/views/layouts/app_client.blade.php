@@ -135,7 +135,7 @@
                             <div class="user-info">
                                 <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img>
                                 <div class="user-profile">
-                                    <img class="user-img" src="{{ url('template/images/Avatar.png') }}"></img>
+                                    <img class="user-img" src="{{ url('template/images/avatar.png') }}"></img>
                                     <div class="user-detail dropdown">
                                         <div class="user-detail dropdown-toggle" data-toggle="dropdown">
                                             <p class="user-name">
