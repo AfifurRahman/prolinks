@@ -152,7 +152,7 @@
                                 <input type="checkbox" id="checkbox"/>
                             </td>
                             <td>
-                                <image id="usericon" src="{{ url('template/images/Avatar.png') }}"></image>
+                                <image id="usericon" src="{{ url('template/images/avatar.png') }}"></image>
                                 {{ $owner->email }}
                             </td>
                             <td>
