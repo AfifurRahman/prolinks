@@ -63,11 +63,9 @@
 
         .user-info{
             display:flex;
-            width:220px;
+            width:260px;
             height:40px;
             padding:4px 8px 4px 8px;
-            margin-right:24px;
-            
         }
 
         .user-img{
@@ -97,13 +95,14 @@
             font-weight:600;
             color:#1D2939;
             line-height:20px;
+            white-space: nowrap;
         }
 
         .user-company{
             font-size:14px;
             color:#586474;
             line-height:0px;
-
+            white-space: nowrap;
         }
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
@@ -141,7 +140,13 @@
                                 <div class="user-profile">
                                     <img class="user-img" src="{{ url('template/images/Avatar.png') }}"></img>
                                     <div class="user-detail">
-                                        <p class="user-name">{{ Auth::user()->username }}</p>
+                                        <p class="user-name">
+                                            @if(is_null(Auth::user()->username))
+                                                Unnamed User
+                                            @else
+                                                {{ Auth::user()->username }}
+                                            @endif
+                                        </p>
                                         <p class="user-company">{{ Auth::user()->name }}</p>
                                     </div>
                                 </div>
