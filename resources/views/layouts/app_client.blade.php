@@ -26,9 +26,15 @@
     <link href="{{ url('template/plugins/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ url('template/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" />
     
+    <!--Inter font CSS -->
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+
     <!-- Tag Input CSS -->
     <link href="{{ url('template/plugins/bootstrap-tagsinput/css/bootstrap-tagsinput.css') }}" rel="stylesheet" />
     <style type="text/css">
+        .body{
+            font-family: 'Inter';
+        }
         .box-saldo {
             border: dashed 1px #CCC;
             padding: 10px;
@@ -54,6 +60,51 @@
             text-align: left;
             line-height: 5px;
         }
+
+        .user-info{
+            display:flex;
+            width:220px;
+            height:40px;
+            padding:4px 8px 4px 8px;
+            margin-right:24px;
+            
+        }
+
+        .user-img{
+            width:40px;
+            height:40px;
+            radius:100px;
+        }
+
+        .user-profile{
+            display:flex;
+            cursor: pointer;
+        }
+
+        .user-detail{
+            margin-left:8px;
+        }
+
+        .user-notification{
+            width:20px;
+            height:20px;
+            margin:10px 12px 10px 12px;
+
+        }
+        .user-name{
+            font-family: 'Inter';
+            font-size:14px;
+            font-weight:600;
+            color:#1D2939;
+            line-height:20px;
+        }
+
+        .user-company{
+            font-size:14px;
+            color:#586474;
+            line-height:0px;
+
+        }
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
 </head>
@@ -71,10 +122,9 @@
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
-                        <li style="margin-left: -35px;">
-                            <button class="button-menu-mobile open-left waves-effect">
-                                <img src="{{ url('template/images/icon-expand.png') }}" style="margin-top: 20px;" width="30" height="30">
-                                <!-- <i class="fa fa-chevron-circle-left" style="color: #666;"></i> -->
+                        <li>
+                            <button class="button-menu-mobile open-left" style="margin-top: 24px">
+                                <img src="{{ url('template/images/icon-expand.png') }}" width="26px" height="24px">
                             </button>
                         </li>
                         <li style="margin-top: 10px;">
@@ -86,7 +136,16 @@
 
                     <ul class="nav navbar-nav navbar-right">
                         <div style="margin-top: 10px;">
-                            @yield('navigationbar')
+                            <div class="user-info">
+                                <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img>
+                                <div class="user-profile">
+                                    <img class="user-img" src="{{ url('template/images/Avatar.png') }}"></img>
+                                    <div class="user-detail">
+                                        <p class="user-name">{{ Auth::user()->username }}</p>
+                                        <p class="user-company">{{ Auth::user()->name }}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </ul>
                 </div>

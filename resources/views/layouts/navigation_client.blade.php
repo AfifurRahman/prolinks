@@ -35,29 +35,5 @@
                 </li>
             </ul>
         </div>
-        <div style="position: absolute; bottom: 0; margin-bottom: 40px; border-top: solid 1px #CCC; padding: 10px;">
-            <div class="btn-group dropup">
-                <button type="button" class="btn" style="border: solid 0px; background: transparent;">
-                    <div class="auth-client-name">
-                        <h5 data-toggle="tooltip" data-placement="top" title="{{ Auth::user()->name }}">{!! Str::limit(Auth::user()->name, 18) !!}</h5>
-                        <span class="text-muted">
-                            {{ Auth::user()->email }}
-                        </span>
-                    </div>
-                </button>
-                <button type="button" class="btn dropdown-toggle" style="border: solid 0px; background: transparent;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-ellipsis-v" style="font-size: 1.5em; padding-top: 15px;"></i>
-                    <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        </div>
     </div>
 </div>
