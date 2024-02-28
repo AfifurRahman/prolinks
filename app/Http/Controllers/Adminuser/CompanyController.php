@@ -25,7 +25,7 @@ class CompanyController extends Controller
     public function detail_company(Request $request, $id)
     {
 		$company = $this->get_company($id, $request);
-        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('company', Auth::user()->name)->get();
+        $clientuser = ClientUser::where('group_id', $company->company_id)->orderBy('group_id', 'ASC')->get();
 
         return view('adminuser.company.detail_company', compact('company', 'clientuser'));
     }

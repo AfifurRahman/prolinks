@@ -158,9 +158,7 @@
 									<label>Role Group<span class="text-danger">*</span></label>
 									<select name="role_group_id" id="role_group_id" onchange="changeListRole(this)" class="form-control select2">
 										<option value="">- select role group -</option>
-										@foreach($client_group as $groups)
-											<option value="{{ $groups->id }}">{{ $groups->group_name }}</option>
-										@endforeach
+										
 									</select>
 								</div>
 		                		<div class="form-group">

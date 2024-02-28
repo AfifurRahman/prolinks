@@ -8,6 +8,7 @@
         <title>Prolinks | Login</title>
         <link rel="icon" type="image/x-icon" href="{{ url('template/images/favicon.png') }}">
         <link href="{{ url('template/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ url('template/css/icons.css') }}" rel="stylesheet" type="text/css" />
         <style type="text/css">
             body {
                 width: 100%;
@@ -41,6 +42,10 @@
             .copyright a {
                 color: #999;
             }
+
+            .input-group-addon {
+                cursor: pointer;
+            }
         </style>
     </head>
         <body>
@@ -70,7 +75,11 @@
 
                                 <div class="form-group">
                                     <label for="password">{{ __('Password') }}</label>
-                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                                    <div class="input-group">
+                                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                                        <span class="input-group-addon" style="background: transparent;" onclick="showPswd()"><i id="icon-eye-slash" class="fa fa-eye-slash"></i><i id="icon-eye" class="fa fa-eye" style="display: none;"></i></span>
+                                    </div>
+                                    
                                     @error('password')
                                         <span class="invalid-feedback" role="alert">
                                             <strong style="color: red;">{{ $message }}</strong>
@@ -98,6 +107,21 @@
                     </div>
                 </div>
             </div>
+            <script src="{{ url('template/js/jquery-3.6.0.min.js') }}"></script>
+            <script type="text/javascript">
+                function showPswd() {
+                    var pswd = document.getElementById("password");
+                      if (pswd.type === "password") {
+                        pswd.type = "text";
+                        $("#icon-eye-slash").css("display", "none");
+                        $("#icon-eye").css("display", "block");
+                      } else {
+                        pswd.type = "password";
+                        $("#icon-eye-slash").css("display", "block");
+                        $("#icon-eye").css("display", "none");
+                      }
+                }
+            </script>
         </body>
 </html>
 

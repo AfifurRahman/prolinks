@@ -1,5 +1,8 @@
 @extends('layouts.app_client')
 
+@section('navigationbar')
+@endsection
+
 @section('notification')
     @if(session('notification'))
         <div class="notificationlayer">
@@ -14,7 +17,7 @@
 @section('content')
 	<script type="text/javascript">
 		var title = document.getElementById('title');
-		title.textContent = "List Companies";
+		title.textContent = "";
 	</script>
 	<style type="text/css">
 		.tableCompany td {
@@ -23,21 +26,21 @@
 
 		.tableCompany{
 		    border-collapse: separate;
-		    border:1px solid #F1F1F1;
+		    border:1px solid #D0D5DD;
 		    border-radius: 7px;
 		    width:100%
 		}
 
 		.tableCompany th {
 		    padding: 15px 0px 15px 10px;
-		    border-bottom:1px solid #F1F1F1;
+		    border-bottom:1px solid #D0D5DD;
 		    font-size:14px;
 		    font-weight:600;
 		}
 
 		.tableCompany td  {
 		    padding: 13px 0px 13px 10px;
-		    border-bottom:1px solid #F1F1F1;
+		    border-bottom:1px solid #D0D5DD;
 		    font-size:13.5px;
 		    color:black;
 		}
@@ -93,14 +96,92 @@
 	        margin-right:13px;
 	        font-size:14px;
 	    }
+
+	    #box_helper{
+	        margin-bottom:16px;
+	        display:flex;
+	        width:100%;
+	        justify-content: space-between;
+	    }
+
+	    #filter_button{
+	        padding:7px 15px 6px 17px;
+	        background: #FFFFFF; 
+	        color:#546474;
+	        border:1px solid #D0D5DD;
+	        border-radius:10px;
+	    }
+
+	    #filtericon{
+	        margin-top:-1px;
+	        margin-right:4px;
+	        height:23px;
+	        width:20px;
+	    }
+
+	    #searchbox{
+	        width:22%;
+	        padding:8px 10px 5px 12px;
+	        border:1px solid #CED5DD;
+	        border-radius: 8px;
+	    }
+
+	    #searchicon{
+	        width:19px;
+	        height:19px;
+	        margin-top:-3px;
+	        margin-right:4px;
+	    }
+
+	    #search_bar{
+	        border:none;
+	    }
+
+	    #filter_status {
+	    	width: 200px;
+	    }
+
+	    .active_status{
+	        background: #ECFDF3;
+	        font-size:12px;
+	        font-weight:600;
+	        color: #027A48; 
+	        padding:5px 10px 5px 10px;
+	        border-radius:25px;
+	    }
+
+	    .disabled_status{
+	        background: #FEF3F2;
+	        font-size:12px;
+	        font-weight:600;
+	        color: #027A48; 
+	        padding:5px 10px 5px 10px;
+	        border-radius:25px;
+	    }
 	</style>
+	<div class="pull-left">
+		<h3 style="color:black;font-size:28px;">Companies</h3>
+	</div>
 	<div class="pull-right" style="margin-bottom: 24px;">
-		<a href="#modal-add-company" data-toggle="modal" class="btn btn-primary btn-rounded"><i class="fa fa-plus-circle"></i> Create Company</a>
+		<a href="#modal-add-company" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Company</a>
 	</div><div style="clear: both;"></div>
+	<div id="box_helper">
+        <div>
+            <select name="filter_status" id="filter_status" class="form-control">
+            	<option value="all">All Status</option>
+            	<option value="active">Active</option>
+            	<option value="disabled">Disable</option>
+            </select>
+        </div>
+        <div id="searchbox">
+            <image id="searchicon" src="{{ url('template/images/icon_menu/search.png') }}"></image>
+            <input type="text" id="search_bar" placeholder="Search company...">
+        </div>
+    </div>
 	@if(count($company) > 0)
 		<table id="tableCompany" class="tableCompany">
 			<thead>
-				<tr style="background-color: #F8F8F8;">
+				<tr style="background-color: #F9FAFB;">
 					<th></th>
 					<th>Company</th>
 					<th>Status</th>
@@ -151,3 +232,27 @@
 
 	@include('adminuser.company._form')
 @stop
+
+@push('scripts')
+	<script type="text/javascript">
+		$(document).ready(function () {
+            $('#tableCompany').dataTable({
+                "bPaginate": true,
+                "bInfo": false,
+                "bSort": false,
+                "dom": 'rtip',
+                "stripeClasses": false,
+            });
+
+            $('#search_bar').keyup(function() {
+                var table = $('#tableCompany').DataTable();
+                table.search($(this).val()).draw();
+            });
+
+            $('#filter_status').change(function() {
+                var table = $('#tableCompany').DataTable();
+                table.search($(this).val()).draw();
+            });
+        });
+	</script>
+@endpush

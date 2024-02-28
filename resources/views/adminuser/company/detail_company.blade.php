@@ -27,21 +27,21 @@
 
         .tableUsers{
             border-collapse: separate;
-            border:1px solid #F1F1F1;
+            border:1px solid #D0D5DD;
             border-radius: 7px;
             width:100%
         }
 
         .tableUsers th {
             padding: 15px 0px 15px 10px;
-            border-bottom:1px solid #F1F1F1;
+            border-bottom:1px solid #D0D5DD;
             font-size:14px;
             font-weight:600;
         }
 
         .tableUsers td  {
             padding: 13px 0px 13px 10px;
-            border-bottom:1px solid #F1F1F1;
+            border-bottom:1px solid #D0D5DD;
             font-size:13.5px;
             color:black;
         }
@@ -131,6 +131,11 @@
             margin-right:13px;
             font-size:14px;
         }
+
+        .not-set{
+            color: #CCC;
+            font-style: italic;
+        }
     </style>
     <div class="header-detail">
         <div class="pull-left">
@@ -159,27 +164,27 @@
             </tr>
             <tr>
                 <td>Phone Number</td>
-                <td>{{ $company->company_phone }}</td>
+                <td>{!! !empty($company->company_phone) ? $company->company_phone : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
                 <td>Website</td>
-                <td>{{ $company->company_website }}</td>
+                <td>{!! !empty($company->company_website) ? $company->company_website : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
                 <td>Address</td>
-                <td>{{ $company->company_address }}</td>
+                <td>{!! !empty($company->company_address) ? $company->company_address : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
                 <td>City</td>
-                <td>{{ $company->company_city }}</td>
+                <td>{!! !empty($company->company_city) ? $company->company_city : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
                 <td>Province</td>
-                <td>{{ $company->company_province }}</td>
+                <td>{!! !empty($company->company_province) ? $company->company_province : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
                 <td>Country</td>
-                <td>{{ $company->company_country }}</td>
+                <td>{!! !empty($company->company_country) ? $company->company_country : '<span class="not-set">not set</span>' !!}</td>
             </tr>
         </table>
         <ul class="nav nav-tabs tabs-bordered">

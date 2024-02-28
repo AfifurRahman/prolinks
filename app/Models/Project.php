@@ -15,9 +15,4 @@ class Project extends Model
     {
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
     }
-
-    public function RefClientGroup()
-    {
-        return $this->hasOne('App\Models\ClientUserGroup', 'id' , 'role_group_id');
-    }
 }

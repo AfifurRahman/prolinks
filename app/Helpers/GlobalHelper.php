@@ -201,9 +201,9 @@ class GlobalHelper
     {
         $results = "";
         if($status == \globals::set_status_company_active()){
-            $results = '<label class="label label-success" style="border-radius:5px;"> Active</label>';
+            $results = '<span class="active_status"> Active</span>';
         }elseif($status == \globals::set_status_company_disabled()){
-            $results = '<label class="label label-danger" style="border-radius:5px;"> Disabled</label>';
+            $results = '<span class="disabled_status"> Disabled</span>';
         }
 
         return $results;

@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\URL;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\User;
 use App\Models\Project;
-use App\Models\ClientUserGroup;
 use App\Models\ClientUser;
 use Session;
 use Auth;
@@ -19,9 +18,7 @@ class ProjectController extends Controller
 	public function list_project()
 	{
 		$project = Project::where('user_id', Auth::user()->user_id)->get();
-		$client_group = ClientUserGroup::get();
-
-		return view('adminuser.project.list_project', compact('project', 'client_group'));
+		return view('adminuser.project.list_project', compact('project'));
 	}
 
 	public function detail_project($id)

@@ -15,4 +15,9 @@ class Company extends Model
     {
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
     }
+
+    public function RefClientUser()
+    {
+        return $this->hasMany('App\Models\ClientUser', 'company' , 'company_name');
+    }
 }

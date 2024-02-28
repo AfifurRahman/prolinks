@@ -1,14 +1,45 @@
+<style type="text/css">
+    .modal-content {
+        padding: 0px !important;
+    }
+
+    .modal-body {
+        padding: 25px !important;
+    }
+
+    .custom-modal-header {
+        padding: 5px;
+        width: 95%;
+        margin: 0 auto;
+        margin-top: 13px;
+    }
+
+    .custom-form input {
+        border-radius: 7px;
+    }
+
+    .custom-form select {
+        border-radius: 7px;
+    }
+</style>
 <div id="modal-add-company" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h4 class="modal-title" id="titleModal">
-                	Create Company
-                </h4>
+                <div class="custom-modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <div style="float: left;">
+                        <img src="{{ url('template/images/data-company.png') }}" width="24" height="24">
+                    </div>
+                    <div style="float: left; margin-left: 10px;">
+                        <h4 class="modal-title" id="titleModal">
+                        	Create Company
+                        </h4>
+                    </div>
+                </div>
             </div>
             <div class="modal-body">
-            	<form action="{{ route('company.save-company') }}" method="POST">
+            	<form class="custom-form" action="{{ route('company.save-company') }}" method="POST">
             		@csrf
             		<input type="hidden" name="id" id="id">
             		<div class="form-group">
@@ -27,7 +58,7 @@
             			<input type="text" name="company_website" id="company_website" class="form-control" placeholder="https:://">
             		</div>
             		<div class="form-group">
-            			<label>Address</label>
+            			<label>Address <span class="text-danger">*</span></label>
             			<textarea class="form-control" name="company_address" id="company_address" height="50"></textarea>
             		</div>
             		<div class="form-group">
@@ -52,7 +83,7 @@
             			<button type="submit" class="btn btn-primary" style="border-radius: 5px;">
             				Create
             			</button>
-            		</div>
+            		</div> <div style="clear: both;"></div>
             	</form>
             </div>
         </div>
@@ -61,10 +92,6 @@
 
 @push('scripts')
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#tableCompany').dataTable();
-        });
-
         function getDetailCompanies(element) {
             var title = $(element).data('title');
             var query = $(element).data('query');
