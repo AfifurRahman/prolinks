@@ -126,9 +126,6 @@
                                 <img src="{{ url('template/images/icon-expand.png') }}" width="26px" height="24px">
                             </button>
                         </li>
-                        <li style="margin-top: 10px;">
-                            <h2 id="title" style="color:black">Activities</h2>
-                        </li>
                     </ul>
 
                     @yield('notification')
@@ -139,15 +136,29 @@
                                 <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img>
                                 <div class="user-profile">
                                     <img class="user-img" src="{{ url('template/images/Avatar.png') }}"></img>
-                                    <div class="user-detail">
-                                        <p class="user-name">
-                                            @if(is_null(Auth::user()->username))
-                                                Unnamed User
-                                            @else
-                                                {{ Auth::user()->username }}
-                                            @endif
-                                        </p>
-                                        <p class="user-company">{{ Auth::user()->name }}</p>
+                                    <div class="user-detail dropdown">
+                                        <div class="user-detail dropdown-toggle" data-toggle="dropdown">
+                                            <p class="user-name">
+                                                @if(is_null(Auth::user()->username))
+                                                    Unnamed User
+                                                @else
+                                                    {{ Auth::user()->username }}
+                                                @endif
+                                            </p>
+                                            <p class="user-company">{{ Auth::user()->name }}</p>
+                                        </div>
+                                        <ul class="dropdown-menu dropdown-menu-top pull-right" style="margin-top:10px;">
+                                            <li><a>Edit Profile</a></li>
+                                            <li>
+                                                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                                    <input type="checkbox" id="logout-checkbox" style="display: none;">
+                                                    <label for="logout-checkbox">Sign out</label>
+                                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                                        @csrf
+                                                    </form>
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -162,7 +173,7 @@
         <div class="content-page">
             <div class="content">
                 <div class="container">
-                    <div class="card-boxxs" style="margin-top: 20px;">
+                    <div class="card-boxxs" style="margin-top:6px;">
                         @yield('content')
                     </div>
                 </div>
