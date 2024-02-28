@@ -14,7 +14,6 @@
 @endsection
 
 @section('content')
-    
     <div id="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Users</h2>
         <button id="invite_user" onclick="document.getElementById('inviteuser_form').style.display='block'"><image id="addimg" src="{{ url('template/images/icon_menu/add.png') }}"></image>Invite User</button>
@@ -254,6 +253,7 @@
                 "bSort": false,
                 "dom": 'rtip',
                 "stripeClasses": false,
+                "pageLength": 8,
             });
 
             $('#search_bar').keyup(function() {
