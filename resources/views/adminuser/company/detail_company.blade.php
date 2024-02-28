@@ -216,7 +216,7 @@
                         @foreach($clientuser as $user)
                             <tr>
                                 <td>
-                                    <image id="usericon" src="{{ url('template/images/Avatar.png') }}"></image>
+                                    <image id="usericon" src="{{ url('template/images/avatar.png') }}"></image>
                                     {{ $user->email_address }}
                                 </td>
                                 <td>
