@@ -1,7 +1,6 @@
 @extends('layouts.app_client')
 
 @section('navigationbar')
-	<a href="#modal-add-project" data-toggle="modal" class="btn btn-lg btn-rounded btn-primary"><i class="fa fa-plus-circle"></i> New Project</a>
 @endsection
 
 @section('notification')
@@ -16,10 +15,6 @@
 @endsection
 
 @section('content')
-	<script type="text/javascript">
-		var title = document.getElementById('title');
-		title.textContent = "List Project";
-	</script>
 	<style type="text/css">
 		.tableProjects td {
 			vertical-align: middle;
@@ -97,37 +92,115 @@
 	        margin-right:13px;
 	        font-size:14px;
 	    }
-	</style>
 
-	<table id="tableProjects" class="tableProjects">
-		<thead>
-			<tr>
-				<th>No</th>
-				<th>Project Name</th>
-				<th>Assign Role</th>
-				<th>Action</th>
-			</tr>
-		</thead>
+	    .btn-custom-act {
+	    	background: transparent;
+	    	border: solid 1px #EDF0F2;
+	    	border-radius: 8px;
+	    	color: #1570EF;
+	    	font-weight: 600;
+	    }
+
+	    .image-project {
+	    	border: solid 1px #EDF0F2;
+	    	width: 48px;
+	    	height: 48px;
+	    	border-radius: 8px;
+	    	position: relative;
+	    }
+
+	    .image-project img {
+	    	width: 32px;
+	    	height: 32px;
+	    	margin: 0;
+		  	position: absolute;
+		  	top: 50%;
+		  	left: 50%;
+		  	-ms-transform: translate(-50%, -50%);
+		  	transform: translate(-50%, -50%);
+	    }
+
+	    .title-project h3 {
+	    	font-size: 16px;
+	    	font-weight: 600;
+	    	letter-spacing: 0.5%;
+	    	color: #1D2939;
+	    	line-height: 0;
+	    }
+
+	    .title-project span {
+	    	font-weight: 400;
+	    	font-size: 14px;
+	    	line-height: 20px;
+	    	letter-spacing: 0.5%;
+	    	color: #586474;
+	    }
+
+	    .label-users{
+		    background: #EDF0F2;
+		    font-size:12px;
+		    font-weight:600;
+		    color: #1D2939;
+		    padding:5px 10px 5px 10px;
+		    border-radius:25px;
+		}
+
+		.table thead > tr > th { border-top: none; }
+		.table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td { border-bottom: 1px solid #ddd; }
+		
+		.modal-content {
+	        padding: 0px !important;
+	    }
+
+	    .modal-body {
+	        padding: 25px !important;
+	    }
+
+	    .custom-modal-header {
+	        padding: 5px;
+	        width: 95%;
+	        margin: 0 auto;
+	        margin-top: 13px;
+	    }
+
+	    .custom-form input {
+	        border-radius: 7px;
+	    }
+
+	    .custom-form select {
+	        border-radius: 7px;
+	    }
+
+	    .custom-form textarea {
+	        border-radius: 7px;
+	    }
+	</style>
+	<div class="pull-left">
+		<h3 style="color:black;font-size:28px;">Project</h3>
+	</div>
+	<div class="pull-right" style="margin-bottom: 24px;">
+		<a href="#modal-add-project" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Project</a>
+	</div><div style="clear: both;"></div>
+	<table class="table table-hover custom-table">
 		<tbody>
 			@if(count($project) > 0)
 				@foreach($project as $key => $projects)
 					<tr>
-						<td width="80">{{ $loop->iteration }}</td>
-						<td>{{ $projects->project_name }}</td>
-						<td>
-							@if(!empty($projects->RefClientGroup->group_name))
-								<label class="label label-inverse" style="border-radius: 10px;">{{ $projects->RefClientGroup->group_name }}</label>
-								<div style="margin-top: 3px;">
-									<a href="#modal-view-role" data-toggle="modal" data-id="{{ $projects->role_group_id }}" onclick="getRole(this)">view role <i class="fa fa-search"></i></a>
-								</div>
-							@else
-								<span class="text-muted"><i>not set</i></span>
-							@endif
+						<td width="48">
+							<div class="image-project">
+								<img src="{{ url('template/images/icon-projects1.png') }}">
+							</div>
 						</td>
-						<td width="150">
+						<td style="vertical-align: middle;">
+							<div class="title-project">
+								<h3><a href="">{{ $projects->project_name }}</a></h3>
+								<span>Last session : {{ date('d M Y H:i') }}</span>
+							</div>
+						</td>
+						<td style="vertical-align: middle;" width="100">
 							<div class="dropdown">
-								<button class="btn btn-md dropdown-toggle" type="button" data-toggle="dropdown" style="border: solid 0px; background: transparent;">
-									<i class="fa fa-ellipsis-v"></i>
+								<button class="btn btn-md dropdown-toggle btn-custom-act" type="button" data-toggle="dropdown">
+									Action&nbsp; <span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right">
 									<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $projects }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
@@ -145,20 +218,31 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" onclick="reloadPage()" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="titleModal">Add Project</h4>
+                	<div class="custom-modal-header">
+                		<button type="button" onclick="reloadPage()" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                		<div style="float: left;">
+	                        <img src="{{ url('template/images/data-project.png') }}" width="24" height="24">
+	                    </div>
+	                    <div style="float: left; margin-left: 10px;">
+	                        <h4 class="modal-title" id="titleModal">
+	                        	Create Project
+	                        </h4>
+	                    </div>
+	                </div>
                 </div>
                 <div class="modal-body">
-                	<form action="{{ route('project.save-project') }}" method="POST">
+                	<form class="custom-form" action="{{ route('project.save-project') }}" method="POST">
 	                	<div class="row">
 	                		<div class="col-md-6">
 								@csrf
 								<input type="hidden" name="id" id="id">
 		                		<div class="form-group">
-									<label>Role Group<span class="text-danger">*</span></label>
-									<select name="role_group_id" id="role_group_id" onchange="changeListRole(this)" class="form-control select2">
-										<option value="">- select role group -</option>
-										
+									<label>Company<span class="text-danger">*</span></label>
+									<select required name="company_id" id="company_id" onchange="changeCompany(this)" class="form-control select2">
+										<option value="">- select company -</option>
+										@foreach($company as $companies)
+											<option value="{{ $companies->company_id }}">{{ $companies->company_name }}</option>
+										@endforeach
 									</select>
 								</div>
 		                		<div class="form-group">
@@ -185,10 +269,13 @@
 	                		</div>
 	                	</div>
 	                	<div class="row">
-	                		<div class="col-md-12">
-	                			<div class="form-group">
-									<button type="submit" class="btn btn-primary col-md-12">
-										<i class="fa fa-check"></i> Submit
+	                		<div class="col-md-6">
+	                			<div class="pull-right">
+	                				<button type="button" data-dismiss="modal" class="btn btn-default" style="border-radius: 5px;">
+			            				Close
+			            			</button>
+									<button type="submit" class="btn btn-primary" style="border-radius: 5px;">
+										Create
 									</button>
 								</div>
 	                		</div>
@@ -230,15 +317,15 @@
 
         function getRole(element) {
         	var id = $(element).data('id');
-        	getDetailRole(id);
+        	getDetailCompany(id);
         }
 
-        function changeListRole(element) {
+        function changeCompany(element) {
         	var id = element.value;
-        	getDetailRole(id);
+        	getDetailCompany(id);
         }
 
-        function getDetailRole(id) {
+        function getDetailCompany(id) {
         	if (id != "") {
 	        	$.ajax({
 	        		url: "{{ route('project.detail-role-users') }}",
@@ -259,13 +346,16 @@
 	        					res += "<tr>"
 		        					res += "<td>"+output[i].email_address+"</td>"
 		        					if (output[i].role == 0) {
-		        						res += "<td><label class='label label-success label-rounded'>Administrator</label></td>"
+		        						res += "<td><label class='label-users'>Administrator</label></td>"
 		        					}else if(output[i].role == 1){
-		        						res += "<td><label class='label label-info label-rounded'>Collaborator</label></td>"
+		        						res += "<td><label class='label-users'>Collaborator</label></td>"
 		        					}
 		        				res += "</tr>"
 	        				}
 	        				
+	        				$(".resultUserGroup").html(res);
+	        			}else{
+	        				var res = "<tr><td colspan='2' align='center'>not found</td></tr>";
 	        				$(".resultUserGroup").html(res);
 	        			}
 	        		}
@@ -283,7 +373,7 @@
 
         	$("#id").val(query.project_id);
         	$("#project_name").val(query.project_name);
-        	$("#role_group_id").val(query.role_group_id).trigger('change');
+        	$("#company_id").val(query.company_id).trigger('change');
     		$("#project_desc").val(query.project_desc);
     	}
 

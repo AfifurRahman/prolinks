@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
+use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\User;
 use App\Models\Project;
 use Session;
@@ -25,12 +26,15 @@ class FirstProjectController extends Controller
 
     public function save_first_project(Request $request)
     {
+        $notification = "";
         try {
     		\DB::beginTransaction();
     		
             $project = new Project;
             $project->project_id = Str::uuid(4);
             $project->user_id = Auth::user()->user_id;
+            $project->client_id = \globals::get_client_id();
+            $project->company_id = "-";
             $project->project_name = $request->input('project_name');
             $project->project_desc = $request->input('project_desc');
             $project->start_date = $request->input('start_date');
@@ -40,15 +44,16 @@ class FirstProjectController extends Controller
             if ($project->save()) {
                 /* add session project id */
                 Session::put('project_id', $project->project_id);
-                toast("Project created!", "success");
+                $notification = "Project created!";
             }
 
     		\DB::commit();
     	} catch (\Exception $e) {
     		\DB::rollback();
 			Alert::error('Error', $e->getMessage());
-    	}
+    	    return back();
+        }
 
-    	return redirect(route('home'));
+    	return redirect(route('home'))->with('notification', $notification);
     }
 }

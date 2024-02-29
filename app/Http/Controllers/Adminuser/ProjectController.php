@@ -10,6 +10,7 @@ use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\ClientUser;
+use App\Models\Company;
 use Session;
 use Auth;
 
@@ -18,22 +19,14 @@ class ProjectController extends Controller
 	public function list_project()
 	{
 		$project = Project::where('user_id', Auth::user()->user_id)->get();
-		return view('adminuser.project.list_project', compact('project'));
+		$company = Company::where('company_status', \globals::set_status_company_active())->get();
+		
+		return view('adminuser.project.list_project', compact('project', 'company'));
 	}
 
 	public function detail_project($id)
 	{
 		return view('adminuser.project.detail_project');
-	}
-
-	public function create_project($id=NULL)
-	{
-		$project = [];
-		if ($id != NULL) {
-			$project = Project::where('user_id', Auth::user()->user_id)->where('project_id', $id)->first();
-		}
-
-		return view('adminuser.project.add_project', compact('project'));
 	}
 
 	public function save_project(Request $request)
@@ -44,7 +37,8 @@ class ProjectController extends Controller
 
 			if ($projectId != NULL) {
 				$updated = Project::where('project_id', $projectId)->update([
-					'role_group_id' => $request->input('role_group_id'),
+					'company_id' => $request->input('company_id'),
+					'client_id' => \globals::get_client_id(),
 					'project_name' => $request->input('project_name'),
 		            'project_desc' => $request->input('project_desc'),
 		            'start_date' => $request->input('start_date'),
@@ -60,7 +54,8 @@ class ProjectController extends Controller
 				$project = new Project;
 	            $project->project_id = Str::uuid(4);
 	            $project->user_id = Auth::user()->user_id;
-	            $project->role_group_id = $request->input('role_group_id');
+	            $project->company_id = $request->input('company_id');
+	            $project->client_id = \globals::get_client_id();
 	            $project->project_name = $request->input('project_name');
 	            $project->project_desc = $request->input('project_desc');
 	            $project->start_date = $request->input('start_date');

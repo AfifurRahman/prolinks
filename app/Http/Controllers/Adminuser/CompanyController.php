@@ -39,7 +39,8 @@ class CompanyController extends Controller
 
 		  	if ($id != NULL) {
 		  		$update = Company::where('id', $id)->update([
-		  			'company_name' => $request->input('company_name'),
+		  			'client_id' => \globals::get_client_id(),
+                    'company_name' => $request->input('company_name'),
 		  			'company_phone' => $request->input('company_phone'),
 		  			'company_website' => $request->input('company_website'),
 		  			'company_address' => $request->input('company_address'),
@@ -57,7 +58,8 @@ class CompanyController extends Controller
 		  		$companies = new Company;
 		  		$companies->company_id = Str::uuid(4);
 		  		$companies->user_id = Auth::user()->user_id;
-		  		$companies->company_name = $request->input('company_name');
+		  		$companies->client_id = \globals::get_client_id();
+                $companies->company_name = $request->input('company_name');
 	  			$companies->company_phone = $request->input('company_phone');
 	  			$companies->company_website = $request->input('company_website');
 	  			$companies->company_address = $request->input('company_address');
