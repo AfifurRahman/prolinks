@@ -40,6 +40,33 @@
 		    -moz-border-radius: 0px !important;
 		    border-radius: 10px !important; 
 		}
+
+		.modal-content {
+	        padding: 0px !important;
+	    }
+
+	    .modal-body {
+	        padding: 25px !important;
+	    }
+
+	    .custom-modal-header {
+	        padding: 5px;
+	        width: 95%;
+	        margin: 0 auto;
+	        margin-top: 13px;
+	    }
+
+	    .custom-form input {
+	        border-radius: 7px;
+	    }
+
+	    .custom-form select {
+	        border-radius: 7px;
+	    }
+
+	    .custom-form textarea {
+	        border-radius: 7px;
+	    }
 	</style>
 
 	<!-- Modal -->
@@ -47,13 +74,22 @@
         <div class="modal-dialog">
             <div class="modal-content">
             	<div class="modal-header">
-                	<h4>Create First Project</h4>
+                	<div class="custom-modal-header">
+                		<div style="float: left;">
+	                        <img src="{{ url('template/images/data-project.png') }}" width="24" height="24">
+	                    </div>
+	                    <div style="float: left; margin-left: 10px;">
+	                        <h4 class="modal-title" id="titleModal">
+	                        	Create First Project
+	                        </h4>
+	                    </div>
+	                </div>
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-icon alert-success">
 						<i class="mdi mdi-information"></i> For first step, please create your project
 					</div>
-					<form action="{{ route('project.save-first-project') }}" method="POST">
+					<form class="custom-form" action="{{ route('project.save-first-project') }}" method="POST">
 						@csrf
 						<div class="form-group">
 							<label>Project Name <span class="text-danger">*</span></label>
@@ -63,9 +99,9 @@
 							<label>Project Desc </label>
 							<textarea name="project_desc" id="project_desc" class="form-control"></textarea>
 						</div>
-						<div class="form-group">
-							<button type="submit" class="btn btn-primary col-md-12">
-								<i class="fa fa-check"></i> Create Project
+						<div class="pull-right">
+							<button type="submit" style="border-radius: 5px;" class="btn btn-primary">
+								Create Project
 							</button>
 						</div><div style="clear: both;"></div>			
 					</form>

@@ -7,6 +7,7 @@ use Auth;
 use App\Models\User;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Project;
+use App\Models\Client;
 
 class GlobalHelper
 {
@@ -207,5 +208,10 @@ class GlobalHelper
         }
 
         return $results;
+    }
+
+    public static function get_client_id()
+    {
+        return Auth::user()->RefClient->client_id;
     }
 }

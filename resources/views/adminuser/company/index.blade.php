@@ -154,7 +154,7 @@
 	        background: #FEF3F2;
 	        font-size:12px;
 	        font-weight:600;
-	        color: #027A48; 
+	        color: #912018; 
 	        padding:5px 10px 5px 10px;
 	        border-radius:25px;
 	    }
@@ -168,7 +168,7 @@
 	<div id="box_helper">
         <div>
             <select name="filter_status" id="filter_status" class="form-control">
-            	<option value="all">All Status</option>
+            	<option value="">All Status</option>
             	<option value="active">Active</option>
             	<option value="disabled">Disable</option>
             </select>
