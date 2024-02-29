@@ -18,7 +18,9 @@ class AccessUsersController extends Controller
 {
     public function index()
     {
-        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('company', Auth::user()->name)->get();
+        $adminusercompany = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
+
+        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('company', $adminusercompany)->get();
 
         $companies = Company::pluck('company_id')->toArray();
 
@@ -43,7 +45,7 @@ class AccessUsersController extends Controller
                         // If the email doesn't exist, create a new user
                         ClientUser::create([
                             'email_address' => $email,
-                            'company' => Auth::user()->name,
+                            'company' => DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id'),
                             'role' => $request->role,
                             'group_id' => $request->company,
                         ]);

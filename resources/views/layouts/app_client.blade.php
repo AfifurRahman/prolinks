@@ -122,7 +122,7 @@
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
                         <li>
-                            <button class="button-menu-mobile open-left" style="margin-top: 24px">
+                            <button id="menuButton" class="button-menu-mobile open-left" style="margin-top: 24px">
                                 <img src="{{ url('template/images/icon-expand.png') }}" width="26px" height="24px">
                             </button>
                         </li>
@@ -231,6 +231,19 @@
 
         $("#main_project_id").change(function(){
             $("#app-change-project").submit();
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var menuButton = document.querySelector('.button-menu-mobile');
+            var formGroup = document.querySelector('.form-group');
+
+            menuButton.addEventListener('click', function() {
+                if (formGroup.style.display === 'none') {
+                    formGroup.style.display = 'block';
+                } else {
+                    formGroup.style.display = 'none';
+                }
+            });
         });
 
         function formatNumber(n) {

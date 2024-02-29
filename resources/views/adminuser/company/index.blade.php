@@ -204,7 +204,7 @@
 						</td>
 						<td>{!! \globals::label_status_company($companies->company_status) !!}</td>
 						<td>0</td>
-						<td>0</td>
+						<td>{{ DB::table('client_users')->where('group_id', $companies->company_id)->count() }}</td>
 						<td>{{ date('d M Y H:i', strtotime($companies->created_at)) }}</td>
 						<td width="100">
 							<div class="dropdown">

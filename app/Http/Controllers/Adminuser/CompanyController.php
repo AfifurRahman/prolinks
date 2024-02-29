@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
 use App\Models\User;
 use App\Models\Company;
+use App\Models\Client;
 use App\Models\ClientUser;
 use Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,6 +20,7 @@ class CompanyController extends Controller
     public function index(Request $request)
     {
 		$company = $this->get_company(NULL, $request);
+
         return view('adminuser.company.index', compact('company'));
     }
 
