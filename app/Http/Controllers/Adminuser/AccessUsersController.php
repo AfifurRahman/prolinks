@@ -38,11 +38,9 @@ class AccessUsersController extends Controller
 
             foreach ($emailAddresses as $email) {
                 if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    // Check if the email already exists
                     $existingUser = ClientUser::where('email_address', $email)->first();
                     
                     if (!$existingUser) {
-                        // If the email doesn't exist, create a new user
                         ClientUser::create([
                             'email_address' => $email,
                             'company' => DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id'),
@@ -88,34 +86,71 @@ class AccessUsersController extends Controller
 
     public function move_group(Request $request)
     {
-        $users = base64_decode($request->username);
+        try {
+            $users = base64_decode($request->username);
 
-        $group = $request->group_num;
+            $group = $request->group_num;
 
-        $result = DB::table('client_users')
-                ->where('email_address', $users)
-                ->update(['group_id' => $group]);
+            DB::table('client_users')->where('email_address', $users)->update(['group_id' => $group]);
 
-        return back();
+            $notification = "User moved successfully";
+        } catch (\Exception $e) {
+            $notification = "Failed to move user";
+        }
+
+        return back()->with('notification', $notification);
     }
 
     public function resend_email($encodedEmail)
     {
-        $email = base64_decode($encodedEmail);
+        try {
+            $email = base64_decode($encodedEmail);
 
-        $users = User::where('email', $email)->firstOrFail();
+            $users = User::where('email', $email)->firstOrFail();
 
-        $token = Password::getRepository()->create($users);
+            $token = Password::getRepository()->create($users);
 
-        $details = [
-            'client_name' => $email,
-            'link' => URL::to('/create-password') . '/' . $token . '?email=' . str_replace("@", "%40", $email),
-        ];
+            $details = [
+                'client_name' => $email,
+                'link' => URL::to('/create-password') . '/' . $token . '?email=' . str_replace("@", "%40", $email),
+            ];
 
-        $sendMail = \Mail::to($users->email)->send(new \App\Mail\CreateAdminClientPassword($details));
+            \Mail::to($users->email)->send(new \App\Mail\CreateAdminClientPassword($details));
 
-        $notification = "Email sent";
+            $notification = "Email sent";
+        } catch(\Exception $e) {
+            $notification = "Failed to send email";
+        }
 
+        return back()->with('notification', $notification);
+    }
+
+    public function disable_user($encodedEmail)
+    {
+        try {
+            $email = base64_decode($encodedEmail);
+
+            ClientUser::where('email_address',$email)->update(['status' => 2]);
+    
+            $notification = "User has been disabled";    
+        } catch(\Exception $e) {
+            $notification = "Failed to disable user";
+        }
+
+        return back()->with('notification', $notification);
+    }
+    public function enable_user($encodedEmail)
+    {
+        try {
+            $email = base64_decode($encodedEmail);
+
+            ClientUser::where('email_address',$email)->update(['status' => 1]);
+            
+            $notification = "User has been enabled";
+        } catch(\Exception $e) {
+            $notification= "Failed to enable user";
+        }
+       
         return back()->with('notification', $notification);
     }
 }

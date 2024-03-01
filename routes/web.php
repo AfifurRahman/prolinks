@@ -67,10 +67,16 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 
 /* ADMINUSER AUTH */
 Route::group(['middleware' => 'auth'], function () {
+	/* Clientuser */
 	Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
 	Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
 	Route::post('/users/move-group', 'App\Http\Controllers\Adminuser\AccessUsersController@move_group')->name('adminuser.access-users.move-group');
 	Route::get('/users/resend-email/{encodedEmail}', 'App\Http\Controllers\Adminuser\AccessUsersController@resend_email')->name('adminuser.access-users.resend-email');
+	Route::get('users/disable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@disable_user')->name('adminuser.access-users.disable-user');
+	Route::get('users/enable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@enable_user')->name('adminuser.access-users.enable-user');
+
+	/* Document */
+	Route::get('documents/list', 'App\Http\Controllers\Adminuser\DocumentController@index')->name('adminuser.documents.list');
 });
 
 
@@ -104,4 +110,3 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::get('/project/delete-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_project')->name('project.delete-project');
 	});
 });
-

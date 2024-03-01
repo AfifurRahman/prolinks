@@ -29,6 +29,13 @@
     margin-right:6px;
 }
 
+table thead th:first-child {
+    border-top-left-radius: 10px;
+}
+ table thead th:last-child {
+    border-top-right-radius: 10px;
+}
+  
 #tableUser{
     border-collapse: separate;
     border:1px solid #CED5DD;
@@ -245,6 +252,15 @@
     font-size:12px;
     font-weight:600;
     color: #027A48; 
+    padding:5px 10px 5px 10px;
+    border-radius:25px;
+}
+
+.disabled_status{
+    background: #FEF3F2;
+    font-size:12px;
+    font-weight:600;
+    color: #912018; 
     padding:5px 10px 5px 10px;
     border-radius:25px;
 }

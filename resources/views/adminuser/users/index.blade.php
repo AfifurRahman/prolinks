@@ -1,6 +1,6 @@
 @extends('layouts.app_client')
 
-<link href="{{ url('clientuser/index.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ url('clientuser/userindex.css') }}" rel="stylesheet" type="text/css" />
 
 @section('notification')
     @if(session('notification'))
@@ -212,15 +212,17 @@
                                     <span class="active_status">You</span>
                                 @elseif($user->status == 1)
                                     <span class="active_status">Active</span>
+                                @elseif($user->status == 2)
+                                    <span class="disabled_status">Disabled</span>
                                 @elseif($user->status == 0)
                                     <span class="invited_status">Invited</span>
                                 @endif
                             </td>
                             <td>
-                                @if(is_null(App\Models\User::where('email', $user->email_address)->first()->last_signed))
+                                @if(is_null(App\Models\User::where('email', $user->email_address)->value('last_signed')))
                                     -
                                 @else
-                                    {{ date('d M Y, H:i', strtotime(App\Models\User::where('email', $user->email_address)->first()->last_signed)) }}
+                                    {{ date('d M Y, H:i', strtotime(App\Models\User::where('email', $user->email_address)->value('last_signed'))) }}
                                 @endif
                             </td>
                             <td>
@@ -230,8 +232,12 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-top pull-right">
                                         <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to company</a></li>
-                                        <li><a>Make as owner</a></li>
-                                        <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i> Send Email</a></li>
+                                        @if($user->status == 1)
+                                            <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}">Disable User</a></li>
+                                        @elseif($user->status == 2)
+                                            <li><a href="{{ route('adminuser.access-users.enable-user', base64_encode($user->email_address)) }}">Enable User</a></li>
+                                        @endif
+                                        <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Send Email</a></li>
                                     </ul>
                                 </div>
                             </td>
