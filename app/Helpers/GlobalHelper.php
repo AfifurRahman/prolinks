@@ -214,4 +214,54 @@ class GlobalHelper
     {
         return Auth::user()->RefClient->client_id;
     }
+
+    public static function set_status_discussion_open()
+    {
+        return 0;
+    }
+
+    public static function set_status_discussion_submitted()
+    {
+        return 1;
+    }
+
+    public static function set_status_discussion_replied()
+    {
+        return 2;
+    }
+
+    public static function set_status_discussion_unanswered()
+    {
+        return 3;
+    }
+
+    public static function set_status_discussion_closed()
+    {
+        return 4;
+    }
+
+    public static function set_status_discussion_high()
+    {
+        return 5;
+    }
+
+    public static function label_status_discussion($status)
+    {
+        $results = "";
+        if($status == \globals::set_status_discussion_open()){
+            $results = '<label class="label label-primary" style="border-radius:8px;"> Open</label>';
+        }elseif($status == \globals::set_status_discussion_submitted()){
+            $results = '<label class="label label-success" style="border-radius:8px;"> Submitted</label>';
+        }elseif($status == \globals::set_status_discussion_replied()){
+            $results = '<label class="label label-info" style="border-radius:8px;"> Replied</label>';
+        }elseif($status == \globals::set_status_discussion_unanswered()){
+            $results = '<label class="label label-warning" style="border-radius:8px;"> Unanswered</label>';
+        }elseif($status == \globals::set_status_discussion_closed()){
+            $results = '<label class="label label-inverse" style="border-radius:8px;"> Closed</label>';
+        }elseif($status == \globals::set_status_discussion_high()){
+            $results = '<label class="label label-danger" style="border-radius:8px;"> High</label>';
+        }
+
+        return $results;
+    }
 }

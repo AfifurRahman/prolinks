@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('discussions', function (Blueprint $table) {
+        Schema::create('discussion_comments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('discussion_id');
             $table->string('project_id')->nullable();
             $table->string('user_id')->nullable();
-            $table->string('subject')->nullable();
-            $table->longtext('description')->nullable();
-            $table->integer('show_to_customer')->nullable();
+            $table->string('discussion_type', 50)->nullable();
+            $table->integer('parent')->nullable();
+            $table->longtext('content')->nullable();
+            $table->string('fullname')->nullable();
+            $table->string('file_name')->nullable();
+            $table->string('file_mime_type', 100)->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();
             $table->timestamps();
@@ -30,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('discussions');
+        Schema::dropIfExists('discussion_comments');
     }
 };

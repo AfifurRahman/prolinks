@@ -28,7 +28,7 @@
                     <a href="{{ route('project.list-project') }}" class="waves-effect"><i class="fa fa-cogs"></i><span> Project </span></a>
                 </li>
                 <li>
-                    <a href="xxx" class="waves-effect"><i class="fa fa-comments"></i><span> Q & A </span></a>
+                    <a href="{{ route('discussion.list-discussion') }}" class="waves-effect"><i class="fa fa-comments"></i><span> Q & A </span></a>
                 </li>
                 <li>
                     <a href="xxx" class="waves-effect"><i class="fa fa-list-alt"></i><span> Reports </span></a>
