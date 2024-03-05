@@ -269,9 +269,9 @@
         });
 
         function hideNotification() {
-        setTimeout(function() {
-            $('#notification').fadeOut();
-            }, 2000);
+            setTimeout(function() {
+                $('#notification').fadeOut();
+                }, 2000);
         };
 
         hideNotification();

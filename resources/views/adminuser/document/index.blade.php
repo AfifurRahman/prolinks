@@ -227,17 +227,54 @@
         background-color: rgba(22, 131, 255, 0.1);
     }
 
+    .notificationlayer {
+        position: absolute;
+        width:100%;
+        height:50px;
+        z-index: 2;
+        pointer-events: none;
+        display:none;
+    }
+
+    .notification {
+        background-color: #FFFFFF;
+        border: 2px solid #12B76A;
+        border-radius: 8px;
+        display: flex;
+        color: #232933;
+        margin: 50px auto;
+        text-align: center;
+        height: 48px;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: top 0.5s ease;    
+    }
+
+    .notificationicon {
+        width:20px;
+        height:20px;
+        margin-top:11px;
+        margin-left:15px;
+    }
+
+    .notificationtext{
+        margin-top:11px;
+        margin-left:8px;
+        margin-right:13px;
+        font-size:14px;
+    }
+
 </style>
 
 @section('notification')
-    @if(session('notification'))
-        <div class="notificationlayer">
-            <div class="notification" id="notification">
-                <image class="notificationicon" src="{{ url('template/images/icon_menu/checklist.png') }}"></image>
-                <p class="notificationtext">{{ session('notification') }}</p>
-            </div>
+    <div class="notificationlayer">
+        <div class="notification">
+            <image class="notificationicon" src="{{ url('template/images/icon_menu/checklist.png') }}"></image>
+            <p class="notificationtext"></p>
         </div>
-    @endif
+    </div>
 @endsection
 
 @section('content')
@@ -257,8 +294,8 @@
                 <div class="drag-area" id="dragArea">
                     <span class="header">Drag & Drop</span>
                     <span class="header">or <span class="button" onclick="document.getElementById('fileInput').click();">browse</span></span>
-                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;">
-                    <span class="support">Supports all kind of file, don't worry</span>
+                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" multiple webkitdirectory mozdirectory msdirectory odirectory directory>
+                    <span class="support">Supports jpg, jpeg, png, doc, docx, ppt, pptx, xlsx, pdf, and zip</span>
                 </div>
             </div>
         </div>      
@@ -345,8 +382,44 @@
             });
         });
 
+        function showNotification(message) {
+            document.getElementById('upload-modal').style.display='none';
+            document.querySelector('.notificationtext').textContent = message;
+            document.querySelector('.notificationlayer').style.display = 'block';
+            setTimeout(() => {
+                $('.notificationlayer').fadeOut();
+            }, 2000);
+        }
+
         function handleFiles(files) {
-            console.log(files);
+            var formData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]);
+            }
+
+            fetch('{{ route("adminuser.documents.upload") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    showNotification("Upload failed");
+                    throw new Error('Failed to upload the file, unsupported file type');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                if(data.success){
+                    showNotification("File successfully uploaded");     
+                }
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
         }
     </script>
     @endpush
