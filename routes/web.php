@@ -76,8 +76,11 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('users/enable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@enable_user')->name('adminuser.access-users.enable-user');
 
 	/* Document */
-	Route::get('documents/list', 'App\Http\Controllers\Adminuser\DocumentController@index')->name('adminuser.documents.list');
+	Route::get('documents/', 'App\Http\Controllers\Adminuser\DocumentController@index')->name('adminuser.documents.list');
+	Route::get('documents/{folder}','App\Http\Controllers\Adminuser\DocumentController@folder')->name('adminuser.documents.folder');
+	Route::get('documents/download/{file}','App\Http\Controllers\Adminuser\DocumentController@file')->name('adminuser.documents.file');
 	Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@upload')->name('adminuser.documents.upload');
+	Route::post('documents/create_folder', 'App\Http\Controllers\Adminuser\DocumentController@create_folder')->name('adminuser.documents.create_folder');
 });
 
 
