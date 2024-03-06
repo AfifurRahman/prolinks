@@ -20,4 +20,9 @@ class Discussion extends Model
     {
         return $this->hasOne('App\Models\Project', 'project_id' , 'project_id');
     }
+
+    public function RefDiscussion()
+    {
+        return $this->hasMany('App\Models\Discussion', 'discussion_id' , 'discussion_id');
+    }
 }

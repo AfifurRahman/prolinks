@@ -6,6 +6,7 @@ use Auth;
 use App\Models\User;
 use App\Models\ClientUser;
 use App\Models\Company;
+use App\Models\AccessGroup;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Http\Request;
+use Session;
 
 class AccessUsersController extends Controller
 {
@@ -22,13 +24,13 @@ class AccessUsersController extends Controller
 
         $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('company', $adminusercompany)->get();
 
-        $companies = Company::pluck('company_id')->toArray();
+        $group = AccessGroup::pluck('group_id')->toArray();
 
         $owners = User::where('type', 1)->where('name', Auth::user()->name)->get();
         
-        array_unshift($companies, 0);
+        array_unshift($group, 0);
 
-        return view('adminuser.users.index', compact('clientuser','companies','owners'));
+        return view('adminuser.users.index', compact('clientuser','group','owners'));
     }
 
     public function create_user(Request $request)
@@ -151,6 +153,27 @@ class AccessUsersController extends Controller
             $notification= "Failed to enable user";
         }
        
+        return back()->with('notification', $notification);
+    }
+
+    public function create_group(Request $request) {
+        try {
+            $group = new AccessGroup;
+            $group->group_id = Str::uuid(4);
+            $group->project_id = Session::get('project_id');
+            $group->client_id = \globals::get_client_id();
+            $group->user_id = Auth::user()->user_id;
+            $group->group_name = $request->input('group_name');
+            $group->group_desc = $request->input('group_desc');
+            $group->created_by = Auth::user()->id;
+            $group->created_at = date('Y-m-d H:i:s');
+            if($group->save()) {
+                $notification = 'success create group';
+            }
+        } catch (\Throwable $th) {
+            $notification = $th->getMessage();
+        }
+
         return back()->with('notification', $notification);
     }
 }

@@ -179,6 +179,8 @@
                 </div>
             </div>
         </div>
+
+        @include('widget_modal_project')
     </div>
 
     @include('sweetalert::alert')

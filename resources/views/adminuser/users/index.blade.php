@@ -16,7 +16,10 @@
 @section('content')
     <div id="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Users</h2>
-        <button id="invite_user" onclick="document.getElementById('inviteuser_form').style.display='block'"><image id="addimg" src="{{ url('template/images/icon_menu/add.png') }}"></image>Invite User</button>
+        <div>
+            <button id="create_group" onclick="document.getElementById('create_group_form').style.display='block'">Create Group</button>
+            <button id="invite_user" onclick="document.getElementById('inviteuser_form').style.display='block'"><image id="addimg" src="{{ url('template/images/icon_menu/add.png') }}"></image>Invite User</button>
+        </div>
     </div>
 
     <div id="box_helper">
@@ -66,18 +69,26 @@
                         <input type="radio" name="role" value="1" required>
                         <div class="roledetail">
                             <p class="roletitle">Collaborator<p>
-                            <p class="roledesc">Can view, upload, download, and ask questions based on their group permissions.</p>
+                            <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
+                        </div>
+                    </div>
+
+                    <div class="roleselect">
+                        <input type="radio" name="role" value="2" required>
+                        <div class="roledetail">
+                            <p class="roletitle">Client<p>
+                            <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
                         </div>
                     </div>
                     
                     <div class="company_id">
-                        <h5 class="usercompany">Company</h5>
+                        <h5 class="usercompany">Group</h5>
                         <select class="form-control select2" name="company">
-                            @foreach($companies as $company)
-                                @if($company == 0)
+                            @foreach($group as $groups)
+                                @if($groups == 0)
                                     <option value="0">Unassigned</option>
                                 @else
-                                    <option value="{{$company}}">{{ DB::table('companies')->where('company_id', $company)->value('company_name') }}</option>
+                                    <option value="{{$groups}}">{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
                                 @endif
                             @endforeach
                         </select>
@@ -96,7 +107,7 @@
             <div class="modal-topbar">
                 <div id="inviteuser-title">
                     <image id="creategroup-ico" src="{{ url('template/images/icon_menu/group.png') }}"></image>
-                    <h5 class="modaltitle-text">Move to company</h5>
+                    <h5 class="modaltitle-text">Move to group</h5>
                 </div>
                 
                 <button class="modal-close" onclick="document.getElementById('moveuser').style.display='none'">
@@ -110,11 +121,11 @@
                     <input type="hidden" name="username" id="username">
                     <br>
                     <select class="form-control select2" name="group_num">
-                        @foreach($companies as $company)
-                            @if($company == 0)
+                        @foreach($group as $groups)
+                            @if($groups == 0)
                                 <option value="0">Unassigned</option>
                             @else
-                                <option value="{{$company}}">{{ DB::table('companies')->where('company_id', $company)->value('company_name') }}</option>
+                                <option value="{{$groups}}">{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
                             @endif
                         @endforeach
                     </select>
@@ -136,7 +147,7 @@
                 <tr>
                     <th id="check"><input type="checkbox" id="checkbox" disabled/></th>
                     <th id="name">Name</th>
-                    <th id="company">Company</th>
+                    <th id="company">Group</th>
                     <th id="role">Role</th>
                     <th id="status">&nbsp;Status</th>
                     <th id="lastsigned">Last signed in</th>
@@ -156,7 +167,8 @@
                                 {{ $owner->email }}
                             </td>
                             <td>
-                                {{ $owner->name }}
+                                <!-- {{ $owner->name }} -->
+                                <span class="text-muted">Owner</span>
                             </td> 
                             <td>
                                Administrator
@@ -176,11 +188,11 @@
                                 @endif
                             </td>
                             <td>
-                                <div class="dropdown">
+                                <!-- <div class="dropdown">
                                     <button class="button_ico dropdown-toggle" data-toggle="dropdown" disabled>
-                                        <img src="{{ url('template/images/icon_menu/button_ico.png') }}" alt="Dropdown Button">
+                                        <i class="fa fa-ellipsis-v"></i>
                                     </button>
-                                </div>
+                                </div> -->
                             </td>
                         </tr>
                     @endforeach
@@ -198,13 +210,15 @@
                                 {{ $user->email_address }}
                             </td>
                             <td>
-                                {{ DB::table('companies')->where('company_id', $user->group_id)->value('company_name') }}
+                                {{ DB::table('access_group')->where('group_id', $user->group_id)->value('group_name') }}
                             </td>
                             <td>
                                 @if($user->role == 0) 
                                     Administrator
                                 @elseif($user->role == 1)
                                     Collaborator
+                                    @elseif($user->role == 2)
+                                    Client
                                 @endif
                             </td>
                             <td>
@@ -228,10 +242,10 @@
                             <td>
                                 <div class="dropdown">
                                     <button class="button_ico dropdown-toggle" data-toggle="dropdown">
-                                        <img src="{{ url('template/images/icon_menu/button_ico.png') }}" alt="Dropdown Button">
+                                        <i class="fa fa-ellipsis-v"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                        <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to company</a></li>
+                                        <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
                                         @if($user->status == 1)
                                             <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}">Disable User</a></li>
                                         @elseif($user->status == 2)
@@ -247,6 +261,7 @@
             </tbody>
         </table>
     </div>
+    @include('adminuser.users.create_group')
 
     @push('scripts')
     <script>
