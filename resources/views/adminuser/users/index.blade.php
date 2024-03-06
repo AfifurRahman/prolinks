@@ -69,7 +69,15 @@
                         <input type="radio" name="role" value="1" required>
                         <div class="roledetail">
                             <p class="roletitle">Collaborator<p>
-                            <p class="roledesc">Can view, upload, download, and ask questions based on their group permissions.</p>
+                            <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
+                        </div>
+                    </div>
+
+                    <div class="roleselect">
+                        <input type="radio" name="role" value="2" required>
+                        <div class="roledetail">
+                            <p class="roletitle">Client<p>
+                            <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
                         </div>
                     </div>
                     
@@ -159,7 +167,8 @@
                                 {{ $owner->email }}
                             </td>
                             <td>
-                                {{ $owner->name }}
+                                <!-- {{ $owner->name }} -->
+                                <span class="text-muted">Owner</span>
                             </td> 
                             <td>
                                Administrator
@@ -201,13 +210,15 @@
                                 {{ $user->email_address }}
                             </td>
                             <td>
-                                {{ DB::table('companies')->where('company_id', $user->group_id)->value('company_name') }}
+                                {{ DB::table('access_group')->where('group_id', $user->group_id)->value('group_name') }}
                             </td>
                             <td>
                                 @if($user->role == 0) 
                                     Administrator
                                 @elseif($user->role == 1)
                                     Collaborator
+                                    @elseif($user->role == 2)
+                                    Client
                                 @endif
                             </td>
                             <td>
