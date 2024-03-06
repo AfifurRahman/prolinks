@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\URL;
 use App\Models\User;
 use App\Models\Discussion;
 use App\Models\DiscussionComment;
+use App\Models\DiscussionAttachFile;
 use App\Models\Client;
 use App\Models\ClientUser;
 use Auth;
@@ -26,20 +27,20 @@ class DiscussionController extends Controller
     }
 
     function detail($discussion_id){
-        return view('adminuser.discussion.detail');
+        return view('adminuser.discussion.detail', compact('discussion_id'));
     }
 
     function save_discussion(Request $request){
         try {
             \DB::beginTransaction();
 
-            $id = $request->input('id');
-
+            $id = $request->input('discussion_id');
+            $discussion_id = $id;
             if ($id != NULL) {
-                $update = Company::where('id', $id)->update([
-                    'discussion_id' => Str::uuid(4),
+                $update = Discussion::where('discussion_id', $id)->update([
                     'project_id' => Session::get('project_id'),
                     'user_id' => Auth::user()->user_id,
+                    'client_id' => \globals::get_client_id(),
                     'subject' => $request->input('subject'),
                     'description' => $request->input('description'),
                     'updated_by' => Auth::user()->id,
@@ -54,6 +55,7 @@ class DiscussionController extends Controller
                 $discussion->discussion_id = Str::uuid(4);
                 $discussion->project_id = Session::get('project_id');
                 $discussion->user_id = Auth::user()->user_id;
+                $discussion->client_id = \globals::get_client_id();
                 $discussion->subject = $request->input('subject');
                 $discussion->description = $request->input('description');
                 $discussion->created_by = Auth::user()->id;
@@ -62,14 +64,18 @@ class DiscussionController extends Controller
                 if ($discussion->save()) {
                     $comment = new DiscussionComment;
                     $comment->discussion_id = $discussion->discussion_id;
-                    $comment->project_id = Session::get('project_id');
-                    $comment->user_id = Auth::user()->user_id;
+                    $comment->project_id = $discussion->project_id;
+                    $comment->user_id = $discussion->user_id;
+                    $comment->client_id = $discussion->client_id;
                     $comment->parent = 0;
                     $comment->content = $request->input('description');
                     $comment->fullname = Auth::user()->name;
+                    $comment->created_by = Auth::user()->id;
+                    $comment->created_at = date("Y-m-d H:i:s");
                     if($comment->save()){
-                        $this->attach_file_discussion($comment->id, $request);
+                        $this->attach_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
                         $notification = "Discussion created!";
+                        $discussion_id = $discussion->discussion_id;
                     }
                 }
             }
@@ -81,10 +87,48 @@ class DiscussionController extends Controller
           return back();
       }
 
-      return back()->with('notification', $notification);
+      return redirect(route('discussion.detail-discussion', $discussion_id))->with('notification', $notification);
     }
 
-    private function attach_file_discussion($comment_id, $request){
+    public function get_comment($discussion_id){
+        $comments = DiscussionComment::where('discussion_id', $discussion_id)->get();
+
+        $commentsArray = [];
+        foreach ($comments as $comment) {
+            $commentsArray[] = [
+                "id" => $comment->id,
+                "parent" => $comment->parent,
+                "created" => $comment->created_at,
+                "modified" => $comment->updated_at,
+                "content" => $comment->content,
+                "attachments" => $this->get_attachments($comment->id),
+                "pings" => [],
+                "creator" => Auth::user()->id,
+                "fullname" => $comment->fullname,
+                "profile_picture_url" => "https://viima-app.s3.amazonaws.com/media/public/defaults/user-icon.png",
+                "created_by_admin" => false,
+                "created_by_current_user" => false,
+                "is_new" => false
+            ];
+        }
+
+        return response()->json($commentsArray);
+    }
+
+    private function get_attachments($comment_id){
+        $attachments = DiscussionAttachFile::select('id', 'file_extension as mime_type', 'file_name as file')->where("comment_id", $comment_id)->get();
+        return $attachments;
+    }
+
+    public function post_comment(Request $request, $discussion_id){
+        
+    }
+
+    public function delete_comment(Request $request, $discussion_id){
+        
+    }
+
+    private function attach_file_discussion($comment_id, $discussion_id, $project_id, $client_id, $request){
         if($request->has('attach_file')){
             $path  = "disscusion/".Session::get("project_id")."/attach_file/";
             $files = $request->file('attach_file');
@@ -93,10 +137,18 @@ class DiscussionController extends Controller
             $results = Storage::disk('public')->put($path, $files, 'public');
 
             if($results){
-                DiscussionComment::where('id', $comment_id)->update([
-                    'file_name' => $fileName,
-                    'file_mime_type' => $files->getClientOriginalExtension()
-                ]);
+                $attach = new DiscussionAttachFile;
+                $attach->comment_id = $comment_id;
+                $attach->discussion_id = $discussion_id;
+                $attach->project_id = $project_id;
+                $attach->client_id = $client_id;
+                $attach->user_id = Auth::user()->id;
+                $attach->file_name = $fileName;
+                $attach->file_url = $path;
+                $attach->file_extension = $files->getClientOriginalExtension();
+                $attach->file_size = $files->getSize();
+                
+                $attach->save();
             }
         }
     }

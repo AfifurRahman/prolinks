@@ -75,6 +75,9 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('users/disable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@disable_user')->name('adminuser.access-users.disable-user');
 	Route::get('users/enable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@enable_user')->name('adminuser.access-users.enable-user');
 
+	/* group */
+	Route::post('/group/save', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
+
 	/* Document */
 	Route::get('documents/list', 'App\Http\Controllers\Adminuser\DocumentController@index')->name('adminuser.documents.list');
 });
@@ -113,5 +116,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::get('/discussion/list', 'App\Http\Controllers\Adminuser\DiscussionController@index')->name('discussion.list-discussion');
 		Route::get('/discussion/detail/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@detail')->name('discussion.detail-discussion');
 		Route::post('/discussion/save', 'App\Http\Controllers\Adminuser\DiscussionController@save_discussion')->name('discussion.save-discussion');
+		Route::get('/discussion/get-comment/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@get_comment')->name('discussion.get-comment');
+		Route::post('/discussion/post-comment/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@post_comment')->name('discussion.post-comment');
+		Route::post('/discussion/edit-comment/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@post_comment')->name('discussion.edit-comment');
+		Route::post('/discussion/delete-comment/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_comment')->name('discussion.delete-comment');
 	});
 });

@@ -215,6 +215,11 @@ class GlobalHelper
         return Auth::user()->RefClient->client_id;
     }
 
+    public static function get_project_id()
+    {
+        return Auth::user()->session_project;
+    }
+
     public static function set_status_discussion_open()
     {
         return 0;

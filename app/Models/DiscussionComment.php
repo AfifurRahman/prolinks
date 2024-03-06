@@ -16,8 +16,8 @@ class DiscussionComment extends Model
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
     }
 
-    public function RefDiscussion()
+    public function RefDiscussionAttachFile()
     {
-        return $this->hasMany('App\Models\Discussion', 'discussion_id' , 'discussion_id');
+        return $this->hasMany('App\Models\DiscussionAttachFile', 'comment_id' , 'id');
     }
 }
