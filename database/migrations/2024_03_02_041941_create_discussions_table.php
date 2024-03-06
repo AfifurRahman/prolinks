@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('user_id')->nullable();
             $table->string('subject')->nullable();
             $table->longtext('description')->nullable();
+            $table->integer('status')->default(0);
             $table->integer('show_to_customer')->nullable();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

@@ -80,13 +80,13 @@
         }
 
         .user-detail{
-            margin-left:8px;
+            margin-left:6px;
         }
 
         .user-notification{
             width:20px;
             height:20px;
-            margin:10px 12px 10px 12px;
+            margin:10px 20px 10px 12px;
 
         }
         .user-name{
@@ -134,9 +134,9 @@
                         <div style="margin-top: 10px;">
                             <div class="user-info">
                                 <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img>
-                                <div class="user-profile">
+                                <div class="user-profile dropdown">
                                     <img class="user-img" src="{{ url('template/images/avatar.png') }}"></img>
-                                    <div class="user-detail dropdown">
+                                    <div class="user-detail">
                                         <div class="user-detail dropdown-toggle" data-toggle="dropdown">
                                             <p class="user-name">
                                                 @if(is_null(Auth::user()->username))

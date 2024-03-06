@@ -80,6 +80,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 	/* Document */
 	Route::get('documents/list', 'App\Http\Controllers\Adminuser\DocumentController@index')->name('adminuser.documents.list');
+	Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@upload')->name('adminuser.documents.upload');
 });
 
 
