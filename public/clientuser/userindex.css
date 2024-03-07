@@ -392,3 +392,40 @@ table thead th:first-child {
 .modal-body{
     margin:0px 4px 0px 4px;
 }
+
+.switch-box {
+    border: solid 1px #D0D5DD;
+    border-radius: 6px;
+    width: 175px;
+    display: flex;
+    padding: 3px;
+}
+
+.switch-box img {
+    width: 20px;
+    height: 20px;
+}
+
+.switch-box a {
+    color: #626B79;
+}
+
+.switch-user {
+    width: 50%;
+    cursor: pointer;
+}
+
+.switch-group {
+    width: 50%;
+    cursor: pointer;
+}
+
+.active-box{
+    background-color: #EFF8FF;
+    border-radius: 4px;
+    
+}
+
+.active-box a {
+    color: #1570EF;
+}
