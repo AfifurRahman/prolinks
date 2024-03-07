@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Client;
+use App\Models\UploadFile;
 use Auth;
 
 class DocumentController extends Controller
@@ -33,6 +34,15 @@ class DocumentController extends Controller
                 foreach ($files as $file) {
                     $path = 'uploads/' . DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($request->location);
                     $filePath = $file->store($path);
+                    UploadFile::create([
+                        'directory' => $path,
+                        'basename' => basename($filePath),
+                        'name' => $file->getClientOriginalName(),
+                        'access_user' => Auth::user()->email,
+                        'mime_type' => $file->getClientMimeType(),
+                        'size' => $file->getSize(),
+                        'uploaded_by' => Auth::user()->user_id,
+                    ]);
                     $response[] = ['path' => $filePath];
                 }
 
