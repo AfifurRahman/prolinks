@@ -127,7 +127,7 @@
                     <td>
                         <a class="fol-fil" href="{{ route('adminuser.documents.file', base64_encode($origin.'/'.basename($file))) }}">
                             <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                            {{ basename($file) }}
+                            {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                         </a>
                     </td>
                     <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}</td>
@@ -178,9 +178,9 @@
             setTimeout(() => {
                 $('.notificationlayer').fadeOut();
             }, 2000);
-            setTimeout(function() {
-                location.reload();
-            }, 2250);
+           //  setTimeout(function() {
+            //    location.reload();
+          //  }, 2250);
         }
 
         function handleFiles(files) {

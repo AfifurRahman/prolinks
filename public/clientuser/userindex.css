@@ -4,8 +4,6 @@
     margin-bottom:15px;
 }
 
-
-
 #invite_user {
     color:#FFFFFF;
     border:none;
@@ -210,17 +208,19 @@ table thead th:first-child {
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     background-color: rgba(0,0,0,0.65);
-    
 }
 
 .modal-content {
     background-color: #fefefe;
     margin: 3% auto;
     border: 1px solid #888;
-    width: 35%;
+    width: 600px;
+    overflow-y: auto;
+    max-height: calc(100% - 6%);
 }
+
 
 .modal-topbar {
     display:flex;
