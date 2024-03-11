@@ -51,14 +51,16 @@
             <div class="modal-body">
                 <form action="{{ route('adminuser.documents.create_folder') }}" method="POST">
                     @csrf
-                    <p>Folder name</p>
-                    <input type="text" name="folder_name" id="folder_name"></input>
+                    <label>Folder name</label>
+                    <input type="text" class="form-control" name="folder_name" id="folder_name"></input>
                     @if($origin == "")
                         <input name="location" type="hidden" value=""></input>
                     @else
                         <input name="location" type="hidden" value="{{ base64_encode($origin.'/') }}"></input>
                     @endif
-                    <button type="submit">Create Folder</button>
+                    <div class="form-button">
+                        <button class="create-btn" type="submit">Create Folder</button>
+                    </div>
                 </form>
             </div>
         </div>      
@@ -178,9 +180,9 @@
             setTimeout(() => {
                 $('.notificationlayer').fadeOut();
             }, 2000);
-           //  setTimeout(function() {
-            //    location.reload();
-          //  }, 2250);
+            setTimeout(function() {
+                location.reload();
+            }, 2250);
         }
 
         function handleFiles(files) {

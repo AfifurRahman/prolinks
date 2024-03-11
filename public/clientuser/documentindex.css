@@ -262,3 +262,23 @@ h3 {
     margin-right:13px;
     font-size:14px;
 }
+
+.create-btn{
+    padding: 11px 16px 9px 16px;
+    border:none;
+    border-radius:6px;
+    background:#1570EF;
+    color:#FFFFFF;
+}
+
+.form-button{
+    width:100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top:28px;
+    margin-bottom:-14px;
+}
+
+.name-box {
+    width:100%;
+}
