@@ -1,6 +1,7 @@
 .table {
     border-radius:0px;
     overflow:auto;
+    height:100vh;
 }
 
 .tableDocument thead th:first-child {
@@ -289,4 +290,10 @@ h3 {
 
 .name-box {
     width:100%;
+}
+
+.button_ico{
+    border:none;
+    background:transparent;
+    margin-right:10px;
 }

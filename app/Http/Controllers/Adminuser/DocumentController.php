@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\UploadFile;
+use App\Models\UploadFolder;
 use Auth;
 
 class DocumentController extends Controller
@@ -34,7 +35,7 @@ class DocumentController extends Controller
 
                 foreach ($files as $file) {
                     $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($request->location);
-                    $filePath = $file->storeAs($path,Str::random(80));
+                    $filePath = $file->storeAs($path,Str::random(8));
                     UploadFile::create([
                         'directory' => $path,
                         'basename' => basename($filePath),
@@ -42,23 +43,34 @@ class DocumentController extends Controller
                         'access_user' => Auth::user()->email,
                         'mime_type' => $file->getClientMimeType(),
                         'size' => $file->getSize(),
+                        'status' => 1,
                         'uploaded_by' => Auth::user()->user_id,
                     ]);
                     $response[] = ['path' => $filePath];
                 }
-
-                return response()->json(['success' => true, 'message' => 'Files uploaded successfully', 'files' => $response]);
             } else {
-                return response()->json(['success' => false, 'message' => 'No files uploaded'], 400);
+                
             }
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error uploading files: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
+        return response()->json(['success' => true, 'message' => 'Operation success']);
     }
 
     public function create_folder(Request $request)
     {
-        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $request->folder_name; 
+        $basename = Str::random(8);
+
+        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $basename; 
+
+        UploadFolder::create([
+            'directory' => base64_decode($request->location) . $basename,
+            'basename' => $basename,
+            'name' => $request->folder_name,
+            'access_user' => Auth::user()->email,
+            'status' => 1,
+            'uploaded_by' => Auth::user()->user_id, 
+        ]);
 
         Storage::makeDirectory($path, 0755,true);
 
@@ -84,4 +96,27 @@ class DocumentController extends Controller
         return Storage::disk('local')->download($directory, UploadFile::where('basename', base64_decode($file))->value('name'));
     }
 
+    public function delete_file($file)
+    {
+        UploadFile::where('basename', $file)->update(['status' => 0]);
+
+        return back();
+    }
+
+    public function rename_folder(Request $request)
+    {
+        $old_name = base64_decode($request->old_name);
+        UploadFolder::where('basename', $old_name)->update(['name' => $request->new_name]);
+
+        return back();
+    }
+
+    public function delete_folder($folder) {
+
+        $foldername = base64_decode($folder);
+        UploadFolder::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
+        UploadFile::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
+
+        return back();
+    }
 }

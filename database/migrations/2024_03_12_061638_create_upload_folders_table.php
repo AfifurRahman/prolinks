@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('upload_files', function (Blueprint $table) {
+        Schema::create('upload_folders', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('directory');
             $table->string('basename');
             $table->string('name');
             $table->string('description')->nullable();
             $table->string('access_user');
-            $table->string('mime_type');
-            $table->integer('size');
             $table->integer('status');
             $table->string('uploaded_by');
             $table->timestamps();
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('upload_files');
+        Schema::dropIfExists('upload_folders');
     }
 };
