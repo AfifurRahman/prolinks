@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Client;
@@ -17,7 +18,7 @@ class DocumentController extends Controller
     public function index()
     {
         $origin = "";
-        $directory = 'uploads/'. DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id'). '/subproject';
+        $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/subproject';
         $files = Storage::files($directory);
         $folders = Storage::directories($directory);
 
@@ -32,8 +33,8 @@ class DocumentController extends Controller
                 $response = [];
 
                 foreach ($files as $file) {
-                    $path = 'uploads/' . DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($request->location);
-                    $filePath = $file->store($path);
+                    $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($request->location);
+                    $filePath = $file->storeAs($path,Str::random(80));
                     UploadFile::create([
                         'directory' => $path,
                         'basename' => basename($filePath),
@@ -57,7 +58,7 @@ class DocumentController extends Controller
 
     public function create_folder(Request $request)
     {
-        $path = 'uploads/' . DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $request->folder_name; 
+        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $request->folder_name; 
 
         Storage::makeDirectory($path, 0755,true);
 
@@ -68,7 +69,7 @@ class DocumentController extends Controller
     {
         $origin = base64_decode($folder);
 
-        $directory = 'uploads/'. DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . $origin;
+        $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . $origin;
 
         $files = Storage::files($directory);
         $folders = Storage::directories($directory);
@@ -76,11 +77,11 @@ class DocumentController extends Controller
         return view('adminuser.document.index', compact('files', 'folders', 'origin'));
     }
 
-    public function file($file)
+    public function file($path, $file)
     {
-        $directory = 'uploads/'. DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . base64_decode($file);
+        $directory = 'uploads/'. DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . base64_decode($path);
 
-        return Storage::disk('local')->download($directory);
+        return Storage::disk('local')->download($directory, UploadFile::where('basename', base64_decode($file))->value('name'));
     }
 
 }

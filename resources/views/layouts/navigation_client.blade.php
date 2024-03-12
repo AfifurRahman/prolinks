@@ -4,26 +4,28 @@
             <form id="app-change-project" action="{{ route('project.change-main-project') }}" method="POST">
                 @csrf
                 
-                <div class="input-group" style="margin-top:5px;">
-                    <div class="input-group-btn">
-                        <button class="btn btn-primary" style="height:38px;width:38px;" title="add new project" data-target="#modal-new-project" data-toggle="modal" type="button">
-                            <i class="fa fa-plus-circle"></i>
-                        </button>
-                    </div>
+                <div class="project-group">
+                    <div class="input-group" style="margin-top:5px;">
+                        <div class="input-group-btn">
+                            <button class="btn btn-primary" style="height:38px;width:38px;" title="add new project" data-target="#modal-new-project" data-toggle="modal" type="button">
+                                <i class="fa fa-plus-circle"></i>
+                            </button>
+                        </div>
 
-                    <div class="form-group">
-                        <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
-                            @if(count(\globals::get_project_sidebar()) > 0)
-                                @foreach(\globals::get_project_sidebar() as $mainProject)
-                                    <option value="{{ $mainProject->project_id }}" {{ !empty(\globals::get_project_id()) && \globals::get_project_id() == $mainProject->project_id ? "selected":"" }} >{{ $mainProject->project_name }}</option>
-                                @endforeach
-                            @endif
-                        </select>
+                        <div class="form-group">
+                            <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
+                                @if(count(\globals::get_project_sidebar()) > 0)
+                                    @foreach(\globals::get_project_sidebar() as $mainProject)
+                                        <option value="{{ $mainProject->project_id }}" {{ !empty(\globals::get_project_id()) && \globals::get_project_id() == $mainProject->project_id ? "selected":"" }} >{{ $mainProject->project_name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
                     </div>
                 </div>
-
             </form>
-            <ul>
+            
+            <ul style="margin-top:14px">
                 <li class="menu-title">MAIN MENU</li>
                 <li>
                     <a href="/" class="waves-effect"><i class="mdi mdi-view-dashboard"></i><span> Activities </span></a>

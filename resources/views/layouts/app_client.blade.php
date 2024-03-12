@@ -241,13 +241,13 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             var menuButton = document.querySelector('.button-menu-mobile');
-            var formGroup = document.querySelector('.form-group');
+            var projectGroup = document.querySelector('.project-group');
 
             menuButton.addEventListener('click', function() {
-                if (formGroup.style.display === 'none') {
-                    formGroup.style.display = 'block';
+                if (projectGroup.style.display === 'none') {
+                    projectGroup.style.display = 'block';
                 } else {
-                    formGroup.style.display = 'none';
+                    projectGroup.style.display = 'none';
                 }
             });
         });

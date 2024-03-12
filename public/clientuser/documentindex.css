@@ -123,6 +123,14 @@
     margin-bottom:8px;
 }
 
+.file-icon{
+    height:20px;
+    width:20px;
+    margin-right:8px;
+    margin-top:6px;
+    margin-bottom:4.5px;
+}
+
 .modal {
     display: none;
     position: fixed;

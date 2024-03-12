@@ -14,6 +14,7 @@
 @section('content')
     <!--Upload Modal-->
     <div id="upload-modal" class="modal">
+        <!-- Modal content -->
         <div class="modal-content">
             <div class="modal-topbar">
                 <div class="upload-modal-title">
@@ -23,7 +24,6 @@
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
-                
             <div class="modal-body">
                 <div class="drag-area" id="dragArea">
                     <span class="header">Drag & Drop</span>
@@ -33,9 +33,10 @@
                     <progress id="uploadProgress" value="50" max="100"></progress>
                 </div>
             </div>
-        </div>      
+        </div>
     </div>
 
+    <!-- Add Folder Modal -->
     <!-- Add Folder Modal -->
     <div id="create-folder-modal" class="modal">
         <div class="modal-content">
@@ -47,7 +48,7 @@
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
-                
+
             <div class="modal-body">
                 <form action="{{ route('adminuser.documents.create_folder') }}" method="POST">
                     @csrf
@@ -63,7 +64,7 @@
                     </div>
                 </form>
             </div>
-        </div>      
+        </div>
     </div>
 
     <div class="box_helper">
@@ -71,13 +72,13 @@
         <P>{{$origin}}</p>
         <div class="button_helper">
             <button class="export">Export</button>
-            <button class="createfolder" onclick="document.getElementById('create-folder-modal').style.display='block'">Create folder</button>  
-            
+            <button class="createfolder" onclick="document.getElementById('create-folder-modal').style.display='block'">Create folder</button>
+
             <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'"><image class="upload_ico" src="{{ url('template/images/icon_menu/upload.png') }}" ></image>Upload</button>
         </div>
     </div>
 
-    
+
     <div class="box_helper">
         <div>
             <button class="filter_button">
@@ -98,7 +99,7 @@
                     <th id="check">Index</th>
                     <th id="name">File name</th>
                     <th id="company">Created at</th>
-                    <th id="role">Size / type</th> 
+                    <th id="role">Size / type</th>
                     <th id="navigationdot">&nbsp;</th>
                 </tr>
             </thead>
@@ -127,8 +128,10 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>
-                        <a class="fol-fil" href="{{ route('adminuser.documents.file', base64_encode($origin.'/'.basename($file))) }}">
-                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
+                        <a class="fol-fil" href="{{ route('adminuser.documents.file', [base64_encode($origin.'/'.basename($file)), base64_encode(basename($file))] ) }}">
+                           
+                        <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
+                            
                             {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                         </a>
                     </td>
@@ -211,7 +214,7 @@
             .then(data => {
                 console.log(data);
                 if(data.success){
-                    showNotification("File successfully uploaded");     
+                    showNotification("File successfully uploaded");
                     progressBar.style.display='none';
                 }
             })
