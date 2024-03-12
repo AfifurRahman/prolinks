@@ -68,8 +68,11 @@
     </div>
 
     <div class="box_helper">
-        <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
-        <P>{{$origin}}</p>
+        @if($origin == "")
+            <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
+        @else
+            <h2 id="title" style="color:black;font-size:28px;">{{$origin}}</h2>
+        @endif
         <div class="button_helper">
             <button class="export">Export</button>
             <button class="createfolder" onclick="document.getElementById('create-folder-modal').style.display='block'">Create folder</button>
@@ -103,6 +106,20 @@
                     <th id="navigationdot">&nbsp;</th>
                 </tr>
             </thead>
+            @if(!$origin == "")
+                <tr>
+                    <td></td>
+                    <td>
+                        <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(($pos = strpos($origin, '/')) !== false ? substr($origin, 0, $pos) : '')) }}">
+                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
+                            ...
+                        </a>
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            @endif
             @foreach ($folders as $index => $directory)
                 <tr>
                     <td>{{ $index + 1 }}</td>
