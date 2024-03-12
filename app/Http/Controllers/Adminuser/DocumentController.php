@@ -18,12 +18,16 @@ class DocumentController extends Controller
 {
     public function index()
     {
-        $origin = "";
-        $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/subproject';
-        $files = Storage::files($directory);
-        $folders = Storage::directories($directory);
+        try {
+            $origin = "";
+            $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/subproject';
+            $files = Storage::files($directory);
+            $folders = Storage::directories($directory);
 
-        return view('adminuser.document.index', compact('files', 'folders','origin'));
+            return view('adminuser.document.index', compact('files', 'folders','origin'));
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
     }
 
     public function upload(Request $request)
@@ -48,9 +52,7 @@ class DocumentController extends Controller
                     ]);
                     $response[] = ['path' => $filePath];
                 }
-            } else {
-                
-            }
+            } 
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -59,64 +61,83 @@ class DocumentController extends Controller
 
     public function create_folder(Request $request)
     {
-        $basename = Str::random(8);
+        try {
+            $basename = Str::random(8);
 
-        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $basename; 
-
-        UploadFolder::create([
-            'directory' => base64_decode($request->location) . $basename,
-            'basename' => $basename,
-            'name' => $request->folder_name,
-            'access_user' => Auth::user()->email,
-            'status' => 1,
-            'uploaded_by' => Auth::user()->user_id, 
-        ]);
-
-        Storage::makeDirectory($path, 0755,true);
-
+            $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $basename; 
+    
+            UploadFolder::create([
+                'directory' => base64_decode($request->location) . $basename,
+                'basename' => $basename,
+                'name' => $request->folder_name,
+                'access_user' => Auth::user()->email,
+                'status' => 1,
+                'uploaded_by' => Auth::user()->user_id, 
+            ]);
+    
+            Storage::makeDirectory($path, 0755,true);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
         return back();
     }
 
     public function folder($folder = null)
     {
-        $origin = base64_decode($folder);
+        try {
+            $origin = base64_decode($folder);
 
-        $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . $origin;
+            $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . $origin;
 
-        $files = Storage::files($directory);
-        $folders = Storage::directories($directory);
+            $files = Storage::files($directory);
+            $folders = Storage::directories($directory);
 
-        return view('adminuser.document.index', compact('files', 'folders', 'origin'));
+            return view('adminuser.document.index', compact('files', 'folders', 'origin'));
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
     }
 
     public function file($path, $file)
     {
-        $directory = 'uploads/'. DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . base64_decode($path);
+        try {
+            $directory = 'uploads/'. DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . base64_decode($path);
 
-        return Storage::disk('local')->download($directory, UploadFile::where('basename', base64_decode($file))->value('name'));
+            return Storage::disk('local')->download($directory, UploadFile::where('basename', base64_decode($file))->value('name'));
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
     }
 
     public function delete_file($file)
     {
-        UploadFile::where('basename', $file)->update(['status' => 0]);
-
+        try {
+            UploadFile::where('basename', $file)->update(['status' => 0]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
         return back();
     }
 
     public function rename_folder(Request $request)
     {
-        $old_name = base64_decode($request->old_name);
-        UploadFolder::where('basename', $old_name)->update(['name' => $request->new_name]);
-
+        try {
+            $old_name = base64_decode($request->old_name);
+            UploadFolder::where('basename', $old_name)->update(['name' => $request->new_name]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
         return back();
     }
 
     public function delete_folder($folder) {
-
-        $foldername = base64_decode($folder);
-        UploadFolder::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
-        UploadFile::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
-
+        try {
+            $foldername = base64_decode($folder);
+            UploadFolder::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
+            UploadFile::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
         return back();
     }
 }

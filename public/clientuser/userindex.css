@@ -420,10 +420,9 @@ table thead th:first-child {
     cursor: pointer;
 }
 
-.active-box{
+.active-box {
     background-color: #EFF8FF;
     border-radius: 4px;
-    
 }
 
 .active-box a {
