@@ -23,17 +23,16 @@
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
-                
             <div class="modal-body">
                 <div class="drag-area" id="dragArea">
                     <span class="header">Drag & Drop</span>
                     <span class="header">or <span class="button" onclick="document.getElementById('fileInput').click();">browse</span></span>
-                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" multiple webkitdirectory mozdirectory msdirectory odirectory directory>
+                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" multiple>
                     <span class="support">Supports jpg, jpeg, png, doc, docx, ppt, pptx, xlsx, pdf, and zip</span>
                     <progress id="uploadProgress" value="50" max="100"></progress>
                 </div>
             </div>
-        </div>      
+        </div>
     </div>
 
     <!-- Add Folder Modal -->
@@ -47,35 +46,62 @@
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
-                
+
             <div class="modal-body">
                 <form action="{{ route('adminuser.documents.create_folder') }}" method="POST">
                     @csrf
-                    <p>Folder name</p>
-                    <input type="text" name="folder_name" id="folder_name"></input>
+                    <label>Folder name</label>
+                    <input type="text" class="form-control" name="folder_name" id="folder_name"></input>
                     @if($origin == "")
                         <input name="location" type="hidden" value=""></input>
                     @else
                         <input name="location" type="hidden" value="{{ base64_encode($origin.'/') }}"></input>
                     @endif
-                    <button type="submit">Create Folder</button>
+                    <div class="form-button">
+                        <button class="create-btn" type="submit">Create Folder</button>
+                    </div>
                 </form>
             </div>
-        </div>      
+        </div>
+    </div>
+
+    <!-- Edit Folder Name Modal -->
+    <div id="rename-folder-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-title-text">Rename folder</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('create-folder-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
+                    @csrf
+                    <label>Folder name</label>
+                    <input type="text" class="form-control" name="new_name" id="folder_name"></input>
+                    <input type="hidden" id="old-name" name="old_name" value=""></input>
+                    <div class="form-button">
+                        <button class="create-btn" type="submit">Rename Folder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
-        <P>{{$origin}}</p>
         <div class="button_helper">
             <button class="export">Export</button>
-            <button class="createfolder" onclick="document.getElementById('create-folder-modal').style.display='block'">Create folder</button>  
-            
+            <button class="createfolder" onclick="document.getElementById('create-folder-modal').style.display='block'">Create folder</button>
+
             <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'"><image class="upload_ico" src="{{ url('template/images/icon_menu/upload.png') }}" ></image>Upload</button>
         </div>
     </div>
 
-    
+
     <div class="box_helper">
         <div>
             <button class="filter_button">
@@ -96,44 +122,83 @@
                     <th id="check">Index</th>
                     <th id="name">File name</th>
                     <th id="company">Created at</th>
-                    <th id="role">Size / type</th> 
+                    <th id="role">Size / type</th>
                     <th id="navigationdot">&nbsp;</th>
                 </tr>
             </thead>
-            @foreach ($folders as $index => $directory)
+            @if(!$origin == "")
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>
-                        @if($origin == "")
-                            <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(basename($directory))) }}">
-                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                                {{ basename($directory) }}
-                            </a>
-                        @else
-                            <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode($origin.'/'.basename($directory))) }}">
-                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                                {{ basename($directory) }}
-                            </a>
-                        @endif
-                    </td>
-                    <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($directory))->format('d M Y, H:i') }}</td>
-                    <td>Directory</td>
                     <td></td>
-                </tr>
-            @endforeach
-            @foreach ($files as $index => $file)
-                <tr>
-                    <td>{{ $index + 1 }}</td>
                     <td>
-                        <a class="fol-fil" href="{{ route('adminuser.documents.file', base64_encode($origin.'/'.basename($file))) }}">
+                        <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(($pos = strpos($origin, '/')) !== false ? substr($origin, 0, $pos) : '')) }}">
                             <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                            {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
+                            ...
                         </a>
                     </td>
-                    <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}</td>
-                    <td>{{ round(Storage::size($file) / 1024 / 1024, 2) }} MB</td>
+                    <td></td>
+                    <td></td>
                     <td></td>
                 </tr>
+            @endif
+            @foreach ($folders as $index => $directory)
+                @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>
+                            @if($origin == "")
+                                <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(basename($directory))) }}">
+                                    <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
+                                    {{ DB::table('upload_folders')->where('basename', basename($directory))->value('name') }}
+                                </a>
+                            @else
+                                <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode($origin.'/'.basename($directory))) }}">
+                                    <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
+                                    {{ DB::table('upload_folders')->where('basename', basename($directory))->value('name') }}
+                                </a>
+                            @endif
+                        </td>
+                        <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($directory))->format('d M Y, H:i') }}</td>
+                        <td>Directory</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                    <li><a onclick="rename('{{ base64_encode(basename($directory)) }}')">Edit folder</a></li>
+                                    <li><a href="{{ route('adminuser.documents.delete_folder', base64_encode(basename($directory))) }}">Delete folder</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                @endif
+            @endforeach
+            @foreach ($files as $index => $file)
+                @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>
+                            <a class="fol-fil" href="{{ route('adminuser.documents.file', [base64_encode($origin.'/'.basename($file)), base64_encode(basename($file))] ) }}">
+                            
+                            <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
+                                
+                                {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
+                            </a>
+                        </td>
+                        <td>{{ date('d M Y, H:i', strtotime(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))) }}</td>
+                        <td>{{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                    <i class="fa fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                    <li><a href="{{ route('adminuser.documents.delete_file', basename($file)) }}">Delete file</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                @endif
             @endforeach
         </table>
     </div>
@@ -178,9 +243,9 @@
             setTimeout(() => {
                 $('.notificationlayer').fadeOut();
             }, 2000);
-           //  setTimeout(function() {
-            //    location.reload();
-          //  }, 2250);
+            setTimeout(function() {
+                location.reload();
+            }, 2250);
         }
 
         function handleFiles(files) {
@@ -209,7 +274,7 @@
             .then(data => {
                 console.log(data);
                 if(data.success){
-                    showNotification("File successfully uploaded");     
+                    showNotification("File successfully uploaded");
                     progressBar.style.display='none';
                 }
             })
@@ -217,6 +282,11 @@
                 console.error('There was an error!', error);
                 progressBar.style.display='none';
             });
+        }
+
+        function rename(folder) {
+            document.getElementById('rename-folder-modal').style.display = 'block';
+            document.getElementById('old-name').value = folder;
         }
     </script>
     @endpush

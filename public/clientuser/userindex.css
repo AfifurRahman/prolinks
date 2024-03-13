@@ -435,10 +435,9 @@ table thead th:first-child {
     left: 5%;
 }
 
-.active-box{
+.active-box {
     background-color: #EFF8FF;
     border-radius: 4px;
-    
 }
 
 .active-box a {
