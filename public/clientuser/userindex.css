@@ -399,6 +399,7 @@ table thead th:first-child {
     width: 175px;
     display: flex;
     padding: 3px;
+    margin-left: 50%;
 }
 
 .switch-box img {
@@ -413,11 +414,25 @@ table thead th:first-child {
 .switch-user {
     width: 50%;
     cursor: pointer;
+    position: relative;
+}
+
+.switch-user a {
+    position: absolute;
+    top: 20%;
+    left: 5%;
 }
 
 .switch-group {
     width: 50%;
     cursor: pointer;
+    position: relative;
+}
+
+.switch-group a {
+    position: absolute;
+    top: 20%;
+    left: 5%;
 }
 
 .active-box{

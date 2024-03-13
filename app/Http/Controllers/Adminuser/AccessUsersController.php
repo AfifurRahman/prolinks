@@ -23,14 +23,14 @@ class AccessUsersController extends Controller
         $adminusercompany = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
 
         $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('company', $adminusercompany)->get();
-
-        $group = AccessGroup::pluck('group_id')->toArray();
-
+        $group = AccessGroup::where('client_id', $adminusercompany)->pluck('group_id')->toArray();
         $owners = User::where('type', 1)->where('name', Auth::user()->name)->get();
-        
+        $listGroup = AccessGroup::where('client_id', $adminusercompany)->get();
         array_unshift($group, 0);
 
-        return view('adminuser.users.index', compact('clientuser','group','owners'));
+        // var_dump($listGroup); die();
+
+        return view('adminuser.users.index', compact('clientuser','group','owners', 'listGroup'));
     }
 
     public function create_user(Request $request)

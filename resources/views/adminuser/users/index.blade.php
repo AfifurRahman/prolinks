@@ -29,19 +29,179 @@
                 Filter
             </button>
         </div>
-        <!-- <div class="switch-box">
+        <div class="switch-box">
             <div class="switch-user {{ !empty(request()->input('tab')) && request()->input('tab') == "user" ? "active-box":"" }}">
                 <a href="?tab=user"><img src="{{ url('template/images/icon_menu/user.png') }}"> User</a>
             </div>
             <div class="switch-group {{ !empty(request()->input('tab')) && request()->input('tab') == "group" ? "active-box":"" }}">
                 <a href="?tab=group"><img src="{{ url('template/images/icon_menu/group.png') }}"> Group</a>
             </div>
-        </div> -->
+        </div>
         <div id="searchbox">
             <image id="searchicon" src="{{ url('template/images/icon_menu/search.png') }}"></image>
             <input type="text" id="search_bar" placeholder="Search users...">
         </div>
     </div>
+
+    @if(request()->input('tab') == "user")
+        <div id="table">
+            <table id="tableUser">
+                <thead>
+                    <tr>
+                        <th id="check"><input type="checkbox" id="checkbox" disabled/></th>
+                        <th id="name">Name</th>
+                        <th id="company">Group</th>
+                        <th id="role">Role</th>
+                        <th id="status">&nbsp;Status</th>
+                        <th id="lastsigned">Last signed in</th>
+                        <th id="navigationdot">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                
+                    @if(count($owners) > 0)
+                        @foreach($owners as $owner)
+                            <tr class="company-group">
+                                <td>
+                                    <input type="checkbox" id="checkbox"/>
+                                </td>
+                                <td>
+                                    <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}"></image>
+                                    {{ $owner->email }}
+                                </td>
+                                <td>
+                                    <!-- {{ $owner->name }} -->
+                                    <span class="text-muted">Owner</span>
+                                </td> 
+                                <td>
+                                Administrator
+                                </td>
+                                <td>
+                                    @if(Auth::user()->email == $owner->email)
+                                        <span class="you_status">You</span>
+                                    @else
+                                        <span class="active_status">Active</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(is_null($owner->last_signed))
+                                        -
+                                    @else
+                                        {{ date('d M Y, H:i', strtotime($owner->last_signed)) }}
+                                    @endif
+                                </td>
+                                <td>
+                                    <!-- <div class="dropdown">
+                                        <button class="button_ico dropdown-toggle" data-toggle="dropdown" disabled>
+                                            <i class="fa fa-ellipsis-v"></i>
+                                        </button>
+                                    </div> -->
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                    
+
+                    @if(count($clientuser) > 0)
+                        @foreach($clientuser as $user)
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="checkbox"/>
+                                </td>
+                                <td>
+                                    <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}"></image>
+                                    {{ $user->email_address }}
+                                </td>
+                                <td>
+                                    {{ DB::table('access_group')->where('group_id', $user->group_id)->value('group_name') }}
+                                </td>
+                                <td>
+                                    @if($user->role == 0) 
+                                        Administrator
+                                    @elseif($user->role == 1)
+                                        Collaborator
+                                        @elseif($user->role == 2)
+                                        Client
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($user->email_address == Auth::User()->email)
+                                        <span class="active_status">You</span>
+                                    @elseif($user->status == 1)
+                                        <span class="active_status">Active</span>
+                                    @elseif($user->status == 2)
+                                        <span class="disabled_status">Disabled</span>
+                                    @elseif($user->status == 0)
+                                        <span class="invited_status">Invited</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if(is_null(App\Models\User::where('email', $user->email_address)->value('last_signed')))
+                                        -
+                                    @else
+                                        {{ date('d M Y, H:i', strtotime(App\Models\User::where('email', $user->email_address)->value('last_signed'))) }}
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                            <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
+                                            @if($user->status == 1)
+                                                <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}">Disable User</a></li>
+                                            @elseif($user->status == 2)
+                                                <li><a href="{{ route('adminuser.access-users.enable-user', base64_encode($user->email_address)) }}">Enable User</a></li>
+                                            @endif
+                                            <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Send Email</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    @elseif(request()->input('tab') == "group")
+        <div id="table">
+            <table id="tableUser">
+                <thead>
+                    <tr>
+                        <th id="check"><input type="checkbox" id="checkbox" disabled/></th>
+                        <th id="name">Name</th>
+                        <th id="members">Members</th>
+                        <th id="status">&nbsp;Status</th>
+                        <th id="navigationdot">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($listGroup as $list)
+                        <tr>
+                            <td>
+                                <input type="checkbox" id="checkbox" />
+                            </td>
+                            <td>{{ $list->group_name }}</td>
+                            <td>{{ $list->RefClientUser->count() }}</td>
+                            <td width="150">{!! \globals::label_status($list->group_status) !!}</td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                        <li><a href="">Edit Group</a></li>
+                                        <li><a href="">Delete Group</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
 
     <div id="inviteuser_form" class="modal">
         <div class="modal-content">
@@ -110,6 +270,7 @@
         </div>      
     </div>
 
+    <!-- modal -->
     <div id="moveuser" class="modal">
         <div class="modal-content">
             <div class="modal-topbar">
@@ -146,128 +307,6 @@
                 </form>
             </div>
         </div>      
-    </div>
-
-
-    <div id="table">
-        <table id="tableUser">
-            <thead>
-                <tr>
-                    <th id="check"><input type="checkbox" id="checkbox" disabled/></th>
-                    <th id="name">Name</th>
-                    <th id="company">Group</th>
-                    <th id="role">Role</th>
-                    <th id="status">&nbsp;Status</th>
-                    <th id="lastsigned">Last signed in</th>
-                    <th id="navigationdot">&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody>
-            
-                @if(count($owners) > 0)
-                    @foreach($owners as $owner)
-                        <tr class="company-group">
-                            <td>
-                                <input type="checkbox" id="checkbox"/>
-                            </td>
-                            <td>
-                                <image id="usericon" src="{{ url('template/images/avatar.png') }}"></image>
-                                {{ $owner->email }}
-                            </td>
-                            <td>
-                                <!-- {{ $owner->name }} -->
-                                <span class="text-muted">Owner</span>
-                            </td> 
-                            <td>
-                               Administrator
-                            </td>
-                            <td>
-                                @if(Auth::user()->email == $owner->email)
-                                    <span class="you_status">You</span>
-                                @else
-                                    <span class="active_status">Active</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if(is_null($owner->last_signed))
-                                    -
-                                @else
-                                    {{ date('d M Y, H:i', strtotime($owner->last_signed)) }}
-                                @endif
-                            </td>
-                            <td>
-                                <!-- <div class="dropdown">
-                                    <button class="button_ico dropdown-toggle" data-toggle="dropdown" disabled>
-                                        <i class="fa fa-ellipsis-v"></i>
-                                    </button>
-                                </div> -->
-                            </td>
-                        </tr>
-                    @endforeach
-                @endif
-                
-
-                @if(count($clientuser) > 0)
-                    @foreach($clientuser as $user)
-                        <tr>
-                            <td>
-                                <input type="checkbox" id="checkbox"/>
-                            </td>
-                            <td>
-                                <image id="usericon" src="{{ url('template/images/avatar.png') }}"></image>
-                                {{ $user->email_address }}
-                            </td>
-                            <td>
-                                {{ DB::table('access_group')->where('group_id', $user->group_id)->value('group_name') }}
-                            </td>
-                            <td>
-                                @if($user->role == 0) 
-                                    Administrator
-                                @elseif($user->role == 1)
-                                    Collaborator
-                                    @elseif($user->role == 2)
-                                    Client
-                                @endif
-                            </td>
-                            <td>
-                                @if($user->email_address == Auth::User()->email)
-                                    <span class="active_status">You</span>
-                                @elseif($user->status == 1)
-                                    <span class="active_status">Active</span>
-                                @elseif($user->status == 2)
-                                    <span class="disabled_status">Disabled</span>
-                                @elseif($user->status == 0)
-                                    <span class="invited_status">Invited</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if(is_null(App\Models\User::where('email', $user->email_address)->value('last_signed')))
-                                    -
-                                @else
-                                    {{ date('d M Y, H:i', strtotime(App\Models\User::where('email', $user->email_address)->value('last_signed'))) }}
-                                @endif
-                            </td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="button_ico dropdown-toggle" data-toggle="dropdown">
-                                        <i class="fa fa-ellipsis-v"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                        <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
-                                        @if($user->status == 1)
-                                            <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}">Disable User</a></li>
-                                        @elseif($user->status == 2)
-                                            <li><a href="{{ route('adminuser.access-users.enable-user', base64_encode($user->email_address)) }}">Enable User</a></li>
-                                        @endif
-                                        <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Send Email</a></li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                @endif
-            </tbody>
-        </table>
     </div>
     @include('adminuser.users.create_group')
 
