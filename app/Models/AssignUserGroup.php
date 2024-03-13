@@ -5,23 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ClientUser extends Model
+class AssignUserGroup extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'email_address',
-        'client_id',
-        'company',
-        'role',
-        'role_param',
-        'group_id',
-        'status',
-    ];
+    protected $table = 'assign_user_group';
 
     public function RefUser()
     {
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
+    }
+
+    public function RefGroup()
+    {
+        return $this->hasOne('App\Models\AccessGroup', 'group_id' , 'group_id');
     }
 }

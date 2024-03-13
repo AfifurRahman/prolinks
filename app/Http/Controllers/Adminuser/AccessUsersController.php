@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Models\ClientUser;
 use App\Models\Company;
 use App\Models\AccessGroup;
+use App\Models\Project;
+use App\Models\AssignProject;
+use App\Models\AssignUserGroup;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -22,20 +25,34 @@ class AccessUsersController extends Controller
     {
         $adminusercompany = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
 
-        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('company', $adminusercompany)->get();
+        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', $adminusercompany)->get();
         $group = AccessGroup::where('client_id', $adminusercompany)->pluck('group_id')->toArray();
+        $project = Project::where('client_id', $adminusercompany)->pluck('project_id')->toArray();
         $owners = User::where('type', 1)->where('name', Auth::user()->name)->get();
         $listGroup = AccessGroup::where('client_id', $adminusercompany)->get();
         array_unshift($group, 0);
+        array_unshift($project, 0);
 
-        // var_dump($listGroup); die();
+        return view('adminuser.users.index', compact('clientuser','group','owners', 'listGroup', 'project'));
+    }
 
-        return view('adminuser.users.index', compact('clientuser','group','owners', 'listGroup'));
+    public function detail($user_id){
+        $clientuser = ClientUser::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->firstOrFail();
+        $group = AccessGroup::where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
+        $project = Project::where('client_id', \globals::get_client_id())->pluck('project_id')->toArray();
+        $groupDetail = AssignUserGroup::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
+        $projectDetail = AssignProject::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->pluck('project_id')->toArray();
+        array_unshift($group, 0);
+        array_unshift($project, 0);
+
+        return view('adminuser.users.detail', compact('clientuser', 'group', 'project', 'groupDetail', 'projectDetail'));
     }
 
     public function create_user(Request $request)
     {
         try {
+            \DB::beginTransaction();
+
             $emailAddresses = explode(',', $request->email_address);
 
             foreach ($emailAddresses as $email) {
@@ -43,20 +60,48 @@ class AccessUsersController extends Controller
                     $existingUser = ClientUser::where('email_address', $email)->first();
                     
                     if (!$existingUser) {
+                        $userID = Str::uuid(4);
                         ClientUser::create([
+                            'user_id'=> $userID,
                             'email_address' => $email,
-                            'company' => DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id'),
+                            'company' => '-',
+                            'client_id' => DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id'),
                             'role' => $request->role,
-                            'group_id' => $request->company,
+                            // 'group_id' => $request->group,
+                            'group_id' => 0,
                         ]);
         
                         $users = new User;
-                        $users->user_id = Str::uuid(4);
+                        $users->user_id = $userID;
                         $users->name = Auth::user()->name;
                         $users->email = $email;
-                        $users->type = \globals::set_usertype_client();
+                        $users->type = $request->role;
                         $users->password = Hash::make(bcrypt(Str::random(255)));
                         $users->save();
+
+                        if(!empty($request->input('group')) && count($request->input('group')) > 0){
+                            foreach ($request->input('group') as $key => $grup) {
+                                $groups = new AssignUserGroup;
+                                $groups->client_id = \globals::get_client_id();
+                                $groups->group_id = $grup;
+                                $groups->user_id = $users->user_id;
+                                $groups->email = $users->email;
+                                $groups->created_by = Auth::user()->id;
+                                $groups->save();
+                            }
+                        }
+                        
+                        if(!empty($request->input('project')) && count($request->input('project')) > 0){
+                            foreach ($request->input('project') as $key => $proj) {
+                                $projects = new AssignProject;
+                                $projects->client_id = \globals::get_client_id();
+                                $projects->project_id = $proj;
+                                $projects->user_id = $users->user_id;
+                                $projects->email = $users->email;
+                                $projects->created_by = Auth::user()->id;
+                                $projects->save();
+                            }
+                        }
         
                         $token = Password::getRepository()->create($users);
                         $details = [
@@ -80,10 +125,55 @@ class AccessUsersController extends Controller
                     $notification = "Invalid email";
                 }
             };
+
+            \DB::commit();
         } catch (\Exception $e) {
+            \DB::rollBack();
             $notification = "Can't invite user";
         }
         return back()->with('notification', $notification);   
+    }
+
+    public function edit (Request $request, $user_id) {
+        try {
+            \DB::beginTransaction();
+
+            $update = ClientUser::where('user_id', $user_id)->update([
+                'name'=> $request->name,
+                'company'=> $request->company,
+                'job_title'=> $request->job_title,
+            ]);
+
+            if ($update) {
+                $notification = "User edited";
+            }
+
+            \DB::commit();
+        } catch (\Exception $th) {
+            \DB::rollBack();
+            $notification = "Can't edit user";
+        }
+
+        return back()->with('notification', $notification);  
+    }
+
+    public function edit_role (Request $request, $user_id) {
+        try {
+            \DB::beginTransaction();
+
+            
+
+            if ($update) {
+                $notification = "Role edited";
+            }
+
+            \DB::commit();
+        } catch (\Exception $th) {
+            \DB::rollBack();
+            $notification = "Can't edit role";
+        }
+
+        return back()->with('notification', $notification);  
     }
 
     public function move_group(Request $request)

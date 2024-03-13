@@ -69,6 +69,9 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 Route::group(['middleware' => 'auth'], function () {
 	/* Clientuser */
 	Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
+	Route::get('/users/detail/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail')->name('adminuser.access-users.detail');
+	Route::post('/users/edit/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit')->name('adminuser.access-users.edit');
+	Route::post('/users/edit_role/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_role')->name('adminuser.access-users.edit-role');
 	Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
 	Route::post('/users/move-group', 'App\Http\Controllers\Adminuser\AccessUsersController@move_group')->name('adminuser.access-users.move-group');
 	Route::get('/users/resend-email/{encodedEmail}', 'App\Http\Controllers\Adminuser\AccessUsersController@resend_email')->name('adminuser.access-users.resend-email');

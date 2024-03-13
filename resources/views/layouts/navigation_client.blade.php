@@ -4,14 +4,8 @@
             <form id="app-change-project" action="{{ route('project.change-main-project') }}" method="POST">
                 @csrf
                 
-                <div class="project-group">
-                    <div class="input-group" style="margin-top:5px;">
-                        <div class="input-group-btn">
-                            <button class="btn btn-primary" style="height:38px;width:38px;" title="add new project" data-target="#modal-new-project" data-toggle="modal" type="button">
-                                <i class="fa fa-plus-circle"></i>
-                            </button>
-                        </div>
-
+                <div class="project-group" style="margin-top:10px;">
+                    @if(Auth::user()->type != 0)
                         <div class="form-group">
                             <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
                                 @if(count(\globals::get_project_sidebar()) > 0)
@@ -21,7 +15,7 @@
                                 @endif
                             </select>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </form>
             
@@ -34,10 +28,13 @@
                     <a href="{{ route('company.list-company') }}" class="waves-effect"><i class="fa fa-users"></i><span> Companies </span></a>
                 </li> -->
                 <li>
-                    <a href="{{ route('adminuser.access-users.list', '?tab=user') }}" class="waves-effect"><i class="fa fa-key"></i><span> Access Users </span></a>
+                    <a href="{{ route('adminuser.access-users.list', '?tab=user') }}" class="waves-effect"><i class="fa fa-users"></i><span> Access Users </span></a>
                 </li>
                 <li>
-                    <a href="{{ route('adminuser.documents.list') }}" class="waves-effect"><i class="fa fa-cogs"></i><span> Documents </span></a>
+                    <a href="{{ route('project.list-project') }}" class="waves-effect"><i class="fa fa-cogs"></i><span> Project </span></a>
+                </li>
+                <li>
+                    <a href="{{ route('adminuser.documents.list') }}" class="waves-effect"><i class="fa fa-file"></i><span> Documents </span></a>
                 </li>
                 <li>
                     <a href="{{ route('discussion.list-discussion') }}" class="waves-effect"><i class="fa fa-comments"></i><span> Q & A </span></a>

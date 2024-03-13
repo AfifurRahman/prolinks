@@ -17,7 +17,7 @@
     <div id="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Users</h2>
         <div>
-            <button id="create_group" onclick="document.getElementById('create_group_form').style.display='block'">Create Group</button>
+            <button id="create_group" onclick="document.getElementById('create_group_form').style.display='block'"><span style="color:#1570EF; font-weight:bold;">Create Group</span></button>
             <button id="invite_user" onclick="document.getElementById('inviteuser_form').style.display='block'"><image id="addimg" src="{{ url('template/images/icon_menu/add.png') }}"></image>Invite User</button>
         </div>
     </div>
@@ -70,8 +70,7 @@
                                     {{ $owner->email }}
                                 </td>
                                 <td>
-                                    <!-- {{ $owner->name }} -->
-                                    <span class="text-muted">Owner</span>
+                                    <span class="you_status">All</span>
                                 </td> 
                                 <td>
                                 Administrator
@@ -109,11 +108,20 @@
                                     <input type="checkbox" id="checkbox"/>
                                 </td>
                                 <td>
-                                    <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}"></image>
-                                    {{ $user->email_address }}
+                                    <a href="{{ route('adminuser.access-users.detail', $user->user_id) }}">
+                                        <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}"></image>
+                                        {{ $user->email_address }}
+                                    </a>
                                 </td>
                                 <td>
-                                    {{ DB::table('access_group')->where('group_id', $user->group_id)->value('group_name') }}
+                                    @if($user->role == 0)
+                                        <span class="you_status">All</span>
+                                    @else
+                                        @php $grups = DB::table('assign_user_group')->select('access_group.group_name')->join('access_group', 'assign_user_group.group_id', 'access_group.group_id')->where('assign_user_group.user_id', $user->user_id)->where('assign_user_group.client_id', \globals::get_client_id())->get() @endphp
+                                        @foreach($grups as $grup)
+                                            <span class="invited_status">{{ $grup->group_name }}</span>
+                                        @endforeach
+                                    @endif
                                 </td>
                                 <td>
                                     @if($user->role == 0) 
@@ -226,7 +234,7 @@
                     
                     <h5 class="userrole">Role</h5>
                     <div class="roleselect">
-                        <input type="radio" name="role" value="0" required>
+                        <input type="radio" name="role" value="0" onclick="setRole(this)" required>
                         <div class="roledetail">
                             <p class="roletitle">Administrator<p>
                             <p class="roledesc">Have full access to manage documents, QnA contents, invite users and access to all reports.</p>
@@ -234,7 +242,7 @@
                     </div>
 
                     <div class="roleselect">
-                        <input type="radio" name="role" value="1" required>
+                        <input type="radio" name="role" value="1" onclick="setRole(this)" required>
                         <div class="roledetail">
                             <p class="roletitle">Collaborator<p>
                             <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
@@ -242,16 +250,16 @@
                     </div>
 
                     <div class="roleselect">
-                        <input type="radio" name="role" value="2" required>
+                        <input type="radio" name="role" value="2" onclick="setRole(this)" required>
                         <div class="roledetail">
                             <p class="roletitle">Client<p>
                             <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
                         </div>
                     </div>
                     
-                    <div class="company_id">
+                    <div id="data_group" class="company_id">
                         <h5 class="usercompany">Group</h5>
-                        <select class="form-control select2" name="company">
+                        <select class="form-control select2" data-placeholder="Unassigned" multiple name="group[]">
                             @foreach($group as $groups)
                                 @if($groups == 0)
                                     <option value="0">Unassigned</option>
@@ -261,6 +269,20 @@
                             @endforeach
                         </select>
                     </div>
+                    <div id="resultGroup"></div>
+                    <div id="data_project">
+                        <h5 class="usercompany">Project</h5>
+                        <select class="form-control select2" data-placeholder="Unassigned" multiple name="project[]">
+                            @foreach($project as $projects)
+                                @if($projects == 0)
+                                    <option value="0">Unassigned</option>
+                                @else
+                                    <option value="{{$projects}}">{{ DB::table('project')->where('project_id', $projects)->value('project_name') }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div id="resultProject"></div>
                     <div class="formbutton">
                         <a class="cancelbtn" onclick="document.getElementById('inviteuser_form').style.display='none'">Cancel</a>
                         <button class="createbtn" type="submit">Invite</button>
@@ -342,6 +364,38 @@
             document.getElementById('moveuser').style.display = 'block';
             document.getElementById('username').value = email;
         };
+
+        function setRole(element) {
+            if(element.value == 0){
+                /* jika yg dipilih administrator group & project menjd all */
+                $("#data_group").css("display", "none");
+                $("#data_project").css("display", "none");
+
+                var resGroup = "";
+                var resGroup = "<div class='form-group'>";
+                    resGroup += "<label>Group</label>"
+                    resGroup += "<select class='form-control' disabled>"
+                        resGroup += "<option value='all'>All</option>"
+                    resGroup += "</select>"
+                resGroup += "</div>"
+
+                var resProject = "";
+                var resProject = "<div class='form-group'>";
+                    resProject += "<label>Project</label>"
+                    resProject += "<select class='form-control' disabled>"
+                        resProject += "<option value='all'>All</option>"
+                    resProject += "</select>"
+                resProject += "</div>"
+
+                $("#resultGroup").html(resGroup);
+                $("#resultProject").html(resProject);
+            }else{
+                $("#data_group").css("display", "block");
+                $("#data_project").css("display", "block");
+                $("#resultGroup").html("");
+                $("#resultProject").html("");
+            }
+        }
     </script>
     @endpush
 @endsection

@@ -96,7 +96,7 @@ class ClientController extends Controller
 		  			$users->user_id = Str::uuid(4);
 		  			$users->name = $clients->client_name;
 		  			$users->email = $clients->client_email;
-		  			$users->type = \globals::set_usertype_admin();
+		  			$users->type = 0;
 		  			$users->password = Hash::make(bcrypt(Str::random(255)));
 		  			
 		  			if ($users->save()) {
