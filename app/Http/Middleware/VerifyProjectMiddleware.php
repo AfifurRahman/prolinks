@@ -17,8 +17,8 @@ class VerifyProjectMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user()->type == \globals::set_usertype_admin()) {
-            $models = Project::where('user_id', Auth::user()->user_id)->get();
+        if (Auth::user()->type == 0) {
+            $models = Project::where('client_id', \globals::get_client_id())->get();
             if ($models->count() == 0) {
                 /* jika admin client belum memiliki project sama sekali */
                 return redirect(route('create-new-project'));
