@@ -23,14 +23,12 @@
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="drag-area" id="dragArea">
-                    <span class="header">Drag & Drop</span>
-                    <span class="header">or <span class="button" onclick="document.getElementById('fileInput').click();">browse</span></span>
-                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" multiple>
-                    <span class="support">Supports jpg, jpeg, png, doc, docx, ppt, pptx, xlsx, pdf, and zip</span>
-                    <progress id="uploadProgress" value="50" max="100"></progress>
-                </div>
+            <div class="drag-area" id="dragArea" ondrop="handleDrop(event)">
+                <span class="header">Drag & Drop</span>
+                <span class="header">or <span class="button" onclick="document.getElementById('fileInput').click();">browse</span></span>
+                <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" multiple webkitdirectory mozdirectory msdirectory odirectory directory>
+                <span class="support">Supports jpg, jpeg, png, doc, docx, ppt, pptx, xlsx, pdf, and zip</span>
+                <progress id="uploadProgress" value="50" max="100"></progress>
             </div>
         </div>
     </div>
@@ -205,6 +203,8 @@
 
     @push('scripts')
     <script>
+        var progressBar = document.getElementById('uploadProgress');
+        
         document.addEventListener("DOMContentLoaded", function() {
             var dragArea = document.getElementById('dragArea');
             var fileInput = document.getElementById('fileInput');
@@ -224,28 +224,59 @@
             dragArea.addEventListener('drop', function(e) {
                 e.preventDefault();
                 dragArea.classList.remove('highlight');
-                progressBar.style.display='block';
-
-                var files = e.dataTransfer.files;
-                handleFiles(files);
-            });
-
-            fileInput.addEventListener('change', function() {
-                var files = fileInput.files;
-                handleFiles(files);
+                progressBar.style.display='block'; 
             });
         });
 
-        function showNotification(message) {
-            document.getElementById('upload-modal').style.display='none';
-            document.querySelector('.notificationtext').textContent = message;
-            document.querySelector('.notificationlayer').style.display = 'block';
-            setTimeout(() => {
-                $('.notificationlayer').fadeOut();
-            }, 2000);
-            setTimeout(function() {
-                location.reload();
-            }, 2250);
+        function handleDrop(event) {
+            event.preventDefault();
+            progressBar.style.display = 'block';
+
+            var items = event.dataTransfer.items;
+            for (var i = 0; i < items.length; i++) {
+                var entry = items[i].webkitGetAsEntry();
+                if (entry.isDirectory) {
+                    traverseFileTree(entry);
+                } else {
+                    handleFiles([items[i].getAsFile()]);
+                }
+            }
+        }
+
+        function traverseFileTree(item, path) {
+            path = path || "";
+            if (item.isFile) {
+                item.file(function(file) {
+                    handleFiles([file]);
+                });
+            } else if (item.isDirectory) {
+                // Create directory on the server
+                fetch('{{ route("adminuser.documents.create_folder") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        folder_name: item.name,
+                        location: "{{ base64_encode($origin.'/') }}"
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    // Now traverse the directory recursively
+                    var dirReader = item.createReader();
+                    dirReader.readEntries(function(entries) {
+                        for (var i = 0; i < entries.length; i++) {
+                            traverseFileTree(entries[i], path + item.name + "/");
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Failed to create folder:', error);
+                });
+            }
         }
 
         function handleFiles(files) {
@@ -287,6 +318,18 @@
         function rename(folder) {
             document.getElementById('rename-folder-modal').style.display = 'block';
             document.getElementById('old-name').value = folder;
+        }
+
+        function showNotification(message) {
+            document.getElementById('upload-modal').style.display='none';
+            document.querySelector('.notificationtext').textContent = message;
+            document.querySelector('.notificationlayer').style.display = 'block';
+            setTimeout(() => {
+                $('.notificationlayer').fadeOut();
+            }, 2000);
+            // setTimeout(function() {
+            //    location.reload();
+            // }, 2250);
         }
     </script>
     @endpush
