@@ -28,7 +28,7 @@
                     <a href="{{ route('company.list-company') }}" class="waves-effect"><i class="fa fa-users"></i><span> Companies </span></a>
                 </li> -->
                 <li>
-                    <a href="{{ route('adminuser.access-users.list', '?tab=user') }}" class="waves-effect"><i class="fa fa-users"></i><span> Access Users </span></a>
+                    <a href="{{ route('adminuser.access-users.list', 'tab=user') }}" class="waves-effect"><i class="fa fa-users"></i><span> Access Users </span></a>
                 </li>
                 <li>
                     <a href="{{ route('project.list-project') }}" class="waves-effect"><i class="fa fa-cogs"></i><span> Project </span></a>
