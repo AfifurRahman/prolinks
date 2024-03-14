@@ -15,4 +15,8 @@ class Project extends Model
     {
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
     }
+
+    public function RefSubProject($parent){
+        return Project::where('client_id', \globals::get_client_id())->where('parent', $parent)->get();
+    }
 }

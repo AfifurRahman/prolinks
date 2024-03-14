@@ -18,10 +18,11 @@ class ProjectController extends Controller
 {
 	public function list_project()
 	{
-		$project = Project::where('user_id', Auth::user()->user_id)->get();
+		$project = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->orderBy('id', 'DESC')->get();
 		$company = Company::where('company_status', \globals::set_status_company_active())->get();
-		
-		return view('adminuser.project.list_project', compact('project', 'company'));
+		$parentProject = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->get();
+
+		return view('adminuser.project.list_project', compact('project', 'company', 'parentProject'));
 	}
 
 	public function detail_project($id)
@@ -37,7 +38,6 @@ class ProjectController extends Controller
 
 			if ($projectId != NULL) {
 				$updated = Project::where('project_id', $projectId)->update([
-					'company_id' => $request->input('company_id'),
 					'client_id' => \globals::get_client_id(),
 					'project_name' => $request->input('project_name'),
 		            'project_desc' => $request->input('project_desc'),
@@ -54,7 +54,7 @@ class ProjectController extends Controller
 				$project = new Project;
 	            $project->project_id = Str::uuid(4);
 	            $project->user_id = Auth::user()->user_id;
-	            $project->company_id = $request->input('company_id');
+	            $project->company_id = "-";
 	            $project->client_id = \globals::get_client_id();
 	            $project->project_name = $request->input('project_name');
 	            $project->project_desc = $request->input('project_desc');
@@ -65,6 +65,53 @@ class ProjectController extends Controller
 
 	            if ($project->save()) {
 	            	$notification = "Project created!";
+	            	$projectId = $project->project_id;
+	            }
+			}
+
+			\DB::commit();
+		} catch (\Exception $e) {
+			\DB::rollback();
+			Alert::error('Error', $e->getMessage());
+			return back();
+		}
+
+		return redirect(route('project.list-project'))->with('notification', $notification);
+	}
+
+	public function save_subproject(Request $request)
+	{
+		$projectId = $request->input('id');
+		try {
+			\DB::beginTransaction();
+
+			if ($projectId != NULL) {
+				$updated = Project::where('project_id', $projectId)->update([
+					'client_id' => \globals::get_client_id(),
+					'project_name' => $request->input('project_name'),
+		            'project_desc' => $request->input('project_desc'),
+					'parent' => $request->input('parent'),
+		            'updated_by' => Auth::user()->id,
+		            'updated_at' => date('Y-m-d H:i:s')
+				]);
+
+				if ($updated) {
+	                $notification = "Subroject updated!";
+	            }
+			}else{
+				$project = new Project;
+	            $project->project_id = Str::uuid(4);
+	            $project->user_id = Auth::user()->user_id;
+	            $project->company_id = "-";
+	            $project->client_id = \globals::get_client_id();
+				$project->parent = $request->input('parent');
+	            $project->project_name = $request->input('project_name');
+	            $project->project_desc = $request->input('project_desc');
+	            $project->created_by = Auth::user()->id;
+	            $project->created_at = date('Y-m-d H:i:s');
+
+	            if ($project->save()) {
+	            	$notification = "Subroject created!";
 	            	$projectId = $project->project_id;
 	            }
 			}

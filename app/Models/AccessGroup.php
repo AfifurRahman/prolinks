@@ -25,4 +25,9 @@ class AccessGroup extends Model
     {
         return $this->hasMany('App\Models\ClientUser', 'group_id' , 'group_id');
     }
+
+    public function RefAssignUserGroup()
+    {
+        return $this->hasMany('App\Models\AssignUserGroup', 'group_id' , 'group_id');
+    }
 }

@@ -104,9 +104,9 @@ class GlobalHelper
     {
         $results = "";
         if($status == \globals::set_status_active()){
-            $results = '<label class="label label-success" style="border-radius:10px;"><i class="fa fa-check"></i> ACTIVE</label>';
+            $results = '<span class="active_status"> Active</span>';
         }elseif($status == \globals::set_status_nonactive()){
-            $results = '<label class="label label-danger" style="border-radius:10px;"><i class="fa fa-remove"></i> NON ACTIVE</label>';
+            $results = '<span class="disabled_status">Non Active</span>';
         }
 
         return $results;

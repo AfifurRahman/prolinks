@@ -16,6 +16,11 @@ class AssignUserGroup extends Model
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
     }
 
+    public function RefClientUser()
+    {
+        return $this->hasOne('App\Models\ClientUser', 'user_id' , 'user_id');
+    }
+
     public function RefGroup()
     {
         return $this->hasOne('App\Models\AccessGroup', 'group_id' , 'group_id');

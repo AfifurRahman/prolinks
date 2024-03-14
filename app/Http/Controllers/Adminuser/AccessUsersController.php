@@ -28,7 +28,7 @@ class AccessUsersController extends Controller
         $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', $adminusercompany)->get();
         $group = AccessGroup::where('client_id', $adminusercompany)->pluck('group_id')->toArray();
         $project = Project::where('client_id', $adminusercompany)->pluck('project_id')->toArray();
-        $owners = User::where('type', 1)->where('name', Auth::user()->name)->get();
+        $owners = User::where('type', 0)->where('user_id', Auth::user()->user_id)->get();
         $listGroup = AccessGroup::where('client_id', $adminusercompany)->get();
         array_unshift($group, 0);
         array_unshift($project, 0);
@@ -46,6 +46,12 @@ class AccessUsersController extends Controller
         array_unshift($project, 0);
 
         return view('adminuser.users.detail', compact('clientuser', 'group', 'project', 'groupDetail', 'projectDetail'));
+    }
+
+    public function detail_group($group_id){
+        $group = AccessGroup::where('group_id', $group_id)->where('client_id', \globals::get_client_id())->first();
+        $member = AssignUserGroup::where('client_id', \globals::get_client_id())->where('group_id', $group_id)->get();
+        return view('adminuser.users.detail_group', compact('group', 'member'));
     }
 
     public function create_user(Request $request)
@@ -68,6 +74,7 @@ class AccessUsersController extends Controller
                             'client_id' => DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id'),
                             'role' => $request->role,
                             // 'group_id' => $request->group,
+                            'created_by' => Auth::user()->id,
                             'group_id' => 0,
                         ]);
         
@@ -161,7 +168,7 @@ class AccessUsersController extends Controller
         try {
             \DB::beginTransaction();
 
-            
+            // coming soon
 
             if ($update) {
                 $notification = "Role edited";
@@ -174,6 +181,27 @@ class AccessUsersController extends Controller
         }
 
         return back()->with('notification', $notification);  
+    }
+
+    public function edit_group(Request $request, $group_id) {
+        try {
+            \DB::beginTransaction();
+
+            $update = AccessGroup::where('client_id', \globals::get_client_id())->where('group_id', $group_id)->update([
+                'group_desc'=> $request->group_desc,
+            ]);
+
+            if ($update) {
+                $notification = "Group edited";
+            }
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            $notification = "Can't edit group";
+        }
+
+        return back()->with('notification', $notification); 
     }
 
     public function move_group(Request $request)

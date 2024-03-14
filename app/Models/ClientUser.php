@@ -18,10 +18,16 @@ class ClientUser extends Model
         'role_param',
         'group_id',
         'status',
+        'created_by'
     ];
 
     public function RefUser()
     {
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
+    }
+
+    public function RefCreatedName()
+    {
+        return $this->hasOne('App\Models\User', 'id' , 'created_by');
     }
 }

@@ -190,7 +190,9 @@
             </tr>
             <tr>
                 <td>Invite By</td>
-                <td></td>
+                <td>
+                    {!! !empty($clientuser->RefCreatedName->name) ? $clientuser->RefCreatedName->name : '' !!}
+                </td>
             </tr>
         </table>
         

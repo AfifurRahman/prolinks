@@ -70,7 +70,9 @@ Route::group(['middleware' => 'auth'], function () {
 	/* Clientuser */
 	Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
 	Route::get('/users/detail/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail')->name('adminuser.access-users.detail');
+	Route::get('/users/detail-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail_group')->name('adminuser.access-users.detail-group');
 	Route::post('/users/edit/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit')->name('adminuser.access-users.edit');
+	Route::post('/users/edit-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_group')->name('adminuser.access-users.edit-group');
 	Route::post('/users/edit_role/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_role')->name('adminuser.access-users.edit-role');
 	Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
 	Route::post('/users/move-group', 'App\Http\Controllers\Adminuser\AccessUsersController@move_group')->name('adminuser.access-users.move-group');
@@ -120,6 +122,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::get('/project/create-project', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.create-project');
 		Route::get('/project/edit-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.edit-project');
 		Route::post('/project/save-project', 'App\Http\Controllers\Adminuser\ProjectController@save_project')->name('project.save-project');
+		Route::post('/project/save-subproject', 'App\Http\Controllers\Adminuser\ProjectController@save_subproject')->name('project.save-subproject');
 		Route::get('/project/delete-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_project')->name('project.delete-project');
 		
 		/* Q & A */

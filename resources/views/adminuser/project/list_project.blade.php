@@ -130,7 +130,31 @@
 
 	    .title-project span {
 	    	font-weight: 400;
-	    	font-size: 14px;
+	    	font-size: 12px;
+	    	line-height: 20px;
+	    	letter-spacing: 0.5%;
+	    	color: #586474;
+	    }
+
+		.title-subproject {
+			margin-left: 65px;
+		}
+
+		.title-subproject h3 {
+	    	font-size: 16px;
+	    	font-weight: 600;
+	    	letter-spacing: 0.5%;
+	    	color: #1D2939;
+	    	line-height: 0;
+	    }
+
+		.title-subproject a {
+			color: #1D2939;
+		}
+
+	    .title-subproject span {
+	    	font-weight: 400;
+	    	font-size: 12px;
 	    	line-height: 20px;
 	    	letter-spacing: 0.5%;
 	    	color: #586474;
@@ -174,18 +198,28 @@
 	    .custom-form textarea {
 	        border-radius: 7px;
 	    }
+
+		.child-row-general {
+			display: none;
+		}
 	</style>
 	<div class="pull-left">
 		<h3 style="color:black;font-size:28px;">Project</h3>
 	</div>
-	<div class="pull-right" style="margin-bottom: 24px;">
+	<div class="pull-right" style="margin-bottom: 24px; margin-top:10px;">
+		<a href="#modal-add-subproject" data-toggle="modal" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;">Create Subroject</a>
 		<a href="#modal-add-project" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Project</a>
 	</div><div style="clear: both;"></div>
 	<table class="table table-hover custom-table">
 		<tbody>
 			@if(count($project) > 0)
 				@foreach($project as $key => $projects)
-					<tr>
+					<tr class="">
+						<td style="vertical-align: middle;" align="center">
+							@if(count($projects->RefSubProject($projects->id)) > 0)
+								<a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)"><span class="caret"></span></a>
+							@endif
+						</td>
 						<td width="48">
 							<div class="image-project">
 								<img src="{{ url('template/images/icon-projects1.png') }}">
@@ -194,7 +228,7 @@
 						<td style="vertical-align: middle;">
 							<div class="title-project">
 								<h3><a href="">{{ $projects->project_name }}</a></h3>
-								<span>Last session : {{ date('d M Y H:i') }}</span>
+								<span style="color:#1D2939;">1.2GB</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
 							</div>
 						</td>
 						<td style="vertical-align: middle;" width="100">
@@ -204,18 +238,31 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right">
 									<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $projects }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
-								   	<li><a href="{{ route('project.delete-project', $projects->project_id) }}" onclick="return confirm('are you sure delete this item ?')"><i class="fa fa-trash"></i> Delete</a></li>
+								   	<li><a href=""><i class="fa fa-lock"></i> Permissions</a></li>
+									<li><a href="{{ route('project.delete-project', $projects->project_id) }}" onclick="return confirm('are you sure delete this item ?')"><i class="fa fa-trash"></i> Delete</a></li>
 							  	</ul>
 							</div>
 						</td>
 					</tr>
+					@foreach($projects->RefSubProject($projects->id) as $subs)
+						<tr class="child-row-general child-row{{ $key }}">
+							<td></td>
+							<td colspan="2">
+								<div class="title-subproject">
+									<h3 style="color:#1D2939;"><a href="">{{ $subs->project_name }}</a></h3>
+									<span style="color:#1D2939;">800MB</span>
+								</div>
+							</td>
+							<td></td>
+						</tr>
+					@endforeach
 				@endforeach
 			@endif
 		</tbody>
 	</table>
 
 	<div id="modal-add-project" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                 	<div class="custom-modal-header">
@@ -232,77 +279,74 @@
                 </div>
                 <div class="modal-body">
                 	<form class="custom-form" action="{{ route('project.save-project') }}" method="POST">
-	                	<div class="row">
-	                		<div class="col-md-6">
-								@csrf
-								<input type="hidden" name="id" id="id">
-		                		<div class="form-group">
-									<label>Company<span class="text-danger">*</span></label>
-									<select required name="company_id" id="company_id" onchange="changeCompany(this)" class="form-control select2">
-										<option value="">- select company -</option>
-										@foreach($company as $companies)
-											<option value="{{ $companies->company_id }}">{{ $companies->company_name }}</option>
-										@endforeach
-									</select>
-								</div>
-		                		<div class="form-group">
-									<label>Project Name <span class="text-danger">*</span></label>
-									<input required type="text" name="project_name" id="project_name" class="form-control">
-								</div>
-								
-								<div class="form-group">
-									<label>Project Desc </label>
-									<textarea name="project_desc" id="project_desc" class="form-control"></textarea>
-								</div>
-	                		</div>
-	                		<div class="col-md-6">
-	                			<label>List Access Users</label>
-	                			<table class="tableProjects">
-	                				<thead>
-	                					<tr>
-	                						<th>Username / Email</th>
-	                						<th>Type</th>
-	                					</tr>
-	                				</thead>
-	                				<tbody class="resultUserGroup"></tbody>
-	                			</table>
-	                		</div>
-	                	</div>
-	                	<div class="row">
-	                		<div class="col-md-6">
-	                			<div class="pull-right">
-	                				<button type="button" data-dismiss="modal" class="btn btn-default" style="border-radius: 5px;">
-			            				Close
-			            			</button>
-									<button type="submit" class="btn btn-primary" style="border-radius: 5px;">
-										Create
-									</button>
-								</div>
-	                		</div>
-	                	</div>
+						@csrf
+						<input type="hidden" name="id" id="id">
+						<div class="form-group">
+							<label>Project Name <span class="text-danger">*</span></label>
+							<input required type="text" name="project_name" id="project_name" class="form-control">
+						</div>
+						
+						<div class="form-group">
+							<label>Project Desc </label>
+							<textarea name="project_desc" id="project_desc" class="form-control"></textarea>
+						</div>
+						<div class="pull-right">
+							<button type="button" data-dismiss="modal" class="btn btn-default" style="border-radius: 5px;">
+								Cancel
+							</button>
+							<button type="submit" class="btn btn-primary" style="border-radius: 5px;">
+								Create
+							</button>
+						</div><div style="clear:both;"></div>
                 	</form>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="modal-view-role" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
+    <div id="modal-add-subproject" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title">List Access Users</h4>
+                    <div class="custom-modal-header">
+                		<button type="button" onclick="reloadPage()" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                		<div style="float: left;">
+	                        <img src="{{ url('template/images/data-project.png') }}" width="24" height="24">
+	                    </div>
+	                    <div style="float: left; margin-left: 10px;">
+	                        <h4 class="modal-title" id="titleModal">
+	                        	Create Subproject
+	                        </h4>
+	                    </div>
+	                </div>
                 </div>
                 <div class="modal-body">
-                	<table class="tableProjects">
-        				<thead>
-        					<tr>
-        						<th>Username / Email</th>
-        						<th>Type</th>
-        					</tr>
-        				</thead>
-        				<tbody class="resultUserGroup"></tbody>
-        			</table>
+					<form class="custom-form" action="{{ route('project.save-subproject') }}" method="POST">
+						@csrf
+						<input type="hidden" name="id" id="id">
+						<div class="form-group">
+							<label>Project Parents <span class="text-danger">*</span></label>
+							<select name="parent" id="parent" class="form-control select2">
+								@if(count($parentProject) > 0)
+									@foreach($parentProject as $parents)
+										<option value="{{ $parents->id }}">{{ $parents->project_name }}</option>
+									@endforeach
+								@endif
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Subproject Name <span class="text-danger">*</span></label>
+							<input required type="text" name="project_name" id="project_name" class="form-control">
+						</div>
+						<div class="pull-right">
+							<button type="button" data-dismiss="modal" class="btn btn-default" style="border-radius: 5px;">
+								Cancel
+							</button>
+							<button type="submit" class="btn btn-primary" style="border-radius: 5px;">
+								Create
+							</button>
+						</div><div style="clear:both;"></div>
+                	</form>
                 </div>
             </div>
         </div>
@@ -311,59 +355,14 @@
 
 @push('scripts')
 	<script type="text/javascript">
+		function slideData(element){
+			var idx = $(element).data('key');
+			$(".child-row"+idx).toggle();
+		}
+
 		$(document).ready(function () {
            	$('#tableProjects').dataTable();
         });
-
-        function getRole(element) {
-        	var id = $(element).data('id');
-        	getDetailCompany(id);
-        }
-
-        function changeCompany(element) {
-        	var id = element.value;
-        	getDetailCompany(id);
-        }
-
-        function getDetailCompany(id) {
-        	if (id != "") {
-	        	$.ajax({
-	        		url: "{{ route('project.detail-role-users') }}",
-	        		type: "POST",
-	        		data: {
-	        			"_token": "{{ csrf_token() }}",
-	        			"id": id
-	        		},
-	        		beforeSend:function(){
-	        			var res = "<tr><td colspan='2' align='center'>loading..</td></tr>";
-	        			$(".resultUserGroup").html(res);
-	        		},
-
-	        		success:function(output){
-	        			if (output.length > 0) {
-	        				var res = ""
-	        				for (var i = 0; i < output.length; i++) {
-	        					res += "<tr>"
-		        					res += "<td>"+output[i].email_address+"</td>"
-		        					if (output[i].role == 0) {
-		        						res += "<td><label class='label-users'>Administrator</label></td>"
-		        					}else if(output[i].role == 1){
-		        						res += "<td><label class='label-users'>Collaborator</label></td>"
-		        					}
-		        				res += "</tr>"
-	        				}
-	        				
-	        				$(".resultUserGroup").html(res);
-	        			}else{
-	        				var res = "<tr><td colspan='2' align='center'>not found</td></tr>";
-	        				$(".resultUserGroup").html(res);
-	        			}
-	        		}
-	        	});
-	        }else{
-	        	$(".resultUserGroup").html("");
-	        }
-        }
 
         function getDetailProject(element) {
         	var title = $(element).data('title');
@@ -373,8 +372,7 @@
 
         	$("#id").val(query.project_id);
         	$("#project_name").val(query.project_name);
-        	$("#company_id").val(query.company_id).trigger('change');
-    		$("#project_desc").val(query.project_desc);
+        	$("#project_desc").val(query.project_desc);
     	}
 
     	function reloadPage() {

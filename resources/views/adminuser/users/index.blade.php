@@ -100,7 +100,6 @@
                         @endforeach
                     @endif
                     
-
                     @if(count($clientuser) > 0)
                         @foreach($clientuser as $user)
                             <tr>
@@ -174,40 +173,52 @@
         </div>
     @elseif(request()->input('tab') == "group")
         <div id="table">
-            <table id="tableUser">
-                <thead>
-                    <tr>
-                        <th id="check"><input type="checkbox" id="checkbox" disabled/></th>
-                        <th id="name">Name</th>
-                        <th id="members">Members</th>
-                        <th id="status">&nbsp;Status</th>
-                        <th id="navigationdot">&nbsp;</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($listGroup as $list)
+            @if(count($listGroup) > 0)
+                <table id="tableUser">
+                    <thead>
                         <tr>
-                            <td>
-                                <input type="checkbox" id="checkbox" />
-                            </td>
-                            <td>{{ $list->group_name }}</td>
-                            <td>{{ $list->RefClientUser->count() }}</td>
-                            <td width="150">{!! \globals::label_status($list->group_status) !!}</td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="button_ico dropdown-toggle" data-toggle="dropdown">
-                                        <i class="fa fa-ellipsis-v"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                        <li><a href="">Edit Group</a></li>
-                                        <li><a href="">Delete Group</a></li>
-                                    </ul>
-                                </div>
-                            </td>
+                            <th id="check"><input type="checkbox" id="checkbox" disabled/></th>
+                            <th id="name">Name</th>
+                            <th id="members">Members</th>
+                            <th id="status">&nbsp;Status</th>
+                            <th id="navigationdot">&nbsp;</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($listGroup as $list)
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="checkbox" />
+                                </td>
+                                <td>
+                                    <a href="{{ route('adminuser.access-users.detail-group', $list->group_id) }}">
+                                        <img src="{{ url('template/images/group.png') }}" width="24" height="24"> {{ $list->group_name }}
+                                    </a>
+                                </td>
+                                <td>{{ $list->RefAssignUserGroup->count() }}</td>
+                                <td width="150">{!! \globals::label_status($list->group_status) !!}</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                            <li><a href="">Disable access</a></li>
+                                            <li><a href="">Delete Group</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <div class="card-box">
+                    <center>
+                        <img src="{{ url('template/images/empty_group.png') }}" width="300" />
+                    </center>    
+                </div>
+            @endif
         </div>
     @endif
 
