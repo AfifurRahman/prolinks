@@ -47,7 +47,7 @@ class AuthController extends Controller
 
     			if ($update) {
     				Session::flash('message', 'Password created !'); 
-					if ($users_type == 2) {
+					if ($users_type == 0 || $users_type == 1 || $users_type == 2) {
 						ClientUser::where('email_address',$email)->update(['status' => 1]);
 					}
     			}
