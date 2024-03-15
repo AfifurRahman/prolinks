@@ -36,27 +36,63 @@ class DocumentController extends Controller
             if ($request->hasFile('files')) {
                 $files = $request->file('files');
                 $response = [];
-
+    
                 foreach ($files as $file) {
-                    $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($request->location);
-                    $filePath = $file->storeAs($path,Str::random(8));
-                    UploadFile::create([
-                        'directory' => $path,
-                        'basename' => basename($filePath),
-                        'name' => $file->getClientOriginalName(),
-                        'access_user' => Auth::user()->email,
-                        'mime_type' => $file->getClientMimeType(),
-                        'size' => $file->getSize(),
-                        'status' => 1,
-                        'uploaded_by' => Auth::user()->user_id,
-                    ]);
-                    $response[] = ['path' => $filePath];
+                    if ($file->isDir()) {
+                        // Handle directory upload
+                        $this->uploadFolder($file, $request->location);
+                    } else {
+                        // Handle file upload
+                        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($request->location);
+                        $filePath = $file->storeAs($path, Str::random(8));
+                        UploadFile::create([
+                            'directory' => $path,
+                            'basename' => basename($filePath),
+                            'name' => $file->getClientOriginalName(),
+                            'access_user' => Auth::user()->email,
+                            'mime_type' => $file->getClientMimeType(),
+                            'size' => $file->getSize(),
+                            'status' => 1,
+                            'uploaded_by' => Auth::user()->user_id,
+                        ]);
+                        $response[] = ['path' => $filePath];
+                    }
                 }
             } 
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
         return response()->json(['success' => true, 'message' => 'Operation success']);
+    }
+    
+    private function uploadFolder($folder, $location)
+    {
+        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($location) . '/' . $folder->getClientOriginalName();
+        
+        // Create the directory on the server
+        Storage::makeDirectory($path);
+    
+        // Recursively handle files in the folder
+        $files = $folder->allFiles();
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                // Handle nested folders recursively
+                $this->uploadFolder($file, $location . '/' . $folder->getClientOriginalName());
+            } else {
+                // Handle file upload within the folder
+                $filePath = $file->storeAs($path, Str::random(8));
+                UploadFile::create([
+                    'directory' => $path,
+                    'basename' => basename($filePath),
+                    'name' => $file->getClientOriginalName(),
+                    'access_user' => Auth::user()->email,
+                    'mime_type' => $file->getClientMimeType(),
+                    'size' => $file->getSize(),
+                    'status' => 1,
+                    'uploaded_by' => Auth::user()->user_id,
+                ]);
+            }
+        }
     }
 
     public function create_folder(Request $request)
