@@ -249,6 +249,8 @@ table thead th:first-child {
     color: #1D2939;
     padding:5px 10px 5px 10px;
     border-radius:25px;
+    display: inline-block;
+    margin-bottom: 7px;
 }
 
 .active_status{
