@@ -212,7 +212,8 @@ class GlobalHelper
 
     public static function get_client_id()
     {
-        return Auth::user()->RefClient->client_id;
+        // return Auth::user()->RefClient->client_id;
+        return Auth::user()->client_id;
     }
 
     public static function get_project_id()

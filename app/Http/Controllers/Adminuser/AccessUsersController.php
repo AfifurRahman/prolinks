@@ -25,11 +25,11 @@ class AccessUsersController extends Controller
     {
         $adminusercompany = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
 
-        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', $adminusercompany)->get();
-        $group = AccessGroup::where('client_id', $adminusercompany)->pluck('group_id')->toArray();
-        $project = Project::where('client_id', $adminusercompany)->pluck('project_id')->toArray();
-        $owners = User::where('type', 0)->where('user_id', Auth::user()->user_id)->get();
-        $listGroup = AccessGroup::where('client_id', $adminusercompany)->get();
+        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
+        $group = AccessGroup::where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
+        $project = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->pluck('project_id')->toArray();
+        $owners = User::where('client_id', \globals::get_client_id())->where('type', 0)->where('user_id', Auth::user()->user_id)->get();
+        $listGroup = AccessGroup::where('client_id', \globals::get_client_id())->get();
         array_unshift($group, 0);
         array_unshift($project, 0);
 
@@ -67,11 +67,12 @@ class AccessUsersController extends Controller
                     
                     if (!$existingUser) {
                         $userID = Str::uuid(4);
+                        $clientID = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
                         ClientUser::create([
                             'user_id'=> $userID,
                             'email_address' => $email,
                             'company' => '-',
-                            'client_id' => DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id'),
+                            'client_id' => \globals::get_client_id(),
                             'role' => $request->role,
                             // 'group_id' => $request->group,
                             'created_by' => Auth::user()->id,
@@ -79,6 +80,7 @@ class AccessUsersController extends Controller
                         ]);
         
                         $users = new User;
+                        $users->client_id = \globals::get_client_id();
                         $users->user_id = $userID;
                         $users->name = Auth::user()->name;
                         $users->email = $email;
@@ -135,6 +137,7 @@ class AccessUsersController extends Controller
 
             \DB::commit();
         } catch (\Exception $e) {
+            var_dump($e->getMessage()); die();
             \DB::rollBack();
             $notification = "Can't invite user";
         }

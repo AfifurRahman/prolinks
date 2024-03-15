@@ -94,6 +94,7 @@ class ClientController extends Controller
 
 		  			$users = new User;
 		  			$users->user_id = Str::uuid(4);
+					$users->client_id = $clients->client_id;
 		  			$users->name = $clients->client_name;
 		  			$users->email = $clients->client_email;
 		  			$users->type = 0;
