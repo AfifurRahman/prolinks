@@ -6,23 +6,23 @@
 }
 
 #index {
-    width:3%;
+    width:5%;
 }
 
 #name {
-    width:32%;
+    width:60%;
 }
 
 #created {
-    width:10%;
+    width:20%;
 }
 
 #size {
-    width:15%;
+    width:10%;
 }
 
 #navigationdot{
-    width:10%;
+    width:5%;
 }
 
 .tableDocument thead th:first-child {
