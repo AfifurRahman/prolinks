@@ -112,8 +112,8 @@
                 <input type="text" class="searchbar" placeholder="Search documents...">
             </div>
         </div>
-
-        <div class="table">
+        
+        <div class="tableContainer">
             <table class="tableDocument">
                 <thead>
                     <tr>

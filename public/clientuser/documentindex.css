@@ -1,8 +1,9 @@
-.table {
+.tableContainer {
     border-radius:0px;
     overflow:auto;
     height:80vh;
     position:sticky;
+    bottom:-200px;
 }
 
 #index {
