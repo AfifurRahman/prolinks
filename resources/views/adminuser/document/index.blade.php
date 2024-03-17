@@ -117,10 +117,10 @@
             <table class="tableDocument">
                 <thead>
                     <tr>
-                        <th id="check">Index</th>
+                        <th id="index">Index</th>
                         <th id="name">File name</th>
-                        <th id="company">Created at</th>
-                        <th id="role">Size / type</th>
+                        <th id="created">Created at</th>
+                        <th id="size">Size / type</th>
                         <th id="navigationdot">&nbsp;</th>
                     </tr>
                 </thead>
