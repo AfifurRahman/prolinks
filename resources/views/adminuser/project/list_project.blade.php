@@ -249,8 +249,8 @@
 							<td></td>
 							<td colspan="2">
 								<div class="title-subproject">
-									<h3 style="color:#1D2939;"><a href="">{{ $subs->project_name }}</a></h3>
-									<span style="color:#1D2939;">800MB</span>
+									<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($projects->project_id.'/'.$subs->project_id)) }}">{{ $subs->project_name }}</a></h3>
+									<span style="color:#1D2939;">{{$projects->project_id}}/{{$subs->project_id}}</span>
 								</div>
 							</td>
 							<td></td>
