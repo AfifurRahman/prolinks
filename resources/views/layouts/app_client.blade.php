@@ -107,7 +107,7 @@
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
 </head>
-<body class="fixed-left">
+<body>
     <div id="wrapper">
         <div class="topbar">
             <div class="topbar-left" style="background: #F1F5F9;">

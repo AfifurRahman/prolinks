@@ -30,7 +30,7 @@ class DocumentController extends Controller
         }
     }
 
-    public function upload(Request $request)
+    public function uploadFiles(Request $request)
     {   
         try {
             if ($request->hasFile('files')) {
@@ -38,10 +38,6 @@ class DocumentController extends Controller
                 $response = [];
     
                 foreach ($files as $file) {
-                    if ($file->isDir()) {
-                        // Handle directory upload
-                        $this->uploadFolder($file, $request->location);
-                    } else {
                         // Handle file upload
                         $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($request->location);
                         $filePath = $file->storeAs($path, Str::random(8));
@@ -56,7 +52,6 @@ class DocumentController extends Controller
                             'uploaded_by' => Auth::user()->user_id,
                         ]);
                         $response[] = ['path' => $filePath];
-                    }
                 }
             } 
         } catch (\Exception $e) {
@@ -64,35 +59,28 @@ class DocumentController extends Controller
         }
         return response()->json(['success' => true, 'message' => 'Operation success']);
     }
-    
-    private function uploadFolder($folder, $location)
+
+    public function uploadFolders(Request $request)
     {
-        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/'. base64_decode($location) . '/' . $folder->getClientOriginalName();
-        
-        // Create the directory on the server
-        Storage::makeDirectory($path);
+        try {
+            $basename = Str::random(8);
+
+            $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $basename; 
     
-        // Recursively handle files in the folder
-        $files = $folder->allFiles();
-        foreach ($files as $file) {
-            if ($file->isDir()) {
-                // Handle nested folders recursively
-                $this->uploadFolder($file, $location . '/' . $folder->getClientOriginalName());
-            } else {
-                // Handle file upload within the folder
-                $filePath = $file->storeAs($path, Str::random(8));
-                UploadFile::create([
-                    'directory' => $path,
-                    'basename' => basename($filePath),
-                    'name' => $file->getClientOriginalName(),
-                    'access_user' => Auth::user()->email,
-                    'mime_type' => $file->getClientMimeType(),
-                    'size' => $file->getSize(),
-                    'status' => 1,
-                    'uploaded_by' => Auth::user()->user_id,
-                ]);
-            }
+            UploadFolder::create([
+                'directory' => base64_decode($request->location) . $basename,
+                'basename' => $basename,
+                'name' => $request->folder_name,
+                'access_user' => Auth::user()->email,
+                'status' => 1,
+                'uploaded_by' => Auth::user()->user_id, 
+            ]);
+    
+            Storage::makeDirectory($path, 0755,true);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
+        return back();
     }
 
     public function create_folder(Request $request)
@@ -112,6 +100,7 @@ class DocumentController extends Controller
             ]);
     
             Storage::makeDirectory($path, 0755,true);
+            
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }

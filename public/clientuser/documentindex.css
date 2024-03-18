@@ -1,7 +1,29 @@
-.table {
+.tableContainer {
     border-radius:0px;
     overflow:auto;
-    height:100vh;
+    height:80vh;
+    position:sticky;
+    bottom:-200px;
+}
+
+#index {
+    width:5%;
+}
+
+#name {
+    width:60%;
+}
+
+#created {
+    width:20%;
+}
+
+#size {
+    width:10%;
+}
+
+#navigationdot{
+    width:5%;
 }
 
 .tableDocument thead th:first-child {
