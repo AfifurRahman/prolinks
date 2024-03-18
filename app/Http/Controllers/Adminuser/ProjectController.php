@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\User;
+use App\Models\Client;
 use App\Models\Project;
 use App\Models\ClientUser;
 use App\Models\Company;
@@ -99,8 +101,9 @@ class ProjectController extends Controller
 	                $notification = "Subroject updated!";
 	            }
 			}else{
+				$project_id = Str::uuid(4);
 				$project = new Project;
-	            $project->project_id = Str::uuid(4);
+	            $project->project_id = $project_id;
 	            $project->user_id = Auth::user()->user_id;
 	            $project->company_id = "-";
 	            $project->client_id = \globals::get_client_id();
@@ -115,8 +118,13 @@ class ProjectController extends Controller
 	            	$projectId = $project->project_id;
 	            }
 			}
-
 			\DB::commit();
+
+			$parent = Project::where('id', Project::where('project_id', $project_id)->value('parent'))->value('project_id');
+
+			$path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . $parent . '/' . $project_id;
+			Storage::makeDirectory($path, 0755,true);
+
 		} catch (\Exception $e) {
 			\DB::rollback();
 			Alert::error('Error', $e->getMessage());

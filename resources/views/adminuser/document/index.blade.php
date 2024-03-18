@@ -17,18 +17,19 @@
             <div class="modal-content">
                 <div class="modal-topbar">
                     <div class="upload-modal-title">
-                        <h5 class="modal-title-text">Upload file or folder</h5>
+                        <h5 class="modal-title-text">Upload files</h5>
                     </div>
                     <button class="modal-close" onclick="document.getElementById('upload-modal').style.display='none'">
                         <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                     </button>
                 </div>
-                <div class="drag-area" id="dragArea" ondrop="handleDrop(event)">
-                    <span class="header">Drag & Drop</span>
-                    <span class="header">or <span class="button" onclick="document.getElementById('fileInput').click();">browse</span></span>
-                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" multiple onchange="handleFileSelection(this)">
-                    <span class="support">Supports jpg, jpeg, png, doc, docx, ppt, pptx, xlsx, pdf, and zip</span>
-                    <progress id="uploadProgress" value="50" max="100"></progress>
+                <div class="modal-upload-box">
+                    <div class="drag-area" id="dragArea" ondrop="handleDrop(event)">
+                        <image class="modal-upload-img" style="width:56px;height:56px;" src="{{ url('template/images/icon_menu/modal_upload.png') }}"></image>
+                        <span class="header">Drop your file(s) here</span>
+                        <button class="modal-upload-btn" onclick="document.getElementById('fileInput').click();">Browse</button>
+                        <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" multiple onchange="handleFileSelection(this)">
+                    </div>
                 </div>
             </div>
         </div>
@@ -92,10 +93,9 @@
         <div class="box_helper">
             <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
             <div class="button_helper">
-                <button class="export">Export</button>
-                <button class="createfolder" onclick="document.getElementById('create-folder-modal').style.display='block'">Create folder</button>
-
-                <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'"><image class="upload_ico" src="{{ url('template/images/icon_menu/upload.png') }}" ></image>Upload</button>
+                <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
+                <button class="permissions"><image class="permissions-ico" src="{{ url('template/images/icon_menu/permissions.png') }}">Permissions</button>
+                <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'"><image class="upload-ico" src="{{ url('template/images/icon_menu/upload.png') }}"></image>Upload</button>
             </div>
         </div>
 
@@ -108,8 +108,8 @@
                 </button>
             </div>
             <div class="searchbox">
-                <image class="search_icon" src="{{ url('template/images/icon_menu/search.png') }}"></image>
-                <input type="text" class="searchbar" placeholder="Search documents...">
+                    <img class="search_icon" src="{{ url('template/images/icon_menu/search.png') }}">
+                    <input type="text" name="name" class="searchbar" id="searchInput" placeholder="Search documents...">
             </div>
         </div>
         
@@ -117,6 +117,7 @@
             <table class="tableDocument">
                 <thead>
                     <tr>
+                        <th id="check"><input type="checkbox" class="checkbox" disabled/></th>
                         <th id="index">Index</th>
                         <th id="name">File name</th>
                         <th id="created">Created at</th>
@@ -124,11 +125,12 @@
                         <th id="navigationdot">&nbsp;</th>
                     </tr>
                 </thead>
-                @if(!$origin == "")
+                @if($directorytype == 0)
                     <tr>
                         <td></td>
+                        <td></td>
                         <td>
-                            <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(($pos = strpos($origin, '/')) !== false ? substr($origin, 0, $pos) : '')) }}">
+                            <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(substr($origin,0,-9))) }}">
                                 <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
                                 ...
                             </a>
@@ -141,6 +143,7 @@
                 @foreach ($folders as $index => $directory)
                     @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
                         <tr>
+                            <td><input type="checkbox" class="checkbox" /></td>
                             <td>{{ $index + 1 }}</td>
                             <td>
                                 @if($origin == "")
@@ -174,6 +177,7 @@
                 @foreach ($files as $index => $file)
                     @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                         <tr>
+                            <td><input type="checkbox" class="checkbox" /></td>
                             <td>{{ $index + 1 }}</td>
                             <td>
                                 <a class="fol-fil" href="{{ route('adminuser.documents.file', [base64_encode($origin.'/'.basename($file)), base64_encode(basename($file))] ) }}">
@@ -203,10 +207,26 @@
 
         @push('scripts')
         <script>
+             document.addEventListener('DOMContentLoaded', function() {
+                // Add event listener for key press
+                document.getElementById('searchInput').addEventListener('keypress', function(event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault(); // Prevent default form submission
+                        search(); // Call your search function
+                    }
+                });
+            });
+
+            function search() {
+                var searchTerm = document.getElementById('searchInput').value;
+                // Redirect to the search route with the search term
+                window.location.href = "{{ route('adminuser.documents.search') }}?name=" + searchTerm;
+            }
+
             // Handle drag and drop file
             function handleDrop(event) {
                 event.preventDefault();
-                uploadProgress.style.display = 'block';
+                
 
                 const items = event.dataTransfer.items;
                 for (const item of items) {
@@ -246,7 +266,6 @@
                 .then(response => {
                     if (!response.ok) {
                         showNotification("Upload failed");
-                        uploadProgress.style.display = 'none';
                         throw new Error('Failed to upload the file, unsupported file type');
                     }
                     return response.json();
@@ -255,7 +274,6 @@
                     console.log(data);
                     if (data.success) {
                         showNotification("File successfully uploaded");
-                        uploadProgress.style.display = 'none';
                     }
                 });
             }
@@ -276,9 +294,6 @@
 
             document.addEventListener("DOMContentLoaded", function() {
                 const dragArea = document.getElementById('dragArea');
-                const uploadProgress = document.getElementById('uploadProgress');
-
-                uploadProgress.style.display = 'none';
 
                 dragArea.addEventListener('dragover', e => {
                     e.preventDefault();
@@ -292,7 +307,6 @@
                 dragArea.addEventListener('drop', e => {
                     e.preventDefault();
                     dragArea.classList.remove('highlight');
-                    uploadProgress.style.display = 'block';
                 });
             });
 
