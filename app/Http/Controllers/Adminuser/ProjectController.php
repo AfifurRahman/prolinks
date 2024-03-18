@@ -122,7 +122,6 @@ class ProjectController extends Controller
 			Alert::error('Error', $e->getMessage());
 			return back();
 		}
-
 		return redirect(route('project.list-project'))->with('notification', $notification);
 	}
 

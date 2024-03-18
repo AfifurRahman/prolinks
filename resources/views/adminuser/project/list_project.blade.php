@@ -215,7 +215,7 @@
 			@if(count($project) > 0)
 				@foreach($project as $key => $projects)
 					<tr class="">
-						<td style="vertical-align: middle;" align="center">
+						<td width="50" style="vertical-align: middle;" align="center">
 							@if(count($projects->RefSubProject($projects->id)) > 0)
 								<a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)"><span class="caret"></span></a>
 							@endif

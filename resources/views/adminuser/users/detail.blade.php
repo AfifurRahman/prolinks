@@ -49,6 +49,15 @@
             border-radius:25px;
         }
 
+        .disabled_status {
+            background: #FEF3F2;
+            font-size: 12px;
+            font-weight: 600;
+            color: #912018;
+            padding: 5px 10px 5px 10px;
+            border-radius: 25px;
+        }
+
         .modal-content {
             -webkit-border-radius: 0px !important;
             -moz-border-radius: 0px !important;
@@ -104,8 +113,11 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right">
                     <li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project">Move to group</a></li>
-                    <li><a href="">Disable access</a></li>
-                    <li><a href="">Delete user</a></li>
+                    @if($clientuser->status == 1)
+                        <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($clientuser->email_address)) }}">Disable User</a></li>
+                    @elseif($clientuser->status == 2)
+                        <li><a href="{{ route('adminuser.access-users.enable-user', base64_encode($clientuser->email_address)) }}">Enable User</a></li>
+                    @endif
                 </ul>
             </div>
         </div> <div style="clear:both;"></div>
@@ -222,11 +234,7 @@
                         @else
                             <select class="form-control select2" data-placeholder="Unassigned" multiple name="group[]">
                                 @foreach($group as $groups)
-                                    @if($groups == 0)
-                                        <option value="0">Unassigned</option>
-                                    @else
-                                        <option value="{{$groups}}" {{ in_array($groups, $groupDetail) ? "selected":"" }}>{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
-                                    @endif
+                                    <option value="{{$groups}}" {{ in_array($groups, $groupDetail) ? "selected":"" }}>{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
                                 @endforeach
                             </select>
                         @endif
@@ -242,11 +250,7 @@
                         @else
                             <select class="form-control select2" data-placeholder="Unassigned" multiple name="project[]">
                                 @foreach($project as $projects)
-                                    @if($projects == 0)
-                                        <option value="0">Unassigned</option>
-                                    @else
-                                        <option value="{{$projects}}" {{ in_array($projects, $projectDetail) ? "selected":"" }}>{{ DB::table('project')->where('project_id', $projects)->value('project_name') }}</option>
-                                    @endif
+                                    <option value="{{$projects}}" {{ in_array($projects, $projectDetail) ? "selected":"" }}>{{ DB::table('project')->where('project_id', $projects)->value('project_name') }}</option>
                                 @endforeach
                             </select>
                         @endif
