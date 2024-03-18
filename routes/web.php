@@ -92,7 +92,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@search')->name('adminuser.documents.search');
 	Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@uploadFiles')->name('adminuser.documents.upload');
 	Route::post('documents/uploadFolder', 'App\Http\Controllers\Adminuser\DocumentController@uploadFolders')->name('adminuser.documents.uploadfolder');
-	Route::post('documents/create_folder', 'App\Http\Controllers\Adminuser\DocumentController@create_folder')->name('adminuser.documents.create_folder');
+	Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@create_folder')->name('adminuser.documents.create_folder');
 	Route::post('documents/rename_folder', 'App\Http\Controllers\Adminuser\DocumentController@rename_folder')->name('adminuser.documents.rename_folder');
 });
 

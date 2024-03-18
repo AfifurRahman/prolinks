@@ -40,10 +40,10 @@ class DocumentController extends Controller
     
                 foreach ($files as $file) {
                         // Handle file upload
-                        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/'. base64_decode($request->location);
+                        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/'. base64_decode($request->location) . '/';
                         $filePath = $file->storeAs($path, Str::random(8));
                         UploadFile::create([
-                            'directory' => 'HELLO',
+                            'project_id' => 'HELLO',
                             'basename' => basename($filePath),
                             'name' => $file->getClientOriginalName(),
                             'access_user' => Auth::user()->email,
@@ -69,7 +69,7 @@ class DocumentController extends Controller
             $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $basename; 
     
             UploadFolder::create([
-                'directory' => base64_decode($request->location) . $basename,
+                'project_id' => "HELLO",
                 'basename' => $basename,
                 'name' => $request->folder_name,
                 'access_user' => Auth::user()->email,
@@ -89,10 +89,10 @@ class DocumentController extends Controller
         try {
             $basename = Str::random(8);
 
-            $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . $basename; 
+            $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . '/'. $basename; 
     
             UploadFolder::create([
-                'directory' => 'HELLO',
+                'project_id' => "HELLO",
                 'basename' => $basename,
                 'name' => $request->folder_name,
                 'access_user' => Auth::user()->email,
@@ -132,9 +132,11 @@ class DocumentController extends Controller
     public function file($path, $file)
     {
         try {
-            $directory = 'uploads/'. DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id'). '/subproject' . '/' . base64_decode($path);
+            $dir = base64_decode($path);
+            $data = base64_decode($file);
+            $directory = 'uploads/'. DB::table('clients')->where('client_email', Auth::user()->email)->value('client_id') . '/' .$dir . '/' . $data;
 
-            return Storage::disk('local')->download($directory, UploadFile::where('basename', base64_decode($file))->value('name'));
+            return Storage::disk('local')->download($directory, UploadFile::where('basename', $data)->value('name'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -173,9 +175,9 @@ class DocumentController extends Controller
     }
 
     public function search(Request $request) {
-        $origin = "";
+        $origin = base64_decode($request->query('origin'));
         $directorytype = 1;
-        $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/aee43bf2-ac0e-407d-aaf0-75d586440e96';
+        $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/' . $origin;
         $search = $request->query('name');
         // Get all folders and files from the directory
         $allItems = array_merge(Storage::allDirectories($directory), Storage::allFiles($directory));
