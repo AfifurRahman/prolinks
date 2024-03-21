@@ -40,10 +40,12 @@ class DocumentController extends Controller
     
                 foreach ($files as $file) {
                         // Handle file upload
+                        $locationParts = explode('/', base64_decode($request->location), 3);
+
                         $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/'. base64_decode($request->location) . '/';
                         $filePath = $file->storeAs($path, Str::random(8));
                         UploadFile::create([
-                            'project_id' => 'HELLO',
+                            'project_id' => $locationParts[0] . '/' . $locationParts[1],
                             'basename' => basename($filePath),
                             'name' => $file->getClientOriginalName(),
                             'access_user' => Auth::user()->email,
@@ -210,6 +212,6 @@ class DocumentController extends Controller
         });
     
         // Return the results as needed
-        return view('adminuser.document.index', compact('folders', 'files', 'origin', 'directorytype'));
+        return view('adminuser.document.search', compact('folders', 'files', 'origin', 'directorytype'));
     }
 }

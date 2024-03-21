@@ -117,13 +117,15 @@ class ProjectController extends Controller
 	            	$notification = "Subroject created!";
 	            	$projectId = $project->project_id;
 	            }
+
+				$parent = Project::where('id', Project::where('project_id', $project_id)->value('parent'))->value('project_id');
+
+				$path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . $parent . '/' . $project_id;
+				Storage::makeDirectory($path, 0755,true);
 			}
 			\DB::commit();
 
-			$parent = Project::where('id', Project::where('project_id', $project_id)->value('parent'))->value('project_id');
-
-			$path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . $parent . '/' . $project_id;
-			Storage::makeDirectory($path, 0755,true);
+			
 
 		} catch (\Exception $e) {
 			\DB::rollback();
