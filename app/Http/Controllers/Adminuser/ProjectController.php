@@ -124,9 +124,6 @@ class ProjectController extends Controller
 				Storage::makeDirectory($path, 0755,true);
 			}
 			\DB::commit();
-
-			
-
 		} catch (\Exception $e) {
 			\DB::rollback();
 			Alert::error('Error', $e->getMessage());

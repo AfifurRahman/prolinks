@@ -49,6 +49,7 @@
     border-collapse: separate;
     border:1px solid #CED5DD;
     border-radius: 7px;
+    visibility: hidden;
     width:100%;
 }
 

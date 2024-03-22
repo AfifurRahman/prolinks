@@ -202,7 +202,23 @@
 
     @push('scripts')
     <script>
-            document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            const dragArea = document.getElementById('dragArea');
+
+            dragArea.addEventListener('dragover', e => {
+                e.preventDefault();
+                dragArea.classList.add('highlight');
+            });
+
+            dragArea.addEventListener('dragleave', () => {
+                dragArea.classList.remove('highlight');
+            });
+
+            dragArea.addEventListener('drop', e => {
+                e.preventDefault();
+                dragArea.classList.remove('highlight');
+            });
+
             document.getElementById('searchInput').addEventListener('keypress', function(event) {
                 if (event.key === "Enter") {
                     event.preventDefault();
@@ -212,6 +228,16 @@
                     }
                 }
             });
+
+            $('.tableDocument').dataTable({
+                "bPaginate": false,
+                "bInfo": false,
+                "bSort": false,
+                "dom": 'rtip',
+                "stripeClasses": false,
+            });
+            
+            $('.tableDocument').css('visibility', 'visible');
         });
 
         function search() {
@@ -287,24 +313,6 @@
 
             showNotification("File successfully uploaded");
         }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const dragArea = document.getElementById('dragArea');
-
-            dragArea.addEventListener('dragover', e => {
-                e.preventDefault();
-                dragArea.classList.add('highlight');
-            });
-
-            dragArea.addEventListener('dragleave', () => {
-                dragArea.classList.remove('highlight');
-            });
-
-            dragArea.addEventListener('drop', e => {
-                e.preventDefault();
-                dragArea.classList.remove('highlight');
-            });
-        });
 
         function showNotification(message) {
             document.getElementById('upload-modal').style.display = 'none';

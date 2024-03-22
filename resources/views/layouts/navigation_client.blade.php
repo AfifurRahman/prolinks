@@ -34,9 +34,6 @@
                     <a href="{{ route('project.list-project') }}" class="waves-effect"><i class="fa fa-cogs"></i><span> Project </span></a>
                 </li>
                 <li>
-                    <a href="{{ route('adminuser.documents.list', 'subproject') }}" class="waves-effect"><i class="fa fa-file"></i><span> Documents </span></a>
-                </li>
-                <li>
                     <a href="{{ route('discussion.list-discussion') }}" class="waves-effect"><i class="fa fa-comments"></i><span> Q & A </span></a>
                 </li>
                 <li>

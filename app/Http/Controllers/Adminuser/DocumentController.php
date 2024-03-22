@@ -212,6 +212,6 @@ class DocumentController extends Controller
         });
     
         // Return the results as needed
-        return view('adminuser.document.search', compact('folders', 'files', 'origin', 'directorytype'));
+        return view('adminuser.document.search', compact('folders', 'files', 'origin', 'directorytype', 'search'));
     }
 }
