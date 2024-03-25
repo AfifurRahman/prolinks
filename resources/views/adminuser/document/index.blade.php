@@ -88,6 +88,7 @@
 
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
+        <p id="output">AS</p>
         <div class="button_helper">
             <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
             <button class="permissions"><image class="permissions-ico" src="{{ url('template/images/icon_menu/permissions.png') }}">Permissions</button>
@@ -136,11 +137,14 @@
                     <td></td>
                 </tr>
             @endif
-            @foreach ($folders as $index => $directory)
+
+            @php $index = 0; @endphp
+            @foreach ($folders as $directory)
                 @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
+                    @php $index++; @endphp
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
-                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $index }}</td>
                         <td>
                             @if($origin == "")
                                 <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(basename($directory))) }}">
@@ -170,11 +174,13 @@
                     </tr>
                 @endif
             @endforeach
-            @foreach ($files as $index => $file)
+
+            @foreach ($files as $file)
                 @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                    @php $index++; @endphp
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
-                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $index }}</td>
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                             <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
@@ -236,7 +242,7 @@
                 "dom": 'rtip',
                 "stripeClasses": false,
             });
-            
+
             $('.tableDocument').css('visibility', 'visible');
         });
 
@@ -249,17 +255,131 @@
         // Handle drag and drop file
         function handleDrop(event) {
             event.preventDefault();
-            
             const items = event.dataTransfer.items;
-            for (const item of items) {
-                const entry = item.webkitGetAsEntry();
-                if (entry.isFile) {
-                    handleFiles([item.getAsFile()]);
-                } else if (entry.isDirectory) {
-                    handleFolder(entry, entry.name + "/");
-                }
+
+            function traverseFileTreePromise(item, path = "", folder) {
+                return new Promise(resolve => {
+                    if (item.isFile) {
+                        item.file(file => {
+                            file.file = file.name;
+                            folder.push(file);
+                            resolve(file);
+                        });
+                    } else if (item.isDirectory) {
+                        let dirReader = item.createReader();
+                        dirReader.readEntries(entries => {
+                            let entriesPromises = [];
+                            subfolder = [];
+                            folder.push({ folder: item.name, subfolder });
+                            for (let entr of entries)
+                                entriesPromises.push(
+                                     traverseFileTreePromise(
+                                        entr,
+                                        path + item.name + "/", // Update the path here
+                                        subfolder
+                                    )
+                                );
+                            resolve(Promise.all(entriesPromises));
+                        });
+                    }
+                });
             }
-        }
+
+            function getFilesDataTransferItems(dataTransferItems) {
+                let files = [];
+                return new Promise((resolve, reject) => {
+                    let entriesPromises = [];
+                    for (let it of dataTransferItems)
+                        entriesPromises.push(
+                            traverseFileTreePromise(it.webkitGetAsEntry(), "", files) // Pass an empty string as initial path
+                        );
+                    Promise.all(entriesPromises).then(entries => {
+                        resolve(files);
+                    });
+                });
+            }
+
+            function getFilePaths(files) {
+                let paths = [];
+                
+                function traverseFiles(files, currentPath = "") {
+                    let hasFiles = false;
+                    
+                    for (let file of files) {
+                        if (file.file) {
+                            paths.push(currentPath + file.file);
+                            hasFiles = true;
+                        } else if (file.folder && file.subfolder) {
+                            let folderPath = currentPath + file.folder + "/";
+                            let subfolderHasFiles = traverseFiles(file.subfolder, folderPath);
+                            
+                            if (subfolderHasFiles || file.subfolder.length > 0) {
+                                hasFiles = true;
+                            }
+                            
+                            if (!hasFiles) {
+                                // Push the folder path only if it hasn't been added before
+                                if (!paths.includes(folderPath)) {
+                                    paths.push(folderPath);
+                                }
+                            }
+                        }
+                    }
+                    
+                    return hasFiles; // Return whether files were found in this folder or not
+                }
+                
+                traverseFiles(files);
+                return paths;
+            }
+
+            getFilesDataTransferItems(items).then(files => {
+                    var paths = getFilePaths(files).join(",");
+                    var path = paths.toString();
+                    document.querySelector("#output").innerHTML = path;
+                    var formData = new FormData();
+                    formData.append('paths', path);
+                    formData.append('location', "{{ base64_encode($origin) }}")
+
+                    var route = "{{ route('adminuser.documents.multiup') }}";
+                    var csrfToken = "{{ csrf_token() }}";
+
+                    fetch(route, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    // Handle response data here
+                })
+                .catch(error => {
+                    console.error('Error occurred:', error);
+                    // Handle error response here
+                });
+                });
+            }
+
+        var dropArea = document.querySelector("#dropArea");
+
+        dropArea.addEventListener(
+            "dragover",
+            function(e) {
+                e = e || event;
+                e.preventDefault();
+            },
+            false
+        );
+
+        dropArea.addEventListener(
+            "drop",
+            handleDrop,
+            false
+        );
+
         //handle pop up file
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
@@ -310,7 +430,6 @@
                 body: JSON.stringify({ folder_name: item.name, location: "{{ base64_encode($origin) }}" })
             })
             .then(response => response.json());
-
             showNotification("File successfully uploaded");
         }
 
