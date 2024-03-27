@@ -1,1 +1,2 @@
-{{ print_r($output) }}
+
+{{ print_r($paths) }}

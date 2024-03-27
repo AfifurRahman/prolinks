@@ -248,15 +248,11 @@
 
         function search() {
             var searchTerm = document.getElementById('searchInput').value;
-            // Redirect to the search route with the search term
             window.location.href = "{{ route('adminuser.documents.search') }}?name=" + searchTerm + "&origin=" + "{{ base64_encode($origin) }}";
         }
 
         // Handle drag and drop file
         function handleDrop(event) {
-            event.preventDefault();
-            const items = event.dataTransfer.items;
-
             function traverseFileTreePromise(item, path = "", folder) {
                 return new Promise(resolve => {
                     if (item.isFile) {
@@ -327,29 +323,77 @@
                     }
                     
                     return hasFiles; // Return whether files were found in this folder or not
-                }
-                
+                }     
                 traverseFiles(files);
                 return paths;
             }
 
-            getFilesDataTransferItems(items).then(files => {
-                    var paths = getFilePaths(files).join(",");
-                    var path = paths.toString();
-                    document.querySelector("#output").innerHTML = path;
-                    var formData = new FormData();
-                    formData.append('paths', path);
-                    formData.append('location', "{{ base64_encode($origin) }}")
+            
+            function handleFiles(files, paths) {
+                console.log(paths);
+                const formData = new FormData();
+                formData.append("location", "{{ base64_encode($origin) }}");
+                formData.append("filePath", paths);
+                files.forEach(file => formData.append('files[]', file));
 
-                    var route = "{{ route('adminuser.documents.multiup') }}";
-                    var csrfToken = "{{ csrf_token() }}";
-
-                    fetch(route, {
+                fetch('{{ route("adminuser.documents.upload") }}', {
                     method: 'POST',
+                    body: formData,
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        //showNotification("Upload failed");
+                        throw new Error('Failed to upload the file, unsupported file type');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data.success) {
+                       // showNotification("File successfully uploaded");
+                    }
+                });
+            }
+
+            function handleEntry(entry, currentPath = '') {
+                const fullPath = currentPath + entry.name;
+                if (entry.isFile) {
+                    entry.file(file => {
+                        handleFiles([file], fullPath);
+                    });
+                } else if (entry.isDirectory) {
+                    handleFiles([], fullPath);
+                    const directoryReader = entry.createReader();
+                    directoryReader.readEntries(entries => {
+                        for (const subEntry of entries) {
+                            handleEntry(subEntry, fullPath + '/');
+                        }
+                    });
+                }
+            }
+
+            event.preventDefault();
+            const items = event.dataTransfer.items;
+
+            getFilesDataTransferItems(items).then(files => {
+                var paths = getFilePaths(files).join(",");
+                var path = paths.toString();
+                document.querySelector("#output").innerHTML = path;
+                var formData = new FormData();
+
+                formData.append('paths', path);
+                formData.append('location', "{{ base64_encode($origin) }}");
+
+                // Changed route and csrf_token placeholders to their actual values
+                fetch('{{ route("adminuser.documents.multiup") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: formData
                 })
                 .then(response => response.text())
                 .then(data => {
@@ -360,77 +404,47 @@
                     console.error('Error occurred:', error);
                     // Handle error response here
                 });
-                });
+            });
+
+            for (const item of items) {
+                const entry = item.webkitGetAsEntry();
+                handleEntry(entry);
             }
-
-        var dropArea = document.querySelector("#dropArea");
-
-        dropArea.addEventListener(
-            "dragover",
-            function(e) {
-                e = e || event;
-                e.preventDefault();
-            },
-            false
-        );
-
-        dropArea.addEventListener(
-            "drop",
-            handleDrop,
-            false
-        );
+        }
 
         //handle pop up file
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
-                const selectedFiles = [];
+                const files = [];
                 for (let i = 0; i < input.files.length; i++) {
-                    selectedFiles.push(input.files[i]);
+                    files.push(input.files[i]);
                 }
                 // Process the selected files
-                handleFiles(selectedFiles);
+                const formData = new FormData();
+                formData.append("location", "{{ base64_encode($origin) }}");
+                files.forEach(file => formData.append('files[]', file));
+
+                fetch('{{ route("adminuser.documents.upload") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        showNotification("Upload failed");
+                        throw new Error('Failed to upload the file, unsupported file type');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data.success) {
+                        showNotification("File successfully uploaded");
+                    }
+                });
             } 
-        }
-
-        // If uploaded is file
-        function handleFiles(files) {
-            const formData = new FormData();
-            formData.append("location", "{{ base64_encode($origin) }}");
-            files.forEach(file => formData.append('files[]', file));
-
-            fetch('{{ route("adminuser.documents.upload") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    showNotification("Upload failed");
-                    throw new Error('Failed to upload the file, unsupported file type');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                if (data.success) {
-                    showNotification("File successfully uploaded");
-                }
-            });
-        }
-
-        function handleFolder(item, path) {
-            fetch('{{ route("adminuser.documents.uploadfolder") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ folder_name: item.name, location: "{{ base64_encode($origin) }}" })
-            })
-            .then(response => response.json());
-            showNotification("File successfully uploaded");
         }
 
         function showNotification(message) {
