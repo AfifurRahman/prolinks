@@ -49,7 +49,12 @@ class DocumentController extends Controller
                 array_pop($paths);
 
                 foreach ($paths as $index => $pathf) {
-                    $pathLoop .= $pathf . '/';
+                    if ($index > 0 ) {
+                        $pathLoop .= $folderList[$pathf] . '/';
+                    } else {
+                        $pathLoop .= $pathf . '/';
+                    }
+                    
                     $directories = Storage::directories('uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . $pathLoop);
 
                     foreach ($directories as $dir) {
@@ -88,7 +93,7 @@ class DocumentController extends Controller
                 }
             } 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
+            return response()->json(['success' => false, 'message' => $pathLoop]);
         }
         return response()->json(['success' => true, 'message' => 'Operation success']);
     }
