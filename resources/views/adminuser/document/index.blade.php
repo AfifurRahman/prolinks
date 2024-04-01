@@ -253,7 +253,7 @@
 
         // Handle drag and drop file
         function handleDrop(event) {
-            function traverseFileTreePromise(item, path = "", folder) {
+            async function traverseFileTreePromise(item, path = "", folder) {
                 return new Promise(resolve => {
                     if (item.isFile) {
                         item.file(file => {
@@ -281,7 +281,7 @@
                 });
             }
 
-            function getFilesDataTransferItems(dataTransferItems) {
+            async function getFilesDataTransferItems(dataTransferItems) {
                 let files = [];
                 return new Promise((resolve, reject) => {
                     let entriesPromises = [];

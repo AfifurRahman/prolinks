@@ -35,35 +35,56 @@ class DocumentController extends Controller
     {   
         try {
             if ($request->hasFile('files')) {
-                $files = $request->file('files');
-                $pathFile = "";
-                $pathLoop = "";
-                $paths = explode('/', $request->filePath);
+                $uploadAttempt = 0;
+                $maxAttempt = 100;
 
-                for ($i = 0; $i < count($paths) - 1; $i++) {
-                    $pathFile .= $paths[$i] . '/';
-                }
+                do {
+                    try {
+                        $files = $request->file('files');
+                        $pathFile = "";
+                        $pathLoop = "";
+                        $paths = explode('/', $request->filePath);
 
-                $paths = explode('/', $pathFile);
-                array_unshift($paths, '');
-                array_pop($paths);
+                        for ($i = 0; $i < count($paths) - 1; $i++) {
+                            $pathFile .= $paths[$i] . '/';
+                        }
 
-                foreach ($paths as $index => $pathf) {
-                    $pathLoop .= $pathf . '/';
-                    $directories = Storage::directories('uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . $pathLoop);
+                        $paths = explode('/', $pathFile);
+                        array_unshift($paths, '');
+                        array_pop($paths);
 
-                    foreach ($directories as $dir) {
-                        $baseName = UploadFolder::where('basename', basename($dir))->value('name');
-                        $originalName = basename($dir);
-                        
-                        $folderList[$baseName] = $originalName;
+                        foreach ($paths as $index => $pathf) {
+                            if ($index > 0 ) {
+                                $pathLoop .= $folderList[$pathf] . '/';
+                            } else {
+                                $pathLoop .= $pathf . '/';
+                            }
+                            
+                            $directories = Storage::directories('uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . $pathLoop);
+
+                            foreach ($directories as $dir) {
+                                $baseName = UploadFolder::where('basename', basename($dir))->value('name');
+                                $originalName = basename($dir);
+                                
+                                $folderList[$baseName] = $originalName;
+                            }
+
+                            if ($index > 0) {
+                                $paths[$index] = $folderList[$pathf];
+                            }
+                        }
+                        break;
+                    } catch (\Exception $e) {
+                        $uploadAttempt++;
+
+                        if ($uploadAttempt >= $maxAttempt) {
+                            break;
+                        }
+
+                        usleep(250);
                     }
-
-                    if ($index > 0) {
-                        $paths[$index] = $folderList[$pathf];
-                    }
-                }
-
+                } while ($uploadAttempt <= $maxAttempt);
+                
                 $pf = implode("/", $paths);
 
                 $response = [];
@@ -88,7 +109,7 @@ class DocumentController extends Controller
                 }
             } 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
         return response()->json(['success' => true, 'message' => 'Operation success']);
     }
