@@ -210,25 +210,47 @@
 		<a href="#modal-add-subproject" data-toggle="modal" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;">Create Subroject</a>
 		<a href="#modal-add-project" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Project</a>
 	</div><div style="clear: both;"></div>
+	@if(count($project) > 0)
 	<table class="table table-hover custom-table">
 		<tbody>
-			@if(count($project) > 0)
-				@foreach($project as $key => $projects)
-					<tr class="">
-						<td width="50" style="vertical-align: middle;" align="center">
-							@if(count($projects->RefSubProject($projects->id)) > 0)
-								<a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)"><span class="caret"></span></a>
-							@endif
-						</td>
-						<td width="48">
-							<div class="image-project">
-								<img src="{{ url('template/images/icon-projects1.png') }}">
-							</div>
-						</td>
-						<td style="vertical-align: middle;">
-							<div class="title-project">
-								<h3><a href="">{{ $projects->project_name }}</a></h3>
-								<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', 'LIKE' , '%'.$projects->project_id.'%')->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
+			@foreach($project as $key => $projects)
+				<tr class="">
+					<td width="50" style="vertical-align: middle;" align="center">
+						@if(count($projects->RefSubProject($projects->id)) > 0)
+							<a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)"><span class="caret"></span></a>
+						@endif
+					</td>
+					<td width="48">
+						<div class="image-project">
+							<img src="{{ url('template/images/icon-projects1.png') }}">
+						</div>
+					</td>
+					<td style="vertical-align: middle;">
+						<div class="title-project">
+							<h3><a href="">{{ $projects->project_name }}</a></h3>
+							<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', 'LIKE' , '%'.$projects->project_id.'%')->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
+						</div>
+					</td>
+					<td style="vertical-align: middle;" width="100">
+						<div class="dropdown">
+							<button class="btn btn-md dropdown-toggle btn-custom-act" type="button" data-toggle="dropdown">
+								Action&nbsp; <span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu dropdown-menu-right">
+								<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $projects }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
+								<span class="divider"></span>
+								<li><a href="#modal-terminate-project" data-toggle="modal" class="text-danger" data-projectid="{{ $projects->project_id }}" onclick="getProjectId(this)"><i class="fa fa-times"></i> Terminate Project</a></li>
+							</ul>
+						</div>
+					</td>
+				</tr>
+				@foreach($projects->RefSubProject($projects->id) as $subs)
+					<tr class="child-row-general child-row{{ $key }}">
+						<td></td>
+						<td colspan="2">
+							<div class="title-subproject">
+								<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($projects->project_id.'/'.$subs->project_id)) }}">{{ $subs->project_name }}</a></h3>
+								<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id . '/' .$subs->project_id)->sum('size')) }}</span>
 							</div>
 						</td>
 						<td style="vertical-align: middle;" width="100">
@@ -237,29 +259,24 @@
 									Action&nbsp; <span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right">
-									<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $projects }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
-								   	<li><a href=""><i class="fa fa-lock"></i> Permissions</a></li>
-									<li><a href="{{ route('project.delete-project', $projects->project_id) }}" onclick="return confirm('are you sure delete this item ?')"><i class="fa fa-trash"></i> Delete</a></li>
-							  	</ul>
+									<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $subs }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
+									<li><a href="#modal-permissions" data-toggle="modal"><i class="fa fa-lock"></i> Permissions</a></li>
+									<li><a href="{{ route('project.delete-project', $projects->project_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
+								</ul>
 							</div>
 						</td>
 					</tr>
-					@foreach($projects->RefSubProject($projects->id) as $subs)
-						<tr class="child-row-general child-row{{ $key }}">
-							<td></td>
-							<td colspan="2">
-								<div class="title-subproject">
-									<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($projects->project_id.'/'.$subs->project_id)) }}">{{ $subs->project_name }}</a></h3>
-									<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id . '/' .$subs->project_id)->sum('size')) }}</span>
-								</div>
-							</td>
-							<td></td>
-						</tr>
-					@endforeach
 				@endforeach
-			@endif
+			@endforeach
 		</tbody>
 	</table>
+	@else
+		<div class="card-box">
+			<center>
+				<img src="{{ url('template/images/empty_project.png') }}" width="300" />
+			</center>    
+		</div>
+	@endif
 
 	<div id="modal-add-project" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
         <div class="modal-dialog">
@@ -326,7 +343,7 @@
 						<input type="hidden" name="id" id="id">
 						<div class="form-group">
 							<label>Project Parents <span class="text-danger">*</span></label>
-							<select name="parent" id="parent" class="form-control select2">
+							<select required name="parent" id="parent" class="form-control select2">
 								@if(count($parentProject) > 0)
 									@foreach($parentProject as $parents)
 										<option value="{{ $parents->id }}">{{ $parents->project_name }}</option>
@@ -344,6 +361,55 @@
 							</button>
 							<button type="submit" class="btn btn-primary" style="border-radius: 5px;">
 								Create
+							</button>
+						</div><div style="clear:both;"></div>
+                	</form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<div id="modal-terminate-project" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                	<div class="custom-modal-header">
+                		<button type="button" onclick="reloadPage()" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                		<div style="float: left;">
+	                        <img src="{{ url('template/images/data-project.png') }}" width="24" height="24">
+	                    </div>
+	                    <div style="float: left; margin-left: 10px;">
+	                        <h4 class="modal-title" id="titleModal">
+	                        	Terminate Project
+	                        </h4>
+	                    </div>
+	                </div>
+                </div>
+                <div class="modal-body">
+					<div class="alert alert-warning" role="alert">
+						<i class="fa fa-warning"></i> Access to the data room will be immediately terminated for all users, including project administrators.
+					</div>
+                	<form class="custom-form" action="{{ route('project.terminate-project') }}" method="POST">
+						@csrf
+						<input type="hidden" name="project_id" id="project_id">
+						<div class="form-group">
+							<label>Terminate reason <span class="text-danger">*</span></label>
+							<select required class="form-control" name="terminate_reason" id="terminate_reason">
+								<option value="">- select reason -</option>
+								<option value="Project canceled">Project canceled</option>
+								<option value="Project on hold">Project on hold</option>
+								<option value="Project finalized">Project finalized</option>
+								<option value="Project on hold">Project on hold</option>
+								<option value="I'm looking for alternative VDR">I'm looking for alternative VDR</option>
+								<option value="I don't want to disclose">I don't want to disclose</option>
+							</select>
+						</div>
+						<div class="pull-right">
+							<button type="button" data-dismiss="modal" class="btn btn-default" style="border-radius: 5px;">
+								Cancel
+							</button>
+							<button type="submit" class="btn btn-danger" style="border-radius: 5px;">
+								Confirm & terminate
 							</button>
 						</div><div style="clear:both;"></div>
                 	</form>
@@ -374,6 +440,11 @@
         	$("#project_name").val(query.project_name);
         	$("#project_desc").val(query.project_desc);
     	}
+
+		function getProjectId(element) {
+			var project_id = $(element).data('projectid');
+			$("#project_id").val(project_id);
+		}
 
     	function reloadPage() {
     		location.reload();

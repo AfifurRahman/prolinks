@@ -126,7 +126,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::post('/project/save-project', 'App\Http\Controllers\Adminuser\ProjectController@save_project')->name('project.save-project');
 		Route::post('/project/save-subproject', 'App\Http\Controllers\Adminuser\ProjectController@save_subproject')->name('project.save-subproject');
 		Route::get('/project/delete-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_project')->name('project.delete-project');
-		
+		Route::post('/project/terminate-project', 'App\Http\Controllers\Adminuser\ProjectController@terminate_project')->name('project.terminate-project');
+
 		/* Q & A */
 		Route::get('/discussion/list', 'App\Http\Controllers\Adminuser\DiscussionController@index')->name('discussion.list-discussion');
 		Route::get('/discussion/detail/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@detail')->name('discussion.detail-discussion');

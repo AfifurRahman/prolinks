@@ -20,9 +20,9 @@ class ProjectController extends Controller
 {
 	public function list_project()
 	{
-		$project = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->orderBy('id', 'DESC')->get();
+		$project = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->where('project_status', \globals::set_project_status_active())->orderBy('id', 'DESC')->get();
 		$company = Company::where('company_status', \globals::set_status_company_active())->get();
-		$parentProject = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->get();
+		$parentProject = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->where('project_status', \globals::set_project_status_active())->get();
 
 		return view('adminuser.project.list_project', compact('project', 'company', 'parentProject'));
 	}
@@ -66,6 +66,17 @@ class ProjectController extends Controller
 	            $project->created_at = date('Y-m-d H:i:s');
 
 	            if ($project->save()) {
+					$sub_project = new Project;
+					$sub_project->project_id = Str::uuid(4);
+					$sub_project->user_id = $project->user_id;
+					$sub_project->company_id = "-";
+	            	$sub_project->client_id = $project->client_id;
+	            	$sub_project->project_name = "Default subproject";
+					$sub_project->parent = $project->id;
+					$sub_project->created_by = $project->created_by;
+	            	$sub_project->created_at = $project->created_at;
+					$sub_project->save();
+
 	            	$notification = "Project created!";
 	            	$projectId = $project->project_id;
 	            }
@@ -129,6 +140,31 @@ class ProjectController extends Controller
 			Alert::error('Error', $e->getMessage());
 			return back();
 		}
+		return redirect(route('project.list-project'))->with('notification', $notification);
+	}
+
+	public function terminate_project(Request $request)
+	{
+		$project_id = $request->input('project_id');
+		try {
+			\DB::beginTransaction();
+			
+			$terminate = Project::where('project_id', $project_id)->update([
+				'project_status' => \globals::set_project_status_terminate(),
+				'terminate_reason' => $request->input('terminate_reason'),
+			]);
+
+			if ($terminate) {
+				$notification = 'Project terminated';
+			}
+
+			\DB::commit();
+		} catch (\Exception $th) {
+			\DB::rollback();
+			Alert::error('Error', $e->getMessage());
+			return back();
+		}
+
 		return redirect(route('project.list-project'))->with('notification', $notification);
 	}
 

@@ -11,7 +11,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($unanswered as $key => $qna)
+        @foreach($answered as $key => $qna)
             <tr>
                 <td>
                     <input type="checkbox" />

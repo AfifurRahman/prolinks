@@ -22,12 +22,17 @@ use Illuminate\Support\Facades\Storage;
 class DiscussionController extends Controller
 {
     function index() {
-        $questions = Discussion::orderBy('id', 'DESC')->get();
-        return view('adminuser.discussion.index', compact('questions'));
+        $all_questions = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->get();
+        $unanswered = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->get();
+        $answered = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->get();
+        $closed = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->get();
+        
+        return view('adminuser.discussion.index', compact('all_questions', 'unanswered', 'answered', 'closed'));
     }
 
     function detail($discussion_id){
-        return view('adminuser.discussion.detail', compact('discussion_id'));
+        $details = Discussion::where('discussion_id', $discussion_id)->where('client_id', \globals::get_client_id())->first();
+        return view('adminuser.discussion.detail', compact('discussion_id', 'details'));
     }
 
     function save_discussion(Request $request){
@@ -43,6 +48,8 @@ class DiscussionController extends Controller
                     'client_id' => \globals::get_client_id(),
                     'subject' => $request->input('subject'),
                     'description' => $request->input('description'),
+                    'priority' => $request->input('priority'),
+                    'tag' => $request->input('tag'),
                     'updated_by' => Auth::user()->id,
                     'updated_at' => date("Y-m-d H:i:s")
                 ]);
@@ -58,6 +65,9 @@ class DiscussionController extends Controller
                 $discussion->client_id = \globals::get_client_id();
                 $discussion->subject = $request->input('subject');
                 $discussion->description = $request->input('description');
+                $discussion->priority = $request->input('priority');
+                $discussion->tag = $request->input('tag');
+                $discussion->status = \globals::set_qna_status_unanswered();
                 $discussion->created_by = Auth::user()->id;
                 $discussion->created_at = date("Y-m-d H:i:s");
 
@@ -81,13 +91,13 @@ class DiscussionController extends Controller
             }
 
             \DB::commit();
-      } catch (\Exception $e) {
+        } catch (\Exception $e) {
           \DB::rollback();
           Alert::error('Error', $e->getMessage());
           return back();
-      }
+        }
 
-      return redirect(route('discussion.detail-discussion', $discussion_id))->with('notification', $notification);
+        return redirect(route('discussion.detail-discussion', $discussion_id))->with('notification', $notification);
     }
 
     public function get_comment($discussion_id){

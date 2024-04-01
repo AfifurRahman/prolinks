@@ -22,14 +22,23 @@
             			<label>Subject <span class="text-danger">*</span></label>
             			<input required type="text" name="subject" id="subject" class="form-control" placeholder="Enter subject">
             		</div>
+                    <div class="form-group">
+            			<label>Priority <span class="text-danger">*</span></label>
+                        <select name="priority" id="priority" class="form-control">
+                            <option value="">- select priority -</option>
+                            <option value="1">Low</option>
+                            <option value="2">Medium</option>
+                            <option value="3">High</option>
+                        </select>
+                	</div>
             		<div class="form-group">
             			<label>Discussion</label>
                 		<textarea class="form-control" id="description" name="description"></textarea>
 					</div>
                     <div class="form-group">
-                        <label>Link Document <span class="text-muted">( optional )</span></label>
-                        <select class="form-control" name="link_document" id="link_document">
-                            <option value="">- select link document -</option>
+                        <label>Select from dataroom <span class="text-muted">( optional )</span></label>
+                        <select class="form-control select2" multiple name="link_document" id="link_document">
+                            <option value="">- Select from dataroom -</option>
                         </select>
                     </div>
             		<div class="form-group">

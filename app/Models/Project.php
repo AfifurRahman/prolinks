@@ -17,6 +17,6 @@ class Project extends Model
     }
 
     public function RefSubProject($parent){
-        return Project::where('client_id', \globals::get_client_id())->where('parent', $parent)->get();
+        return Project::where('client_id', \globals::get_client_id())->where('parent', $parent)->where('project_status', \globals::set_project_status_active())->get();
     }
 }

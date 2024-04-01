@@ -119,56 +119,46 @@
     </style>
 
     <div class="pull-left">
-		<h3 style="color:black;font-size:28px;">Q & A</h3>
+		<h3 style="color:black;font-size:28px;">Questions and answers</h3>
 	</div>
-	<div class="pull-right" style="margin-bottom: 24px;">
-		<a href="#modal-add-discussion" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Discussion</a>
+	<div class="pull-right" style="margin-bottom: 24px; margin-top:5px;">
+        <a href="" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"> Export All</a>
+        <a href="" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"><image src="{{ url('template/images/icon_menu/broadcast.png') }}" width="22" height="22"> Create FAQ</a>
+		<a href="#modal-add-discussion" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;">Ask a questions</a>
 	</div><div style="clear: both;"></div>
     <div>
         <ul class="nav nav-tabs tabs-bordered nav-custom">
             <li class="active">
-                <a href="#dashboard" data-toggle="tab" aria-expanded="true">Dashboard</a>
+                <a href="#all" data-toggle="tab" aria-expanded="true">All</a>
             </li>
             <li class="">
-                <a href="#all" data-toggle="tab" aria-expanded="false">All Qustions</a>
+                <a href="#unanswered" data-toggle="tab" aria-expanded="false">Unanswered</a>
             </li>
             <li class="">
-                <a href="#high" data-toggle="tab" aria-expanded="false">High Priority</a>
+                <a href="#answered" data-toggle="tab" aria-expanded="false">Answered</a>
             </li>
             <li class="">
-                <a href="#submitted" data-toggle="tab" aria-expanded="false">Submitted</a>
+                <a href="#closed" data-toggle="tab" aria-expanded="false">Closed</a>
             </li>
             <li class="">
-                <a href="#replied" data-toggle="tab" aria-expanded="false">Replied <span class="badge badge-danger">10</span></a>
-            </li>
-            <li class="">
-                <a href="#unanswered" data-toggle="tab" aria-expanded="false">Unanwered <span class="badge badge-warning">3</span></a>
-            </li>
-            <li class="">
-                <a href="#closed" data-toggle="tab" aria-expanded="false">Closed <span class="badge badge-success">23</span></a>
+                <a href="#faq" data-toggle="tab" aria-expanded="false">FAQ</a>
             </li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane active" id="dashboard">
-                @include('adminuser.discussion.tabs.dashboard')
-            </div>
-            <div class="tab-pane" id="all">
+            <div class="tab-pane active" id="all">
                 @include('adminuser.discussion.tabs.all_questions')
-            </div>
-            <div class="tab-pane" id="high">
-                @include('adminuser.discussion.tabs.high_questions')
-            </div>
-            <div class="tab-pane" id="submitted">
-                @include('adminuser.discussion.tabs.submitted')
-            </div>
-            <div class="tab-pane" id="replied">
-                @include('adminuser.discussion.tabs.replied')
             </div>
             <div class="tab-pane" id="unanswered">
                 @include('adminuser.discussion.tabs.unanswered')
             </div>
+            <div class="tab-pane" id="answered">
+                @include('adminuser.discussion.tabs.answered')
+            </div>
             <div class="tab-pane" id="closed">
                 @include('adminuser.discussion.tabs.closed')
+            </div>
+            <div class="tab-pane" id="faq">
+                @include('adminuser.discussion.tabs.faq')
             </div>
         </div>
     </div>

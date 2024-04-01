@@ -299,4 +299,84 @@ class GlobalHelper
 
         return $results;
     }
+
+    public static function set_project_status_nonactive(){
+        return 0;
+    }
+    public static function set_project_status_active(){
+        return 1;
+    }
+
+    public static function set_project_status_terminate(){
+        return 2;
+    }
+
+    public static function label_project_status($status)
+    {
+        $results = "";
+        if($status == \globals::set_project_status_active()){
+            $results = '<label class="label label-primary" style="border-radius:10px;"> Active</label>';
+        }elseif($status == \globals::set_project_status_terminate()){
+            $results = '<label class="label label-danger" style="border-radius:10px;"> NonActive</label>';
+        }elseif($status == \globals::label_project_status()){
+            $results = '<label class="label label-warning" style="border-radius:10px;"> Terminate</label>';
+        }
+
+        return $results;
+    }
+
+    public static function set_qna_priority_low(){
+        return 1;
+    }
+    public static function set_qna_priority_medium(){
+        return 2;
+    }
+
+    public static function set_qna_priority_high(){
+        return 3;
+    }
+
+    public static function label_qna_priority($priority)
+    {
+        $results = "";
+        if($priority == \globals::set_qna_priority_low()){
+            $results = '<label class="label label-info" style="border-radius:10px;"> Low</label>';
+        }elseif($priority == \globals::set_qna_priority_medium()){
+            $results = '<label class="label label-warning" style="border-radius:10px;"> Medium</label>';
+        }elseif($priority == \globals::set_qna_priority_high()){
+            $results = '<label class="label label-danger" style="border-radius:10px;"> High</label>';
+        }
+
+        return $results;
+    }
+
+    public static function set_qna_status_unanswered(){
+        return 0;
+    }
+    public static function set_qna_status_answered(){
+        return 1;
+    }
+
+    public static function set_qna_status_closed(){
+        return 2;
+    }
+
+    public static function label_qna_status($status)
+    {
+        $results = "";
+        if($status == \globals::set_qna_status_unanswered()){
+            $results = '<label class="label label-warning" style="border-radius:10px;"> Unanswered</label>';
+        }elseif($status == \globals::set_qna_status_answered()){
+            $results = '<label class="label label-success" style="border-radius:10px;"> Answered</label>';
+        }elseif($status == \globals::set_qna_status_closed()){
+            $results = '<label class="label label-danger" style="border-radius:10px;"> Closed</label>';
+        }
+
+        return $results;
+    }
+
+    public static function get_username($userid){
+        $results = User::where('user_id', $userid)->pluck('name')->first();
+        return $results;
+    }
 }
