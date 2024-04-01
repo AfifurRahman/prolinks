@@ -88,6 +88,7 @@
 
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
+        <p id="output">AS</p>
         <div class="button_helper">
             <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
             <button class="permissions"><image class="permissions-ico" src="{{ url('template/images/icon_menu/permissions.png') }}">Permissions</button>
@@ -136,11 +137,14 @@
                     <td></td>
                 </tr>
             @endif
-            @foreach ($folders as $index => $directory)
+
+            @php $index = 0; @endphp
+            @foreach ($folders as $directory)
                 @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
+                    @php $index++; @endphp
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
-                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $index }}</td>
                         <td>
                             @if($origin == "")
                                 <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(basename($directory))) }}">
@@ -170,11 +174,13 @@
                     </tr>
                 @endif
             @endforeach
-            @foreach ($files as $index => $file)
+
+            @foreach ($files as $file)
                 @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                    @php $index++; @endphp
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
-                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $index }}</td>
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                             <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
@@ -236,82 +242,209 @@
                 "dom": 'rtip',
                 "stripeClasses": false,
             });
-            
+
             $('.tableDocument').css('visibility', 'visible');
         });
 
         function search() {
             var searchTerm = document.getElementById('searchInput').value;
-            // Redirect to the search route with the search term
             window.location.href = "{{ route('adminuser.documents.search') }}?name=" + searchTerm + "&origin=" + "{{ base64_encode($origin) }}";
         }
 
         // Handle drag and drop file
         function handleDrop(event) {
-            event.preventDefault();
+            function traverseFileTreePromise(item, path = "", folder) {
+                return new Promise(resolve => {
+                    if (item.isFile) {
+                        item.file(file => {
+                            file.file = file.name;
+                            folder.push(file);
+                            resolve(file);
+                        });
+                    } else if (item.isDirectory) {
+                        let dirReader = item.createReader();
+                        dirReader.readEntries(entries => {
+                            let entriesPromises = [];
+                            subfolder = [];
+                            folder.push({ folder: item.name, subfolder });
+                            for (let entr of entries)
+                                entriesPromises.push(
+                                     traverseFileTreePromise(
+                                        entr,
+                                        path + item.name + "/", // Update the path here
+                                        subfolder
+                                    )
+                                );
+                            resolve(Promise.all(entriesPromises));
+                        });
+                    }
+                });
+            }
+
+            function getFilesDataTransferItems(dataTransferItems) {
+                let files = [];
+                return new Promise((resolve, reject) => {
+                    let entriesPromises = [];
+                    for (let it of dataTransferItems)
+                        entriesPromises.push(
+                            traverseFileTreePromise(it.webkitGetAsEntry(), "", files) // Pass an empty string as initial path
+                        );
+                    Promise.all(entriesPromises).then(entries => {
+                        resolve(files);
+                    });
+                });
+            }
+
+            function getFilePaths(files) {
+                let paths = [];
+                
+                function traverseFiles(files, currentPath = "") {
+                    let hasFiles = false;
+                    
+                    for (let file of files) {
+                        if (file.file) {
+                            paths.push(currentPath + file.file);
+                            hasFiles = true;
+                        } else if (file.folder && file.subfolder) {
+                            let folderPath = currentPath + file.folder + "/";
+                            let subfolderHasFiles = traverseFiles(file.subfolder, folderPath);
+                            
+                            if (subfolderHasFiles || file.subfolder.length > 0) {
+                                hasFiles = true;
+                            }
+                            
+                            if (!hasFiles) {
+                                // Push the folder path only if it hasn't been added before
+                                if (!paths.includes(folderPath)) {
+                                    paths.push(folderPath);
+                                }
+                            }
+                        }
+                    }
+                    
+                    return hasFiles; // Return whether files were found in this folder or not
+                }     
+                traverseFiles(files);
+                return paths;
+            }
+
             
-            const items = event.dataTransfer.items;
-            for (const item of items) {
-                const entry = item.webkitGetAsEntry();
+            function handleFiles(files, paths) {
+                console.log(paths);
+                const formData = new FormData();
+                formData.append("location", "{{ base64_encode($origin) }}");
+                formData.append("filePath", paths);
+                files.forEach(file => formData.append('files[]', file));
+
+                fetch('{{ route("adminuser.documents.upload") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        //showNotification("Upload failed");
+                        throw new Error('Failed to upload the file, unsupported file type');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data.success) {
+                       // showNotification("File successfully uploaded");
+                    }
+                });
+            }
+
+            function handleEntry(entry, currentPath = '') {
+                const fullPath = currentPath + entry.name;
                 if (entry.isFile) {
-                    handleFiles([item.getAsFile()]);
+                    entry.file(file => {
+                        handleFiles([file], fullPath);
+                    });
                 } else if (entry.isDirectory) {
-                    handleFolder(entry, entry.name + "/");
+                    handleFiles([], fullPath);
+                    const directoryReader = entry.createReader();
+                    directoryReader.readEntries(entries => {
+                        for (const subEntry of entries) {
+                            handleEntry(subEntry, fullPath + '/');
+                        }
+                    });
                 }
             }
+
+            event.preventDefault();
+            const items = event.dataTransfer.items;
+
+            getFilesDataTransferItems(items).then(files => {
+                var paths = getFilePaths(files).join(",");
+                var path = paths.toString();
+                document.querySelector("#output").innerHTML = path;
+                var formData = new FormData();
+
+                formData.append('paths', path);
+                formData.append('location', "{{ base64_encode($origin) }}");
+
+                // Changed route and csrf_token placeholders to their actual values
+                fetch('{{ route("adminuser.documents.multiup") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    // Handle response data here
+                })
+                .catch(error => {
+                    console.error('Error occurred:', error);
+                    // Handle error response here
+                });
+            });
+
+            for (const item of items) {
+                const entry = item.webkitGetAsEntry();
+                handleEntry(entry);
+            }
         }
+
         //handle pop up file
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
-                const selectedFiles = [];
+                const files = [];
                 for (let i = 0; i < input.files.length; i++) {
-                    selectedFiles.push(input.files[i]);
+                    files.push(input.files[i]);
                 }
                 // Process the selected files
-                handleFiles(selectedFiles);
+                const formData = new FormData();
+                formData.append("location", "{{ base64_encode($origin) }}");
+                files.forEach(file => formData.append('files[]', file));
+
+                fetch('{{ route("adminuser.documents.upload") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        showNotification("Upload failed");
+                        throw new Error('Failed to upload the file, unsupported file type');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data.success) {
+                        showNotification("File successfully uploaded");
+                    }
+                });
             } 
-        }
-
-        // If uploaded is file
-        function handleFiles(files) {
-            const formData = new FormData();
-            formData.append("location", "{{ base64_encode($origin) }}");
-            files.forEach(file => formData.append('files[]', file));
-
-            fetch('{{ route("adminuser.documents.upload") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    showNotification("Upload failed");
-                    throw new Error('Failed to upload the file, unsupported file type');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                if (data.success) {
-                    showNotification("File successfully uploaded");
-                }
-            });
-        }
-
-        function handleFolder(item, path) {
-            fetch('{{ route("adminuser.documents.uploadfolder") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({ folder_name: item.name, location: "{{ base64_encode($origin) }}" })
-            })
-            .then(response => response.json());
-
-            showNotification("File successfully uploaded");
         }
 
         function showNotification(message) {

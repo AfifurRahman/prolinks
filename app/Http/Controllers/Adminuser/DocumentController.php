@@ -36,14 +36,44 @@ class DocumentController extends Controller
         try {
             if ($request->hasFile('files')) {
                 $files = $request->file('files');
+                $pathFile = "";
+                $pathLoop = "";
+                $paths = explode('/', $request->filePath);
+
+                for ($i = 0; $i < count($paths) - 1; $i++) {
+                    $pathFile .= $paths[$i] . '/';
+                }
+
+                $paths = explode('/', $pathFile);
+                array_unshift($paths, '');
+                array_pop($paths);
+
+                foreach ($paths as $index => $pathf) {
+                    $pathLoop .= $pathf . '/';
+                    $directories = Storage::directories('uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . $pathLoop);
+
+                    foreach ($directories as $dir) {
+                        $baseName = UploadFolder::where('basename', basename($dir))->value('name');
+                        $originalName = basename($dir);
+                        
+                        $folderList[$baseName] = $originalName;
+                    }
+
+                    if ($index > 0) {
+                        $paths[$index] = $folderList[$pathf];
+                    }
+                }
+
+                $pf = implode("/", $paths);
+
                 $response = [];
-    
                 foreach ($files as $file) {
-                        // Handle file upload
                         $locationParts = explode('/', base64_decode($request->location), 3);
 
-                        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/'. base64_decode($request->location) . '/';
+                        $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/'. base64_decode($request->location) .$pf;
+
                         $filePath = $file->storeAs($path, Str::random(8));
+
                         UploadFile::create([
                             'project_id' => $locationParts[0] . '/' . $locationParts[1],
                             'basename' => basename($filePath),
@@ -63,47 +93,41 @@ class DocumentController extends Controller
         return response()->json(['success' => true, 'message' => 'Operation success']);
     }
 
-    public function uploadFolders(Request $request)
-    {
-        try {
-            $basename = Str::random(8);
-
-            $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/subproject' . '/' . base64_decode($request->location) . $basename; 
-    
-            UploadFolder::create([
-                'project_id' => "HELLO",
-                'basename' => $basename,
-                'name' => $request->folder_name,
-                'access_user' => Auth::user()->email,
-                'status' => 1,
-                'uploaded_by' => Auth::user()->user_id, 
-            ]);
-    
-            Storage::makeDirectory($path, 0755,true);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
-        }
-        return back();
-    }
-
     public function create_folder(Request $request)
     {
         try {
-            $basename = Str::random(8);
+            $directories = Storage::directories('uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location));
 
-            $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . '/'. $basename; 
-    
-            UploadFolder::create([
-                'project_id' => "HELLO",
-                'basename' => $basename,
-                'name' => $request->folder_name,
-                'access_user' => Auth::user()->email,
-                'status' => 1,
-                'uploaded_by' => Auth::user()->user_id, 
-            ]);
-    
-            Storage::makeDirectory($path, 0755,true);
+            $folderList = array();
+
+            foreach ($directories as $dir) {
+                $baseName = UploadFolder::where('basename', basename($dir))->value('name');
+                $originalName = basename($dir);
+                
+                $folderList[$baseName] = $originalName;
+            }
+
+            if (isset($folderList[$request->folder_name])) {
+                return response()->json(['success' => false, 'message' => 'Operation failed, folder already there']);
+            } 
             
+            else {
+                $basename = Str::random(8);
+
+                $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . '/'. $basename; 
+        
+                UploadFolder::create([
+                    'project_id' => "HELLO",
+                    'basename' => $basename,
+                    'name' => $request->folder_name,
+                    'access_user' => Auth::user()->email,
+                    'status' => 1,
+                    'uploaded_by' => Auth::user()->user_id, 
+                ]);
+        
+                Storage::makeDirectory($path, 0755,true);
+            }
+
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -181,28 +205,20 @@ class DocumentController extends Controller
         $directorytype = 1;
         $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/' . $origin;
         $search = $request->query('name');
-        // Get all folders and files from the directory
         $allItems = array_merge(Storage::allDirectories($directory), Storage::allFiles($directory));
-    
-        // Search query
         $searchFiles = UploadFile::where('name', 'LIKE', '%'.$search.'%')->pluck('basename')->toArray();
         $searchFolders = UploadFolder::where('name', 'LIKE', '%'.$search.'%')->pluck('basename')->toArray();
-
         $searchQuery = array_merge($searchFiles,$searchFolders);
-        // Filter items based on the search query
         $filteredItems = [];
 
         foreach ($allItems as $item) {
             foreach ($searchQuery as $query) {
-                // Check if the item name contains the search query
                 if (strpos($item, $query) !== false) {
                     $filteredItems[] = $item;
-                    // Once a match is found, no need to continue searching with other queries
                 }
             }
         }
     
-        // Separate folders and files
         $folders = array_filter($filteredItems, function($item) {
             return is_dir(storage_path('app/' . $item));
         });
@@ -211,7 +227,62 @@ class DocumentController extends Controller
             return is_file(storage_path('app/' . $item));
         });
     
-        // Return the results as needed
         return view('adminuser.document.search', compact('folders', 'files', 'origin', 'directorytype', 'search'));
     }
+
+    public function multiup(Request $request) {
+        $arr = explode(',', $request->paths);
+        $dirList = array();
+        $result = array();
+    
+        foreach ($arr as $folder) {
+            $directory = explode('/', $folder);
+            $ext = "";
+            for ($i = 0; $i < count($directory) - 1; $i++) {
+                $ext .= $directory[$i] . '/';
+            }
+            array_push($dirList, $ext);
+        }
+    
+        $dirList = array_unique($dirList);
+    
+        foreach ($dirList as $path) {
+            $parts = array_filter(explode('/', $path));
+            $lastPart = end($parts);
+            array_pop($parts);
+            $temp = &$result;
+    
+            foreach ($parts as $part) {
+                $temp = &$temp[$part];
+            }
+    
+            $temp[$lastPart] = [];
+        }
+    
+        $this->createFolders($result, $request->location);
+    }
+    
+    private function createFolders($array, $location) {
+        foreach ($array as $key => $value) {
+            if (!empty($key)) {
+                $randomString = Str::random(8);
+                $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($location) . '/' . $randomString;
+        
+                Storage::makeDirectory($path, 0755, true);
+                UploadFolder::create([
+                    'project_id' => "HELLO",
+                    'basename' => $randomString,
+                    'name' => $key,
+                    'access_user' => Auth::user()->email,
+                    'status' => 1,
+                    'uploaded_by' => Auth::user()->user_id,
+                ]);
+        
+                if (is_array($value)) {
+                    $this->createFolders($value, base64_encode(base64_decode($location) . '/' . $randomString));
+                }
+            }
+        }
+    }
+    
 }
