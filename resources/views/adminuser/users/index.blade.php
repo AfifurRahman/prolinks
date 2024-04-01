@@ -155,7 +155,9 @@
                                             <i class="fa fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                            <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
+                                            @if($user->role == \globals::set_role_client())
+                                                <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
+                                            @endif
                                             @if($user->status == 1)
                                                 <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}">Disable User</a></li>
                                             @elseif($user->status == 2)
@@ -282,7 +284,7 @@
                     </div>
                     <div id="resultGroup"></div>
                     <div id="data_project">
-                        <h5 class="usercompany">Project</h5>
+                        <h5 class="usercompany">Project <span class="text-danger">*</span></h5>
                         <select class="form-control select2" data-placeholder="Unassigned" multiple name="project[]">
                             @foreach($project as $projects)
                                 @if($projects == 0)
@@ -322,7 +324,7 @@
                     @csrf
                     <input type="hidden" name="username" id="username">
                     <br>
-                    <select class="form-control select2" name="group_num">
+                    <select class="form-control select2" multiple name="group_num">
                         @foreach($group as $groups)
                             @if($groups == 0)
                                 <option value="0">Unassigned</option>
@@ -377,7 +379,7 @@
         };
 
         function setRole(element) {
-            if(element.value == 0){
+            if(element.value == "{{ \globals::set_role_administrator() }}"){
                 /* jika yg dipilih administrator group & project menjd all */
                 $("#data_group").css("display", "none");
                 $("#data_project").css("display", "none");
@@ -400,6 +402,12 @@
 
                 $("#resultGroup").html(resGroup);
                 $("#resultProject").html(resProject);
+            }else if(element.value == "{{ \globals::set_role_collaborator() }}"){
+                /* jika yg dipilih collaborator group hilang */
+                $("#data_group").css("display", "none");
+                $("#data_project").css("display", "block");
+                $("#resultGroup").html("");
+                $("#resultProject").html("");
             }else{
                 $("#data_group").css("display", "block");
                 $("#data_project").css("display", "block");

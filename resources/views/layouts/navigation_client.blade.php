@@ -5,7 +5,7 @@
                 @csrf
                 
                 <div class="project-group" style="margin-top:10px;">
-                    @if(Auth::user()->type != 0)
+                    @if(Auth::user()->type != \globals::set_role_administrator())
                         <div class="form-group">
                             <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
                                 @if(count(\globals::get_project_sidebar()) > 0)

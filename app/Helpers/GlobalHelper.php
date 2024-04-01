@@ -270,4 +270,33 @@ class GlobalHelper
 
         return $results;
     }
+
+    public static function set_role_administrator()
+    {
+        return 0;
+    }
+
+    public static function set_role_collaborator()
+    {
+        return 1;
+    }
+
+    public static function set_role_client()
+    {
+        return 2;
+    }
+
+    public static function label_role_users($role)
+    {
+        $results = "";
+        if($role == \globals::set_role_administrator()){
+            $results = '<label class="label label-default" style="border-radius:10px;"> Administrator</label>';
+        }elseif($role == \globals::set_role_collaborator()){
+            $results = '<label class="label label-default" style="border-radius:10px;"> Collaborator</label>';
+        }elseif($role == \globals::set_role_client()){
+            $results = '<label class="label label-default" style="border-radius:10px;"> Client</label>';
+        }
+
+        return $results;
+    }
 }
