@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Client;
+use App\Models\ClientUser;
 use App\Models\UploadFile;
 use App\Models\UploadFolder;
 use Auth;
@@ -21,11 +22,15 @@ class DocumentController extends Controller
         try {
             $origin = base64_decode($subproject);
             $directory = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/'. $origin;
+
             $files = Storage::files($directory);
             $folders = Storage::directories($directory);
             $directorytype = 1; //1 is parent
 
-            return view('adminuser.document.index', compact('files', 'folders','origin','directorytype'));
+            //return user list for permission
+            $listusers = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
+
+            return view('adminuser.document.index', compact('files', 'folders','origin','directorytype','listusers'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -170,7 +175,9 @@ class DocumentController extends Controller
             $files = Storage::files($directory);
             $folders = Storage::directories($directory);
 
-            return view('adminuser.document.index', compact('files', 'folders', 'origin', 'directorytype'));
+            $listusers = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
+
+            return view('adminuser.document.index', compact('files', 'folders', 'origin', 'directorytype', 'listusers'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -186,6 +193,19 @@ class DocumentController extends Controller
             return Storage::disk('local')->download($directory, UploadFile::where('basename', $data)->value('name'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
+    }
+
+    public function rename_file(Request $request)
+    {
+        try {
+            $old_name = base64_decode($request->old_name);
+            $new_name = $request->new_name;
+            UploadFile::where('basename', $old_name)->update(['name' => $new_name . pathinfo($old_name, PATHINFO_EXTENSION)]);
+
+            return back();
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 

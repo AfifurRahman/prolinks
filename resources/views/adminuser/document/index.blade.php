@@ -34,6 +34,35 @@
         </div>
     </div>
 
+    <!-- Rename File Modal -->
+    <div id="rename-file-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-title-text">Rename file</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('create-folder-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
+                    @csrf
+                    <label>Index</label>
+                    <input type="text" class="form-control"></input>
+                    <label>File name</label>
+                    <input type="text" class="form-control" name="new_name" id="folder_name"></input>
+                    <input type="hidden" id="old-name" name="old_name" value=""></input>
+                    <div class="form-button">
+                        <button class="cancel-btn">Cancel</button>
+                        <button class="create-btn" type="submit">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Folder Modal -->
     <div id="create-folder-modal" class="modal">
         <div class="modal-content">
@@ -53,6 +82,7 @@
                     <input type="text" class="form-control" name="folder_name" id="folder_name"></input>
                     <input name="location" type="hidden" value="{{ base64_encode($origin) }}"></input>
                     <div class="form-button">
+                        <button class="cancel-btn">Cancel</button>
                         <button class="create-btn" type="submit">Create Folder</button>
                     </div>
                 </form>
@@ -75,23 +105,101 @@
             <div class="modal-body">
                 <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
                     @csrf
+                    <label>Index</label>
+                    <input type="text" class="form-control"></input>
                     <label>Folder name</label>
                     <input type="text" class="form-control" name="new_name" id="folder_name"></input>
                     <input type="hidden" id="old-name" name="old_name" value=""></input>
                     <div class="form-button">
-                        <button class="create-btn" type="submit">Rename Folder</button>
+                        <button class="cancel-btn">Cancel</button>
+                        <button class="create-btn" type="submit">Save changes</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+     <!-- Permission -->
+     <div id="permission-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-title-text">Permission Settings</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('permission-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+
+            <div class="modal-permission-body">
+                <div class="permission-user-list">
+                    <h4>Users</h4>
+                    <table id="permission-user-list-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(count($listusers) > 0) 
+                                @foreach($listusers->unique('group_id') as $group)
+                                    <tr>
+                                        <td>
+                                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/group.png') }}" />
+                                        </td>
+                                        <td>
+                                            {{ DB::table('access_group')->where('group_id', $group->group_id)->value('group_name') }}
+                                        </td>
+                                    </tr>
+                                    @foreach($listusers as $user)
+                                        @if($user->group_id == $group->group_id)
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                    {{ $user->email_address }}
+                                                    <br>
+                                                    @if($user->role == 0) 
+                                                        Administrator
+                                                    @elseif($user->role == 1)
+                                                        Collaborator
+                                                    @elseif($user->role == 2)
+                                                        Client
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div> 
+                <div class="permission-file-list">
+                    <h4>Selected User - Role</h4>
+                    <table id="permission-file-list-table">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th><input type="checkbox" class="checkbox" disabled/></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div> 
+            </div>
+
+            <div class="modal-footer">
+                <button class="cancel-btn">Cancel</button>
+                <button class="create-btn" type="submit">Save settings</button>
+            </div>  
+        </div>
+    </div>
+
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
-        <p id="output">AS</p>
         <div class="button_helper">
             <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
-            <button class="permissions"><image class="permissions-ico" src="{{ url('template/images/icon_menu/permissions.png') }}">Permissions</button>
+            <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'"><image class="permissions-ico" src="{{ url('template/images/icon_menu/permissions.png') }}">Permissions</button>
             <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'"><image class="upload-ico" src="{{ url('template/images/icon_menu/upload.png') }}"></image>Upload</button>
         </div>
     </div>
@@ -166,7 +274,7 @@
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                    <li><a onclick="rename('{{ base64_encode(basename($directory)) }}')">Edit folder</a></li>
+                                    <li><a onclick="rename('{{ base64_encode(basename($directory)) }}')">Rename folder</a></li>
                                     <li><a href="{{ route('adminuser.documents.delete_folder', base64_encode(basename($directory))) }}">Delete folder</a></li>
                                 </ul>
                             </div>
@@ -196,6 +304,7 @@
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                    <li><a href="">Rename file</a></li>
                                     <li><a href="{{ route('adminuser.documents.delete_file', basename($file)) }}">Delete file</a></li>
                                 </ul>
                             </div>
@@ -381,7 +490,6 @@
             getFilesDataTransferItems(items).then(files => {
                 var paths = getFilePaths(files).join(",");
                 var path = paths.toString();
-                document.querySelector("#output").innerHTML = path;
                 var formData = new FormData();
 
                 formData.append('paths', path);

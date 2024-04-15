@@ -93,6 +93,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@uploadFiles')->name('adminuser.documents.upload');
 	Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@create_folder')->name('adminuser.documents.create_folder');
 	Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@rename_folder')->name('adminuser.documents.rename_folder');
+	Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@rename_file')->name('adminuser.documents.rename_file');
 	Route::post('documents/upmultiple', 'App\Http\Controllers\Adminuser\DocumentController@multiup')->name('adminuser.documents.multiup');
 });
 

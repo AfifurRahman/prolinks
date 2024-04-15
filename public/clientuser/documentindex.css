@@ -347,6 +347,15 @@ h3 {
     color:#FFFFFF;
 }
 
+.cancel-btn{
+    padding: 11px 16px 9px 16px;
+    border:none;
+    border-radius:6px;
+    background:none;
+    color:#586474;
+    margin-right:12px;
+}
+
 .form-button{
     width:100%;
     display: flex;
@@ -364,3 +373,24 @@ h3 {
     background:transparent;
     margin-right:10px;
 }
+
+.modal-permission-body{
+    display:flex;
+    background:blue;
+    height:70%;
+}
+
+.permission-user-list{
+    margin-top:-1px;
+    padding:18px;
+    background: #F1F5F9;
+    border:#D0D5DD solid 1px;
+    width:40%;
+}
+
+.permission-file-list{
+    background: #FFFFFF;
+    padding:18px;
+    width:60%;
+}
+
