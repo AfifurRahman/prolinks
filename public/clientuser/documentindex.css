@@ -394,3 +394,32 @@ h3 {
     width:60%;
 }
 
+.permission-user-list-tr{
+    color:#000000;
+}
+
+.permission-user-list-td{
+    color:#000000;
+    font-size:16px;
+}
+
+.permission-user-list-td2{
+    margin-top:-14px;
+    color:#586474;
+    font-size:15px;
+    font-weight:100;
+}
+
+.permission-user-list-btn{
+    border:none;
+    text-align: left;
+    background:none;
+    padding:none;
+    margin:none;
+}
+
+.dropdown-icon{
+    height:20px;
+    width:20px;
+    margin-right:6px;
+}

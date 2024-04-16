@@ -148,7 +148,7 @@
                                         <td>
                                             <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/group.png') }}" />
                                         </td>
-                                        <td>
+                                        <td class="permission-user-list-tr">
                                             {{ DB::table('access_group')->where('group_id', $group->group_id)->value('group_name') }}
                                         </td>
                                     </tr>
@@ -157,15 +157,18 @@
                                             <tr>
                                                 <td></td>
                                                 <td>
-                                                    {{ $user->email_address }}
-                                                    <br>
-                                                    @if($user->role == 0) 
-                                                        Administrator
-                                                    @elseif($user->role == 1)
-                                                        Collaborator
-                                                    @elseif($user->role == 2)
-                                                        Client
-                                                    @endif
+                                                    <button class="permission-user-list-btn">
+                                                        <p class="permission-user-list-td">{{ $user->email_address }}</p>
+                                                        <p class="permission-user-list-td2">
+                                                        @if($user->role == 0) 
+                                                            Administrator
+                                                        @elseif($user->role == 1)
+                                                            Collaborator
+                                                        @elseif($user->role == 2)
+                                                            Client
+                                                        @endif
+                                                        </p>
+                                                    </button>
                                                 </td>
                                             </tr>
                                         @endif
@@ -274,8 +277,18 @@
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                    <li><a onclick="rename('{{ base64_encode(basename($directory)) }}')">Rename folder</a></li>
-                                    <li><a href="{{ route('adminuser.documents.delete_folder', base64_encode(basename($directory))) }}">Delete folder</a></li>
+                                    <li>
+                                        <a onclick="rename('{{ base64_encode(basename($directory)) }}')">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                            Rename
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a style="color:red;" href="{{ route('adminuser.documents.delete_folder', base64_encode(basename($directory))) }}">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                            Delete
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </td>
@@ -291,21 +304,52 @@
                         <td>{{ $index }}</td>
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
-                            <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
-                                
+                                <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                 {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                             </a>
                         </td>
-                        <td>{{ date('d M Y, H:i', strtotime(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))) }}</td>
-                        <td>{{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}</td>
+                        <td>
+                            {{ date('d M Y, H:i', strtotime(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))) }}
+                        </td>
+                        <td>
+                            {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
+                        </td>
                         <td>
                             <div class="dropdown">
                                 <button class="button_ico dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                    <li><a href="">Rename file</a></li>
-                                    <li><a href="{{ route('adminuser.documents.delete_file', basename($file)) }}">Delete file</a></li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/show.png') }}">
+                                            View
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/printer.png') }}">
+                                            Print
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                            Download
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                            Rename
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a style="color:red;" href="{{ route('adminuser.documents.delete_file', basename($file)) }}">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                            Delete
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </td>
@@ -429,8 +473,7 @@
                                 }
                             }
                         }
-                    }
-                    
+                    } 
                     return hasFiles; // Return whether files were found in this folder or not
                 }     
                 traverseFiles(files);
