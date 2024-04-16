@@ -423,3 +423,30 @@ h3 {
     width:20px;
     margin-right:6px;
 }
+
+.path{
+    display:flex;
+    background:#F1F5F9;
+    padding:4px 8px 4px 8px;
+    border-radius: 6px;
+}
+
+.path-text{
+    display:flex;
+}
+
+.path-box{
+    display: inline-block;
+    margin-bottom:20px;
+}
+
+.path-icon{
+    height:18px;
+    width:18px;
+    margin-right:6px;
+}
+
+.path-icon{
+    height:16px;
+    width:16px;
+}

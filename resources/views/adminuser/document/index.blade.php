@@ -199,7 +199,13 @@
     </div>
 
     <div class="box_helper">
-        <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
+        <h2 id="title" style="color:black;font-size:28px;">
+            @if (empty(DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('project_name')))
+                {{ DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('name') }}
+            @else
+                {{ DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('project_name') }}
+            @endif
+        </h2>
         <div class="button_helper">
             <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
             <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'"><image class="permissions-ico" src="{{ url('template/images/icon_menu/permissions.png') }}">Permissions</button>
@@ -207,6 +213,21 @@
         </div>
     </div>
 
+    <div class="path-box">
+        <div class="path">
+            <image class="path-icon" src="{{ url('template/images/icon_menu/briefcase.png') }}" />
+            <div class="path-text">
+                {{ DB::table('project')->where('project_id', explode('/', $origin)[1])->value('project_name') }}
+                @if (count(explode('/', $origin)) > 1)
+                    @foreach(array_slice(explode('/', $origin),2) as $path)
+                        &nbsp;>&nbsp;&nbsp;
+                        <a href="">{{ DB::table('upload_folders')->where('basename', $path)->value('name') }}</a>
+                        &nbsp;
+                    @endforeach
+                @endif
+            </div>
+        </div>
+    </div>
 
     <div class="box_helper">
         <div>
