@@ -431,10 +431,6 @@ h3 {
     border-radius: 6px;
 }
 
-.path-text{
-    display:flex;
-}
-
 .path-box{
     display: inline-block;
     margin-bottom:20px;
@@ -446,7 +442,10 @@ h3 {
     margin-right:6px;
 }
 
-.path-icon{
-    height:16px;
-    width:16px;
+.up-arrow{
+    height:18px;
+    width:20px;
+    margin-right:8px;
+    margin-top:4px;
+    margin-bottom:6px;
 }

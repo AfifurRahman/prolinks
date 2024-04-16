@@ -54,7 +54,7 @@
         </div>
         <div class="searchbox">
                 <img class="search_icon" src="{{ url('template/images/icon_menu/search.png') }}">
-                <input type="text" name="name" class="searchbar" id="searchInput" value="{{ isset($search) ? $search : '' }}"placeholder="Search documents...">
+                <input type="text" name="name" class="searchbar" id="searchInput" value="{{ isset($search) ? $search : '' }}"placeholder="Search sub project...">
         </div>
     </div>
     
@@ -127,7 +127,6 @@
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                             <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
-                                
                                 {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                             </a>
                         </td>

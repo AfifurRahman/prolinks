@@ -238,7 +238,7 @@
         </div>
         <div class="searchbox">
                 <img class="search_icon" src="{{ url('template/images/icon_menu/search.png') }}">
-                <input type="text" name="name" class="searchbar" id="searchInput" placeholder="Search documents...">
+                <input type="text" name="name" class="searchbar" id="searchInput" placeholder="Search sub project...">
         </div>
     </div>
     
@@ -260,8 +260,13 @@
                     <td></td>
                     <td>
                         <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(substr($origin,0,-9))) }}">
-                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                            ...
+                            <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
+                            Up to  
+                            @if (empty(DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name')))
+                                {{ DB::table('project')->where('project_id', explode('/', $origin)[1])->value('project_name') }}
+                            @else
+                                {{ DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name') }}
+                            @endif
                         </a>
                     </td>
                     <td></td>
