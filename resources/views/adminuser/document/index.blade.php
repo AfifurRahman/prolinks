@@ -304,6 +304,12 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-top pull-right">
                                     <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                            Download
+                                        </a>
+                                    </li>
+                                    <li>
                                         <a onclick="rename('{{ base64_encode(basename($directory)) }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
