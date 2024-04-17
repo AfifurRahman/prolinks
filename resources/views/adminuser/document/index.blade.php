@@ -233,33 +233,33 @@
                                                 </tr>
                                             @endif
                                         @endforeach
-                                        @foreach($listusers->unique('group_id') as $group)
-                                            @if(empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
-                                                @foreach($listusers as $user)
-                                                    @if(empty($user->group_id))
-                                                        <tr>
-                                                            <td>
-                                                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
-                                                                <br>
-                                                                &nbsp;
-                                                            </td>
-                                                            <td>
-                                                                <a href="">
-                                                                    <p class="permission-user-list-td3">{{ $user->email_address }}</p>
-                                                                    <p class="permission-user-list-td2">
-                                                                        @if($user->role == 0) 
-                                                                            Administrator
-                                                                        @elseif($user->role == 1)
-                                                                            Collaborator
-                                                                        @elseif($user->role == 2)
-                                                                            Client
-                                                                        @endif
-                                                                    </p>
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    @endif
-                                                @endforeach
+                                    @endif
+                                @endforeach
+                                @foreach($listusers->unique('group_id') as $group)
+                                    @if(empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
+                                        @foreach($listusers as $user)
+                                            @if(empty($user->group_id))
+                                                <tr>
+                                                    <td>
+                                                        <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
+                                                        <br>
+                                                        &nbsp;
+                                                    </td>
+                                                    <td>
+                                                        <a href="">
+                                                            <p class="permission-user-list-td3">{{ $user->email_address }}</p>
+                                                            <p class="permission-user-list-td2">
+                                                                @if($user->role == 0) 
+                                                                    Administrator
+                                                                @elseif($user->role == 1)
+                                                                    Collaborator
+                                                                @elseif($user->role == 2)
+                                                                    Client
+                                                                @endif
+                                                            </p>
+                                                        </a>
+                                                    </td>
+                                                </tr>
                                             @endif
                                         @endforeach
                                     @endif
