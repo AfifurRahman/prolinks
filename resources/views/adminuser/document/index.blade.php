@@ -99,6 +99,50 @@
         </div>
     </div>
 
+    <!-- Delete File Modal -->
+    <div id="delete-file-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-delete-file-title">Delete file</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('delete-file-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">Deleting this file will permanently remove it, are you sure you want to continue? You can't undo this action.</p>
+                <div class="form-button">
+                    <a onclick="document.getElementById('delete-file-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                    <button class="delete-btn" type="submit">Delete</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Folder Modal -->
+    <div id="delete-folder-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-delete-file-title">Delete folder</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('delete-folder-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue? You can't undo this action.</p>
+                <div class="form-button">
+                    <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                    <button class="delete-btn" type="submit">Delete</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
     <!-- Rename Folder Modal -->
     <div id="rename-folder-modal" class="modal">
         <div class="modal-content">
@@ -114,7 +158,6 @@
             <div class="modal-body">
                 <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
                     @csrf
-                    
                     <div class="rename-modal">
                         <div class="rename-modal1">
                             <label class="modal-form-input">Index</label>
@@ -375,7 +418,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a style="color:red;" href="{{ route('adminuser.documents.delete_folder', base64_encode(basename($directory))) }}">
+                                        <a style="color:red;" onclick="document.getElementById('delete-folder-modal').style.display='block'">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                             Delete
                                         </a>
@@ -448,7 +491,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a style="color:red;" href="{{ route('adminuser.documents.delete_file', basename($file)) }}">
+                                        <a style="color:red;" onclick="document.getElementById('delete-file-modal').style.display='block'">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                             Delete
                                         </a>
@@ -582,7 +625,6 @@
                 traverseFiles(files);
                 return paths;
             }
-
             
             function handleFiles(files, paths) {
                 console.log(paths);
@@ -722,7 +764,6 @@
             document.getElementById('rename-file-modal').style.display = 'block';
             $(".rename-file-icon").attr("src", icon);
         }
-
     </script>
     @endpush
 @endsection

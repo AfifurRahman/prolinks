@@ -362,7 +362,7 @@ h3 {
     display: flex;
     justify-content: flex-end;
     margin-top:28px;
-    margin-bottom:-14px;
+    margin-bottom:-10px;
 }
 
 .name-box {
@@ -495,4 +495,16 @@ h3 {
     height:20px;
     width:20px;
     margin-left:14px;
+}
+
+.modal-text{
+    color:#1D2939;
+}
+
+.delete-btn{
+    padding: 11px 16px 9px 16px;
+    border:none;
+    border-radius:6px;
+    background:#F04438;
+    color:#FFFFFF;
 }
