@@ -41,7 +41,7 @@
                 <div class="upload-modal-title">
                     <h5 class="modal-title-text">Rename file</h5>
                 </div>
-                <button class="modal-close" onclick="document.getElementById('create-folder-modal').style.display='none'">
+                <button class="modal-close" onclick="document.getElementById('rename-file-modal').style.display='none'">
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
@@ -49,13 +49,22 @@
             <div class="modal-body">
                 <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
                     @csrf
-                    <label>Index</label>
-                    <input type="text" class="form-control"></input>
-                    <label>File name</label>
-                    <input type="text" class="form-control" name="new_name" id="folder_name"></input>
-                    <input type="hidden" id="old-name" name="old_name" value=""></input>
+                    <div class="rename-modal">
+                        <div class="rename-modal1">
+                            <label class="modal-form-input">Index</label>
+                            <input type="text" class="form-control" disabled/>
+                        </div>
+                        <div class="rename-modal2">
+                            <label class="modal-form-input">File name</label><label style="color:red;">*</label>
+                            <div class="rename-file-input">
+                                <image class="rename-file-icon" />
+                                <input type="text" class="form-control" name="new_name" id="file-name" placeholder="Enter file name without extension"/>
+                            </div>
+                        </div>
+                        <input type="hidden" id="old-name" name="old_name" value="" />
+                    </div>
                     <div class="form-button">
-                        <button class="cancel-btn">Cancel</button>
+                        <a class="cancel-btn" onclick="document.getElementById('rename-file-modal').style.display='none'">Cancel</a>
                         <button class="create-btn" type="submit">Save changes</button>
                     </div>
                 </form>
@@ -82,7 +91,7 @@
                     <input type="text" class="form-control" name="folder_name" id="folder_name"></input>
                     <input name="location" type="hidden" value="{{ base64_encode($origin) }}"></input>
                     <div class="form-button">
-                        <button class="cancel-btn">Cancel</button>
+                        <a onclick="document.getElementById('create-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
                         <button class="create-btn" type="submit">Create Folder</button>
                     </div>
                 </form>
@@ -90,14 +99,14 @@
         </div>
     </div>
 
-    <!-- Edit Folder Name Modal -->
+    <!-- Rename Folder Modal -->
     <div id="rename-folder-modal" class="modal">
         <div class="modal-content">
             <div class="modal-topbar">
                 <div class="upload-modal-title">
                     <h5 class="modal-title-text">Rename folder</h5>
                 </div>
-                <button class="modal-close" onclick="document.getElementById('create-folder-modal').style.display='none'">
+                <button class="modal-close" onclick="document.getElementById('rename-folder-modal').style.display='none'">
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
@@ -105,13 +114,20 @@
             <div class="modal-body">
                 <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
                     @csrf
-                    <label>Index</label>
-                    <input type="text" class="form-control"></input>
-                    <label>Folder name</label>
-                    <input type="text" class="form-control" name="new_name" id="folder_name"></input>
-                    <input type="hidden" id="old-name" name="old_name" value=""></input>
+                    
+                    <div class="rename-modal">
+                        <div class="rename-modal1">
+                            <label class="modal-form-input">Index</label>
+                            <input type="text" class="form-control" disabled/>
+                        </div>
+                        <div class="rename-modal2">
+                            <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
+                            <input type="text" class="form-control" name="new_name" id="folder_name" placeholder="Enter folder name"/>
+                        </div>
+                        <input type="hidden" id="old-name" name="old_name" value="" />
+                    </div>
                     <div class="form-button">
-                        <button class="cancel-btn">Cancel</button>
+                        <a class="cancel-btn" onclick="document.getElementById('rename-folder-modal').style.display='none'">Cancel</a>
                         <button class="create-btn" type="submit">Save changes</button>
                     </div>
                 </form>
@@ -144,35 +160,66 @@
                         <tbody>
                             @if(count($listusers) > 0) 
                                 @foreach($listusers->unique('group_id') as $group)
-                                    <tr>
-                                        <td>
-                                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/group.png') }}" />
-                                        </td>
-                                        <td class="permission-user-list-tr">
-                                            {{ DB::table('access_group')->where('group_id', $group->group_id)->value('group_name') }}
-                                        </td>
-                                    </tr>
-                                    @foreach($listusers as $user)
-                                        @if($user->group_id == $group->group_id)
-                                            <tr>
-                                                <td></td>
-                                                <td>
-                                                    <button class="permission-user-list-btn">
-                                                        <p class="permission-user-list-td">{{ $user->email_address }}</p>
-                                                        <p class="permission-user-list-td2">
-                                                        @if($user->role == 0) 
-                                                            Administrator
-                                                        @elseif($user->role == 1)
-                                                            Collaborator
-                                                        @elseif($user->role == 2)
-                                                            Client
-                                                        @endif
-                                                        </p>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
+                                    @if(!empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
+                                        <tr>
+                                            <td>
+                                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/group.png') }}" />
+                                            </td>
+                                            <td class="permission-user-list-td">
+                                                {{ DB::table('access_group')->where('group_id', $group->group_id)->value('group_name') }}
+                                            </td>
+                                        </tr>
+                                        @foreach($listusers as $user)
+                                            @if($user->group_id == $group->group_id)
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        <a href="">
+                                                            <p class="permission-user-list-td">{{ $user->email_address }}</p>
+                                                            <p class="permission-user-list-td2">
+                                                            @if($user->role == 0) 
+                                                                Administrator
+                                                            @elseif($user->role == 1)
+                                                                Collaborator
+                                                            @elseif($user->role == 2)
+                                                                Client
+                                                            @endif
+                                                            </p>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                        @foreach($listusers->unique('group_id') as $group)
+                                            @if(empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
+                                                @foreach($listusers as $user)
+                                                    @if(empty($user->group_id))
+                                                        <tr>
+                                                            <td>
+                                                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
+                                                                <br>
+                                                                &nbsp;
+                                                            </td>
+                                                            <td>
+                                                                <a href="">
+                                                                    <p class="permission-user-list-td3">{{ $user->email_address }}</p>
+                                                                    <p class="permission-user-list-td2">
+                                                                        @if($user->role == 0) 
+                                                                            Administrator
+                                                                        @elseif($user->role == 1)
+                                                                            Collaborator
+                                                                        @elseif($user->role == 2)
+                                                                            Client
+                                                                        @endif
+                                                                    </p>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                @endforeach
+                                            @endif
+                                        @endforeach
+                                    @endif
                                 @endforeach
                             @endif
                         </tbody>
@@ -192,7 +239,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="cancel-btn">Cancel</button>
+                <a class="cancel-btn" onclick="document.getElementById('permission-modal').style.display='none'">Cancel</a>
                 <button class="create-btn" type="submit">Save settings</button>
             </div>  
         </div>
@@ -208,8 +255,8 @@
         </h2>
         <div class="button_helper">
             <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
-            <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'"><image class="permissions-ico" src="{{ url('template/images/icon_menu/permissions.png') }}">Permissions</button>
-            <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'"><image class="upload-ico" src="{{ url('template/images/icon_menu/upload.png') }}"></image>Upload</button>
+            <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'">Permissions</button>
+            <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'">Upload Files</button>
         </div>
     </div>
 
@@ -262,7 +309,7 @@
                         <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(substr($origin,0,-9))) }}">
                             <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
                             Up to  
-                            @if (empty(DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name')))
+                            @if(empty(DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name')))
                                 {{ DB::table('project')->where('project_id', explode('/', $origin)[1])->value('project_name') }}
                             @else
                                 {{ DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name') }}
@@ -313,6 +360,18 @@
                                         <a onclick="rename('{{ base64_encode(basename($directory)) }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                            Copy
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                            Cut
                                         </a>
                                     </li>
                                     <li>
@@ -371,9 +430,21 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="">
+                                        <a onclick="renamef('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                            Copy
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                            Cut
                                         </a>
                                     </li>
                                     <li>
@@ -645,6 +716,11 @@
         function rename(folder) {
             document.getElementById('rename-folder-modal').style.display = 'block';
             document.getElementById('old-name').value = folder;
+        }
+
+        function renamef(files, icon) {
+            document.getElementById('rename-file-modal').style.display = 'block';
+            $(".rename-file-icon").attr("src", icon);
         }
 
     </script>
