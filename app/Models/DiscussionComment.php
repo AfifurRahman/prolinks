@@ -20,4 +20,9 @@ class DiscussionComment extends Model
     {
         return $this->hasMany('App\Models\DiscussionAttachFile', 'comment_id' , 'id');
     }
+
+    public function RefDiscussionLinkFile()
+    {
+        return $this->hasMany('App\Models\DiscussionLinkFile', 'comment_id' , 'id');
+    }
 }
