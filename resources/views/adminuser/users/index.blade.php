@@ -127,7 +127,7 @@
                                         Administrator
                                     @elseif($user->role == 1)
                                         Collaborator
-                                        @elseif($user->role == 2)
+                                    @elseif($user->role == 2)
                                         Client
                                     @endif
                                 </td>

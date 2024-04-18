@@ -34,6 +34,44 @@
         </div>
     </div>
 
+    <!-- Rename File Modal -->
+    <div id="rename-file-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-title-text">Rename file</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('rename-file-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
+                    @csrf
+                    <div class="rename-modal">
+                        <div class="rename-modal1">
+                            <label class="modal-form-input">Index</label>
+                            <input type="text" class="form-control" disabled/>
+                        </div>
+                        <div class="rename-modal2">
+                            <label class="modal-form-input">File name</label><label style="color:red;">*</label>
+                            <div class="rename-file-input">
+                                <image class="rename-file-icon" />
+                                <input type="text" class="form-control" name="new_name" id="file-name" placeholder="Enter file name without extension"/>
+                            </div>
+                        </div>
+                        <input type="hidden" id="old-name" name="old_name" value="" />
+                    </div>
+                    <div class="form-button">
+                        <a class="cancel-btn" onclick="document.getElementById('rename-file-modal').style.display='none'">Cancel</a>
+                        <button class="create-btn" type="submit">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Folder Modal -->
     <div id="create-folder-modal" class="modal">
         <div class="modal-content">
@@ -53,6 +91,7 @@
                     <input type="text" class="form-control" name="folder_name" id="folder_name"></input>
                     <input name="location" type="hidden" value="{{ base64_encode($origin) }}"></input>
                     <div class="form-button">
+                        <a onclick="document.getElementById('create-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
                         <button class="create-btn" type="submit">Create Folder</button>
                     </div>
                 </form>
@@ -60,14 +99,58 @@
         </div>
     </div>
 
-    <!-- Edit Folder Name Modal -->
+    <!-- Delete File Modal -->
+    <div id="delete-file-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-delete-file-title">Delete file</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('delete-file-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">Deleting this file will permanently remove it, are you sure you want to continue? You can't undo this action.</p>
+                <div class="form-button">
+                    <a onclick="document.getElementById('delete-file-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                    <button class="delete-btn" type="submit">Delete</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Folder Modal -->
+    <div id="delete-folder-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-delete-file-title">Delete folder</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('delete-folder-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue? You can't undo this action.</p>
+                <div class="form-button">
+                    <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                    <button class="delete-btn" type="submit">Delete</button>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Rename Folder Modal -->
     <div id="rename-folder-modal" class="modal">
         <div class="modal-content">
             <div class="modal-topbar">
                 <div class="upload-modal-title">
                     <h5 class="modal-title-text">Rename folder</h5>
                 </div>
-                <button class="modal-close" onclick="document.getElementById('create-folder-modal').style.display='none'">
+                <button class="modal-close" onclick="document.getElementById('rename-folder-modal').style.display='none'">
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
@@ -75,27 +158,166 @@
             <div class="modal-body">
                 <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
                     @csrf
-                    <label>Folder name</label>
-                    <input type="text" class="form-control" name="new_name" id="folder_name"></input>
-                    <input type="hidden" id="old-name" name="old_name" value=""></input>
+                    <div class="rename-modal">
+                        <div class="rename-modal1">
+                            <label class="modal-form-input">Index</label>
+                            <input type="text" class="form-control" disabled/>
+                        </div>
+                        <div class="rename-modal2">
+                            <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
+                            <input type="text" class="form-control" name="new_name" id="folder_name" placeholder="Enter folder name"/>
+                        </div>
+                        <input type="hidden" id="old-name" name="old_name" value="" />
+                    </div>
                     <div class="form-button">
-                        <button class="create-btn" type="submit">Rename Folder</button>
+                        <a class="cancel-btn" onclick="document.getElementById('rename-folder-modal').style.display='none'">Cancel</a>
+                        <button class="create-btn" type="submit">Save changes</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="box_helper">
-        <h2 id="title" style="color:black;font-size:28px;">Documents</h2>
-        <p id="output">AS</p>
-        <div class="button_helper">
-            <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
-            <button class="permissions"><image class="permissions-ico" src="{{ url('template/images/icon_menu/permissions.png') }}">Permissions</button>
-            <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'"><image class="upload-ico" src="{{ url('template/images/icon_menu/upload.png') }}"></image>Upload</button>
+     <!-- Permission -->
+     <div id="permission-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-title-text">Permission Settings</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('permission-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+
+            <div class="modal-permission-body">
+                <div class="permission-user-list">
+                    <h4>Users</h4>
+                    <table id="permission-user-list-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(count($listusers) > 0) 
+                                @foreach($listusers->unique('group_id') as $group)
+                                    @if(!empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
+                                        <tr>
+                                            <td>
+                                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/group.png') }}" />
+                                            </td>
+                                            <td class="permission-user-list-td">
+                                                {{ DB::table('access_group')->where('group_id', $group->group_id)->value('group_name') }}
+                                            </td>
+                                        </tr>
+                                        @foreach($listusers as $user)
+                                            @if($user->group_id == $group->group_id)
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        <a href="">
+                                                            <p class="permission-user-list-td">{{ $user->email_address }}</p>
+                                                            <p class="permission-user-list-td2">
+                                                            @if($user->role == 0) 
+                                                                Administrator
+                                                            @elseif($user->role == 1)
+                                                                Collaborator
+                                                            @elseif($user->role == 2)
+                                                                Client
+                                                            @endif
+                                                            </p>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                                @foreach($listusers->unique('group_id') as $group)
+                                    @if(empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
+                                        @foreach($listusers as $user)
+                                            @if(empty($user->group_id))
+                                                <tr>
+                                                    <td>
+                                                        <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
+                                                        <br>
+                                                        &nbsp;
+                                                    </td>
+                                                    <td>
+                                                        <a href="">
+                                                            <p class="permission-user-list-td3">{{ $user->email_address }}</p>
+                                                            <p class="permission-user-list-td2">
+                                                                @if($user->role == 0) 
+                                                                    Administrator
+                                                                @elseif($user->role == 1)
+                                                                    Collaborator
+                                                                @elseif($user->role == 2)
+                                                                    Client
+                                                                @endif
+                                                            </p>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div> 
+                <div class="permission-file-list">
+                    <h4>Selected User - Role</h4>
+                    <table id="permission-file-list-table">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th><input type="checkbox" class="checkbox" disabled/></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div> 
+            </div>
+
+            <div class="modal-footer">
+                <a class="cancel-btn" onclick="document.getElementById('permission-modal').style.display='none'">Cancel</a>
+                <button class="create-btn" type="submit">Save settings</button>
+            </div>  
         </div>
     </div>
 
+    <div class="box_helper">
+        <h2 id="title" style="color:black;font-size:28px;">
+            @if (empty(DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('project_name')))
+                {{ DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('name') }}
+            @else
+                {{ DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('project_name') }}
+            @endif
+        </h2>
+        <div class="button_helper">
+            <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
+            <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'">Permissions</button>
+            <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'">Upload Files</button>
+        </div>
+    </div>
+
+    <div class="path-box">
+        <div class="path">
+            <image class="path-icon" src="{{ url('template/images/icon_menu/briefcase.png') }}" />
+            <div class="path-text">
+                {{ DB::table('project')->where('project_id', explode('/', $origin)[1])->value('project_name') }}
+                @if (count(explode('/', $origin)) > 1)
+                    @foreach(array_slice(explode('/', $origin),2) as $path)
+                        &nbsp;>&nbsp;&nbsp;
+                        <a href="">{{ DB::table('upload_folders')->where('basename', $path)->value('name') }}</a>
+                        &nbsp;
+                    @endforeach
+                @endif
+            </div>
+        </div>
+    </div>
 
     <div class="box_helper">
         <div>
@@ -106,7 +328,7 @@
         </div>
         <div class="searchbox">
                 <img class="search_icon" src="{{ url('template/images/icon_menu/search.png') }}">
-                <input type="text" name="name" class="searchbar" id="searchInput" placeholder="Search documents...">
+                <input type="text" name="name" class="searchbar" id="searchInput" placeholder="Search sub project...">
         </div>
     </div>
     
@@ -128,8 +350,13 @@
                     <td></td>
                     <td>
                         <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(substr($origin,0,-9))) }}">
-                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                            ...
+                            <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
+                            Up to  
+                            @if(empty(DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name')))
+                                {{ DB::table('project')->where('project_id', explode('/', $origin)[1])->value('project_name') }}
+                            @else
+                                {{ DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name') }}
+                            @endif
                         </a>
                     </td>
                     <td></td>
@@ -166,8 +393,36 @@
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                    <li><a onclick="rename('{{ base64_encode(basename($directory)) }}')">Edit folder</a></li>
-                                    <li><a href="{{ route('adminuser.documents.delete_folder', base64_encode(basename($directory))) }}">Delete folder</a></li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                            Download
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a onclick="rename('{{ base64_encode(basename($directory)) }}')">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                            Rename
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                            Copy
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                            Cut
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a style="color:red;" onclick="document.getElementById('delete-folder-modal').style.display='block'">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                            Delete
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </td>
@@ -183,20 +438,64 @@
                         <td>{{ $index }}</td>
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
-                            <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
-                                
+                                <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                 {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                             </a>
                         </td>
-                        <td>{{ date('d M Y, H:i', strtotime(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))) }}</td>
-                        <td>{{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}</td>
+                        <td>
+                            {{ date('d M Y, H:i', strtotime(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))) }}
+                        </td>
+                        <td>
+                            {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
+                        </td>
                         <td>
                             <div class="dropdown">
                                 <button class="button_ico dropdown-toggle" data-toggle="dropdown">
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                    <li><a href="{{ route('adminuser.documents.delete_file', basename($file)) }}">Delete file</a></li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/show.png') }}">
+                                            View
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/printer.png') }}">
+                                            Print
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                            Download
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a onclick="renamef('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}')">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                            Rename
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                            Copy
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                            Cut
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a style="color:red;" onclick="document.getElementById('delete-file-modal').style.display='block'">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                            Delete
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </td>
@@ -320,14 +619,12 @@
                                 }
                             }
                         }
-                    }
-                    
+                    } 
                     return hasFiles; // Return whether files were found in this folder or not
                 }     
                 traverseFiles(files);
                 return paths;
             }
-
             
             function handleFiles(files, paths) {
                 console.log(paths);
@@ -381,7 +678,6 @@
             getFilesDataTransferItems(items).then(files => {
                 var paths = getFilePaths(files).join(",");
                 var path = paths.toString();
-                document.querySelector("#output").innerHTML = path;
                 var formData = new FormData();
 
                 formData.append('paths', path);
@@ -464,6 +760,10 @@
             document.getElementById('old-name').value = folder;
         }
 
+        function renamef(files, icon) {
+            document.getElementById('rename-file-modal').style.display = 'block';
+            $(".rename-file-icon").attr("src", icon);
+        }
     </script>
     @endpush
 @endsection
