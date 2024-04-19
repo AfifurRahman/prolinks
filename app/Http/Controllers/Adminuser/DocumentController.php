@@ -214,11 +214,12 @@ class DocumentController extends Controller
     public function rename_file(Request $request)
     {
         try {
-            $old_name = base64_decode($request->old_name);
+            $old_name = $request->old_name;
             $new_name = $request->new_name;
-            UploadFile::where('basename', $old_name)->update(['name' => $new_name . pathinfo($old_name, PATHINFO_EXTENSION)]);
+            $extension = pathinfo(UploadFile::where('basename', $old_name)->value('name'), PATHINFO_EXTENSION);
+            UploadFile::where('basename', $old_name)->update(['name' => $new_name . '.' . $extension]);
 
-            return back();
+            return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }

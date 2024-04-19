@@ -53,20 +53,20 @@
                     <div class="rename-modal">
                         <div class="rename-modal1">
                             <label class="modal-form-input">Index</label>
-                            <input type="text" class="form-control" disabled/>
+                            <input type="text" id="file-index" class="form-control" disabled/>
                         </div>
                         <div class="rename-modal2">
                             <label class="modal-form-input">File name</label><label style="color:red;">*</label>
                             <div class="rename-file-input">
                                 <image class="rename-file-icon" />
-                                <input type="text" class="form-control" name="new_name" id="file-name" placeholder="Enter file name without extension"/>
+                                <input type="text" class="form-control" id="new-name" placeholder="Enter file name without extension"/>
                             </div>
                         </div>
                         <input type="hidden" id="old-name" name="old_name" value="" />
                     </div>
                     <div class="form-button">
                         <a class="cancel-btn" onclick="document.getElementById('rename-file-modal').style.display='none'">Cancel</a>
-                        <button class="create-btn" type="submit">Save changes</button>
+                        <button class="create-btn" id="renameFileSubmit">Save changes</button>
                     </div>
                 </form>
             </div>
@@ -491,7 +491,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a onclick="renamef('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}')">
+                                        <a onclick="renamef('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
                                         </a>
@@ -778,9 +778,32 @@
             document.getElementById('old-name').value = folder;
         }
 
-        function renamef(files, icon) {
+        function renamef(files, icon, index) {
             document.getElementById('rename-file-modal').style.display = 'block';
             $(".rename-file-icon").attr("src", icon);
+            $("#file-index").attr("value", index);
+
+            $('#renameFileSubmit').on('click', function(e) {
+                e.preventDefault();
+                var formData = new FormData();
+
+                formData.append('old_name', files);
+                formData.append('new_name', $('#new-name').val());
+
+                fetch('{{ route("adminuser.documents.rename_file") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => {
+                    if(response.ok) {
+                        document.getElementById('rename-file-modal').style.display='none';
+                        showNotification('File successfully renamed')
+                    }
+                });
+            });
         }
     </script>
     @endpush
