@@ -491,7 +491,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a onclick="renamef('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}')">
+                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
                                         </a>
@@ -778,7 +778,7 @@
             document.getElementById('old-name').value = folder;
         }
 
-        function renamef(files, icon, index) {
+        function renameFile(files, icon, index) {
             document.getElementById('rename-file-modal').style.display = 'block';
             $(".rename-file-icon").attr("src", icon);
             $("#file-index").attr("value", index);
