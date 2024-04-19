@@ -10,7 +10,9 @@ class UploadFile extends Model
     use HasFactory;
 
     protected $fillable = [
+        'index',
         'project_id',
+        'directory',
         'name',
         'basename',
         'description',

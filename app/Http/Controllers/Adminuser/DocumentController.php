@@ -100,11 +100,16 @@ class DocumentController extends Controller
 
                         $filePath = $file->storeAs($path, Str::random(8));
 
+                        $maxIndex = max(UploadFile::where('directory', $path)->max('index'), UploadFolder::where('directory', $path)->max('index'));
+                        $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+
                         UploadFile::create([
+                            'index' => $fileIndex,
                             'project_id' => $locationParts[0] . '/' . $locationParts[1],
+                            'directory' => $path,
                             'basename' => basename($filePath),
                             'name' => $file->getClientOriginalName(),
-                            'access_user' => Auth::user()->email,
+                            'access_user' => Client::where('client_email', Auth::user()->email)->value('client_id'),
                             'mime_type' => $file->getClientMimeType(),
                             'size' => $file->getSize(),
                             'status' => 1,
@@ -140,13 +145,21 @@ class DocumentController extends Controller
             else {
                 $basename = Str::random(8);
 
+                $locationParts = explode('/', base64_decode($request->location), 3);
+
+                $originPath = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location);
                 $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location) . '/'. $basename; 
+
+                $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('directory', $originPath)->max('index'));
+                $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
         
                 UploadFolder::create([
-                    'project_id' => "HELLO",
+                    'index' => $folderIndex,
+                    'project_id' => $locationParts[0] . '/' . $locationParts[1],
+                    'directory' => $originPath,
                     'basename' => $basename,
                     'name' => $request->folder_name,
-                    'access_user' => Auth::user()->email,
+                    'access_user' => Client::where('client_email', Auth::user()->email)->value('client_id'),
                     'status' => 1,
                     'uploaded_by' => Auth::user()->user_id, 
                 ]);
@@ -307,18 +320,26 @@ class DocumentController extends Controller
         foreach ($array as $key => $value) {
             if (!empty($key)) {
                 $randomString = Str::random(8);
+
+                $locationParts = explode('/', base64_decode($location), 3);
+
+                $originPath = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($location);
                 $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($location) . '/' . $randomString;
+                
+                $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('directory', $originPath)->max('index'));
+                $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
         
-                Storage::makeDirectory($path, 0755, true);
                 UploadFolder::create([
-                    'project_id' => "HELLO",
+                    'index' => $folderIndex,
+                    'project_id' => $locationParts[0] . '/' . $locationParts[1],
                     'basename' => $randomString,
                     'name' => $key,
-                    'access_user' => Auth::user()->email,
+                    'access_user' => Client::where('client_email', Auth::user()->email)->value('client_id'),
                     'status' => 1,
                     'uploaded_by' => Auth::user()->user_id,
                 ]);
         
+                Storage::makeDirectory($path, 0755, true);
                 if (is_array($value)) {
                     $this->createFolders($value, base64_encode(base64_decode($location) . '/' . $randomString));
                 }

@@ -318,7 +318,9 @@
             </div>
         </div>
     </div>
-
+    <p>
+        
+    </p>
     <div class="box_helper">
         <div>
             <button class="filter_button">
@@ -365,13 +367,20 @@
                 </tr>
             @endif
 
-            @php $index = 0; @endphp
             @foreach ($folders as $directory)
                 @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
-                    @php $index++; @endphp
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
-                        <td>{{ $index }}</td>
+                        <td>
+                        @php
+                            $index = '';
+                            foreach(array_slice(explode('/', $origin), 2) as $path) {
+                                $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
+                            }
+                            $index .= DB::table('upload_folders')->where('basename', basename($directory))->value('index');
+                        @endphp
+                        {{$index}}
+                        </td>
                         <td>
                             @if($origin == "")
                                 <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(basename($directory))) }}">
@@ -432,10 +441,18 @@
 
             @foreach ($files as $file)
                 @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
-                    @php $index++; @endphp
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
-                        <td>{{ $index }}</td>
+                        <td>
+                         @php
+                            $index = '';
+                            foreach(array_slice(explode('/', $origin), 2) as $path) {
+                                $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
+                            }
+                            $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+                        @endphp
+                        {{$index}}
+                        </td>
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                                 <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
