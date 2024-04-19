@@ -332,6 +332,7 @@ class DocumentController extends Controller
                 UploadFolder::create([
                     'index' => $folderIndex,
                     'project_id' => $locationParts[0] . '/' . $locationParts[1],
+                    'directory' => $originPath,
                     'basename' => $randomString,
                     'name' => $key,
                     'access_user' => Client::where('client_email', Auth::user()->email)->value('client_id'),
@@ -346,5 +347,4 @@ class DocumentController extends Controller
             }
         }
     }
-    
 }

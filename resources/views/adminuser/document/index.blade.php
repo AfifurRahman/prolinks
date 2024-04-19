@@ -311,7 +311,7 @@
                 @if (count(explode('/', $origin)) > 1)
                     @foreach(array_slice(explode('/', $origin),2) as $path)
                         &nbsp;>&nbsp;&nbsp;
-                        <a href="">{{ DB::table('upload_folders')->where('basename', $path)->value('name') }}</a>
+                        <a href="{{ route('adminuser.documents.folder', base64_encode(implode('/', array_slice(explode('/', DB::table('upload_folders')->where('basename', $path)->value('directory')), 2)).'/'.basename($path))) }}">{{ DB::table('upload_folders')->where('basename', $path)->value('name') }}</a>
                         &nbsp;
                     @endforeach
                 @endif
@@ -372,14 +372,14 @@
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
                         <td>
-                        @php
-                            $index = '';
-                            foreach(array_slice(explode('/', $origin), 2) as $path) {
-                                $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
-                            }
-                            $index .= DB::table('upload_folders')->where('basename', basename($directory))->value('index');
-                        @endphp
-                        {{$index}}
+                            @php
+                                $index = '';
+                                foreach(array_slice(explode('/', $origin), 2) as $path) {
+                                    $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
+                                }
+                                $index .= DB::table('upload_folders')->where('basename', basename($directory))->value('index');
+                            @endphp
+                            {{$index}}
                         </td>
                         <td>
                             @if($origin == "")
@@ -444,14 +444,14 @@
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
                         <td>
-                         @php
-                            $index = '';
-                            foreach(array_slice(explode('/', $origin), 2) as $path) {
-                                $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
-                            }
-                            $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
-                        @endphp
-                        {{$index}}
+                            @php
+                                $index = '';
+                                foreach(array_slice(explode('/', $origin), 2) as $path) {
+                                    $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
+                                }
+                                $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+                            @endphp
+                            {{$index}}
                         </td>
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
