@@ -1,4 +1,5 @@
 @extends('layouts.app_client')
+@php date_default_timezone_set('Asia/Jakarta'); @endphp
 
 <link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
 
@@ -366,7 +367,7 @@
                     <td></td>
                 </tr>
             @endif
-
+            
             @foreach ($folders as $directory)
                 @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
                     <tr>
@@ -438,7 +439,7 @@
                     </tr>
                 @endif
             @endforeach
-
+            
             @foreach ($files as $file)
                 @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                     <tr>
@@ -460,7 +461,7 @@
                             </a>
                         </td>
                         <td>
-                            {{ date('d M Y, H:i', strtotime(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))) }}
+                            {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
                         </td>
                         <td>
                             {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
