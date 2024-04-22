@@ -1,4 +1,5 @@
 @extends('layouts.app_client')
+@php date_default_timezone_set('Asia/Jakarta'); @endphp
 
 <link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
 
@@ -52,20 +53,20 @@
                     <div class="rename-modal">
                         <div class="rename-modal1">
                             <label class="modal-form-input">Index</label>
-                            <input type="text" class="form-control" disabled/>
+                            <input type="text" id="file-index" class="form-control" disabled/>
                         </div>
                         <div class="rename-modal2">
                             <label class="modal-form-input">File name</label><label style="color:red;">*</label>
                             <div class="rename-file-input">
                                 <image class="rename-file-icon" />
-                                <input type="text" class="form-control" name="new_name" id="file-name" placeholder="Enter file name without extension"/>
+                                <input type="text" class="form-control" id="new-name" placeholder="Enter file name without extension"/>
                             </div>
                         </div>
                         <input type="hidden" id="old-name" name="old_name" value="" />
                     </div>
                     <div class="form-button">
                         <a class="cancel-btn" onclick="document.getElementById('rename-file-modal').style.display='none'">Cancel</a>
-                        <button class="create-btn" type="submit">Save changes</button>
+                        <button class="create-btn" id="renameFileSubmit">Save changes</button>
                     </div>
                 </form>
             </div>
@@ -311,7 +312,7 @@
                 @if (count(explode('/', $origin)) > 1)
                     @foreach(array_slice(explode('/', $origin),2) as $path)
                         &nbsp;>&nbsp;&nbsp;
-                        <a href="">{{ DB::table('upload_folders')->where('basename', $path)->value('name') }}</a>
+                        <a href="{{ route('adminuser.documents.folder', base64_encode(implode('/', array_slice(explode('/', DB::table('upload_folders')->where('basename', $path)->value('directory')), 2)).'/'.basename($path))) }}">{{ DB::table('upload_folders')->where('basename', $path)->value('name') }}</a>
                         &nbsp;
                     @endforeach
                 @endif
@@ -366,20 +367,20 @@
                     <td></td>
                 </tr>
             @endif
-
+            
             @foreach ($folders as $directory)
                 @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
                         <td>
-                        @php
-                            $index = '';
-                            foreach(array_slice(explode('/', $origin), 2) as $path) {
-                                $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
-                            }
-                            $index .= DB::table('upload_folders')->where('basename', basename($directory))->value('index');
-                        @endphp
-                        {{$index}}
+                            @php
+                                $index = '';
+                                foreach(array_slice(explode('/', $origin), 2) as $path) {
+                                    $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
+                                }
+                                $index .= DB::table('upload_folders')->where('basename', basename($directory))->value('index');
+                            @endphp
+                            {{$index}}
                         </td>
                         <td>
                             @if($origin == "")
@@ -438,20 +439,20 @@
                     </tr>
                 @endif
             @endforeach
-
+            
             @foreach ($files as $file)
                 @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
                         <td>
-                         @php
-                            $index = '';
-                            foreach(array_slice(explode('/', $origin), 2) as $path) {
-                                $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
-                            }
-                            $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
-                        @endphp
-                        {{$index}}
+                            @php
+                                $index = '';
+                                foreach(array_slice(explode('/', $origin), 2) as $path) {
+                                    $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
+                                }
+                                $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+                            @endphp
+                            {{$index}}
                         </td>
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
@@ -460,7 +461,7 @@
                             </a>
                         </td>
                         <td>
-                            {{ date('d M Y, H:i', strtotime(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))) }}
+                            {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
                         </td>
                         <td>
                             {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
@@ -490,7 +491,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a onclick="renamef('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}')">
+                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
                                         </a>
@@ -777,9 +778,32 @@
             document.getElementById('old-name').value = folder;
         }
 
-        function renamef(files, icon) {
+        function renameFile(files, icon, index) {
             document.getElementById('rename-file-modal').style.display = 'block';
             $(".rename-file-icon").attr("src", icon);
+            $("#file-index").attr("value", index);
+
+            $('#renameFileSubmit').on('click', function(e) {
+                e.preventDefault();
+                var formData = new FormData();
+
+                formData.append('old_name', files);
+                formData.append('new_name', $('#new-name').val());
+
+                fetch('{{ route("adminuser.documents.rename_file") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => {
+                    if(response.ok) {
+                        document.getElementById('rename-file-modal').style.display='none';
+                        showNotification('File successfully renamed')
+                    }
+                });
+            });
         }
     </script>
     @endpush

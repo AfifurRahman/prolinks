@@ -105,11 +105,12 @@ class DocumentController extends Controller
 
                         UploadFile::create([
                             'index' => $fileIndex,
-                            'project_id' => $locationParts[0] . '/' . $locationParts[1],
+                            'project_id' => $locationParts[0],
+                            'subproject_id' => $locationParts[1],
                             'directory' => $path,
                             'basename' => basename($filePath),
                             'name' => $file->getClientOriginalName(),
-                            'access_user' => Client::where('client_email', Auth::user()->email)->value('client_id'),
+                            'client_id' => Client::where('client_email', Auth::user()->email)->value('client_id'),
                             'mime_type' => $file->getClientMimeType(),
                             'size' => $file->getSize(),
                             'status' => 1,
@@ -155,11 +156,12 @@ class DocumentController extends Controller
         
                 UploadFolder::create([
                     'index' => $folderIndex,
-                    'project_id' => $locationParts[0] . '/' . $locationParts[1],
+                    'project_id' => $locationParts[0],
+                    'subproject_id' => $locationParts[1],
                     'directory' => $originPath,
                     'basename' => $basename,
                     'name' => $request->folder_name,
-                    'access_user' => Client::where('client_email', Auth::user()->email)->value('client_id'),
+                    'client_id' => Client::where('client_email', Auth::user()->email)->value('client_id'),
                     'status' => 1,
                     'uploaded_by' => Auth::user()->user_id, 
                 ]);
@@ -212,11 +214,12 @@ class DocumentController extends Controller
     public function rename_file(Request $request)
     {
         try {
-            $old_name = base64_decode($request->old_name);
+            $old_name = $request->old_name;
             $new_name = $request->new_name;
-            UploadFile::where('basename', $old_name)->update(['name' => $new_name . pathinfo($old_name, PATHINFO_EXTENSION)]);
+            $extension = pathinfo(UploadFile::where('basename', $old_name)->value('name'), PATHINFO_EXTENSION);
+            UploadFile::where('basename', $old_name)->update(['name' => $new_name . '.' . $extension]);
 
-            return back();
+            return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -331,10 +334,12 @@ class DocumentController extends Controller
         
                 UploadFolder::create([
                     'index' => $folderIndex,
-                    'project_id' => $locationParts[0] . '/' . $locationParts[1],
+                    'project_id' => $locationParts[0],
+                    'subproject_id' => $locationParts[1],
+                    'directory' => $originPath,
                     'basename' => $randomString,
                     'name' => $key,
-                    'access_user' => Client::where('client_email', Auth::user()->email)->value('client_id'),
+                    'client_id' => Client::where('client_email', Auth::user()->email)->value('client_id'),
                     'status' => 1,
                     'uploaded_by' => Auth::user()->user_id,
                 ]);
@@ -346,5 +351,4 @@ class DocumentController extends Controller
             }
         }
     }
-    
 }
