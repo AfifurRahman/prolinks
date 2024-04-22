@@ -18,6 +18,15 @@
             	<form class="custom-form" action="{{ route('discussion.save-discussion') }}" method="POST" enctype="multipart/form-data">
             		@csrf
             		<input type="hidden" name="id" id="id">
+                    <div class="form-group">
+            			<label>Project <span class="text-danger">*</span></label>
+            			<select name="project_id" id="project_id" class="form-control">
+                            <option value="">- select project -</option>
+                            @foreach($project as $projects)
+                                <option value="{{ $projects->project_id }}">{{ $projects->project_name }}</option>
+                            @endforeach
+                        </select>
+            		</div>
             		<div class="form-group">
             			<label>Subject <span class="text-danger">*</span></label>
             			<input required type="text" name="subject" id="subject" class="form-control" placeholder="Enter subject">
@@ -32,13 +41,16 @@
                         </select>
                 	</div>
             		<div class="form-group">
-            			<label>Discussion</label>
-                		<textarea class="form-control" id="description" name="description"></textarea>
+            			<label>Discussion <span class="text-danger">*</span></label>
+                		<textarea required class="form-control" id="description" name="description"></textarea>
 					</div>
                     <div class="form-group">
-                        <label>Select from dataroom <span class="text-muted">( optional )</span></label>
-                        <select class="form-control select2" multiple name="link_document" id="link_document">
+                        <label>Select from dataroom</label>
+                        <select class="form-control select2" multiple name="link_doc[]" id="link_doc">
                             <option value="">- Select from dataroom -</option>
+                            @foreach($file as $files)
+                                <option value="{{ $files->id }}">{{ $files->name }}</option>
+                            @endforeach
                         </select>
                     </div>
             		<div class="form-group">

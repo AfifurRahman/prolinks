@@ -42,6 +42,17 @@ class FirstProjectController extends Controller
             $project->created_by = Auth::user()->id;
             
             if ($project->save()) {
+                $sub_project = new Project;
+                $sub_project->project_id = Str::uuid(4);
+                $sub_project->user_id = $project->user_id;
+                $sub_project->company_id = "-";
+                $sub_project->client_id = $project->client_id;
+                $sub_project->project_name = "Default subproject";
+                $sub_project->parent = $project->id;
+                $sub_project->created_by = $project->created_by;
+                $sub_project->created_at = $project->created_at;
+                $sub_project->save();
+                
                 /* add session project id */
                 Session::put('project_id', $project->project_id);
                 User::where('id', Auth::user()->id)->update(['session_project'=> $project->project_id]);

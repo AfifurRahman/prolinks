@@ -133,9 +133,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::get('/discussion/list', 'App\Http\Controllers\Adminuser\DiscussionController@index')->name('discussion.list-discussion');
 		Route::get('/discussion/detail/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@detail')->name('discussion.detail-discussion');
 		Route::post('/discussion/save', 'App\Http\Controllers\Adminuser\DiscussionController@save_discussion')->name('discussion.save-discussion');
-		Route::get('/discussion/get-comment/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@get_comment')->name('discussion.get-comment');
-		Route::post('/discussion/post-comment/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@post_comment')->name('discussion.post-comment');
-		Route::post('/discussion/edit-comment/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@post_comment')->name('discussion.edit-comment');
-		Route::post('/discussion/delete-comment/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_comment')->name('discussion.delete-comment');
+		Route::post('/discussion/save-comment', 'App\Http\Controllers\Adminuser\DiscussionController@save_comment')->name('comment.save-comment');
+		Route::post('/discussion/change-status-qna-closed/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_closed')->name('discussion.change-status-qna-closed');
+		Route::post('/discussion/change-status-qna-open/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_open')->name('discussion.change-status-qna-open');
 	});
 });
