@@ -86,7 +86,7 @@
             </div>
 
             <div class="modal-body">
-                <form action="{{ route('adminuser.documents.create_folder') }}" method="POST">
+                <form action="{{ route('adminuser.documents.createfolder') }}" method="POST">
                     @csrf
                     <label>Folder name</label>
                     <input type="text" class="form-control" name="folder_name" id="folder_name"></input>
@@ -292,7 +292,7 @@
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">
             @if (empty(DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('project_name')))
-                {{ DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('name') }}
+                {{ explode('/', $origin)[count(explode('/', $origin)) - 1] }}
             @else
                 {{ DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('project_name') }}
             @endif
@@ -305,14 +305,15 @@
     </div>
 
     <div class="path-box">
+    {{$origin}}
         <div class="path">
             <image class="path-icon" src="{{ url('template/images/icon_menu/briefcase.png') }}" />
             <div class="path-text">
-                {{ DB::table('project')->where('project_id', explode('/', $origin)[1])->value('project_name') }}
-                @if (count(explode('/', $origin)) > 1)
-                    @foreach(array_slice(explode('/', $origin),2) as $path)
+                {{ DB::table('project')->where('project_id', explode('/', $origin)[3])->value('project_name') }}
+                @if (count(explode('/', $origin)) > 4)
+                    @foreach(array_slice(explode('/', $origin),4) as $path)
                         &nbsp;>&nbsp;&nbsp;
-                        <a href="{{ route('adminuser.documents.folder', base64_encode(implode('/', array_slice(explode('/', DB::table('upload_folders')->where('basename', $path)->value('directory')), 2)).'/'.basename($path))) }}">{{ DB::table('upload_folders')->where('basename', $path)->value('name') }}</a>
+                        <a href="{{ route('adminuser.documents.folder', base64_encode('miaw')) }}">{{ $path }}</a>
                         &nbsp;
                     @endforeach
                 @endif
@@ -352,15 +353,17 @@
                     <td></td>
                     <td></td>
                     <td>
-                        <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(substr($origin,0,-9))) }}">
-                            <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
-                            Up to  
-                            @if(empty(DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name')))
-                                {{ DB::table('project')->where('project_id', explode('/', $origin)[1])->value('project_name') }}
-                            @else
-                                {{ DB::table('upload_folders')->where('basename', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name') }}
-                            @endif
-                        </a>
+                        @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
+                            <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
+                                <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
+                                Up to  {{ DB::table('upload_folders')->where('name', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name') }}
+                            </a>
+                        @else
+                            <a class="fol-fil" href="{{ route('adminuser.documents.list', base64_encode(DB::table('upload_folders')->where('directory', $origin)->value('project_id'). '/'. DB::table('upload_folders')->where('directory', $origin)->value('subproject_id'))) }}">
+                                <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
+                                Up to {{DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('project_name')}}
+                            </a>
+                        @endif
                     </td>
                     <td></td>
                     <td></td>
@@ -369,31 +372,24 @@
             @endif
             
             @foreach ($folders as $directory)
-                @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
+                @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
                         <td>
                             @php
                                 $index = '';
-                                foreach(array_slice(explode('/', $origin), 2) as $path) {
-                                    $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
+                                foreach(array_slice(explode('/', $origin), 4) as $path) {
+                                    $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
                                 }
-                                $index .= DB::table('upload_folders')->where('basename', basename($directory))->value('index');
+                                $index .= DB::table('upload_folders')->where('name', basename($directory))->value('index');
                             @endphp
                             {{$index}}
                         </td>
                         <td>
-                            @if($origin == "")
-                                <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(basename($directory))) }}">
-                                    <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                                    {{ DB::table('upload_folders')->where('basename', basename($directory))->value('name') }}
-                                </a>
-                            @else
-                                <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode($origin.'/'.basename($directory))) }}">
-                                    <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                                    {{ DB::table('upload_folders')->where('basename', basename($directory))->value('name') }}
-                                </a>
-                            @endif
+                            <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(DB::table('upload_folders')->where('directory', $origin . '/' . basename($directory))->value('basename'))) }}">
+                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
+                                {{ basename($directory) }}
+                            </a>
                         </td>
                         <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($directory))->format('d M Y, H:i') }}</td>
                         <td>Directory</td>
@@ -447,15 +443,15 @@
                         <td>
                             @php
                                 $index = '';
-                                foreach(array_slice(explode('/', $origin), 2) as $path) {
-                                    $index .= DB::table('upload_folders')->where('basename', $path)->value('index') . '.';
+                                foreach(array_slice(explode('/', $origin), 4) as $path) {
+                                    $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
                                 }
                                 $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
                             @endphp
                             {{$index}}
                         </td>
                         <td>
-                            <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                            <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                                 <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                 {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                             </a>
@@ -485,7 +481,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                        <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
                                             Download
                                         </a>
