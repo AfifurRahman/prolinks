@@ -46,6 +46,10 @@
                             <form method="POST" action="{{ route('create-new-password', [$token, $email]) }}">
                                 @csrf
                                 <div class="form-group">
+                                    <label>Fullname</label>
+                                    <input id="fullname" type="text" class="form-control @error('fullname') is-invalid @enderror" name="fullname" required autocomplete="your fullname">
+                                </div>
+                                <div class="form-group">
                                     <label for="password">{{ __('Password') }}</label>
                                     <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="your password">
                                     @error('password')

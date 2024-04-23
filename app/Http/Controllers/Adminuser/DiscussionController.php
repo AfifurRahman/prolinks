@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\ClientUser;
 use App\Models\Project;
 use App\Models\UploadFile;
+use App\Models\UploadFolder;
 use Auth;
 use Session;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +44,7 @@ class DiscussionController extends Controller
     }
 
     function save_discussion(Request $request){
+        $results = [];
         try {
             \DB::beginTransaction();
 
@@ -67,7 +69,7 @@ class DiscussionController extends Controller
             }else{
                 $discussion = new Discussion;
                 $discussion->discussion_id = Str::uuid(4);
-                $discussion->project_id = $request->input('project_id');
+                $discussion->project_id = Auth::user()->session_project;
                 $discussion->user_id = Auth::user()->user_id;
                 $discussion->client_id = \globals::get_client_id();
                 $discussion->subject = $request->input('subject');
@@ -94,23 +96,32 @@ class DiscussionController extends Controller
                         $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
                         $notification = "Discussion created!";
                         $discussion_id = $discussion->discussion_id;
+                        $results = [
+                            'errcode' => 200,
+                            'message' => "Discussion created!",
+                            'link' => route('discussion.detail-discussion', $discussion_id)
+                        ];
                     }
                 }
             }
 
             \DB::commit();
         } catch (\Exception $e) {
-          \DB::rollback();
-          Alert::error('Error', $e->getMessage());
-          return back();
+            \DB::rollback();
+            $notification = "Error";
+            $results = [
+                'errcode' => 500,
+                'message' => $e->getMessage(),
+                'link' => null
+            ];
         }
 
-        return redirect(route('discussion.detail-discussion', $discussion_id))->with('notification', $notification);
+        Session::flash('notification', $notification);
+        return response()->json($results);
+        // return redirect(route('discussion.detail-discussion', $discussion_id))->with('notification', $notification);
     }
 
     function save_comment(Request $request) {
-        // echo "<pre>";
-        // var_dump($request->all()); die();
         $notification = "";
         try {
             \DB::beginTransaction();
@@ -195,24 +206,35 @@ class DiscussionController extends Controller
         if($request->has('upload_doc')){
             if(count($request->file('upload_doc')) > 0){
                 foreach($request->file('upload_doc') as $uploads){
-                    $path  = "disscusion/".$project_id."/attach_file/";
-                    $fileName = time().'.'.$uploads->getClientOriginalExtension();
-
-                    $results = Storage::disk('public')->put($path, $uploads, 'public');
+                    $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id').'/'.$project_id.'/discussion'; 
+                    Storage::makeDirectory($path, 0755, true);
+                    // $results = Storage::disk('public')->put($path, $uploads, 'public');
+                    $results = $uploads->storeAs($path, Str::random(8));
 
                     if($results){
+                        
                         $attach = new DiscussionAttachFile;
                         $attach->comment_id = $comment_id;
                         $attach->discussion_id = $discussion_id;
                         $attach->project_id = $project_id;
                         $attach->client_id = $client_id;
                         $attach->user_id = Auth::user()->user_id;
-                        $attach->file_name = $fileName;
+                        $attach->file_name = $uploads->getClientOriginalName();
+                        $attach->basename = $results;
                         $attach->file_url = $path;
                         $attach->file_extension = $uploads->getClientOriginalExtension();
                         $attach->file_size = $uploads->getSize();
                         
-                        $attach->save();
+                        if($attach->save()){
+                            UploadFolder::create([
+                                'project_id' => $project_id,
+                                'basename' => $results,
+                                'name' => "Discussion",
+                                'access_user' => Auth::user()->email,
+                                'status' => 1,
+                                'uploaded_by' => Auth::user()->user_id, 
+                            ]);
+                        }
                     }
                 }
             }

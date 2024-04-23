@@ -297,9 +297,17 @@
             @endif
         </h2>
         <div class="button_helper">
-            <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
-            <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'">Permissions</button>
-            <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'">Upload Files</button>
+            @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
+                <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
+            @endif
+            
+            @if(Auth::user()->type == \globals::set_role_administrator())
+                <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'">Permissions</button>
+            @endif
+
+            @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
+                <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'">Upload Files</button>
+            @endif
         </div>
     </div>
 

@@ -183,6 +183,10 @@
                 <td>{!! !empty($clientuser->name) ? $clientuser->name : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
+                <td>Email</td>
+                <td>{!! !empty($clientuser->email_address) ? $clientuser->email_address : '<span class="not-set">not set</span>' !!}</td>
+            </tr>
+            <tr>
                 <td>Company</td>
                 <td>{!! !empty($clientuser->company) ? $clientuser->company : '<span class="not-set">not set</span>' !!}</td>
             </tr>

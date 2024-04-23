@@ -54,8 +54,8 @@ class FirstProjectController extends Controller
                 $sub_project->save();
                 
                 /* add session project id */
-                Session::put('project_id', $project->project_id);
-                User::where('id', Auth::user()->id)->update(['session_project'=> $project->project_id]);
+                // Session::put('project_id', $project->project_id);
+                // User::where('id', Auth::user()->id)->update(['session_project'=> $project->project_id]);
                 $notification = "Project created!";
             }
 

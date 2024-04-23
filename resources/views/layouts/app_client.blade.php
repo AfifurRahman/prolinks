@@ -139,13 +139,9 @@
                                     <div class="user-detail">
                                         <div class="user-detail dropdown-toggle" data-toggle="dropdown">
                                             <p class="user-name">
-                                                @if(is_null(Auth::user()->username))
-                                                    Unnamed User
-                                                @else
-                                                    {{ Auth::user()->username }}
-                                                @endif
+                                                {{ Auth::user()->name }}
                                             </p>
-                                            <p class="user-company">{{ Auth::user()->name }}</p>
+                                            <p class="user-company">{{ !empty(Auth::user()->RefClient->client_name) ? Auth::user()->RefClient->client_name : '-' }}</p>
                                         </div>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right" style="margin-top:10px;">
                                             <li><a>Edit Profile</a></li>

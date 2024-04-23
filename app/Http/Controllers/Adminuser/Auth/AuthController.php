@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Adminuser\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssignProject;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\ClientUser;
+use App\Models\Project;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +31,7 @@ class AuthController extends Controller
     public function save_password(Request $request, $token, $email)
     {
         $this->validate($request, [
+			'fullname' => 'required',
             'password' => 'required|same:confirm_password',
         ]);
 
@@ -37,18 +40,24 @@ class AuthController extends Controller
 
     		$check_users = User::where('email', $email)->where('remember_token', $token)->first();
     		$users_type = User::where('email', $email)->value('type');
+			$project_id = AssignProject::where('user_id', $check_users->user_id)->orderBy('id', 'DESC')->value('project_id');
 
 			if (!empty($check_users->email)) {
     			$update = User::where('email', $email)->where('remember_token', $token)->update([
-    				'email_verified_at' => date('Y-m-d H:i:s'),
+    				'name' => $request->input('fullname'),
+					'email_verified_at' => date('Y-m-d H:i:s'),
     				'password' => Hash::make($request->input('password')),
-    			    'password_created' => \globals::create_pswd_client_yes()
+    			    'password_created' => \globals::create_pswd_client_yes(),
+					'session_project' => $project_id
                 ]);
 
     			if ($update) {
     				Session::flash('message', 'Password created !'); 
 					if ($users_type == 0 || $users_type == 1 || $users_type == 2) {
-						ClientUser::where('email_address',$email)->update(['status' => 1]);
+						ClientUser::where('email_address',$email)->update([
+							'status' => 1,
+							'name' => $request->input('fullname')
+						]);
 					}
     			}
     		}else{
