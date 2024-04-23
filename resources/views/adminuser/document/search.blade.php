@@ -125,7 +125,7 @@
                         <td><input type="checkbox" class="checkbox" /></td>
                         <td>1</td>
                         <td>
-                            <a class="fol-fil" href="{{ route('adminuser.documents.file', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                            <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                             <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                 {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                             </a>

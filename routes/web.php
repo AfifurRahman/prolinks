@@ -86,12 +86,12 @@ Route::group(['middleware' => 'auth'], function () {
 	/* Document */
 	Route::get('documents/sub/{subproject}', 'App\Http\Controllers\Adminuser\DocumentController@index')->name('adminuser.documents.list');
 	Route::get('documents/{folder}','App\Http\Controllers\Adminuser\DocumentController@folder')->name('adminuser.documents.folder');
-	Route::get('documents/download/{path}/{file}','App\Http\Controllers\Adminuser\DocumentController@file')->name('adminuser.documents.file');
+	Route::get('documents/download/{path}/{file}','App\Http\Controllers\Adminuser\DocumentController@DownloadFile')->name('adminuser.documents.downloadfile');
 	Route::get('documents/delete/{file}','App\Http\Controllers\Adminuser\DocumentController@delete_file')->name('adminuser.documents.delete_file');
 	Route::get('documents/remove/{folder}','App\Http\Controllers\Adminuser\DocumentController@delete_folder')->name('adminuser.documents.delete_folder');
 	Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@search')->name('adminuser.documents.search');
 	Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@uploadFiles')->name('adminuser.documents.upload');
-	Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@create_folder')->name('adminuser.documents.create_folder');
+	Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
 	Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@rename_folder')->name('adminuser.documents.rename_folder');
 	Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@rename_file')->name('adminuser.documents.rename_file');
 	Route::post('documents/upmultiple', 'App\Http\Controllers\Adminuser\DocumentController@multiup')->name('adminuser.documents.multiup');

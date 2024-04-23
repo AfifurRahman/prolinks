@@ -10,11 +10,14 @@ class UploadFolder extends Model
     use HasFactory;
 
     protected $fillable = [
+        'index',
         'project_id',
+        'subproject_id',
+        'directory',
         'name',
         'basename',
         'description',
-        'access_user',
+        'client_id',
         'status',
         'uploaded_by',
     ];
