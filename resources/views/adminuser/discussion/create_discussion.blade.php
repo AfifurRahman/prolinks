@@ -34,7 +34,7 @@
                 	</div>
             		<div class="form-group">
             			<label>Discussion <span class="text-danger">*</span></label>
-                		<textarea required class="form-control" id="description" name="description"></textarea>
+                		<textarea required class="form-control" id="comment" name="comment"></textarea>
 					</div>
                     <div class="form-group" style="margin-top:5px;">
                         <div style="float:left">
@@ -50,7 +50,7 @@
             			<button type="button" data-dismiss="modal" class="btn btn-default" style="border-radius: 5px;">
             				Close
             			</button>
-            			<button type="submit" class="btn btn-primary" style="border-radius: 5px;">
+            			<button id="actSubmitQNA" type="submit" class="btn btn-primary" style="border-radius: 5px;">
             				Create
             			</button>
             		</div> <div style="clear: both;"></div>

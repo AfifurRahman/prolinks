@@ -120,6 +120,13 @@
         .hidden-checkbox {
             display: none;
         }
+
+        .button_ico{
+            border:none;
+            background:transparent;
+            margin-right:10px;
+
+        }
     </style>
 
     <div class="pull-left">
@@ -127,48 +134,59 @@
 	</div>
 	<div class="pull-right" style="margin-bottom: 24px; margin-top:5px;">
         <a href="" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"> Export All</a>
-        <a href="" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"><image src="{{ url('template/images/icon_menu/broadcast.png') }}" width="22" height="22"> Create FAQ</a>
-		@if(Auth::user()->type == \globals::set_usertype_client())
+        @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_client())
+            <a href="#modal-import-questions" data-toggle="modal" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;">Import Questions</a>
             <a href="#modal-add-discussion" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;">Ask a questions</a>
         @endif
     </div><div style="clear: both;"></div>
-    <div>
-        <ul class="nav nav-tabs tabs-bordered nav-custom">
-            <li class="active">
-                <a href="#all" data-toggle="tab" aria-expanded="true">All</a>
-            </li>
-            <li class="">
-                <a href="#unanswered" data-toggle="tab" aria-expanded="false">Unanswered</a>
-            </li>
-            <li class="">
-                <a href="#answered" data-toggle="tab" aria-expanded="false">Answered</a>
-            </li>
-            <li class="">
-                <a href="#closed" data-toggle="tab" aria-expanded="false">Closed</a>
-            </li>
-            <li class="">
-                <a href="#faq" data-toggle="tab" aria-expanded="false">FAQ</a>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane active" id="all">
-                @include('adminuser.discussion.tabs.all_questions')
-            </div>
-            <div class="tab-pane" id="unanswered">
-                @include('adminuser.discussion.tabs.unanswered')
-            </div>
-            <div class="tab-pane" id="answered">
-                @include('adminuser.discussion.tabs.answered')
-            </div>
-            <div class="tab-pane" id="closed">
-                @include('adminuser.discussion.tabs.closed')
-            </div>
-            <div class="tab-pane" id="faq">
-                @include('adminuser.discussion.tabs.faq')
+    @if(count($all_questions) > 0 || count($unanswered) > 0 || count($answered) > 0 || count($closed) > 0)
+        <div>
+            <ul class="nav nav-tabs tabs-bordered nav-custom">
+                <li class="active">
+                    <a href="#all" data-toggle="tab" aria-expanded="true">All</a>
+                </li>
+                <li class="">
+                    <a href="#unanswered" data-toggle="tab" aria-expanded="false">Unanswered</a>
+                </li>
+                <li class="">
+                    <a href="#answered" data-toggle="tab" aria-expanded="false">Answered</a>
+                </li>
+                <li class="">
+                    <a href="#closed" data-toggle="tab" aria-expanded="false">Closed</a>
+                </li>
+                <li class="">
+                    <a href="#faq" data-toggle="tab" aria-expanded="false">FAQ</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="all">
+                    @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $all_questions])
+                </div>
+                <div class="tab-pane" id="unanswered">
+                    @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $unanswered])
+                </div>
+                <div class="tab-pane" id="answered">
+                    @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $answered])
+                </div>
+                <div class="tab-pane" id="closed">
+                    @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $closed])
+                </div>
+                <div class="tab-pane" id="faq">
+                    @include('adminuser.discussion.tabs.faq')
+                </div>
             </div>
         </div>
-    </div>
+    @else
+		<div class="card-box">
+			<center>
+				<img src="{{ url('template/images/empty_qna.png') }}" width="300" />
+			</center>    
+		</div>
+	@endif
     @include('adminuser.discussion.create_discussion')
+    @include('adminuser.discussion.modal_close_questions')
+    @include('adminuser.discussion.modal_open_questions')
+    @include('adminuser.discussion.modal_import_questions')
 @endsection
 @push('scripts')
 	<script type="text/javascript">
@@ -244,6 +262,10 @@
                 data: formData,
                 contentType: false,
                 processData: false,
+                beforeSend: function(){
+                    $("#actSubmitQNA").prop('disabled', true);
+                    $("#actSubmitQNA").html("loading..");
+                },
                 success: function(response){
                     console.log(response);
                     if(response.errcode == 200){
@@ -258,5 +280,37 @@
                 }
             });
         });
+
+        $('#form-import').submit(function(e){
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: "{{ route('discussion.import-questions') }}",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                beforeSend: function(){
+                    $("#actSubmitImport").prop('disabled', true);
+                    $("#actSubmitImport").html("loading..");
+                },
+                success: function(response){
+                    if(response.errcode == 200){
+                        location.reload();
+                    }else{
+                        alert("error");
+                    }
+                    
+                },
+                error: function(xhr, status, error){
+                    alert(xhr.responseText);
+                }
+            });
+        });
+
+        function getDiscussionID(element) {
+            var discussion_id = $(element).data('discussionid');
+            $("#discussion_id").val(discussion_id);
+        }
     </script>
 @endpush
