@@ -35,7 +35,18 @@ class DocumentController extends Controller
         }
     }
 
-    public function uploadFiles(Request $request)
+    public function Permission(Request $request)
+    {
+        try {
+            $path = explode('/', base64_decode($request->location), 4);
+            $subProjectPath = $path[2] . '/' . $path[3];
+            
+        } catch (\Exception $e) {
+
+        }
+    }
+
+    public function UploadFiles(Request $request)
     {   
         try {
             if ($request->hasFile('files')) {
@@ -93,19 +104,19 @@ class DocumentController extends Controller
 
                 $response = [];
                 foreach ($files as $file) {
-                        $locationParts = explode('/', base64_decode($request->location), 3);
+                        $locationParts = explode('/', base64_decode($request->location), 4);
 
                         $path = base64_decode($request->location) .$pf;
 
                         $filePath = $file->storeAs($path, Str::random(8));
 
-                        $maxIndex = max(UploadFile::where('directory', $path)->max('index'), UploadFolder::where('directory', $path)->max('index'));
+                        $maxIndex = max(UploadFile::where('directory', $path)->max('index'), UploadFolder::where('parent', $path)->max('index'));
                         $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
 
                         UploadFile::create([
                             'index' => $fileIndex,
-                            'project_id' => $locationParts[0],
-                            'subproject_id' => $locationParts[1],
+                            'project_id' => $locationParts[2],
+                            'subproject_id' => $locationParts[3],
                             'directory' => $path,
                             'basename' => basename($filePath),
                             'name' => $file->getClientOriginalName(),
@@ -118,10 +129,10 @@ class DocumentController extends Controller
                         $response[] = ['path' => $filePath];
                 }
             } 
+            return response()->json(['success' => true, 'message' => 'Files successfully uploaded']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
-        return response()->json(['success' => true, 'message' => 'Operation success']);
     }
 
     public function CreateFolder(Request $request)
@@ -130,35 +141,41 @@ class DocumentController extends Controller
             $directories = Storage::directories('uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location));
             $basename = Str::random(8);
             $originPath = base64_decode($request->location);
-            $locationParts = explode('/', $originPath, 5);
-            $path = $originPath . '/'. $request->folder_name; 
-            $folders = Storage::directories($originPath);
+            $locationParts = explode('/', $originPath, 4);
+            $path = $originPath . '/'. $request->folderName;
 
-            if (!in_array($request->folder_name, $folders)){
-                $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('directory', $originPath)->max('index'));
+            $folders = UploadFolder::where('name', $request->folderName)->value('name');
+
+            if (is_null($folders)){
+                $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('parent', $originPath)->max('index'));
                 $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
         
                 UploadFolder::create([
                     'index' => $folderIndex,
                     'project_id' => $locationParts[2],
                     'subproject_id' => $locationParts[3],
+                    'parent' => $originPath,
                     'directory' => $path,
                     'basename' => $basename,
-                    'name' => $request->folder_name,
+                    'name' => $request->folderName,
                     'client_id' => Client::where('client_email', Auth::user()->email)->value('client_id'),
                     'status' => 1,
                     'uploaded_by' => Auth::user()->user_id, 
                 ]);
         
                 Storage::makeDirectory($path, 0755,true);
+
+                return response()->json(['success' => true, 'message' => 'Folder successfully created']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Same folder name already there']);
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
-        return back();
+        
     }
 
-    public function folder($folder = null) //done
+    public function OpenFolder($folder = null) //done
     {
         try {
             $origin = UploadFolder::where('basename', base64_decode($folder))->value('directory');
@@ -195,7 +212,7 @@ class DocumentController extends Controller
         }
     }
 
-    public function rename_file(Request $request)
+    public function RenameFile(Request $request)
     {
         try {
             $old_name = $request->old_name;
@@ -203,9 +220,9 @@ class DocumentController extends Controller
             $extension = pathinfo(UploadFile::where('basename', $old_name)->value('name'), PATHINFO_EXTENSION);
             UploadFile::where('basename', $old_name)->update(['name' => $new_name . '.' . $extension]);
 
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'message' =>'Successfully rename the file']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to rename the file']);
         }
     }
 
@@ -241,7 +258,7 @@ class DocumentController extends Controller
         return back();
     }
 
-    public function search(Request $request) {
+    public function Search(Request $request) {
         $origin = base64_decode($request->query('origin'));
         $directorytype = 1;
         $directory = $origin;
@@ -271,7 +288,7 @@ class DocumentController extends Controller
         return view('adminuser.document.search', compact('folders', 'files', 'origin', 'directorytype', 'search'));
     }
 
-    public function multiup(Request $request) {
+    public function MultipleUpload(Request $request) {
         $arr = explode(',', $request->paths);
         $dirList = array();
         $result = array();
@@ -308,27 +325,33 @@ class DocumentController extends Controller
             if (!empty($key)) {
                 $randomString = Str::random(8);
 
-                $locationParts = explode('/', base64_decode($location), 5);
+                $locationParts = explode('/', base64_decode($location), 4);
 
                 $originPath =  base64_decode($location);
                 $path = base64_decode($location) . '/' . $key;
                 
-                $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('directory', $originPath)->max('index'));
+                $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('parent', $originPath)->max('index'));
                 $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
-        
-                UploadFolder::create([
-                    'index' => $folderIndex,
-                    'project_id' => $locationParts[2],
-                    'subproject_id' => $locationParts[3],
-                    'directory' => $path,
-                    'basename' => $randomString,
-                    'name' => $key,
-                    'client_id' => Client::where('client_email', Auth::user()->email)->value('client_id'),
-                    'status' => 1,
-                    'uploaded_by' => Auth::user()->user_id,
-                ]);
-        
-                Storage::makeDirectory($path, 0755, true);
+
+                $folders = UploadFolder::where('name', $request->folder_name)->value('name');
+                
+                if(is_null($folders)){
+                    UploadFolder::create([
+                        'index' => $folderIndex,
+                        'project_id' => $locationParts[2],
+                        'subproject_id' => $locationParts[3],
+                        'parent' => $originPath,
+                        'directory' => $path,
+                        'basename' => $randomString,
+                        'name' => $key,
+                        'client_id' => Client::where('client_email', Auth::user()->email)->value('client_id'),
+                        'status' => 1,
+                        'uploaded_by' => Auth::user()->user_id,
+                    ]);
+            
+                    Storage::makeDirectory($path, 0755, true);
+                }
+                   
                 if (is_array($value)) {
                     $this->createFolders($value, base64_encode(base64_decode($location) . '/' . $key));
                 }

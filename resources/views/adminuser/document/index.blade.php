@@ -48,27 +48,23 @@
             </div>
 
             <div class="modal-body">
-                <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
-                    @csrf
-                    <div class="rename-modal">
-                        <div class="rename-modal1">
-                            <label class="modal-form-input">Index</label>
-                            <input type="text" id="file-index" class="form-control" disabled/>
-                        </div>
-                        <div class="rename-modal2">
-                            <label class="modal-form-input">File name</label><label style="color:red;">*</label>
-                            <div class="rename-file-input">
-                                <image class="rename-file-icon" />
-                                <input type="text" class="form-control" id="new-name" placeholder="Enter file name without extension"/>
-                            </div>
-                        </div>
-                        <input type="hidden" id="old-name" name="old_name" value="" />
+                <div class="rename-modal">
+                    <div class="rename-modal1">
+                        <label class="modal-form-input">Index</label>
+                        <input type="text" id="file-index" class="form-control" disabled/>
                     </div>
-                    <div class="form-button">
-                        <a class="cancel-btn" onclick="document.getElementById('rename-file-modal').style.display='none'">Cancel</a>
-                        <button class="create-btn" id="renameFileSubmit">Save changes</button>
+                    <div class="rename-modal2">
+                        <label class="modal-form-input">File name</label><label style="color:red;">*</label>
+                        <div class="rename-file-input">
+                            <image class="rename-file-icon" />
+                            <input type="text" class="form-control" id="new-name" placeholder="Enter file name without extension"/>
+                        </div>
                     </div>
-                </form>
+                </div>
+                <div class="form-button">
+                    <a class="cancel-btn" onclick="document.getElementById('rename-file-modal').style.display='none'">Cancel</a>
+                    <button class="create-btn" id="renameFileSubmit">Save changes</button>
+                </div>
             </div>
         </div>
     </div>
@@ -86,16 +82,12 @@
             </div>
 
             <div class="modal-body">
-                <form action="{{ route('adminuser.documents.createfolder') }}" method="POST">
-                    @csrf
-                    <label>Folder name</label>
-                    <input type="text" class="form-control" name="folder_name" id="folder_name"></input>
-                    <input name="location" type="hidden" value="{{ base64_encode($origin) }}"></input>
-                    <div class="form-button">
-                        <a onclick="document.getElementById('create-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
-                        <button class="create-btn" type="submit">Create Folder</button>
-                    </div>
-                </form>
+                <label>Folder name</label>
+                <input type="text" class="form-control" id="folderName"></input>
+                <div class="form-button">
+                    <a onclick="document.getElementById('create-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                    <button class="create-btn" id="createFolderSubmit">Create Folder</button>
+                </div>
             </div>
         </div>
     </div>
@@ -299,7 +291,7 @@
         </h2>
         <div class="button_helper">
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
-                <button class="create-folder" onclick="document.getElementById('create-folder-modal').style.display='block'">Add folder</button>
+                <button class="create-folder" onclick="createFolder()">Add folder</button>
             @endif
             
             @if(Auth::user()->type == \globals::set_role_administrator())
@@ -308,8 +300,7 @@
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
                 <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'">Upload Files</button>
-            @endif
-        </div>
+            @endif        </div>
     </div>
 
     <div class="path-box">
@@ -321,7 +312,7 @@
                 @if (count(explode('/', $origin)) > 4)
                     @foreach(array_slice(explode('/', $origin),4) as $path)
                         &nbsp;>&nbsp;&nbsp;
-                        <a href="{{ route('adminuser.documents.folder', base64_encode('miaw')) }}">{{ $path }}</a>
+                        <a href="{{ route('adminuser.documents.openfolder', base64_encode('miaw')) }}">{{ $path }}</a>
                         &nbsp;
                     @endforeach
                 @endif
@@ -362,7 +353,7 @@
                     <td></td>
                     <td>
                         @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
-                            <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
+                            <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
                                 <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
                                 Up to  {{ DB::table('upload_folders')->where('name', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name') }}
                             </a>
@@ -394,7 +385,7 @@
                             {{$index}}
                         </td>
                         <td>
-                            <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(DB::table('upload_folders')->where('directory', $origin . '/' . basename($directory))->value('basename'))) }}">
+                            <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $origin . '/' . basename($directory))->value('basename'))) }}">
                                 <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
                                 {{ basename($directory) }}
                             </a>
@@ -662,18 +653,10 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        //showNotification("Upload failed");
-                        throw new Error('Failed to upload the file, unsupported file type');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log(data);
-                    if (data.success) {
-                       // showNotification("File successfully uploaded");
-                    }
+                    document.getElementById('upload-modal').style.display = 'none';
+                    showNotification(data.message);
                 });
             }
 
@@ -706,7 +689,7 @@
                 formData.append('location', "{{ base64_encode($origin) }}");
 
                 // Changed route and csrf_token placeholders to their actual values
-                fetch('{{ route("adminuser.documents.multiup") }}', {
+                fetch('{{ route("adminuser.documents.multiupload") }}', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -728,16 +711,32 @@
                 const entry = item.webkitGetAsEntry();
                 handleEntry(entry);
             }
+        }   
+
+        function showNotification(message) {
+            document.querySelector('.notificationtext').textContent = message;
+            document.querySelector('.notificationlayer').style.display = 'block';
+            setTimeout(() => {
+                $('.notificationlayer').fadeOut();
+            }, 2000);
+            setTimeout(function() {
+                location.reload();
+            }, 2250);
         }
 
-        //handle pop up file
+
+        function rename(folder) {
+            document.getElementById('rename-folder-modal').style.display = 'block';
+            document.getElementById('old-name').value = folder;
+        }
+
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
                 const files = [];
                 for (let i = 0; i < input.files.length; i++) {
                     files.push(input.files[i]);
                 }
-                // Process the selected files
+
                 const formData = new FormData();
                 formData.append("location", "{{ base64_encode($origin) }}");
                 files.forEach(file => formData.append('files[]', file));
@@ -749,37 +748,37 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        showNotification("Upload failed");
-                        throw new Error('Failed to upload the file, unsupported file type');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log(data);
-                    if (data.success) {
-                        showNotification("File successfully uploaded");
-                    }
+                    document.getElementById('upload-modal').style.display = 'none';
+                    showNotification(data.message);
                 });
             } 
         }
 
-        function showNotification(message) {
-            document.getElementById('upload-modal').style.display = 'none';
-            document.querySelector('.notificationtext').textContent = message;
-            document.querySelector('.notificationlayer').style.display = 'block';
-            setTimeout(() => {
-                $('.notificationlayer').fadeOut();
-            }, 2000);
-            setTimeout(function() {
-                location.reload();
-            }, 2250);
-        }
+        function createFolder() {
+            document.getElementById('create-folder-modal').style.display='block';
 
-        function rename(folder) {
-            document.getElementById('rename-folder-modal').style.display = 'block';
-            document.getElementById('old-name').value = folder;
+            $('#createFolderSubmit').on('click', function(e) {
+                e.preventDefault();
+                var formData = new FormData();
+
+                formData.append('folderName', $('#folderName').val());
+                formData.append('location', '{{ base64_encode($origin) }}')
+
+                fetch('{{ route("adminuser.documents.createfolder") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('create-folder-modal').style.display='none';
+                    showNotification(data.message);
+                });
+            });
         }
 
         function renameFile(files, icon, index) {
@@ -794,18 +793,17 @@
                 formData.append('old_name', files);
                 formData.append('new_name', $('#new-name').val());
 
-                fetch('{{ route("adminuser.documents.rename_file") }}', {
+                fetch('{{ route("adminuser.documents.renamefile") }}', {
                     method: 'POST',
                     body: formData,
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                 })
-                .then(response => {
-                    if(response.ok) {
-                        document.getElementById('rename-file-modal').style.display='none';
-                        showNotification('File successfully renamed')
-                    }
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('rename-file-modal').style.display='none';
+                    showNotification(data.message);
                 });
             });
         }
