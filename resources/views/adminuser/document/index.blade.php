@@ -274,17 +274,17 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody id="fileList">
-                            @foreach($fileList as $file)
+            <!--            <tbody id="fileList">
+                            foreach($fileList as $file)
                                 <tr>
                                     <td>
-                                        {{DB::table('upload_files')->where('basename', $file)->value('name')}}
+                                        DB::table('upload_files')->where('basename', $file)->value('name')
                                     </td>
                                     <td>
                                         <input type="checkbox"></input>
                                     </td>
                                 </tr>
-                            @endforeach
+                            endforeach -->
                         </tbody>
                     </table>
                 </div> 
@@ -320,15 +320,16 @@
     </div>
 
     <div class="path-box">
-    {{$origin}}
         <div class="path">
             <image class="path-icon" src="{{ url('template/images/icon_menu/briefcase.png') }}" />
             <div class="path-text">
                 {{ DB::table('project')->where('project_id', explode('/', $origin)[3])->value('project_name') }}
+                @php $url = implode('/',array_slice(explode('/', $origin,),0,4)); @endphp
                 @if (count(explode('/', $origin)) > 4)
                     @foreach(array_slice(explode('/', $origin),4) as $path)
+                        @php $url .= '/' . $path; @endphp
                         &nbsp;>&nbsp;&nbsp;
-                        <a href="{{ route('adminuser.documents.openfolder', base64_encode('miaw')) }}">{{ $path }}</a>
+                        <a href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $url)->value('basename')) ) }}">{{ $path }}</a>
                         &nbsp;
                     @endforeach
                 @endif
