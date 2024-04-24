@@ -198,8 +198,13 @@ class ProjectController extends Controller
 
     public function change_main_project(Request $request)
     {
-    	Session::put('project_id', $request->input('main_project_id'));
+		$getParent = Project::where('project_id', $request->input('main_project_id'))->value('parent');
+    	$projectId = Project::where('id', $getParent)->value('project_id');
+		$subProject = $request->input('main_project_id');
+		
+		Session::put('project_id', $request->input('main_project_id'));
 		User::where('id', Auth::user()->id)->update(['session_project'=> $request->input('main_project_id')]);
-    	return back();
+    	// return back();
+		return redirect(route('adminuser.documents.list', base64_encode($projectId.'/'.$subProject)));
     }
 }

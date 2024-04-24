@@ -109,7 +109,11 @@
                                 <td>
                                     <a href="{{ route('adminuser.access-users.detail', $user->user_id) }}">
                                         <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}"></image>
-                                        {{ $user->email_address }}
+                                        @if($user->RefUser->name != "null")
+                                            {{ $user->name }}
+                                        @else
+                                            {{ $user->email_address }}
+                                        @endif
                                     </a>
                                 </td>
                                 <td>

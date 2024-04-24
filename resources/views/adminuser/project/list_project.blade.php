@@ -261,7 +261,7 @@
 								<ul class="dropdown-menu dropdown-menu-right">
 									<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $subs }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
 									<li><a href="#modal-permissions" data-toggle="modal"><i class="fa fa-lock"></i> Permissions</a></li>
-									<li><a href="{{ route('project.delete-project', $projects->project_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
+									<li><a href="{{ route('project.delete-project', $subs->project_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
 								</ul>
 							</div>
 						</td>

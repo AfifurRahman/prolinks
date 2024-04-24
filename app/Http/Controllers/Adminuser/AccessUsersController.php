@@ -82,7 +82,7 @@ class AccessUsersController extends Controller
                         $users = new User;
                         $users->client_id = \globals::get_client_id();
                         $users->user_id = $userID;
-                        $users->name = Auth::user()->name;
+                        $users->name = "null";
                         $users->email = $email;
                         $users->type = $request->role;
                         $users->password = Hash::make(bcrypt(Str::random(255)));

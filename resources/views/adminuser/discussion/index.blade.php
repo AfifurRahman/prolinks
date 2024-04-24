@@ -116,6 +116,10 @@
         .nav-custom li > a {
             text-transform: capitalize;
         }
+
+        .hidden-checkbox {
+            display: none;
+        }
     </style>
 
     <div class="pull-left">
@@ -124,8 +128,10 @@
 	<div class="pull-right" style="margin-bottom: 24px; margin-top:5px;">
         <a href="" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"> Export All</a>
         <a href="" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"><image src="{{ url('template/images/icon_menu/broadcast.png') }}" width="22" height="22"> Create FAQ</a>
-		<a href="#modal-add-discussion" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;">Ask a questions</a>
-	</div><div style="clear: both;"></div>
+		@if(Auth::user()->type == \globals::set_usertype_client())
+            <a href="#modal-add-discussion" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;">Ask a questions</a>
+        @endif
+    </div><div style="clear: both;"></div>
     <div>
         <ul class="nav nav-tabs tabs-bordered nav-custom">
             <li class="active">
@@ -181,6 +187,75 @@
                 "bSort": true,
                 "dom": 'rtip',
                 "stripeClasses": false,
+            });
+        });
+
+        function getLinkDoc() {
+            $("#modal-link-file").modal('hide');
+            var link_document = $('[name="link_document"]');
+            var res = "";
+            $.each(link_document, function(i) {
+                var $this = $(this);
+                // check if the checkbox is checked
+                if($this.is(":checked")) {
+                    res += "<div class='linkItem"+i+"'>"
+                        res += "<label class='label label-default'><i class='fa fa-paperclip'></i> <input type='checkbox' name='link_doc[]' class='hidden-checkbox' value='"+$this.val()+"' checked>"+$this.data('filename')+"</label>"
+                        res += "<a href='javascript:void(0)' onclick='removeItem("+i+")'><i class='fa fa-times'></i></a>"
+                    res += "</div>"
+                }
+            }); 
+            
+            $("#result-link-file").html(res);
+        }
+
+        $("#upload_doc").change(function(){
+            var names = [];
+            for (var i = 0; i < $(this).get(0).files.length; ++i) {
+                names += "<div class='uploadItem"+i+"'>"
+                    names += "<label class='label label-inverse'><i class='fa fa-upload'></i> "+$(this).get(0).files[i].name+"</label>"
+                    names += "<a href='javascript:void(0)' onclick='removeUploadItem("+i+")'><i class='fa fa-times'></i></a>"
+                names += "</div>"
+            }
+            $("#result-upload-file").html(names);
+        })
+
+        function removeItem(idx) {
+            var r = confirm("are you sure remove this item ?");
+            if (r == true) {
+                $(".linkItem"+idx).remove();
+            }
+        }
+
+        function removeUploadItem(idx) {
+            var r = confirm("are you sure remove this item ?");
+            if (r == true) {
+                $(".uploadItem"+idx).remove();
+                $('#upload_doc').val('');
+            }
+        }
+
+        $('#fileForm').submit(function(e){
+            e.preventDefault();
+            var formData = new FormData(this);
+            console.log(formData);
+            $.ajax({
+                url: "{{ route('discussion.save-discussion') }}",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response){
+                    console.log(response);
+                    if(response.errcode == 200){
+                        window.location.href = response.link;
+                    }else{
+                        location.reload();
+                    }
+                    
+                },
+                error: function(xhr, status, error){
+                    alert(xhr.responseText);
+                }
             });
         });
     </script>

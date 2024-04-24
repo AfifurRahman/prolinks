@@ -8,6 +8,7 @@ use App\Models\User;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Project;
 use App\Models\Client;
+use App\Models\AssignProject;
 
 class GlobalHelper
 {
@@ -184,7 +185,8 @@ class GlobalHelper
 
     public static function get_project_sidebar()
     {
-        $models = Project::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->get();
+        $assignProject = AssignProject::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->pluck('project_id')->toArray();
+        $models = Project::where('client_id', \globals::get_client_id())->whereIn('project_id', $assignProject)->get();
         return $models;
     }
 
