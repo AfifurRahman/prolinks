@@ -210,7 +210,7 @@
                                                 <tr>
                                                     <td></td>
                                                     <td>
-                                                        <a href="">
+                                                        <a href="{{ $user->user_id }}">
                                                             <p class="permission-user-list-td">{{ $user->email_address }}</p>
                                                             <p class="permission-user-list-td2">
                                                             @if($user->role == 0) 
@@ -266,10 +266,26 @@
                     <table id="permission-file-list-table">
                         <thead>
                             <tr>
-                                <th>File Name</th>
-                                <th><input type="checkbox" class="checkbox" disabled/></th>
+                                <th>
+                                    File Name
+                                </th>
+                                <th>
+
+                                </th>
                             </tr>
                         </thead>
+                        <tbody id="fileList">
+                            @foreach($fileList as $file)
+                                <tr>
+                                    <td>
+                                        {{DB::table('upload_files')->where('basename', $file)->value('name')}}
+                                    </td>
+                                    <td>
+                                        <input type="checkbox"></input>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                     </table>
                 </div> 
             </div>
@@ -295,7 +311,7 @@
             @endif
             
             @if(Auth::user()->type == \globals::set_role_administrator())
-                <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'">Permissions</button>
+                <button class="permissions" onclick="setPermission()">Permissions</button>
             @endif
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
@@ -754,6 +770,10 @@
                     showNotification(data.message);
                 });
             } 
+        }
+
+        function setPermission() {
+            document.getElementById('permission-modal').style.display='block';
         }
 
         function createFolder() {

@@ -21,15 +21,21 @@ class DocumentController extends Controller
     {
         try {
             $origin = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/'. base64_decode($subproject);
+            $permission =  explode('/', base64_decode($subproject), 5);
+           
 
             $files = Storage::files($origin);
             $folders = Storage::directories($origin);
             $directorytype = 1; //1 is parent
 
-            //return user list for permission
+            $path = explode('/', base64_decode($subproject), 5);
+            $subProjectPath = $path[1];
+
+            $fileList = UploadFile::where('subproject_id', $subProjectPath)->distinct()->pluck('basename');
+
             $listusers = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
 
-            return view('adminuser.document.index', compact('files', 'folders','origin','directorytype','listusers'));
+            return view('adminuser.document.index', compact('files','folders','origin','directorytype','listusers','fileList'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -38,9 +44,12 @@ class DocumentController extends Controller
     public function Permission(Request $request)
     {
         try {
-            $path = explode('/', base64_decode($request->location), 4);
-            $subProjectPath = $path[2] . '/' . $path[3];
-            
+            $path = explode('/', base64_decode($request->location), 5);
+            $subProjectPath = $path[3];
+
+            $folderList = UploadFolder::where('subproject_id', $subProjectPath)->distinct()->pluck('name');
+
+            return response()->json(['success' => true, 'folderList' => $folderList]);
         } catch (\Exception $e) {
 
         }
@@ -104,7 +113,7 @@ class DocumentController extends Controller
 
                 $response = [];
                 foreach ($files as $file) {
-                        $locationParts = explode('/', base64_decode($request->location), 4);
+                        $locationParts = explode('/', base64_decode($request->location), 5);
 
                         $path = base64_decode($request->location) .$pf;
 
@@ -141,7 +150,7 @@ class DocumentController extends Controller
             $directories = Storage::directories('uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location));
             $basename = Str::random(8);
             $originPath = base64_decode($request->location);
-            $locationParts = explode('/', $originPath, 4);
+            $locationParts = explode('/', $originPath, 5);
             $path = $originPath . '/'. $request->folderName;
 
             $folders = UploadFolder::where('name', $request->folderName)->value('name');
@@ -325,7 +334,7 @@ class DocumentController extends Controller
             if (!empty($key)) {
                 $randomString = Str::random(8);
 
-                $locationParts = explode('/', base64_decode($location), 4);
+                $locationParts = explode('/', base64_decode($location), 5);
 
                 $originPath =  base64_decode($location);
                 $path = base64_decode($location) . '/' . $key;
