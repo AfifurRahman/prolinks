@@ -17,7 +17,7 @@ use Auth;
 
 class DocumentController extends Controller
 {
-    public function index($subproject)  //done check
+    public function Index($subproject)  //done check
     {
         try {
             $origin = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/'. base64_decode($subproject);
@@ -257,9 +257,9 @@ class DocumentController extends Controller
         return back();
     }
 
-    public function delete_folder($folder) {
+    public function DeleteFolder(Request $request) {
         try {
-            $foldername = base64_decode($folder);
+            $foldername = base64_decode($request->folder);
             UploadFolder::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
             UploadFile::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
         } catch (\Exception $e) {

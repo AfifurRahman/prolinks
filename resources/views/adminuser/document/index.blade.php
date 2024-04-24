@@ -131,7 +131,6 @@
                     <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
                     <button class="delete-btn" type="submit">Delete</button>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -440,7 +439,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a style="color:red;" onclick="document.getElementById('delete-folder-modal').style.display='block'">
+                                        <a style="color:red;" onclick="deleteFolder('miaw')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                             Delete
                                         </a>
@@ -821,6 +820,30 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('delete-file-modal').style.display='none';
+                    showNotification(data.message);
+                });
+            });
+        }
+
+        function deleteFolder(folder) {
+            document.getElementById('delete-folder-modal').style.display='block';
+
+            $('#deleteFolderSubmit').on('click', function(e) {
+                e.preventDefault();
+                var formData = new FormData();
+                
+                formData.append('folder', folder);
+
+                fetch('{{ route("adminuser.documents.deletefolder") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('delete-folder-modal').style.display='none';
                     showNotification(data.message);
                 });
             });
