@@ -13,6 +13,7 @@ class UploadFolder extends Model
         'index',
         'project_id',
         'subproject_id',
+        'parent',
         'directory',
         'name',
         'basename',

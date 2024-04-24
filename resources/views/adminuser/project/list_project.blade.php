@@ -228,7 +228,7 @@
 					<td style="vertical-align: middle;">
 						<div class="title-project">
 							<h3><a href="">{{ $projects->project_name }}</a></h3>
-							<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', 'LIKE' , '%'.$projects->project_id.'%')->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
+							<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id)->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
 						</div>
 					</td>
 					<td style="vertical-align: middle;" width="100">
@@ -250,7 +250,7 @@
 						<td colspan="2">
 							<div class="title-subproject">
 								<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($projects->project_id.'/'.$subs->project_id)) }}">{{ $subs->project_name }}</a></h3>
-								<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id . '/' .$subs->project_id)->sum('size')) }}</span>
+								<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->project_id)->sum('size')) }}</span>
 							</div>
 						</td>
 						<td style="vertical-align: middle;" width="100">
