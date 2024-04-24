@@ -86,6 +86,37 @@
             font-size: 12px;
             font-weight: 600;
         }
+
+        .box-time span {
+            font-size:12px;
+            color: #586474;
+            font-weight: 400;
+        }
+
+        .box-time a {
+            color: #1570EF;
+            font-weight: 600;
+            font-size:12px;
+        }
+
+        .profile-company-name {
+            color: #586474 !important;
+            font-size: 14px !important;
+            font-weight: 400 !important;
+        }
+
+        .inbox-item-author {
+            color: #1D2939 !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+        }
+
+        .inbox-item-text {
+            font-size: 14px !important;
+            color: #1D2939 !important;
+            font-weight: 400 !important;
+            line-height: 20px;
+        }
     </style>
     <div class="row">
         <div class="col-md-12">
@@ -100,10 +131,12 @@
                 </h3>
             </div>
             <div class="pull-right">
-                @if($detail->status == \globals::set_qna_status_unanswered())
-                    <a href="#modal-confirm-status-close" data-toggle="modal" class="btn btn-default" style="margin-top:5px;">Close questions</a>
-                @elseif($detail->status == \globals::set_qna_status_closed())
-                    <a href="#modal-confirm-status-open" data-toggle="modal" class="btn btn-primary" style="margin-top:5px;">Open questions</a>
+                @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
+                    @if($detail->status == \globals::set_qna_status_unanswered())
+                        <a href="#modal-confirm-status-close" data-toggle="modal" class="btn btn-default" style="margin-top:5px;">Close questions</a>
+                    @elseif($detail->status == \globals::set_qna_status_closed())
+                        <a href="#modal-confirm-status-open" data-toggle="modal" class="btn btn-primary" style="margin-top:5px;">Open questions</a>
+                    @endif
                 @endif
             </div>
         </div>
@@ -119,7 +152,7 @@
                                     <img src="{{ url('template/images/avatar.png') }}" class="img-circle" alt="">
                                 </div>
                                 <div class="box-info">
-                                    <p class="inbox-item-author">{{ $comment->fullname }}</p>
+                                    <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClient->client_name) ? $comment->RefClient->client_name : '' }}</span></p>
                                     <p class="inbox-item-text">{{ $comment->content }}</p>
                                     <div class="box-file">
                                         @foreach($comment->RefDiscussionLinkFile as $link_file)
@@ -138,6 +171,12 @@
                                             </div>
                                         @endforeach
                                     </div>
+                                    <div class="box-time">
+                                        <span>{{ date('d M Y H:i', strtotime($comment->created_at)) }}</span>  
+                                        @if(Auth::user()->id == $comment->created_by)
+                                            · <a href="{{ route('discussion.delete-comment', base64_encode($comment->id)) }}" onclick="return confirm('are you sure delete this comment ?')">Delete</a>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </a>
@@ -150,9 +189,9 @@
                                     @csrf
                                     <div class="input-group">
                                         <input type="hidden" name="id" value="{{ base64_encode($comment->id) }}">
-                                        <input type="text" class="form-control" name="comment" id="comment" placeholder="Add an answer" />
+                                        <textarea style="width:100%;" name="comment" id="comment" placeholder="Add an answer"></textarea>
                                         <span class="input-group-btn">
-                                            <button type="submit" class="btn btn-primary">Submit</button>
+                                            <button id="actSubmitQNA" type="submit" class="btn btn-lg btn-primary" style="margin-top:-5px;">Submit</button>
                                         </span>
                                     </div>
                                     <div class="form-group" style="margin-top:5px;">
@@ -169,7 +208,7 @@
                             </div>
                         </div>
                     @else
-                        <div class="text-qna-closed">Closed by Christin Purnama Sari on 12 April 2024, 13:54</div>
+                        <div class="text-qna-closed">Closed by {{ !empty($detail->RefClosedUser->name) ? $detail->RefClosedUser->name : '' }} on {{ !empty($detail->closed_date) ? date('d M Y H:i', strtotime($detail->closed_date)) : '' }}</div>
                     @endif
                 </div>
             </div>
@@ -225,57 +264,8 @@
         </div>
     </div>
 
-    <div id="modal-confirm-status-close" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="custom-modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="titleModal">
-                            Close Question ?
-                        </h4>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ route('discussion.change-status-qna-closed', $detail->discussion_id) }}" method="POST">
-                        @csrf
-                        <label>Once closed, no follow-up questions can be asked. Do you want to proceed?</label>
-                        <div class="pull-right">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Yes, close</button>
-                        </div>
-                    </form>
-                    <div style="clear:both;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-confirm-status-open" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="custom-modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="titleModal">
-                            Open Question ?
-                        </h4>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ route('discussion.change-status-qna-open', $detail->discussion_id) }}" method="POST">
-                        @csrf
-                        <label>Once open, follow-up questions can be asked. Do you want to proceed?</label>
-                        <div class="pull-right">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Yes, open</button>
-                        </div>
-                    </form>
-                    <div style="clear:both;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('adminuser.discussion.modal_close_questions')
+    @include('adminuser.discussion.modal_open_questions')
 @endsection
 
 @push('scripts')
@@ -330,28 +320,36 @@
             var r = confirm("are you sure remove this item ?");
             if (r == true) {
                 $(".uploadItem"+idx).remove();
-                $('#upload_doc').val('');
             }
         }
 
         $('#fileForm').submit(function(e){
             e.preventDefault();
             var formData = new FormData(this);
-            console.log(formData);
-            $.ajax({
-                url: "{{ route('comment.save-comment') }}",
-                type: "POST",
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response){
-                    console.log(response);
-                    location.reload();
-                },
-                error: function(xhr, status, error){
-                    alert(xhr.responseText);
-                }
-            });
+            var comment = $("#comment").val();
+            if(comment == ""){
+                alert("comment required");
+                $("#comment").focus();
+            }else{
+                $.ajax({
+                    url: "{{ route('comment.save-comment') }}",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function(){
+                        $("#actSubmitQNA").prop('disabled', true);
+                        $("#actSubmitQNA").html("loading..");
+                    },
+                    success: function(response){
+                        console.log(response);
+                        location.reload();
+                    },
+                    error: function(xhr, status, error){
+                        alert(xhr.responseText);
+                    }
+                });
+            }
         });
     </script>
 @endpush

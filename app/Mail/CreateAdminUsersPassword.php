@@ -25,6 +25,6 @@ class CreateAdminUsersPassword extends Mailable
 
     public function build()
     {
-        return $this->subject('Create Password')->view('mail.clients.create_password_adminuser');
+        return $this->subject('Welcome to Prolinks - Create Your Password')->view('mail.clients.create_password_adminuser');
     }
 }

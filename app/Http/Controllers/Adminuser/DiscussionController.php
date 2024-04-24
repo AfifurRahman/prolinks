@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Adminuser;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssignProject;
+use App\Models\HistoryImportDiscussion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
@@ -73,7 +75,7 @@ class DiscussionController extends Controller
                 $discussion->user_id = Auth::user()->user_id;
                 $discussion->client_id = \globals::get_client_id();
                 $discussion->subject = $request->input('subject');
-                $discussion->description = $request->input('description');
+                $discussion->description = $request->input('comment');
                 $discussion->priority = $request->input('priority');
                 $discussion->tag = $request->input('tag');
                 $discussion->status = \globals::set_qna_status_unanswered();
@@ -87,13 +89,14 @@ class DiscussionController extends Controller
                     $comment->user_id = $discussion->user_id;
                     $comment->client_id = $discussion->client_id;
                     $comment->parent = 0;
-                    $comment->content = $request->input('description');
+                    $comment->content = $request->input('comment');
                     $comment->fullname = Auth::user()->name;
                     $comment->created_by = Auth::user()->id;
                     $comment->created_at = date("Y-m-d H:i:s");
                     if($comment->save()){
                         $this->attach_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
                         $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
+                        $this->send_email_user($comment->project_id, $comment->client_id, $comment->discussion_id, $request);
                         $notification = "Discussion created!";
                         $discussion_id = $discussion->discussion_id;
                         $results = [
@@ -142,6 +145,7 @@ class DiscussionController extends Controller
             if($comment->save()){
                 $this->attach_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
                 $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
+                $this->send_email_user($comment->project_id, $comment->client_id, $comment->discussion_id, $request);
                 $notification = "Discussion created!";
             }
 
@@ -156,13 +160,160 @@ class DiscussionController extends Controller
         return response()->json($notification);
     }
 
-    public function change_status_qna_closed(Request $request, $discussion_id) {
+    function send_email_user($project_id, $client_id, $discussion_id, $request){
+        $discussion_creator = User::where('id', Auth::user()->id)->first();
+        $getParentID = Project::where('project_id', $project_id)->pluck('parent');
+        $project_id = Project::where('id', $getParentID)->pluck('project_id');
+        
+        $receiver_email = AssignProject::where('project_id', $project_id)->where('client_id', $client_id)->get();
+        if(count($receiver_email) > 0){
+            foreach ($receiver_email as $key => $value) {
+                if ($value->RefUser->email != Auth::user()->email) {
+                    $details = [
+                        'discussion_creator' => $discussion_creator->name,
+                        'receiver_name' => $value->RefUser->name,
+                        'project_name' => $value->RefProject->project_name,
+                        'subject' => $request->input('subject'),
+                        'comment' => $request->input('comment'),
+                        'link' => route('discussion.detail-discussion', $discussion_id)
+                    ];
+    
+                    \Mail::to($value->RefUser->email)->send(new \App\Mail\DiscussionUsers($details));
+                } 
+            }
+        }
+    }
+
+    function delete_comment($id) {
         $notification = "";
         try {
             \DB::beginTransaction();
 
+            $deleted = DiscussionComment::where('id', base64_decode($id))->delete();
+            if($deleted){
+                $notification = "Comment deleted!";
+            }
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollback();
+            Alert::error('Error', $e->getMessage());
+        }
+
+        return back()->with('notification', $notification);
+    }
+
+    public function import_questions(Request $request) {
+        $request->validate([
+            'upload_qna' => 'required|mimes:csv,txt'
+        ]);
+
+        $notification = "";
+        $results = [];
+        try {
+            \DB::beginTransaction();
+
+            $file = $request->file('upload_qna');
+            
+            $cvtArrayFile = $this->csvToArray($file);
+            if (count($cvtArrayFile) > 0) {
+                foreach ($cvtArrayFile as $files) {
+                    $convertPriority = 0;
+                    if (!empty($files['Priority']) && $files['Priority'] == "High") {
+                        $convertPriority = 3;
+                    }elseif(!empty($files['Priority']) && $files['Priority'] == "Medium"){
+                        $convertPriority = 2;
+                    }elseif(!empty($files['Priority']) && $files['Priority'] == "Low"){
+                        $convertPriority = 1;
+                    }
+                    
+                    $discussion = new Discussion;
+                    $discussion->discussion_id = Str::uuid(4);
+                    $discussion->project_id = Auth::user()->session_project;
+                    $discussion->user_id = Auth::user()->user_id;
+                    $discussion->client_id = \globals::get_client_id();
+                    $discussion->subject = $files['Subject'];
+                    $discussion->description = $files['Comment'];
+                    $discussion->priority = $convertPriority;
+                    $discussion->status = \globals::set_qna_status_unanswered();
+                    $discussion->created_by = Auth::user()->id;
+                    $discussion->created_at = date("Y-m-d H:i:s");
+                    if ($discussion->save()) {
+                        $comment = new DiscussionComment;
+                        $comment->discussion_id = $discussion->discussion_id;
+                        $comment->project_id = $discussion->project_id;
+                        $comment->user_id = $discussion->user_id;
+                        $comment->client_id = $discussion->client_id;
+                        $comment->parent = 0;
+                        $comment->content = $files['Comment'];
+                        $comment->fullname = Auth::user()->name;
+                        $comment->created_by = Auth::user()->id;
+                        $comment->created_at = date("Y-m-d H:i:s");
+                        $comment->save();
+                    }
+                }
+
+                $historyQNA = new HistoryImportDiscussion;
+                $historyQNA->client_id = \globals::get_client_id();
+                $historyQNA->project_id = Auth::user()->session_project;
+                $historyQNA->user_id = Auth::user()->user_id;
+                $historyQNA->file = $file->getClientOriginalName();
+                $historyQNA->created_by = Auth::user()->id;
+                if($historyQNA->save()){
+                    $notification = "".count($cvtArrayFile)." questions submitted";
+                    $results = [
+                        'errcode' => 200,
+                        'message' => "".count($cvtArrayFile)." questions submitted",
+                    ];
+                }
+            }else{
+                $notification = "data not found";
+            }
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollback();
+            $results = [
+                'errcode' => 500,
+                'message' => $e->getMessage()
+            ];
+        }
+
+        Session::flash('notification', $notification);
+        return response()->json($results);
+    }
+
+    private function csvToArray($filename = '', $delimiter = ';'){
+        if (!file_exists($filename) || !is_readable($filename))
+            return false;
+
+        $header = null;
+        $data = array();
+        if (($handle = fopen($filename, 'r')) !== false)
+        {
+            while (($row = fgetcsv($handle, 1000, $delimiter)) !== false)
+            {
+                if (!$header)
+                    $header = $row;
+                else
+                    $data[] = array_combine($header, $row);
+            }
+            fclose($handle);
+        }
+
+        return $data;
+    }
+
+    public function change_status_qna_closed(Request $request) {
+        $notification = "";
+        try {
+            \DB::beginTransaction();
+
+            $discussion_id = $request->input('discussion_id');
             $updated = Discussion::where('discussion_id', $discussion_id)->update([
-                'status' => \globals::set_qna_status_closed()
+                'status' => \globals::set_qna_status_closed(),
+                'closed_date' => date('d-m-y H:i:s'),
+                'closed_by' => Auth::user()->id
             ]);
 
             if($updated){
@@ -179,13 +330,16 @@ class DiscussionController extends Controller
         return back()->with('notification', $notification);
     }
 
-    public function change_status_qna_open(Request $request, $discussion_id) {
+    public function change_status_qna_open(Request $request) {
         $notification = "";
         try {
             \DB::beginTransaction();
 
+            $discussion_id = $request->input('discussion_id');
             $updated = Discussion::where('discussion_id', $discussion_id)->update([
-                'status' => \globals::set_qna_status_unanswered()
+                'status' => \globals::set_qna_status_unanswered(),
+                'closed_date' => null,
+                'closed_by' => null
             ]);
 
             if($updated){
@@ -209,8 +363,8 @@ class DiscussionController extends Controller
                     $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id').'/'.$project_id.'/discussion'; 
                     Storage::makeDirectory($path, 0755, true);
                     // $results = Storage::disk('public')->put($path, $uploads, 'public');
-                    $results = $uploads->storeAs($path, Str::random(8));
-
+                    $baseName = Str::random(8);
+                    $results = $uploads->storeAs($path, $baseName);
                     if($results){
                         
                         $attach = new DiscussionAttachFile;
@@ -220,20 +374,19 @@ class DiscussionController extends Controller
                         $attach->client_id = $client_id;
                         $attach->user_id = Auth::user()->user_id;
                         $attach->file_name = $uploads->getClientOriginalName();
-                        $attach->basename = $results;
+                        $attach->basename = $baseName;
                         $attach->file_url = $path;
                         $attach->file_extension = $uploads->getClientOriginalExtension();
                         $attach->file_size = $uploads->getSize();
-                        
                         if($attach->save()){
-                            UploadFolder::create([
-                                'project_id' => $project_id,
-                                'basename' => $results,
-                                'name' => "Discussion",
-                                'access_user' => Auth::user()->email,
-                                'status' => 1,
-                                'uploaded_by' => Auth::user()->user_id, 
-                            ]);
+                            $folders = new UploadFolder;
+                            $folders->project_id = $project_id;
+                            $folders->basename = $baseName;
+                            $folders->name = "Discussion";
+                            $folders->access_user = Auth::user()->email;
+                            $folders->status = 1;
+                            $folders->uploaded_by = Auth::user()->user_id; 
+                            $folders->save();
                         }
                     }
                 }

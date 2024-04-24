@@ -7,11 +7,12 @@
           <td>
             <hr class="hr-custom">
             Dear {{ !empty($details['client_name']) ? $details['client_name'] : '' }}, <br><br>
-            Your account has been created, <br>
-            please create your password click on the button below : <br><br>
+            Welcome to Prolinks! Your account has been successfully created. To ensure the security of your account, please follow the instructions below to set up your password:<br>
+            Please click the button below to create your password: <br><br>
             <a href="{{ !empty($details['link']) ? $details['link'] : '' }}" class="btn-custom">Create Password</a><br><br>
-            Or copy and paste the URL into your browser<br>
+            If the above link does not open a new page, you can copy and paste the following URL into your browser:<br>
             <a href="{{ !empty($details['link']) ? $details['link'] : '' }}">{{ !empty($details['link']) ? $details['link'] : '' }}</a> <br><br><br>
+            If you have any questions or encounter any issues, feel free to reach out to our support team.<br><br>
             Regards, <br>
             Admin Prolinks
             <hr class="hr-custom">

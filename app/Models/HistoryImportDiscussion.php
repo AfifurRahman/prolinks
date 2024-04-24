@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DiscussionComment extends Model
+class HistoryImportDiscussion extends Model
 {
     use HasFactory;
 
-    protected $table = 'discussion_comments';
+    protected $table = 'history_import_discussions';
 
     public function RefUser()
     {
@@ -21,13 +21,8 @@ class DiscussionComment extends Model
         return $this->hasOne('App\Models\Client', 'client_id' , 'client_id');
     }
 
-    public function RefDiscussionAttachFile()
+    public function RefProject()
     {
-        return $this->hasMany('App\Models\DiscussionAttachFile', 'comment_id' , 'id');
-    }
-
-    public function RefDiscussionLinkFile()
-    {
-        return $this->hasMany('App\Models\DiscussionLinkFile', 'comment_id' , 'id');
+        return $this->hasOne('App\Models\Project', 'project_id' , 'project_id');
     }
 }

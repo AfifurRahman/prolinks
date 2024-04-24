@@ -16,6 +16,11 @@ class Discussion extends Model
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
     }
 
+    public function RefClosedUser()
+    {
+        return $this->hasOne('App\Models\User', 'id' , 'closed_by');
+    }
+
     public function RefProject()
     {
         return $this->hasOne('App\Models\Project', 'project_id' , 'project_id');

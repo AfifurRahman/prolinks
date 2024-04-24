@@ -367,11 +367,11 @@ class GlobalHelper
     {
         $results = "";
         if($status == \globals::set_qna_status_unanswered()){
-            $results = '<label class="label label-warning" style="border-radius:10px;"> Unanswered</label>';
+            $results = '<label class="label label-info" style="border-radius:10px;"> Submitted</label>';
         }elseif($status == \globals::set_qna_status_answered()){
             $results = '<label class="label label-success" style="border-radius:10px;"> Answered</label>';
         }elseif($status == \globals::set_qna_status_closed()){
-            $results = '<label class="label label-danger" style="border-radius:10px;"> Closed</label>';
+            $results = '<label class="label label-inverse" style="border-radius:10px;"> Closed</label>';
         }
 
         return $results;
