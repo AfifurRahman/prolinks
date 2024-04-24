@@ -235,14 +235,15 @@ class DocumentController extends Controller
         }
     }
 
-    public function delete_file($file)
+    public function DeleteFile(Request $request)
     {
         try {
-            UploadFile::where('basename', $file)->update(['status' => 0]);
+            UploadFile::where('basename', base64_decode($request->file))->update(['status' => 0]);
+
+            return response()->json(['success' => true, 'message' => 'File successfully removed']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
-        return back();
     }
 
     public function rename_folder(Request $request)

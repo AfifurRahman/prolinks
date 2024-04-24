@@ -57,7 +57,7 @@
                         <label class="modal-form-input">File name</label><label style="color:red;">*</label>
                         <div class="rename-file-input">
                             <image class="rename-file-icon" />
-                            <input type="text" class="form-control" id="new-name" placeholder="Enter file name without extension"/>
+                            <input type="text" class="form-control" id="new-file-name" placeholder="Enter file name without extension"/>
                         </div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                 <p class="modal-text">Deleting this file will permanently remove it, are you sure you want to continue? You can't undo this action.</p>
                 <div class="form-button">
                     <a onclick="document.getElementById('delete-file-modal').style.display='none'" class="cancel-btn">Cancel</a>
-                    <button class="delete-btn" type="submit">Delete</button>
+                    <button class="delete-btn" id="deleteFileSubmit">Delete</button>
                 </div>
                 
             </div>
@@ -503,7 +503,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}')">
+                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
                                         </a>
@@ -521,7 +521,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a style="color:red;" onclick="document.getElementById('delete-file-modal').style.display='block'">
+                                        <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                             Delete
                                         </a>
@@ -802,17 +802,43 @@
             });
         }
 
-        function renameFile(files, icon, index) {
+        function deleteFile(file) {
+            document.getElementById('delete-file-modal').style.display='block';
+
+            $('#deleteFileSubmit').on('click', function(e) {
+                e.preventDefault();
+                var formData = new FormData();
+
+                formData.append('file', file);
+                
+                fetch('{{ route("adminuser.documents.deletefile") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('delete-file-modal').style.display='none';
+                    showNotification(data.message);
+                });
+            });
+        }
+
+        function renameFile(file, icon, index, name) {
             document.getElementById('rename-file-modal').style.display = 'block';
             $(".rename-file-icon").attr("src", icon);
             $("#file-index").attr("value", index);
+            $("#new-file-name").attr("value", name);
+
 
             $('#renameFileSubmit').on('click', function(e) {
                 e.preventDefault();
                 var formData = new FormData();
 
-                formData.append('old_name', files);
-                formData.append('new_name', $('#new-name').val());
+                formData.append('old_name', file);
+                formData.append('new_name', $('#new-file-name').val());
 
                 fetch('{{ route("adminuser.documents.renamefile") }}', {
                     method: 'POST',
