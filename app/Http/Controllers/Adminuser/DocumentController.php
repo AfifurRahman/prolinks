@@ -85,7 +85,6 @@ class DocumentController extends Controller
                     }
                 }
             }
-
             return response()->json($testing);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
