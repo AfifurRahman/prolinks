@@ -57,7 +57,7 @@
                         <label class="modal-form-input">File name</label><label style="color:red;">*</label>
                         <div class="rename-file-input">
                             <image class="rename-file-icon" />
-                            <input type="text" class="form-control" id="new-name" placeholder="Enter file name without extension"/>
+                            <input type="text" class="form-control" id="new-file-name" placeholder="Enter file name without extension"/>
                         </div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                 <p class="modal-text">Deleting this file will permanently remove it, are you sure you want to continue? You can't undo this action.</p>
                 <div class="form-button">
                     <a onclick="document.getElementById('delete-file-modal').style.display='none'" class="cancel-btn">Cancel</a>
-                    <button class="delete-btn" type="submit">Delete</button>
+                    <button class="delete-btn" id="deleteFileSubmit">Delete</button>
                 </div>
                 
             </div>
@@ -131,7 +131,6 @@
                     <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
                     <button class="delete-btn" type="submit">Delete</button>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -210,7 +209,7 @@
                                                 <tr>
                                                     <td></td>
                                                     <td>
-                                                        <a href="">
+                                                        <a href="{{ $user->user_id }}">
                                                             <p class="permission-user-list-td">{{ $user->email_address }}</p>
                                                             <p class="permission-user-list-td2">
                                                             @if($user->role == 0) 
@@ -266,10 +265,26 @@
                     <table id="permission-file-list-table">
                         <thead>
                             <tr>
-                                <th>File Name</th>
-                                <th><input type="checkbox" class="checkbox" disabled/></th>
+                                <th>
+                                    File Name
+                                </th>
+                                <th>
+
+                                </th>
                             </tr>
                         </thead>
+            <!--            <tbody id="fileList">
+                            foreach($fileList as $file)
+                                <tr>
+                                    <td>
+                                        DB::table('upload_files')->where('basename', $file)->value('name')
+                                    </td>
+                                    <td>
+                                        <input type="checkbox"></input>
+                                    </td>
+                                </tr>
+                            endforeach -->
+                        </tbody>
                     </table>
                 </div> 
             </div>
@@ -295,7 +310,7 @@
             @endif
             
             @if(Auth::user()->type == \globals::set_role_administrator())
-                <button class="permissions" onclick="document.getElementById('permission-modal').style.display='block'">Permissions</button>
+                <button class="permissions" onclick="setPermission()">Permissions</button>
             @endif
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
@@ -304,15 +319,16 @@
     </div>
 
     <div class="path-box">
-    {{$origin}}
         <div class="path">
             <image class="path-icon" src="{{ url('template/images/icon_menu/briefcase.png') }}" />
             <div class="path-text">
                 {{ DB::table('project')->where('project_id', explode('/', $origin)[3])->value('project_name') }}
+                @php $url = implode('/',array_slice(explode('/', $origin,),0,4)); @endphp
                 @if (count(explode('/', $origin)) > 4)
                     @foreach(array_slice(explode('/', $origin),4) as $path)
+                        @php $url .= '/' . $path; @endphp
                         &nbsp;>&nbsp;&nbsp;
-                        <a href="{{ route('adminuser.documents.openfolder', base64_encode('miaw')) }}">{{ $path }}</a>
+                        <a href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $url)->value('basename')) ) }}">{{ $path }}</a>
                         &nbsp;
                     @endforeach
                 @endif
@@ -423,7 +439,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a style="color:red;" onclick="document.getElementById('delete-folder-modal').style.display='block'">
+                                        <a style="color:red;" onclick="deleteFolder('miaw')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                             Delete
                                         </a>
@@ -486,7 +502,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}')">
+                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
                                         </a>
@@ -504,7 +520,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a style="color:red;" onclick="document.getElementById('delete-file-modal').style.display='block'">
+                                        <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                             Delete
                                         </a>
@@ -756,6 +772,10 @@
             } 
         }
 
+        function setPermission() {
+            document.getElementById('permission-modal').style.display='block';
+        }
+
         function createFolder() {
             document.getElementById('create-folder-modal').style.display='block';
 
@@ -781,17 +801,67 @@
             });
         }
 
-        function renameFile(files, icon, index) {
+        function deleteFile(file) {
+            document.getElementById('delete-file-modal').style.display='block';
+
+            $('#deleteFileSubmit').on('click', function(e) {
+                e.preventDefault();
+                var formData = new FormData();
+
+                formData.append('file', file);
+                
+                fetch('{{ route("adminuser.documents.deletefile") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('delete-file-modal').style.display='none';
+                    showNotification(data.message);
+                });
+            });
+        }
+
+        function deleteFolder(folder) {
+            document.getElementById('delete-folder-modal').style.display='block';
+
+            $('#deleteFolderSubmit').on('click', function(e) {
+                e.preventDefault();
+                var formData = new FormData();
+                
+                formData.append('folder', folder);
+
+                fetch('{{ route("adminuser.documents.deletefolder") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('delete-folder-modal').style.display='none';
+                    showNotification(data.message);
+                });
+            });
+        }
+
+        function renameFile(file, icon, index, name) {
             document.getElementById('rename-file-modal').style.display = 'block';
             $(".rename-file-icon").attr("src", icon);
             $("#file-index").attr("value", index);
+            $("#new-file-name").attr("value", name);
+
 
             $('#renameFileSubmit').on('click', function(e) {
                 e.preventDefault();
                 var formData = new FormData();
 
-                formData.append('old_name', files);
-                formData.append('new_name', $('#new-name').val());
+                formData.append('old_name', file);
+                formData.append('new_name', $('#new-file-name').val());
 
                 fetch('{{ route("adminuser.documents.renamefile") }}', {
                     method: 'POST',
