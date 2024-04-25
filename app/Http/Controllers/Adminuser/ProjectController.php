@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Adminuser;
 
 use App\Http\Controllers\Controller;
+use App\Models\SubProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
@@ -66,17 +67,6 @@ class ProjectController extends Controller
 	            $project->created_at = date('Y-m-d H:i:s');
 
 	            if ($project->save()) {
-					$sub_project = new Project;
-					$sub_project->project_id = Str::uuid(4);
-					$sub_project->user_id = $project->user_id;
-					$sub_project->company_id = "-";
-	            	$sub_project->client_id = $project->client_id;
-	            	$sub_project->project_name = "Default subproject";
-					$sub_project->parent = $project->id;
-					$sub_project->created_by = $project->created_by;
-	            	$sub_project->created_at = $project->created_at;
-					$sub_project->save();
-
 	            	$notification = "Project created!";
 	            	$projectId = $project->project_id;
 	            }
@@ -94,16 +84,15 @@ class ProjectController extends Controller
 
 	public function save_subproject(Request $request)
 	{
-		$projectId = $request->input('id');
+		$id = $request->input('id');
+		$project_id = $request->input('project_id');
 		try {
 			\DB::beginTransaction();
 
-			if ($projectId != NULL) {
-				$updated = Project::where('project_id', $projectId)->update([
-					'client_id' => \globals::get_client_id(),
-					'project_name' => $request->input('project_name'),
-		            'project_desc' => $request->input('project_desc'),
-					'parent' => $request->input('parent'),
+			if ($id != NULL) {
+				$updated = SubProject::where('id', $id)->update([
+					'subproject_name' => $request->input('project_name'),
+		            'subproject_desc' => $request->input('project_desc'),
 		            'updated_by' => Auth::user()->id,
 		            'updated_at' => date('Y-m-d H:i:s')
 				]);
@@ -112,27 +101,19 @@ class ProjectController extends Controller
 	                $notification = "Subroject updated!";
 	            }
 			}else{
-				$project_id = Str::uuid(4);
-				$project = new Project;
+				$project = new SubProject;
+				$project->subproject_id = Str::uuid(4);
 	            $project->project_id = $project_id;
 	            $project->user_id = Auth::user()->user_id;
-	            $project->company_id = "-";
 	            $project->client_id = \globals::get_client_id();
-				$project->parent = $request->input('parent');
-	            $project->project_name = $request->input('project_name');
-	            $project->project_desc = $request->input('project_desc');
+	            $project->subproject_name = $request->input('project_name');
+	            $project->subproject_desc = $request->input('project_desc');
 	            $project->created_by = Auth::user()->id;
 	            $project->created_at = date('Y-m-d H:i:s');
 
 	            if ($project->save()) {
 	            	$notification = "Subroject created!";
-	            	$projectId = $project->project_id;
 	            }
-
-				$parent = Project::where('id', Project::where('project_id', $project_id)->value('parent'))->value('project_id');
-
-				$path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . $parent . '/' . $project_id;
-				Storage::makeDirectory($path, 0755,true);
 			}
 			\DB::commit();
 		} catch (\Exception $e) {
@@ -188,6 +169,26 @@ class ProjectController extends Controller
 		return back()->with('notification', $notification);
 	}
 
+	public function delete_sub_project($id)
+	{
+		try {
+			\DB::beginTransaction();
+
+			$deleted = SubProject::where('subproject_id', $id)->delete();
+			if ($deleted) {
+				$notification = "Subproject deleted!";
+			}
+
+			\DB::commit();
+		} catch (\Exception $e) {
+			\DB::rollback();
+			Alert::error('Error', $e->getMessage());
+			return back();
+		}
+
+		return back()->with('notification', $notification);
+	}
+
 	public function detail_role_users(Request $request)
 	{
 		$id = $request->input('id');
@@ -198,13 +199,10 @@ class ProjectController extends Controller
 
     public function change_main_project(Request $request)
     {
-		$getParent = Project::where('project_id', $request->input('main_project_id'))->value('parent');
-    	$projectId = Project::where('id', $getParent)->value('project_id');
-		$subProject = $request->input('main_project_id');
+		$subProject = SubProject::where('subproject_id', $request->input('main_project_id'))->first();
 		
 		Session::put('project_id', $request->input('main_project_id'));
-		User::where('id', Auth::user()->id)->update(['session_project'=> $request->input('main_project_id')]);
-    	// return back();
-		return redirect(route('adminuser.documents.list', base64_encode($projectId.'/'.$subProject)));
+		User::where('id', Auth::user()->id)->update(['session_project'=> $subProject->subproject_id]);
+		return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)));
     }
 }

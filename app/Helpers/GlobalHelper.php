@@ -1,6 +1,7 @@
 <?php
 namespace App\Helpers;
  
+use App\Models\SubProject;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Auth;
@@ -185,8 +186,8 @@ class GlobalHelper
 
     public static function get_project_sidebar()
     {
-        $assignProject = AssignProject::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->pluck('project_id')->toArray();
-        $models = Project::where('client_id', \globals::get_client_id())->whereIn('project_id', $assignProject)->get();
+        $assignProject = AssignProject::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->pluck('subproject_id')->toArray();
+        $models = SubProject::where('client_id', \globals::get_client_id())->whereIn('subproject_id', $assignProject)->get();
         return $models;
     }
 
@@ -214,7 +215,6 @@ class GlobalHelper
 
     public static function get_client_id()
     {
-        // return Auth::user()->RefClient->client_id;
         return Auth::user()->client_id;
     }
 

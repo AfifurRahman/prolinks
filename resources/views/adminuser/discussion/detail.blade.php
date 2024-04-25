@@ -226,7 +226,7 @@
                     </tr>
                     <tr>
                         <td>Project</td>
-                        <td>{{ $detail->RefProject->project_name }}</td>
+                        <td>{{ !empty($detail->RefProject->project_name) ? $detail->RefProject->project_name : '' }}</td>
                     </tr>
                 </table>
             </div>

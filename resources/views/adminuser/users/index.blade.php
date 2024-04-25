@@ -289,12 +289,10 @@
                     <div id="resultGroup"></div>
                     <div id="data_project">
                         <h5 class="usercompany">Project <span class="text-danger">*</span></h5>
-                        <select class="form-control select2" data-placeholder="Unassigned" multiple name="project[]">
+                        <select class="form-control select2" data-placeholder="Select Project" multiple name="project[]">
                             @foreach($project as $projects)
-                                @if($projects == 0)
-                                    <option value="0">Unassigned</option>
-                                @else
-                                    <option value="{{$projects}}">{{ DB::table('project')->where('project_id', $projects)->value('project_name') }}</option>
+                                @if(count($projects->RefSubProject) > 0)
+                                    <option value="{{$projects->project_id}}">{{ $projects->project_name }}</option>
                                 @endif
                             @endforeach
                         </select>

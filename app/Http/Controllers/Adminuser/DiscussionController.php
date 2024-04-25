@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Adminuser;
 use App\Http\Controllers\Controller;
 use App\Models\AssignProject;
 use App\Models\HistoryImportDiscussion;
+use App\Models\SubProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
@@ -28,10 +29,10 @@ use Illuminate\Support\Facades\Storage;
 class DiscussionController extends Controller
 {
     function index() {
-        $all_questions = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->get();
-        $unanswered = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->get();
-        $answered = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->get();
-        $closed = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->get();
+        $all_questions = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->get();
+        $unanswered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->get();
+        $answered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->get();
+        $closed = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->get();
         $project = Project::orderBy('id','DESC')->where('client_id', \globals::get_client_id())->where('project_status', \globals::set_project_status_active())->where('parent', '!=', 0)->get();
         $file = UploadFile::get();
         
@@ -39,7 +40,7 @@ class DiscussionController extends Controller
     }
 
     function detail($discussion_id){
-        $detail = Discussion::where('discussion_id', $discussion_id)->where('client_id', \globals::get_client_id())->first();
+        $detail = Discussion::where('discussion_id', $discussion_id)->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->first();
         $file = UploadFile::get();
 
         return view('adminuser.discussion.detail', compact('discussion_id', 'detail', 'file'));
@@ -54,13 +55,9 @@ class DiscussionController extends Controller
             $discussion_id = $id;
             if ($id != NULL) {
                 $update = Discussion::where('discussion_id', $id)->update([
-                    'project_id' => $request->input('project_id'),
-                    'user_id' => Auth::user()->user_id,
-                    'client_id' => \globals::get_client_id(),
                     'subject' => $request->input('subject'),
                     'description' => $request->input('description'),
                     'priority' => $request->input('priority'),
-                    'tag' => $request->input('tag'),
                     'updated_by' => Auth::user()->id,
                     'updated_at' => date("Y-m-d H:i:s")
                 ]);
@@ -71,7 +68,8 @@ class DiscussionController extends Controller
             }else{
                 $discussion = new Discussion;
                 $discussion->discussion_id = Str::uuid(4);
-                $discussion->project_id = Auth::user()->session_project;
+                $discussion->project_id = SubProject::where('subproject_id', Auth::user()->session_project)->value('project_id');
+                $discussion->subproject_id = Auth::user()->session_project;
                 $discussion->user_id = Auth::user()->user_id;
                 $discussion->client_id = \globals::get_client_id();
                 $discussion->subject = $request->input('subject');
@@ -86,6 +84,7 @@ class DiscussionController extends Controller
                     $comment = new DiscussionComment;
                     $comment->discussion_id = $discussion->discussion_id;
                     $comment->project_id = $discussion->project_id;
+                    $comment->subproject_id = $discussion->subproject_id;
                     $comment->user_id = $discussion->user_id;
                     $comment->client_id = $discussion->client_id;
                     $comment->parent = 0;
@@ -94,9 +93,9 @@ class DiscussionController extends Controller
                     $comment->created_by = Auth::user()->id;
                     $comment->created_at = date("Y-m-d H:i:s");
                     if($comment->save()){
-                        $this->attach_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
-                        $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
-                        $this->send_email_user($comment->project_id, $comment->client_id, $comment->discussion_id, $request);
+                        $this->attach_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->subproject_id, $comment->client_id,  $request);
+                        $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->subproject_id, $comment->client_id,  $request);
+                        $this->send_email_user($comment->project_id, $comment->subproject_id, $comment->client_id, $comment->discussion_id, $request);
                         $notification = "Discussion created!";
                         $discussion_id = $discussion->discussion_id;
                         $results = [
@@ -134,18 +133,19 @@ class DiscussionController extends Controller
 
             $comment = new DiscussionComment;
             $comment->discussion_id = $getDiscussion->discussion_id;
-            $comment->project_id = $getDiscussion->project_id;
-            $comment->user_id = $getDiscussion->user_id;
-            $comment->client_id = $getDiscussion->client_id;
+            $comment->subproject_id = Auth::user()->session_project;
+            $comment->project_id = SubProject::where('subproject_id', Auth::user()->session_project)->value('project_id');
+            $comment->user_id = Auth::user()->user_id;
+            $comment->client_id = \globals::get_client_id();
             $comment->parent = $id;
             $comment->content = $request->input('comment');
             $comment->fullname = Auth::user()->name;
             $comment->created_by = Auth::user()->id;
             $comment->created_at = date("Y-m-d H:i:s");
             if($comment->save()){
-                $this->attach_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
-                $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->client_id,  $request);
-                $this->send_email_user($comment->project_id, $comment->client_id, $comment->discussion_id, $request);
+                $this->attach_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->subproject_id, $comment->client_id,  $request);
+                $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->subproject_id, $comment->client_id,  $request);
+                $this->send_email_user($comment->project_id, $comment->subproject_id, $comment->client_id, $comment->discussion_id, $request);
                 $notification = "Discussion created!";
             }
 
@@ -160,20 +160,24 @@ class DiscussionController extends Controller
         return response()->json($notification);
     }
 
-    function send_email_user($project_id, $client_id, $discussion_id, $request){
+    function send_email_user($project_id, $subproject_id, $client_id, $discussion_id, $request){
         $discussion_creator = User::where('id', Auth::user()->id)->first();
-        $getParentID = Project::where('project_id', $project_id)->pluck('parent');
-        $project_id = Project::where('id', $getParentID)->pluck('project_id');
-        
-        $receiver_email = AssignProject::where('project_id', $project_id)->where('client_id', $client_id)->get();
+        $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->get();
         if(count($receiver_email) > 0){
             foreach ($receiver_email as $key => $value) {
                 if ($value->RefUser->email != Auth::user()->email) {
+                    $set_subject = "";
+                    if(!empty($request->input('subject'))){
+                        $set_subject = $request->input('subject');
+                    }else{
+                        $set_subject = Discussion::where('discussion_id', $discussion_id)->where('client_id', $client_id)->value('subject');
+                    }
+
                     $details = [
                         'discussion_creator' => $discussion_creator->name,
                         'receiver_name' => $value->RefUser->name,
                         'project_name' => $value->RefProject->project_name,
-                        'subject' => $request->input('subject'),
+                        'subject' => $set_subject,
                         'comment' => $request->input('comment'),
                         'link' => route('discussion.detail-discussion', $discussion_id)
                     ];
@@ -229,7 +233,8 @@ class DiscussionController extends Controller
                     
                     $discussion = new Discussion;
                     $discussion->discussion_id = Str::uuid(4);
-                    $discussion->project_id = Auth::user()->session_project;
+                    $discussion->subproject_id = Auth::user()->session_project;
+                    $discussion->project_id = SubProject::where('subproject_id', Auth::user()->session_project)->value('project_id');
                     $discussion->user_id = Auth::user()->user_id;
                     $discussion->client_id = \globals::get_client_id();
                     $discussion->subject = $files['Subject'];
@@ -356,7 +361,7 @@ class DiscussionController extends Controller
         return back()->with('notification', $notification);
     }
 
-    private function attach_file_discussion($comment_id, $discussion_id, $project_id, $client_id, $request){
+    private function attach_file_discussion($comment_id, $discussion_id, $project_id, $subproject_id, $client_id, $request){
         if($request->has('upload_doc')){
             if(count($request->file('upload_doc')) > 0){
                 foreach($request->file('upload_doc') as $uploads){
@@ -371,6 +376,7 @@ class DiscussionController extends Controller
                         $attach->comment_id = $comment_id;
                         $attach->discussion_id = $discussion_id;
                         $attach->project_id = $project_id;
+                        $attach->subproject_id = $subproject_id;
                         $attach->client_id = $client_id;
                         $attach->user_id = Auth::user()->user_id;
                         $attach->file_name = $uploads->getClientOriginalName();
@@ -394,13 +400,14 @@ class DiscussionController extends Controller
         }
     }
 
-    private function link_file_discussion($comment_id, $discussion_id, $project_id, $client_id, $request){
+    private function link_file_discussion($comment_id, $discussion_id, $project_id, $subproject_id, $client_id, $request){
         if($request->input('link_doc') > 0){
             foreach($request->input('link_doc') as $files){
                 $link_doc = new DiscussionLinkFile;
                 $link_doc->comment_id = $comment_id;
                 $link_doc->discussion_id = $discussion_id;
                 $link_doc->project_id = $project_id;
+                $link_doc->subproject_id = $subproject_id;
                 $link_doc->client_id = $client_id;
                 $link_doc->file_id = $files;
                 $link_doc->file_name = UploadFile::where('id', $files)->pluck('name')->first();

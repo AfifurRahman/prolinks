@@ -21,7 +21,11 @@ class AssignProject extends Model
         return $this->hasOne('App\Models\Project', 'project_id' , 'project_id');
     }
     
-    public function RefSubProject($parent){
-        return Project::where('client_id', \globals::get_client_id())->where('parent', $parent)->where('project_status', \globals::set_project_status_active())->get();
+    // public function RefSubProject($parent){
+    //     return Project::where('client_id', \globals::get_client_id())->where('parent', $parent)->where('project_status', \globals::set_project_status_active())->get();
+    // }
+
+    public function RefSubProject(){
+        return $this->hasOne('App\Models\SubProject', 'subproject_id' , 'subproject_id');
     }
 }

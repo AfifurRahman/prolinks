@@ -121,7 +121,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/document.png') }}">
 	            	<div class="info-widget">
-		            	<h3>1.256</h3>
+		            	<h3>{{ $total_documents }}</h3>
 		            	<p>Total documents</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>
@@ -130,7 +130,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/users.png') }}">
 	            	<div class="info-widget">
-		            	<h3>8</h3>
+		            	<h3>{{ $total_users }}</h3>
 		            	<p>Total users</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>
@@ -139,7 +139,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/questions.png') }}">
 	            	<div class="info-widget">
-		            	<h3>128</h3>
+		            	<h3>{{ $total_qna }}</h3>
 		            	<p>Total questions</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>
@@ -148,7 +148,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/doc_size.png') }}">
 	            	<div class="info-widget">
-		            	<h3>7.21 GB</h3>
+		            	<h3>{{ $total_size }}</h3>
 		            	<p>Total document size</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>

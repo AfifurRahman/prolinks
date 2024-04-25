@@ -40,7 +40,7 @@ class AuthController extends Controller
 
     		$check_users = User::where('email', $email)->where('remember_token', $token)->first();
     		$users_type = User::where('email', $email)->value('type');
-			$project_id = AssignProject::where('user_id', $check_users->user_id)->orderBy('id', 'DESC')->value('project_id');
+			$project_id = AssignProject::where('user_id', $check_users->user_id)->orderBy('id', 'DESC')->value('subproject_id');
 
 			if (!empty($check_users->email)) {
     			$update = User::where('email', $email)->where('remember_token', $token)->update([

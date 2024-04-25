@@ -210,13 +210,22 @@
 		<a href="#modal-add-subproject" data-toggle="modal" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;">Create Subroject</a>
 		<a href="#modal-add-project" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Project</a>
 	</div><div style="clear: both;"></div>
+
+	<div class="alert alert-icon alert-info alert-dismissible fade in" role="alert" style="background-color:#EFF8FF; border:solid 1px #EFF8FF; color:#1D2939;">
+		<button type="button" class="close" data-dismiss="alert"
+				aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+		<i class="mdi mdi-information"></i>
+		Add a subproject so start uploading files.
+	</div>
 	@if(count($project) > 0)
 	<table class="table table-hover custom-table">
 		<tbody>
 			@foreach($project as $key => $projects)
 				<tr class="">
 					<td width="50" style="vertical-align: middle;" align="center">
-						@if(count($projects->RefSubProject($projects->id)) > 0)
+						@if(count($projects->RefSubProject) > 0)
 							<a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)"><span class="caret"></span></a>
 						@endif
 					</td>
@@ -244,13 +253,13 @@
 						</div>
 					</td>
 				</tr>
-				@foreach($projects->RefSubProject($projects->id) as $subs)
+				@foreach($projects->RefSubProject as $subs)
 					<tr class="child-row-general child-row{{ $key }}">
 						<td></td>
 						<td colspan="2">
 							<div class="title-subproject">
-								<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($projects->project_id.'/'.$subs->project_id)) }}">{{ $subs->project_name }}</a></h3>
-								<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->project_id)->sum('size')) }}</span>
+								<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($subs->project_id.'/'.$subs->subproject_id)) }}">{{ $subs->subproject_name }}</a></h3>
+								<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->subproject_id)->sum('size')) }}</span>
 							</div>
 						</td>
 						<td style="vertical-align: middle;" width="100">
@@ -259,9 +268,9 @@
 									Action&nbsp; <span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right">
-									<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $subs }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
+									<li><a href="#modal-add-subproject" data-toggle="modal" data-title="Edit Sub Project" data-query="{{ $subs }}" onclick="getDetailSubProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
 									<li><a href="#modal-permissions" data-toggle="modal"><i class="fa fa-lock"></i> Permissions</a></li>
-									<li><a href="{{ route('project.delete-project', $subs->project_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
+									<li><a href="{{ route('project.delete-sub-project', $subs->subproject_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
 								</ul>
 							</div>
 						</td>
@@ -331,7 +340,7 @@
 	                        <img src="{{ url('template/images/data-project.png') }}" width="24" height="24">
 	                    </div>
 	                    <div style="float: left; margin-left: 10px;">
-	                        <h4 class="modal-title" id="titleModal">
+	                        <h4 class="modal-title" id="titleModalSub">
 	                        	Create Subproject
 	                        </h4>
 	                    </div>
@@ -340,20 +349,20 @@
                 <div class="modal-body">
 					<form class="custom-form" action="{{ route('project.save-subproject') }}" method="POST">
 						@csrf
-						<input type="hidden" name="id" id="id">
-						<div class="form-group">
+						<input type="hidden" name="id" id="idSubProject">
+						<div class="form-group" id="parentProjectID">
 							<label>Project Parents <span class="text-danger">*</span></label>
-							<select required name="parent" id="parent" class="form-control select2">
+							<select required name="project_id" class="form-control select2">
 								@if(count($parentProject) > 0)
 									@foreach($parentProject as $parents)
-										<option value="{{ $parents->id }}">{{ $parents->project_name }}</option>
+										<option value="{{ $parents->project_id }}">{{ $parents->project_name }}</option>
 									@endforeach
 								@endif
 							</select>
 						</div>
 						<div class="form-group">
 							<label>Subproject Name <span class="text-danger">*</span></label>
-							<input required type="text" name="project_name" id="project_name" class="form-control">
+							<input required type="text" name="project_name" id="subproject_name" class="form-control">
 						</div>
 						<div class="pull-right">
 							<button type="button" data-dismiss="modal" class="btn btn-default" style="border-radius: 5px;">
@@ -433,12 +442,23 @@
         function getDetailProject(element) {
         	var title = $(element).data('title');
         	var query = $(element).data('query');
-        	
         	$("#titleModal").html(title);
 
         	$("#id").val(query.project_id);
         	$("#project_name").val(query.project_name);
         	$("#project_desc").val(query.project_desc);
+    	}
+
+		function getDetailSubProject(element) {
+        	var title = $(element).data('title');
+        	var query = $(element).data('query');
+        	$("#titleModalSub").html(title);
+			
+			$("#parentProjectID").css("display", "none");
+
+        	$("#idSubProject").val(query.id);
+        	$("#subproject_name").val(query.subproject_name);
+        	$("#subproject_desc").val(query.subproject_desc);
     	}
 
 		function getProjectId(element) {

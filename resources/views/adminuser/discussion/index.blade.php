@@ -154,9 +154,6 @@
                 <li class="">
                     <a href="#closed" data-toggle="tab" aria-expanded="false">Closed</a>
                 </li>
-                <li class="">
-                    <a href="#faq" data-toggle="tab" aria-expanded="false">FAQ</a>
-                </li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active" id="all">
@@ -170,9 +167,6 @@
                 </div>
                 <div class="tab-pane" id="closed">
                     @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $closed])
-                </div>
-                <div class="tab-pane" id="faq">
-                    @include('adminuser.discussion.tabs.faq')
                 </div>
             </div>
         </div>

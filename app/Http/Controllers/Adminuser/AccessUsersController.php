@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Adminuser;
 
+use App\Models\SubProject;
 use Auth;
 use App\Models\User;
 use App\Models\ClientUser;
@@ -27,11 +28,11 @@ class AccessUsersController extends Controller
 
         $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
         $group = AccessGroup::where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
-        $project = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->pluck('project_id')->toArray();
+        $project = Project::where('client_id', \globals::get_client_id())->get();
         $owners = User::where('client_id', \globals::get_client_id())->where('type', 0)->where('user_id', Auth::user()->user_id)->get();
         $listGroup = AccessGroup::where('client_id', \globals::get_client_id())->get();
         array_unshift($group, 0);
-        array_unshift($project, 0);
+        // array_unshift($project, 0);
 
         return view('adminuser.users.index', compact('clientuser','group','owners', 'listGroup', 'project'));
     }
@@ -102,13 +103,17 @@ class AccessUsersController extends Controller
                         
                         if(!empty($request->input('project')) && count($request->input('project')) > 0){
                             foreach ($request->input('project') as $key => $proj) {
-                                $projects = new AssignProject;
-                                $projects->client_id = \globals::get_client_id();
-                                $projects->project_id = $proj;
-                                $projects->user_id = $users->user_id;
-                                $projects->email = $users->email;
-                                $projects->created_by = Auth::user()->id;
-                                $projects->save();
+                                $getSUbProject = SubProject::select('subproject_id')->where('project_id', $proj)->get();
+                                foreach ($getSUbProject as $key => $SubProj) {
+                                    $projects = new AssignProject;
+                                    $projects->client_id = \globals::get_client_id();
+                                    $projects->project_id = SubProject::where('subproject_id', $SubProj->subproject_id)->value('project_id');
+                                    $projects->subproject_id = $SubProj->subproject_id;
+                                    $projects->user_id = $users->user_id;
+                                    $projects->email = $users->email;
+                                    $projects->created_by = Auth::user()->id;
+                                    $projects->save();
+                                }
                             }
                         }
         

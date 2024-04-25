@@ -308,9 +308,13 @@
                     @if($clientuser->role == 0)
                         <span class="label label-default">All</span>
                     @else
-                        @php $projects = DB::table('assign_project')->select('project.project_name')->join('project', 'project.project_id', 'assign_project.project_id')->where('assign_project.user_id', $clientuser->user_id)->where('assign_project.client_id', \globals::get_client_id())->get() @endphp
+                        @php
+                            $projects = App\Models\AssignProject::where('user_id', $clientuser->user_id)->where('client_id', \globals::get_client_id())->get();
+                        @endphp
                         @foreach($projects as $project)
-                            <span class="label label-default">{{ $project->project_name }}</span>
+                            <div style="margin-bottom:5px;">
+                                <span class="label label-inverse">{{ $project->RefProject->project_name }} ( {{ $project->RefSubProject->subproject_name }} )</span>
+                            </div>
                         @endforeach
                     @endif
                 </td>

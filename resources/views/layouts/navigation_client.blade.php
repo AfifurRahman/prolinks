@@ -9,9 +9,7 @@
                             <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
                                 @if(count(\globals::get_project_sidebar()) > 0)
                                     @foreach(\globals::get_project_sidebar() as $mainProject)
-                                        @foreach($mainProject->RefSubProject($mainProject->id) as $subsProject)
-                                            <option value="{{ $subsProject->project_id }}" {{ !empty(\globals::get_project_id()) && \globals::get_project_id() == $subsProject->project_id ? "selected":"" }} >( {{ $mainProject->project_name }} ) {{ $subsProject->project_name }}</option>
-                                        @endforeach
+                                        <option value="{{ $mainProject->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $mainProject->subproject_id ? "selected":"" }} >( {{ $mainProject->RefProject->project_name }} ) {{ $mainProject->subproject_name }}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -44,11 +42,9 @@
                 @elseif(Auth::user()->type == \globals::set_role_collaborator() || Auth::user()->type == \globals::set_role_client())
                     <li>
                         @php
-                            $getParent = App\Models\Project::where('project_id', Auth::user()->session_project)->value('parent');
-                            $projectId = App\Models\Project::where('id', $getParent)->value('project_id');
-                            $subProject = Auth::user()->session_project;
+                            $subProject = App\Models\SubProject::where('subproject_id', Auth::user()->session_project)->first();
                         @endphp
-                        <a href="{{ route('adminuser.documents.list', base64_encode($projectId.'/'.$subProject)) }}" class="waves-effect"><i class="fa fa-file"></i><span> Documents </span></a>
+                        <a href="{{ route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)) }}" class="waves-effect"><i class="fa fa-file"></i><span> Documents </span></a>
                     </li>
                     <li>
                         <a href="{{ route('discussion.list-discussion') }}" class="waves-effect"><i class="fa fa-comments"></i><span> Q & A </span></a>
