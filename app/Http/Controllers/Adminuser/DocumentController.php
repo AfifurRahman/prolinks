@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\ClientUser;
 use App\Models\UploadFile;
 use App\Models\UploadFolder;
+use App\Models\Permission;
 use Auth;
 
 class DocumentController extends Controller
@@ -32,7 +33,6 @@ class DocumentController extends Controller
             $subProjectPath = $path[1];
 
             $fileList = UploadFile::where('subproject_id', $subProjectPath)->distinct()->pluck('basename');
-
             $listusers = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
 
             return view('adminuser.document.index', compact('files','folders','origin','directorytype','listusers','fileList'));
@@ -41,17 +41,54 @@ class DocumentController extends Controller
         }
     }
 
-    public function Permission(Request $request)
+    public function CheckPermission(Request $request)
     {
         try {
-            $path = explode('/', base64_decode($request->location), 5);
-            $subProjectPath = $path[3];
+            $permissionlist = Permission::where('user_id', $request->userid)->get();
+            $username = User::where('user_id', $request->userid)->value('email');
 
-            $folderList = UploadFolder::where('subproject_id', $subProjectPath)->distinct()->pluck('name');
-
-            return response()->json(['success' => true, 'folderList' => $folderList]);
+            return response()->json(['permissionlist' => $permissionlist, 'username' => $username]);
         } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
+    }
 
+    public function SetPermission(Request $request)
+    {
+        try{
+            $checkboxStatus = $request->all();
+
+            $testing = "";
+
+            foreach ($checkboxStatus as $checkboxId => $checked) {
+                if ($checkboxId != "userid") {
+                    if(is_null(Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->value('permission'))) {
+                        if ($checked == "true"){
+                            Permission::create([
+                                'user_id' => $request->userid,
+                                'fileid' => $checkboxId,
+                                'permission' => '1',
+                            ]);
+                        } else {
+                            Permission::create([
+                                'user_id' => $request->userid,
+                                'fileid' => $checkboxId,
+                                'permission' => '0',
+                            ]);
+                        } 
+                    } else {
+                        if ($checked == "true"){
+                            Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->update(['permission' => '1']);
+                        } else {
+                            Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->update(['permission' => '0']);
+                        }   
+                    }
+                }
+            }
+
+            return response()->json($testing);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
     }
 

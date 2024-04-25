@@ -91,7 +91,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
 	Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');
 	Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@UploadFiles')->name('adminuser.documents.upload');
-	Route::post('documents/permission', 'App\Http\Controllers\Adminuser\DocumentController@Permission')->name('adminuser.documents.permission');
+	Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');
+	Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
 	Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
 	Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@rename_folder')->name('adminuser.documents.rename_folder');
 	Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');

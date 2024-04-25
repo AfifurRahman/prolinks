@@ -10,7 +10,7 @@ class Permission extends Model
     use HasFactory;
 
     protected $fillable = [
-        'email',
+        'user_id',
         'fileid',
         'permission',
     ];

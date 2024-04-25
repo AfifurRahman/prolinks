@@ -209,7 +209,7 @@
                                                 <tr>
                                                     <td></td>
                                                     <td>
-                                                        <a href="{{ $user->user_id }}">
+                                                        <a onclick="checkUserPermission('{{ $user->user_id }}')">
                                                             <p class="permission-user-list-td">{{ $user->email_address }}</p>
                                                             <p class="permission-user-list-td2">
                                                             @if($user->role == 0) 
@@ -238,7 +238,7 @@
                                                         &nbsp;
                                                     </td>
                                                     <td>
-                                                        <a href="">
+                                                        <a onclick="setUserPermission('{{ $user->user_id }}')">
                                                             <p class="permission-user-list-td3">{{ $user->email_address }}</p>
                                                             <p class="permission-user-list-td2">
                                                                 @if($user->role == 0) 
@@ -261,7 +261,7 @@
                     </table>
                 </div> 
                 <div class="permission-file-list">
-                    <h4>Selected User - Role</h4>
+                    <h4 id="permissionUser">Select a user</h4>
                     <table id="permission-file-list-table">
                         <thead>
                             <tr>
@@ -273,35 +273,37 @@
                                 </th>
                             </tr>
                         </thead>
-            <!--            <tbody id="fileList">
-                            foreach($fileList as $file)
+                        <tbody id="fileList">
+                            @foreach($fileList as $file)
                                 <tr>
                                     <td>
-                                        DB::table('upload_files')->where('basename', $file)->value('name')
+                                        {{DB::table('upload_files')->where('basename', $file)->value('name')}}
                                     </td>
                                     <td>
-                                        <input type="checkbox"></input>
+                                        <input type="checkbox" id="{{$file}}" value="{{$file}}"></input>
                                     </td>
                                 </tr>
-                            endforeach -->
+                            @endforeach
                         </tbody>
                     </table>
                 </div> 
             </div>
 
+            <input type="hidden" id="IDuser" value="">
+
             <div class="modal-footer">
                 <a class="cancel-btn" onclick="document.getElementById('permission-modal').style.display='none'">Cancel</a>
-                <button class="create-btn" type="submit">Save settings</button>
+                <button class="create-btn" id="setPermissionButton">Save settings</button>
             </div>  
         </div>
     </div>
 
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">
-            @if (empty(DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('project_name')))
+            @if (empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
                 {{ explode('/', $origin)[count(explode('/', $origin)) - 1] }}
             @else
-                {{ DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('project_name') }}
+                {{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}
             @endif
         </h2>
         <div class="button_helper">
@@ -322,7 +324,7 @@
         <div class="path">
             <image class="path-icon" src="{{ url('template/images/icon_menu/briefcase.png') }}" />
             <div class="path-text">
-                {{ DB::table('project')->where('project_id', explode('/', $origin)[3])->value('project_name') }}
+                {{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[3])->value('subproject_name') }}
                 @php $url = implode('/',array_slice(explode('/', $origin,),0,4)); @endphp
                 @if (count(explode('/', $origin)) > 4)
                     @foreach(array_slice(explode('/', $origin),4) as $path)
@@ -376,7 +378,7 @@
                         @else
                             <a class="fol-fil" href="{{ route('adminuser.documents.list', base64_encode(DB::table('upload_folders')->where('directory', $origin)->value('project_id'). '/'. DB::table('upload_folders')->where('directory', $origin)->value('subproject_id'))) }}">
                                 <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
-                                Up to {{DB::table('project')->where('project_id', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('project_name')}}
+                                Up to {{DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('subproject_name')}}
                             </a>
                         @endif
                     </td>
@@ -774,6 +776,79 @@
 
         function setPermission() {
             document.getElementById('permission-modal').style.display='block';
+
+            $('#setPermissionButton').on('click', function(e) {
+                var checkboxStatusArray = [];
+
+                $("#fileList input[type='checkbox']").each(function() {
+                    var checkboxId = $(this).attr("id");
+                    var isChecked = $(this).prop("checked");
+                    var checkboxStatus = {
+                        id: checkboxId,
+                        checked: isChecked
+                    };
+                    checkboxStatusArray.push(checkboxStatus);
+                });
+
+                var formData = new FormData();
+                
+                
+                checkboxStatusArray.forEach(function(checkboxStatus) {
+                    formData.append(checkboxStatus.id, checkboxStatus.checked);
+                });
+                formData.append('userid', $('#IDuser').val());
+
+                console.log(checkboxStatusArray);
+                    fetch('{{ route("adminuser.documents.setpermission") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                });
+            });
+            console.log(userid);
+        }
+
+        
+
+        function checkUserPermission(user) {
+            $("#IDuser").attr("value",user);
+
+            var checkboxIds = [];
+            $("#fileList input[type='checkbox']").each(function() {
+                var checkboxId = $(this).attr("id"); 
+                checkboxIds.push(checkboxId);
+            });
+
+            checkboxIds.forEach(function(checkboxId) {
+                $("#" + checkboxId).prop("checked", false);
+            });
+
+            var formData = new FormData();
+            formData.append('userid', user);
+
+            fetch('{{ route("adminuser.documents.checkpermission") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                $('#permissionUser').text(data.username);
+
+                data.permissionlist.forEach(function(permissionData){
+                    if (permissionData.permission == 1){
+                        $("#" + permissionData.fileid).prop("checked", true);
+                    }   
+                });
+            });
         }
 
         function createFolder() {
