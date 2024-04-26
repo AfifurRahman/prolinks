@@ -35,6 +35,42 @@
         </div>
     </div>
 
+    <!-- Upload Preview Modal-->
+    <div id="upload-preview-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-topbar">
+                <div class="upload-modal-title">
+                    <h5 class="modal-title-text">Upload files</h5>
+                </div>
+                <button class="modal-close" onclick="document.getElementById('upload-preview-modal').style.display='none'">
+                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="upload-preview-table">
+                    <thead>
+                        <tr>
+                            <th>File name</th>
+                            <th>Size</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="upload-preview-list">
+                        <tr>
+                            <td>Decoy.png</td>
+                            <td>100 KB</td>
+                            <td>Remove</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="form-button">
+                    <a class="cancel-btn" onclick="document.getElementById('upload-preview-modal').style.display='none'">Cancel</a>
+                    <button class="create-btn" id="uploadFileSubmit">Upload files</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Rename File Modal -->
     <div id="rename-file-modal" class="modal">
         <div class="modal-content">
@@ -148,7 +184,7 @@
             </div>
 
             <div class="modal-body">
-                <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
+                <form action="{{ route('adminuser.documents.renamefolder') }}" method="POST">
                     @csrf
                     <div class="rename-modal">
                         <div class="rename-modal1">
@@ -748,34 +784,74 @@
             document.getElementById('old-name').value = folder;
         }
 
+        let files = [];
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
-                const files = [];
+                
                 for (let i = 0; i < input.files.length; i++) {
                     files.push(input.files[i]);
                 }
 
-                const formData = new FormData();
-                formData.append("location", "{{ base64_encode($origin) }}");
-                files.forEach(file => formData.append('files[]', file));
+                displayFileData(files);
 
-                fetch('{{ route("adminuser.documents.upload") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('upload-modal').style.display = 'none';
-                    showNotification(data.message);
+                document.getElementById('upload-preview-modal').style.display='block';
+                document.getElementById('upload-modal').style.display='none';
+                
+ 
+                $('#uploadFileSubmit').on('click', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData();
+                    formData.append("location", "{{ base64_encode($origin) }}");
+                    files.forEach(file => formData.append('files[]', file));
+
+                    fetch('{{ route("adminuser.documents.upload") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('upload-preview-modal').style.display = 'none';
+                        showNotification(data.message);
+                    });
                 });
+
+                console.log(files);
             } 
         }
 
+        function displayFileData() {
+
+            const tableBody = document.getElementById('upload-preview-list');
+            tableBody.innerHTML = '';
+
+            files.forEach((file, index) => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${file.name}</td>
+                    <td>${file.size}</td>
+                    <td><button onclick="removeFile(${index})">Remove</button></td>
+                `;
+                tableBody.appendChild(newRow);
+            });
+
+
+        }
+
+        function removeFile(index) {
+            files.splice(index, 1); 
+            displayFileData(files);
+        }
+
+        
+
         function setPermission() {
             document.getElementById('permission-modal').style.display='block';
+            document.getElementById('permission-file-list-table').style.display="none";
+            $('#setPermissionButton').prop("disabled", true);
+
 
             $('#setPermissionButton').on('click', function(e) {
                 var checkboxStatusArray = [];
@@ -814,10 +890,10 @@
             console.log(userid);
         }
 
-        
-
         function checkUserPermission(user) {
             $("#IDuser").attr("value",user);
+            document.getElementById('permission-file-list-table').style.display="block";
+            $('#setPermissionButton').prop("disabled", false);
 
             var checkboxIds = [];
             $("#fileList input[type='checkbox']").each(function() {
@@ -843,7 +919,7 @@
             .then(data => {
                 $('#permissionUser').text(data.username);
 
-                data.permissionlist.forEach(function(permissionData){
+                data.permissionlist.forEach(function(permissionData) {
                     if (permissionData.permission == 1){
                         $("#" + permissionData.fileid).prop("checked", true);
                     }   
@@ -898,6 +974,10 @@
                     showNotification(data.message);
                 });
             });
+        }
+
+        function renameFolder(folder) {
+
         }
 
         function deleteFolder(folder) {

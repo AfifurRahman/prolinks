@@ -286,7 +286,7 @@ class DocumentController extends Controller
         }
     }
 
-    public function rename_folder(Request $request)
+    public function RenameFolder(Request $request)
     {
         try {
             $old_name = base64_decode($request->old_name);
