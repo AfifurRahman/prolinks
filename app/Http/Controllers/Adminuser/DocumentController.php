@@ -236,9 +236,13 @@ class DocumentController extends Controller
             $files = Storage::files($directory);
             $folders = Storage::directories($directory);
 
+            $path = explode('/', $directory, 5);
+            $subProjectPath = $path[3];
+
+            $fileList = UploadFile::where('subproject_id', $subProjectPath)->distinct()->pluck('basename');
             $listusers = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
 
-            return view('adminuser.document.index', compact('files', 'folders', 'origin', 'directorytype', 'listusers'));
+            return view('adminuser.document.index', compact('files', 'folders', 'origin', 'directorytype', 'listusers', 'fileList'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
