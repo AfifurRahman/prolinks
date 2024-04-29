@@ -184,24 +184,21 @@
             </div>
 
             <div class="modal-body">
-                <form action="{{ route('adminuser.documents.renamefolder') }}" method="POST">
-                    @csrf
-                    <div class="rename-modal">
-                        <div class="rename-modal1">
-                            <label class="modal-form-input">Index</label>
-                            <input type="text" class="form-control" disabled/>
-                        </div>
-                        <div class="rename-modal2">
-                            <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
-                            <input type="text" class="form-control" name="new_name" id="folder_name" placeholder="Enter folder name"/>
-                        </div>
-                        <input type="hidden" id="old-name" name="old_name" value="" />
+                <div class="rename-modal">
+                    <div class="rename-modal1">
+                        <label class="modal-form-input">Index</label>
+                        <input type="text" class="form-control" disabled/>
                     </div>
-                    <div class="form-button">
-                        <a class="cancel-btn" onclick="document.getElementById('rename-folder-modal').style.display='none'">Cancel</a>
-                        <button class="create-btn" type="submit">Save changes</button>
+                    <div class="rename-modal2">
+                        <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
+                        <input type="text" class="form-control" id="newFolderName" placeholder="Enter folder name"/>
                     </div>
-                </form>
+                    <input type="hidden" id="old-name" name="old_name" value="" />
+                </div>
+                <div class="form-button">
+                    <a class="cancel-btn" onclick="document.getElementById('rename-folder-modal').style.display='none'">Cancel</a>
+                    <button class="create-btn" id="renameFolderSubmit">Save changes</button>
+                </div>
             </div>
         </div>
     </div>
@@ -441,7 +438,11 @@
                         <td>
                             <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $origin . '/' . basename($directory))->value('basename'))) }}">
                                 <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                                {{ basename($directory) }}
+                                @if(is_null(DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname')))
+                                    {{ basename($directory) }}
+                                @else
+                                    {{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}
+                                @endif
                             </a>
                         </td>
                         <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($directory))->format('d M Y, H:i') }}</td>
@@ -459,7 +460,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a onclick="rename('{{ base64_encode(basename($directory)) }}')">
+                                        <a onclick="renameFolder('{{ basename($directory) }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
                                         </a>
@@ -778,12 +779,6 @@
             }, 2250);
         }
 
-
-        function rename(folder) {
-            document.getElementById('rename-folder-modal').style.display = 'block';
-            document.getElementById('old-name').value = folder;
-        }
-
         let files = [];
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
@@ -977,7 +972,24 @@
         }
 
         function renameFolder(folder) {
+            document.getElementById('rename-folder-modal').style.display='block';
 
+            $('#renameFolderSubmit').on('click', function(e) {
+                console.log('ts')
+                e.preventDefault();
+                var formData = new FormData();
+
+                formData.append('name', folder);
+                formData.append('newname', $('#newFolderName').val());
+
+                fetch('{{ route("adminuser.documents.renamefolder") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                });
+            });
         }
 
         function deleteFolder(folder) {
