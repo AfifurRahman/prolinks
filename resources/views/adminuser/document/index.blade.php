@@ -47,7 +47,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <table id="upload-preview-table">
+                <table id="upload-preview-table" class="table">
                     <thead>
                         <tr>
                             <th>File name</th>
@@ -271,7 +271,7 @@
                                                         &nbsp;
                                                     </td>
                                                     <td>
-                                                        <a onclick="setUserPermission('{{ $user->user_id }}')">
+                                                        <a onclick="checkUserPermission('{{ $user->user_id }}')">
                                                             <p class="permission-user-list-td3">{{ $user->email_address }}</p>
                                                             <p class="permission-user-list-td2">
                                                                 @if($user->role == 0) 
@@ -491,83 +491,166 @@
             @endforeach
             
             @foreach ($files as $file)
-                @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
-                    <tr>
-                        <td><input type="checkbox" class="checkbox" /></td>
-                        <td>
-                            @php
-                                $index = '';
-                                foreach(array_slice(explode('/', $origin), 4) as $path) {
-                                    $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
-                                }
-                                $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
-                            @endphp
-                            {{$index}}
-                        </td>
-                        <td>
-                            <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
-                                <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
-                                {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
-                            </a>
-                        </td>
-                        <td>
-                            {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
-                        </td>
-                        <td>
-                            {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
-                        </td>
-                        <td>
-                            <div class="dropdown">
-                                <button class="button_ico dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fa fa-ellipsis-v"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                    <li>
-                                        <a href="">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/show.png') }}">
-                                            View
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/printer.png') }}">
-                                            Print
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
-                                            Download
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
-                                            Rename
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
-                                            Copy
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
-                                            Cut
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
-                                            Delete
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
+                @if(Auth::user()->type == 1 || Auth::user()->type == 2)
+                    @if(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission') == '1')
+                        @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                            <tr>
+                                <td><input type="checkbox" class="checkbox" /></td>
+                                <td>
+                                    @php
+                                        $index = '';
+                                        foreach(array_slice(explode('/', $origin), 4) as $path) {
+                                            $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                        }
+                                        $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+                                    @endphp
+                                    {{$index}}
+                                </td>
+                                <td>
+                                    <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                        <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
+                                        {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
+                                </td>
+                                <td>
+                                    {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                            <li>
+                                                <a href="">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/show.png') }}">
+                                                    View
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/printer.png') }}">
+                                                    Print
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                                    Download
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                    Rename
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                                    Copy
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                                    Cut
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                    Delete
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
+                    @endif
+                @elseif (Auth::user()->type == 0)
+                    @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                        <tr>
+                            <td><input type="checkbox" class="checkbox" /></td>
+                            <td>
+                                @php
+                                    $index = '';
+                                    foreach(array_slice(explode('/', $origin), 4) as $path) {
+                                        $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                    }
+                                    $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+                                @endphp
+                                {{$index}}
+                            </td>
+                            <td>
+                                <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                    <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
+                                    {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
+                            </td>
+                            <td>
+                                {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                        <li>
+                                            <a href="">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/show.png') }}">
+                                                View
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/printer.png') }}">
+                                                Print
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                                Download
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                Rename
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                                Copy
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                                Cut
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                Delete
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 @endif
             @endforeach
         </table>
@@ -827,7 +910,7 @@
                 newRow.innerHTML = `
                     <td>${file.name}</td>
                     <td>${file.size}</td>
-                    <td><button onclick="removeFile(${index})">Remove</button></td>
+                    <td><button onclick="removeFile(${index})"><i class="fa fa-times"></i></button></td>
                 `;
                 tableBody.appendChild(newRow);
             });
