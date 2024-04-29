@@ -334,7 +334,7 @@
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">
             @if (empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
-                {{ explode('/', $origin)[count(explode('/', $origin)) - 1] }}
+                {{DB::table('upload_folders')->where('directory', $origin)->value('displayname')}}
             @else
                 {{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}
             @endif
@@ -350,7 +350,8 @@
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
                 <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'">Upload Files</button>
-            @endif        </div>
+            @endif        
+        </div>
     </div>
 
     <div class="path-box">
@@ -492,7 +493,7 @@
             
             @foreach ($files as $file)
                 @if(Auth::user()->type == 1 || Auth::user()->type == 2)
-                    @if(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission') == '1')
+                    @if(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission') == '1' || is_null(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission')))
                         @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                             <tr>
                                 <td><input type="checkbox" class="checkbox" /></td>
@@ -658,6 +659,8 @@
 
     @push('scripts')
     <script>
+        let files = [];
+        
         document.addEventListener('DOMContentLoaded', function() {
             const dragArea = document.getElementById('dragArea');
 
@@ -862,7 +865,8 @@
             }, 2250);
         }
 
-        let files = [];
+        
+
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
                 
@@ -901,7 +905,6 @@
         }
 
         function displayFileData() {
-
             const tableBody = document.getElementById('upload-preview-list');
             tableBody.innerHTML = '';
 
@@ -914,16 +917,12 @@
                 `;
                 tableBody.appendChild(newRow);
             });
-
-
         }
 
         function removeFile(index) {
             files.splice(index, 1); 
             displayFileData(files);
         }
-
-        
 
         function setPermission() {
             document.getElementById('permission-modal').style.display='block';
@@ -1064,6 +1063,7 @@
 
                 formData.append('name', folder);
                 formData.append('newname', $('#newFolderName').val());
+                formData.append('location', '{{ base64_encode($origin) }}')
 
                 fetch('{{ route("adminuser.documents.renamefolder") }}', {
                     method: 'POST',
@@ -1071,6 +1071,11 @@
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('rename-folder-modal').style.display='none';
+                    showNotification(data.message);
                 });
             });
         }

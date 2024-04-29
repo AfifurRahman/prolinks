@@ -171,11 +171,6 @@ class DocumentController extends Controller
                             'status' => 1,
                             'uploaded_by' => Auth::user()->user_id,
                         ]);
-                        Permission::create([
-                            'user_id' => Auth::user()->user_id,
-                            'fileid' => basename($filePath),
-                            'permission' => '1',
-                        ]);
                         $response[] = ['path' => $filePath];
                 }
             } 
@@ -208,6 +203,7 @@ class DocumentController extends Controller
                     'directory' => $path,
                     'basename' => $basename,
                     'name' => $request->folderName,
+                    'displayname' => $request->folderName,
                     'client_id' => \globals::get_client_id(),
                     'status' => 1,
                     'uploaded_by' => Auth::user()->user_id, 
@@ -295,11 +291,13 @@ class DocumentController extends Controller
     {
         try {
             $name = $request->name;
-            UploadFolder::where('name', $name)->update(['displayname' => $request->newname]);
+            $location = base64_decode($request->location);
+            UploadFolder::where('parent', $location)->where('name', $name)->update(['displayname' => $request->newname]);
+
+            return response()->json(['success' => true, 'message' => 'Folder successfully renamed']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
-        return back();
     }
 
     public function DeleteFolder(Request $request) {
