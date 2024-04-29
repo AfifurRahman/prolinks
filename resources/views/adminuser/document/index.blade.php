@@ -47,22 +47,28 @@
                 </button>
             </div>
             <div class="modal-body">
-                <table id="upload-preview-table" class="table">
-                    <thead>
-                        <tr>
-                            <th>File name</th>
-                            <th>Size</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="upload-preview-list">
-                        <tr>
-                            <td>Decoy.png</td>
-                            <td>100 KB</td>
-                            <td>Remove</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="upload-helper">
+                    <button onclick="document.getElementById('fileInput').click();">Browse files</button>
+                    <button onclick="clearFiles()"><i class="fa fa-times"></i>Clear all</button>
+                </div>
+                <div class="dataTable">
+                    <table id="upload-preview-table" class="table">
+                        <thead>
+                            <tr>
+                                <th>File name</th>
+                                <th>Size</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="upload-preview-list">
+                            <tr>
+                                <td>Decoy.png</td>
+                                <td>100 KB</td>
+                                <td>Remove</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div class="form-button">
                     <a class="cancel-btn" onclick="document.getElementById('upload-preview-modal').style.display='none'">Cancel</a>
                     <button class="create-btn" id="uploadFileSubmit">Upload files</button>
@@ -187,7 +193,7 @@
                 <div class="rename-modal">
                     <div class="rename-modal1">
                         <label class="modal-form-input">Index</label>
-                        <input type="text" class="form-control" disabled/>
+                        <input type="text" class="form-control" id="folder-index" disabled/>
                     </div>
                     <div class="rename-modal2">
                         <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
@@ -205,7 +211,7 @@
 
      <!-- Permission -->
      <div id="permission-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content-large">
             <div class="modal-topbar">
                 <div class="upload-modal-title">
                     <h5 class="modal-title-text">Permission Settings</h5>
@@ -218,7 +224,7 @@
             <div class="modal-permission-body">
                 <div class="permission-user-list">
                     <h4>Users</h4>
-                    <table id="permission-user-list-table">
+                    <table id="permission-user-list-table" >
                         <thead>
                             <tr>
                                 <th></th>
@@ -242,18 +248,14 @@
                                                 <tr>
                                                     <td></td>
                                                     <td>
-                                                        <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                            <p class="permission-user-list-td">{{ $user->email_address }}</p>
-                                                            <p class="permission-user-list-td2">
-                                                            @if($user->role == 0) 
-                                                                Administrator
-                                                            @elseif($user->role == 1)
-                                                                Collaborator
-                                                            @elseif($user->role == 2)
-                                                                Client
-                                                            @endif
-                                                            </p>
-                                                        </a>
+                                                        <div style="cursor:pointer;">
+                                                            <a onclick="checkUserPermission('{{ $user->user_id }}')">
+                                                                <p class="permission-user-list-td">{{ $user->name }}</p>
+                                                                <p class="permission-user-list-td2">
+                                                                {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
+                                                                </p>
+                                                            </a>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endif
@@ -270,19 +272,15 @@
                                                         <br>
                                                         &nbsp;
                                                     </td>
-                                                    <td>
-                                                        <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                            <p class="permission-user-list-td3">{{ $user->email_address }}</p>
-                                                            <p class="permission-user-list-td2">
-                                                                @if($user->role == 0) 
-                                                                    Administrator
-                                                                @elseif($user->role == 1)
-                                                                    Collaborator
-                                                                @elseif($user->role == 2)
-                                                                    Client
-                                                                @endif
-                                                            </p>
-                                                        </a>
+                                                    <td style="cursor:pointer;">
+                                                        <div style="cursor:pointer;">
+                                                            <a onclick="checkUserPermission('{{ $user->user_id }}')">
+                                                                <p class="permission-user-list-td">{{ $user->name }}</p>
+                                                                <p class="permission-user-list-td2">
+                                                                {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
+                                                                </p>
+                                                            </a>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endif
@@ -295,7 +293,7 @@
                 </div> 
                 <div class="permission-file-list">
                     <h4 id="permissionUser">Select a user</h4>
-                    <table id="permission-file-list-table">
+                    <table id="permission-file-list-table" class="table table-sm">
                         <thead>
                             <tr>
                                 <th>
@@ -308,14 +306,16 @@
                         </thead>
                         <tbody id="fileList">
                             @foreach($fileList as $file)
-                                <tr>
-                                    <td>
-                                        {{DB::table('upload_files')->where('basename', $file)->value('name')}}
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" id="{{$file}}" value="{{$file}}"></input>
-                                    </td>
-                                </tr>
+                                @if( DB::table('upload_files')->where('basename', $file)->value('status') == 1 )
+                                    <tr>
+                                        <td>
+                                            {{DB::table('upload_files')->where('basename', $file)->value('name')}}
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" id="{{$file}}" class="setPermissionBox" value="{{$file}}"></input>
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>
@@ -326,7 +326,7 @@
 
             <div class="modal-footer">
                 <a class="cancel-btn" onclick="document.getElementById('permission-modal').style.display='none'">Cancel</a>
-                <button class="create-btn" id="setPermissionButton">Save settings</button>
+                <button class="create-btn" id="setPermissionButton" onclick="savePermission()">Save settings</button>
             </div>  
         </div>
     </div>
@@ -364,7 +364,7 @@
                     @foreach(array_slice(explode('/', $origin),4) as $path)
                         @php $url .= '/' . $path; @endphp
                         &nbsp;>&nbsp;&nbsp;
-                        <a href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $url)->value('basename')) ) }}">{{ $path }}</a>
+                        <a href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $url)->value('basename')) ) }}">{{ DB::table('upload_folders')->where('directory', $url)->value('displayname')}}</a>
                         &nbsp;
                     @endforeach
                 @endif
@@ -407,7 +407,7 @@
                         @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
                             <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
                                 <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
-                                Up to  {{ DB::table('upload_folders')->where('name', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name') }}
+                                Up to  {{ DB::table('upload_folders')->where('name', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('displayname') }}
                             </a>
                         @else
                             <a class="fol-fil" href="{{ route('adminuser.documents.list', base64_encode(DB::table('upload_folders')->where('directory', $origin)->value('project_id'). '/'. DB::table('upload_folders')->where('directory', $origin)->value('subproject_id'))) }}">
@@ -461,7 +461,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a onclick="renameFolder('{{ basename($directory) }}')">
+                                        <a onclick="renameFolder('{{ basename($directory) }}', '{{$index}}', '{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
                                         </a>
@@ -862,10 +862,8 @@
             }, 2000);
             setTimeout(function() {
                 location.reload();
-            }, 2250);
+            }, 1000);
         }
-
-        
 
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
@@ -912,8 +910,8 @@
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
                     <td>${file.name}</td>
-                    <td>${file.size}</td>
-                    <td><button onclick="removeFile(${index})"><i class="fa fa-times"></i></button></td>
+                    <td>${convertByte(file.size)}</td>
+                    <td><button onclick="removeFile(${index})" class="removeFileButton"><i class="fa fa-times"></i></button></td>
                 `;
                 tableBody.appendChild(newRow);
             });
@@ -924,13 +922,30 @@
             displayFileData(files);
         }
 
+        function clearFiles() {
+            files = [];
+            displayFileData(files);
+        }
+
+        function convertByte(size) {
+            if (size >= 1073741824) {
+                return (size / 1073741824).toFixed(2) + ' GB';
+            } else if (size >= 1048576) {
+                return (size / 1048576).toFixed(2) + ' MB';
+            } else if (size >= 1024) {
+                return (size / 1024).toFixed(2) + ' KB';
+            } else if (size >= 0) {
+                return size + ' bytes';
+            }
+        }
+
         function setPermission() {
             document.getElementById('permission-modal').style.display='block';
             document.getElementById('permission-file-list-table').style.display="none";
             $('#setPermissionButton').prop("disabled", true);
 
 
-            $('#setPermissionButton').on('click', function(e) {
+            $('.setPermissionBox').on('click', function(e) {
                 var checkboxStatusArray = [];
 
                 $("#fileList input[type='checkbox']").each(function() {
@@ -967,7 +982,12 @@
             console.log(userid);
         }
 
-        function checkUserPermission(user) {
+        function savePermission() {
+            document.getElementById('permission-modal').style.display='none';
+            showNotification('Permission settings saved');
+        }
+
+        function checkUserPermission(user,role) {
             $("#IDuser").attr("value",user);
             document.getElementById('permission-file-list-table').style.display="block";
             $('#setPermissionButton').prop("disabled", false);
@@ -1053,8 +1073,10 @@
             });
         }
 
-        function renameFolder(folder) {
+        function renameFolder(folder, index, name) {
             document.getElementById('rename-folder-modal').style.display='block';
+            $("#folder-index").attr("value", index);
+            $("#newFolderName").attr("value", name);
 
             $('#renameFolderSubmit').on('click', function(e) {
                 console.log('ts')

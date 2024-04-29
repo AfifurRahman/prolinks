@@ -45,9 +45,17 @@ class DocumentController extends Controller
     {
         try {
             $permissionlist = Permission::where('user_id', $request->userid)->get();
-            $username = User::where('user_id', $request->userid)->value('email');
+            $username = ClientUser::where('user_id', $request->userid)->value('name');
+            
+            if ( User::where('user_id', $request->userid)->value('type') == 0 ) {
+                $role = 'Administrator';
+            } else if ( User::where('user_id', $request->userid)->value('type') == 1 ) {
+                $role ='Collaborator';
+            } else {
+                $role = 'Client';
+            }
 
-            return response()->json(['permissionlist' => $permissionlist, 'username' => $username]);
+            return response()->json(['permissionlist' => $permissionlist, 'username' => $username . ' - ' . $role]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -149,32 +157,37 @@ class DocumentController extends Controller
 
                 $response = [];
                 foreach ($files as $file) {
-                        $locationParts = explode('/', base64_decode($request->location), 5);
+                        $remainQuota = (DB::table('pricing')->where('id', DB::table('clients')->where('client_id',\globals::get_client_id())->value('pricing_id'))->value('allocation_size')) - (DB::table('upload_files')->where('client_id', \globals::get_client_id())->sum('size'));
 
-                        $path = base64_decode($request->location) .$pf;
+                        if (($remainQuota - $file->getSize()) > 0) {
+                            $locationParts = explode('/', base64_decode($request->location), 5);
 
-                        $filePath = $file->storeAs($path, Str::random(8));
-
-                        $maxIndex = max(UploadFile::where('directory', $path)->max('index'), UploadFolder::where('parent', $path)->max('index'));
-                        $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
-
-                        UploadFile::create([
-                            'index' => $fileIndex,
-                            'project_id' => $locationParts[2],
-                            'subproject_id' => $locationParts[3],
-                            'directory' => $path,
-                            'basename' => basename($filePath),
-                            'name' => $file->getClientOriginalName(),
-                            'client_id' => \globals::get_client_id(),
-                            'mime_type' => $file->getClientMimeType(),
-                            'size' => $file->getSize(),
-                            'status' => 1,
-                            'uploaded_by' => Auth::user()->user_id,
-                        ]);
-                        $response[] = ['path' => $filePath];
+                            $path = base64_decode($request->location) .$pf;
+    
+                            $filePath = $file->storeAs($path, Str::random(8));
+    
+                            $maxIndex = max(UploadFile::where('directory', $path)->max('index'), UploadFolder::where('parent', $path)->max('index'));
+                            $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+    
+                            UploadFile::create([
+                                'index' => $fileIndex,
+                                'project_id' => $locationParts[2],
+                                'subproject_id' => $locationParts[3],
+                                'directory' => $path,
+                                'basename' => basename($filePath),
+                                'name' => $file->getClientOriginalName(),
+                                'client_id' => \globals::get_client_id(),
+                                'mime_type' => $file->getClientMimeType(),
+                                'size' => $file->getSize(),
+                                'status' => 1,
+                                'uploaded_by' => Auth::user()->user_id,
+                            ]);
+                        } else {
+                            return response()->json(['success' => false, 'message' => 'You dont have sufficient quota']);
+                        }
                 }
             } 
-            return response()->json(['success' => true, 'message' => 'Files successfully uploaded']);
+            return response()->json(['success' => true, 'message' => 'Files successfully uploaded ']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }

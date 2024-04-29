@@ -17,6 +17,7 @@ class UploadFolder extends Model
         'directory',
         'name',
         'basename',
+        'displayname',
         'description',
         'client_id',
         'status',
