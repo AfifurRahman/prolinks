@@ -187,7 +187,7 @@
                 <div class="rename-modal">
                     <div class="rename-modal1">
                         <label class="modal-form-input">Index</label>
-                        <input type="text" class="form-control" disabled/>
+                        <input type="text" class="form-control" id="folder-index" disabled/>
                     </div>
                     <div class="rename-modal2">
                         <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
@@ -364,7 +364,7 @@
                     @foreach(array_slice(explode('/', $origin),4) as $path)
                         @php $url .= '/' . $path; @endphp
                         &nbsp;>&nbsp;&nbsp;
-                        <a href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $url)->value('basename')) ) }}">{{ $path }}</a>
+                        <a href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $url)->value('basename')) ) }}">{{ DB::table('upload_folders')->where('directory', $url)->value('displayname')}}</a>
                         &nbsp;
                     @endforeach
                 @endif
@@ -407,7 +407,7 @@
                         @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
                             <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
                                 <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
-                                Up to  {{ DB::table('upload_folders')->where('name', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('name') }}
+                                Up to  {{ DB::table('upload_folders')->where('name', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('displayname') }}
                             </a>
                         @else
                             <a class="fol-fil" href="{{ route('adminuser.documents.list', base64_encode(DB::table('upload_folders')->where('directory', $origin)->value('project_id'). '/'. DB::table('upload_folders')->where('directory', $origin)->value('subproject_id'))) }}">
@@ -461,7 +461,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a onclick="renameFolder('{{ basename($directory) }}')">
+                                        <a onclick="renameFolder('{{ basename($directory) }}', '{{$index}}', '{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                             Rename
                                         </a>
@@ -865,8 +865,6 @@
             }, 2250);
         }
 
-        
-
         function handleFileSelection(input) {
             if (input.files && input.files.length > 0) {
                 
@@ -1053,8 +1051,10 @@
             });
         }
 
-        function renameFolder(folder) {
+        function renameFolder(folder, index, name) {
             document.getElementById('rename-folder-modal').style.display='block';
+            $("#folder-index").attr("value", index);
+            $("#newFolderName").attr("value", name);
 
             $('#renameFolderSubmit').on('click', function(e) {
                 console.log('ts')
