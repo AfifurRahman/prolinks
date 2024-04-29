@@ -171,6 +171,11 @@ class DocumentController extends Controller
                             'status' => 1,
                             'uploaded_by' => Auth::user()->user_id,
                         ]);
+                        Permission::create([
+                            'user_id' => Auth::user()->user_id,
+                            'fileid' => basename($filePath),
+                            'permission' => '1',
+                        ]);
                         $response[] = ['path' => $filePath];
                 }
             } 
@@ -183,13 +188,13 @@ class DocumentController extends Controller
     public function CreateFolder(Request $request)
     {
         try {
-            $directories = Storage::directories('uploads/' . \globals::get_client_id() . '/' . base64_decode($request->location));
+            $currentPath = base64_decode($request->location);
             $basename = Str::random(8);
             $originPath = base64_decode($request->location);
             $locationParts = explode('/', $originPath, 5);
             $path = $originPath . '/'. $request->folderName;
 
-            $folders = UploadFolder::where('name', $request->folderName)->value('name');
+            $folders = UploadFolder::where('parent', $currentPath)->where('name', $request->folderName)->value('name');
 
             if (is_null($folders)){
                 $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('parent', $originPath)->max('index'));
@@ -212,7 +217,7 @@ class DocumentController extends Controller
 
                 return response()->json(['success' => true, 'message' => 'Folder successfully created']);
             } else {
-                return response()->json(['success' => false, 'message' => 'Same folder name already there']);
+                return response()->json(['success' => false, 'message' => 'Same folder name already exist']);
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
@@ -289,8 +294,8 @@ class DocumentController extends Controller
     public function RenameFolder(Request $request)
     {
         try {
-            $old_name = base64_decode($request->old_name);
-            UploadFolder::where('basename', $old_name)->update(['name' => $request->new_name]);
+            $name = $request->name;
+            UploadFolder::where('name', $name)->update(['displayname' => $request->newname]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }

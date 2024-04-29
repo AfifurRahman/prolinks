@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('discussion_attach_files', function (Blueprint $table) {
-            $table->string('basename')->nullable()->after('file_name');
+        Schema::table('upload_files', function (Blueprint $table) {
+            $table->renameColumn('email', 'client_id');
         });
     }
 
@@ -21,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('upload_files', function (Blueprint $table) {
+            $table->renameColumn('client_id', 'email');
+        });
     }
 };
