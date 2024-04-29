@@ -200,7 +200,7 @@ table thead th:first-child {
     display: none;
 }
 
-.modal {
+/* .modal {
     display: none;
     position: fixed;
     z-index: 1;
@@ -210,19 +210,19 @@ table thead th:first-child {
     height: 100%;
     overflow: hidden;
     background-color: rgba(0,0,0,0.65);
-}
+} */
 
-.modal-content {
+/* .modal-content {
     background-color: #fefefe;
     margin: 3% auto;
     border: 1px solid #888;
     width: 600px;
     overflow-y: auto;
     max-height: calc(100% - 6%);
-}
+} */
 
 
-.modal-topbar {
+/* .modal-topbar {
     display:flex;
     border-bottom: 1px solid #D0D5DD;
     background: #F9FAFB;
@@ -230,17 +230,17 @@ table thead th:first-child {
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     padding:10px 14px 0px 20px;
-}
+} */
 
-.modal-close {
+/* .modal-close {
     border:none;
     background:none;
-}
+} */
 
-.close:hover,
+/* .close:hover,
 .close:focus {
     cursor: pointer;
-}
+} */
 
 .invited_status{
     background: #EDF0F2;
