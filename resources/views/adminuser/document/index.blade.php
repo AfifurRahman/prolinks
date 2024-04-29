@@ -244,20 +244,22 @@
                                             </td>
                                         </tr>
                                         @foreach($listusers as $user)
-                                            @if($user->group_id == $group->group_id)
-                                                <tr>
-                                                    <td></td>
-                                                    <td>
-                                                        <div style="cursor:pointer;">
-                                                            <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                                <p class="permission-user-list-td">{{ $user->name }}</p>
-                                                                <p class="permission-user-list-td2">
-                                                                {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
-                                                                </p>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                            @if(!is_null(DB::table('assign_project')->where('project_id', explode('/', $origin)[2])->where('user_id', $user->user_id)->value('email')))
+                                                @if($user->group_id == $group->group_id)
+                                                    <tr>
+                                                        <td></td>
+                                                        <td>
+                                                            <div style="cursor:pointer;">
+                                                                <a onclick="checkUserPermission('{{ $user->user_id }}')">
+                                                                    <p class="permission-user-list-td">{{ $user->name }}</p>
+                                                                    <p class="permission-user-list-td2">
+                                                                    {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
+                                                                    </p>
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endif
                                             @endif
                                         @endforeach
                                     @endif
@@ -265,24 +267,26 @@
                                 @foreach($listusers->unique('group_id') as $group)
                                     @if(empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
                                         @foreach($listusers as $user)
-                                            @if(empty($user->group_id))
-                                                <tr>
-                                                    <td>
-                                                        <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
-                                                        <br>
-                                                        &nbsp;
-                                                    </td>
-                                                    <td style="cursor:pointer;">
-                                                        <div style="cursor:pointer;">
-                                                            <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                                <p class="permission-user-list-td">{{ $user->name }}</p>
-                                                                <p class="permission-user-list-td2">
-                                                                {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
-                                                                </p>
-                                                            </a>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                            @if(!is_null(DB::table('assign_project')->where('project_id', explode('/', $origin)[2])->where('user_id', $user->user_id)->value('email')))
+                                                @if(empty($user->group_id))
+                                                    <tr>
+                                                        <td>
+                                                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
+                                                            <br>
+                                                            &nbsp;
+                                                        </td>
+                                                        <td style="cursor:pointer;">
+                                                            <div style="cursor:pointer;">
+                                                                <a onclick="checkUserPermission('{{ $user->user_id }}')">
+                                                                    <p class="permission-user-list-td">{{ $user->name }}</p>
+                                                                    <p class="permission-user-list-td2">
+                                                                    {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
+                                                                    </p>
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endif
                                             @endif
                                         @endforeach
                                     @endif
@@ -330,6 +334,8 @@
             </div>  
         </div>
     </div>
+
+    {{explode('/', $origin)[2]}}
 
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">
