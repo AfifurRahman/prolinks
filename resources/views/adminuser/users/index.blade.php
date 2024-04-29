@@ -17,8 +17,10 @@
     <div id="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Users</h2>
         <div>
-            <button id="create_group" onclick="document.getElementById('create_group_form').style.display='block'"><span style="color:#1570EF; font-weight:bold;">Create Group</span></button>
-            <button id="invite_user" onclick="document.getElementById('inviteuser_form').style.display='block'"><image id="addimg" src="{{ url('template/images/icon_menu/add.png') }}"></image>Invite User</button>
+            <!-- <button id="create_group" onclick="document.getElementById('create_group_form').style.display='block'"><span style="color:#1570EF; font-weight:bold;">Create Group</span></button> -->
+            <!-- <button id="invite_user" onclick="document.getElementById('inviteuser_form').style.display='block'"><image id="addimg" src="{{ url('template/images/icon_menu/add.png') }}"></image>Invite User</button> -->
+            <a id="create_group" class="btn" href="#modal-create-group" data-toggle="modal"><span style="color:#1570EF; font-weight:bold;">Create Group</span></a>
+            <a id="invite_user" class="btn" href="#modal-invite-users" data-toggle="modal"><img id="addimg" src="{{ url('template/images/icon_menu/add.png') }}" />Invite User</a>
         </div>
     </div>
 
@@ -228,83 +230,87 @@
         </div>
     @endif
 
-    <div id="inviteuser_form" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div id="inviteuser-title">
-                    <image id="inviteuser-ico" src="{{ url('template/images/icon_menu/invite_user.png') }}"></image>
-                    <h5 class="modaltitle-text">Invite users</h5>
+    <div id="modal-invite-users" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                	<div class="custom-modal-header">
+                		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                		<div style="float: left;">
+                            <img id="inviteuser-ico" src="{{ url('template/images/icon_menu/invite_user.png') }}" width="24" height="24">
+	                    </div>
+	                    <div style="float: left; margin-left: 10px;">
+	                        <h4 class="modal-title" id="titleModal">
+                                Invite users
+	                        </h4>
+	                    </div>
+	                </div>
                 </div>
-                
-                <button class="modal-close" onclick="document.getElementById('inviteuser_form').style.display='none'">
-                    <image id="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-            
-            <div class="modal-body">
-                <form action="{{ route('adminuser.access-users.create')}}" method="POST">
-                    @csrf
-                    <h5 class="userform">Email address</h5>
-                    <div class="tags-default tag-email">
-                        <input name="email_address" id="email_address" placeholder="Enter email address" required/>
-                    </div>
-                    
-                    <h5 class="userrole">Role</h5>
-                    <div class="roleselect">
-                        <input type="radio" name="role" value="0" onclick="setRole(this)" required>
-                        <div class="roledetail">
-                            <p class="roletitle">Administrator<p>
-                            <p class="roledesc">Have full access to manage documents, QnA contents, invite users and access to all reports.</p>
+                <div class="modal-body">
+                    <form action="{{ route('adminuser.access-users.create')}}" method="POST">
+                        @csrf
+                        <h5 class="userform">Email address</h5>
+                        <div class="tags-default tag-email">
+                            <input name="email_address" id="email_address" placeholder="Enter email address" required/>
                         </div>
-                    </div>
+                        
+                        <h5 class="userrole">Role</h5>
+                        <div class="roleselect">
+                            <input type="radio" name="role" value="0" onclick="setRole(this)" required>
+                            <div class="roledetail">
+                                <p class="roletitle">Administrator<p>
+                                <p class="roledesc">Have full access to manage documents, QnA contents, invite users and access to all reports.</p>
+                            </div>
+                        </div>
 
-                    <div class="roleselect">
-                        <input type="radio" name="role" value="1" onclick="setRole(this)" required>
-                        <div class="roledetail">
-                            <p class="roletitle">Collaborator<p>
-                            <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
+                        <div class="roleselect">
+                            <input type="radio" name="role" value="1" onclick="setRole(this)" required>
+                            <div class="roledetail">
+                                <p class="roletitle">Collaborator<p>
+                                <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="roleselect">
-                        <input type="radio" name="role" value="2" onclick="setRole(this)" required>
-                        <div class="roledetail">
-                            <p class="roletitle">Client<p>
-                            <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
+                        <div class="roleselect">
+                            <input type="radio" name="role" value="2" onclick="setRole(this)" required>
+                            <div class="roledetail">
+                                <p class="roletitle">Client<p>
+                                <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div id="data_group" class="company_id">
-                        <h5 class="usercompany">Group</h5>
-                        <select class="form-control select2" data-placeholder="Unassigned" multiple name="group[]">
-                            @foreach($group as $groups)
-                                @if($groups == 0)
-                                    <option value="0">Unassigned</option>
-                                @else
-                                    <option value="{{$groups}}">{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-                    <div id="resultGroup"></div>
-                    <div id="data_project">
-                        <h5 class="usercompany">Project <span class="text-danger">*</span></h5>
-                        <select class="form-control select2" data-placeholder="Select Project" multiple name="project[]">
-                            @foreach($project as $projects)
-                                @if(count($projects->RefSubProject) > 0)
-                                    <option value="{{$projects->project_id}}">{{ $projects->project_name }}</option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-                    <div id="resultProject"></div>
-                    <div class="formbutton">
-                        <a class="cancelbtn" onclick="document.getElementById('inviteuser_form').style.display='none'">Cancel</a>
-                        <button class="createbtn" type="submit">Invite</button>
-                    </div>
-                </form>
+                        
+                        <div id="data_group" class="company_id">
+                            <h5 class="usercompany">Group</h5>
+                            <select class="form-control select2" data-placeholder="Unassigned" multiple name="group[]">
+                                @foreach($group as $groups)
+                                    @if($groups == 0)
+                                        <option value="0">Unassigned</option>
+                                    @else
+                                        <option value="{{$groups}}">{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div id="resultGroup"></div>
+                        <div id="data_project">
+                            <h5 class="usercompany">Project <span class="text-danger">*</span></h5>
+                            <select class="form-control select2" data-placeholder="Select Project" multiple name="project[]" id="projectsID">
+                                @foreach($project as $projects)
+                                    @if(count($projects->RefSubProject) > 0)
+                                        <option value="{{$projects->project_id}}">{{ $projects->project_name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                        <div id="resultProject"></div>
+                        <div class="formbutton">
+                            <a class="cancelbtn" data-dismiss="modal">Cancel</a>
+                            <button class="createbtn" type="submit">Invite</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>      
+        </div>
     </div>
 
     <!-- modal -->
@@ -385,6 +391,7 @@
                 /* jika yg dipilih administrator group & project menjd all */
                 $("#data_group").css("display", "none");
                 $("#data_project").css("display", "none");
+                $("#projectsID").prop("required", false);
 
                 var resGroup = "";
                 var resGroup = "<div class='form-group'>";
@@ -408,11 +415,13 @@
                 /* jika yg dipilih collaborator group hilang */
                 $("#data_group").css("display", "none");
                 $("#data_project").css("display", "block");
+                $("#projectsID").prop("required", true);
                 $("#resultGroup").html("");
                 $("#resultProject").html("");
             }else{
                 $("#data_group").css("display", "block");
                 $("#data_project").css("display", "block");
+                $("#projectsID").prop("required", true);
                 $("#resultGroup").html("");
                 $("#resultProject").html("");
             }
