@@ -6,6 +6,10 @@
     bottom:-200px;
 }
 
+.removeFileButton{
+    background:none;
+    border:none;
+}
 .checkbox {
     width:16px;
     height:16px;
@@ -251,6 +255,11 @@
     margin-right:-8px;
     width:24px;
     height:24px;
+}
+
+.upload-helper{
+    display:flex;
+    justify-content: space-between;
 }
 
 .drag-area {

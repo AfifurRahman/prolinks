@@ -47,22 +47,28 @@
                 </button>
             </div>
             <div class="modal-body">
-                <table id="upload-preview-table" class="table">
-                    <thead>
-                        <tr>
-                            <th>File name</th>
-                            <th>Size</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="upload-preview-list">
-                        <tr>
-                            <td>Decoy.png</td>
-                            <td>100 KB</td>
-                            <td>Remove</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="upload-helper">
+                    <button onclick="document.getElementById('fileInput').click();">Browse files</button>
+                    <button onclick="clearFiles()"><i class="fa fa-times"></i>Clear all</button>
+                </div>
+                <div class="dataTable">
+                    <table id="upload-preview-table" class="table">
+                        <thead>
+                            <tr>
+                                <th>File name</th>
+                                <th>Size</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="upload-preview-list">
+                            <tr>
+                                <td>Decoy.png</td>
+                                <td>100 KB</td>
+                                <td>Remove</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div class="form-button">
                     <a class="cancel-btn" onclick="document.getElementById('upload-preview-modal').style.display='none'">Cancel</a>
                     <button class="create-btn" id="uploadFileSubmit">Upload files</button>
@@ -905,7 +911,7 @@
                 newRow.innerHTML = `
                     <td>${file.name}</td>
                     <td>${convertByte(file.size)}</td>
-                    <td><button onclick="removeFile(${index})"><i class="fa fa-times"></i></button></td>
+                    <td><button onclick="removeFile(${index})" class="removeFileButton"><i class="fa fa-times"></i></button></td>
                 `;
                 tableBody.appendChild(newRow);
             });
@@ -913,6 +919,11 @@
 
         function removeFile(index) {
             files.splice(index, 1); 
+            displayFileData(files);
+        }
+
+        function clearFiles() {
+            files = [];
             displayFileData(files);
         }
 
