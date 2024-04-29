@@ -21,7 +21,7 @@ class DocumentController extends Controller
     public function Index($subproject)  //done check
     {
         try {
-            $origin = 'uploads/'. Client::where('client_email', Auth::user()->email)->value('client_id'). '/'. base64_decode($subproject);
+            $origin = 'uploads/'.\globals::get_client_id(). '/'. base64_decode($subproject);
             $permission =  explode('/', base64_decode($subproject), 5);
            
 
@@ -183,7 +183,7 @@ class DocumentController extends Controller
     public function CreateFolder(Request $request)
     {
         try {
-            $directories = Storage::directories('uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id') . '/' . base64_decode($request->location));
+            $directories = Storage::directories('uploads/' . \globals::get_client_id() . '/' . base64_decode($request->location));
             $basename = Str::random(8);
             $originPath = base64_decode($request->location);
             $locationParts = explode('/', $originPath, 5);
@@ -394,7 +394,7 @@ class DocumentController extends Controller
                         'directory' => $path,
                         'basename' => $randomString,
                         'name' => $key,
-                        'client_id' => Client::where('client_email', Auth::user()->email)->value('client_id'),
+                        'client_id' => \globals::get_client_id(),
                         'status' => 1,
                         'uploaded_by' => Auth::user()->user_id,
                     ]);
