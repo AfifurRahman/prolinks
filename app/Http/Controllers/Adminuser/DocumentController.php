@@ -171,6 +171,11 @@ class DocumentController extends Controller
                             'status' => 1,
                             'uploaded_by' => Auth::user()->user_id,
                         ]);
+                        Permission::create([
+                            'user_id' => Auth::user()->user_id,
+                            'fileid' => basename($filePath),
+                            'permission' => '1',
+                        ]);
                         $response[] = ['path' => $filePath];
                 }
             } 
