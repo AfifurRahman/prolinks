@@ -204,6 +204,14 @@
     width: 35%;
 }
 
+.modal-content-large {
+    background-color: #fefefe;
+    margin: 3% auto;
+    border: 1px solid #888;
+    border-radius:5px;
+    width: 50%;
+}
+
 .modal-upload-btn {
     color:#FFFFFF;
     border:none;
@@ -394,6 +402,15 @@ h3 {
     padding:18px;
     width:60%;
 }
+
+#permission-file-list-table{
+    overflow:auto;
+    padding:18px;
+    width:100%;
+    height:90%;
+    text-wrap:wrap;
+}
+
 
 .permission-user-list-tr{
     color:#000000;

@@ -45,9 +45,17 @@ class DocumentController extends Controller
     {
         try {
             $permissionlist = Permission::where('user_id', $request->userid)->get();
-            $username = User::where('user_id', $request->userid)->value('email');
+            $username = ClientUser::where('user_id', $request->userid)->value('name');
+            
+            if ( User::where('user_id', $request->userid)->value('type') == 0 ) {
+                $role = 'Administrator';
+            } else if ( User::where('user_id', $request->userid)->value('type') == 1 ) {
+                $role ='Collaborator';
+            } else {
+                $role = 'Client';
+            }
 
-            return response()->json(['permissionlist' => $permissionlist, 'username' => $username]);
+            return response()->json(['permissionlist' => $permissionlist, 'username' => $username . ' - ' . $role]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }

@@ -205,7 +205,7 @@
 
      <!-- Permission -->
      <div id="permission-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content-large">
             <div class="modal-topbar">
                 <div class="upload-modal-title">
                     <h5 class="modal-title-text">Permission Settings</h5>
@@ -218,7 +218,7 @@
             <div class="modal-permission-body">
                 <div class="permission-user-list">
                     <h4>Users</h4>
-                    <table id="permission-user-list-table">
+                    <table id="permission-user-list-table" >
                         <thead>
                             <tr>
                                 <th></th>
@@ -242,18 +242,14 @@
                                                 <tr>
                                                     <td></td>
                                                     <td>
-                                                        <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                            <p class="permission-user-list-td">{{ $user->email_address }}</p>
-                                                            <p class="permission-user-list-td2">
-                                                            @if($user->role == 0) 
-                                                                Administrator
-                                                            @elseif($user->role == 1)
-                                                                Collaborator
-                                                            @elseif($user->role == 2)
-                                                                Client
-                                                            @endif
-                                                            </p>
-                                                        </a>
+                                                        <div style="cursor:pointer;">
+                                                            <a onclick="checkUserPermission('{{ $user->user_id }}')">
+                                                                <p class="permission-user-list-td">{{ $user->name }}</p>
+                                                                <p class="permission-user-list-td2">
+                                                                {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
+                                                                </p>
+                                                            </a>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endif
@@ -270,19 +266,15 @@
                                                         <br>
                                                         &nbsp;
                                                     </td>
-                                                    <td>
-                                                        <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                            <p class="permission-user-list-td3">{{ $user->email_address }}</p>
-                                                            <p class="permission-user-list-td2">
-                                                                @if($user->role == 0) 
-                                                                    Administrator
-                                                                @elseif($user->role == 1)
-                                                                    Collaborator
-                                                                @elseif($user->role == 2)
-                                                                    Client
-                                                                @endif
-                                                            </p>
-                                                        </a>
+                                                    <td style="cursor:pointer;">
+                                                        <div style="cursor:pointer;">
+                                                            <a onclick="checkUserPermission('{{ $user->user_id }}')">
+                                                                <p class="permission-user-list-td">{{ $user->name }}</p>
+                                                                <p class="permission-user-list-td2">
+                                                                {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
+                                                                </p>
+                                                            </a>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endif
@@ -295,7 +287,7 @@
                 </div> 
                 <div class="permission-file-list">
                     <h4 id="permissionUser">Select a user</h4>
-                    <table id="permission-file-list-table">
+                    <table id="permission-file-list-table" class="table table-sm">
                         <thead>
                             <tr>
                                 <th>
@@ -308,14 +300,16 @@
                         </thead>
                         <tbody id="fileList">
                             @foreach($fileList as $file)
-                                <tr>
-                                    <td>
-                                        {{DB::table('upload_files')->where('basename', $file)->value('name')}}
-                                    </td>
-                                    <td>
-                                        <input type="checkbox" id="{{$file}}" value="{{$file}}"></input>
-                                    </td>
-                                </tr>
+                                @if( DB::table('upload_files')->where('basename', $file)->value('status') == 1 )
+                                    <tr>
+                                        <td>
+                                            {{DB::table('upload_files')->where('basename', $file)->value('name')}}
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" id="{{$file}}" class="setPermissionBox" value="{{$file}}"></input>
+                                        </td>
+                                    </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>
@@ -326,7 +320,7 @@
 
             <div class="modal-footer">
                 <a class="cancel-btn" onclick="document.getElementById('permission-modal').style.display='none'">Cancel</a>
-                <button class="create-btn" id="setPermissionButton">Save settings</button>
+                <button class="create-btn" id="setPermissionButton" onclick="savePermission()">Save settings</button>
             </div>  
         </div>
     </div>
@@ -862,7 +856,7 @@
             }, 2000);
             setTimeout(function() {
                 location.reload();
-            }, 2250);
+            }, 1000);
         }
 
         function handleFileSelection(input) {
@@ -910,7 +904,7 @@
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
                     <td>${file.name}</td>
-                    <td>${file.size}</td>
+                    <td>${convertByte(file.size)}</td>
                     <td><button onclick="removeFile(${index})"><i class="fa fa-times"></i></button></td>
                 `;
                 tableBody.appendChild(newRow);
@@ -922,13 +916,25 @@
             displayFileData(files);
         }
 
+        function convertByte(size) {
+            if (size >= 1073741824) {
+                return (size / 1073741824).toFixed(2) + ' GB';
+            } else if (size >= 1048576) {
+                return (size / 1048576).toFixed(2) + ' MB';
+            } else if (size >= 1024) {
+                return (size / 1024).toFixed(2) + ' KB';
+            } else if (size >= 0) {
+                return size + ' bytes';
+            }
+        }
+
         function setPermission() {
             document.getElementById('permission-modal').style.display='block';
             document.getElementById('permission-file-list-table').style.display="none";
             $('#setPermissionButton').prop("disabled", true);
 
 
-            $('#setPermissionButton').on('click', function(e) {
+            $('.setPermissionBox').on('click', function(e) {
                 var checkboxStatusArray = [];
 
                 $("#fileList input[type='checkbox']").each(function() {
@@ -965,7 +971,12 @@
             console.log(userid);
         }
 
-        function checkUserPermission(user) {
+        function savePermission() {
+            document.getElementById('permission-modal').style.display='none';
+            showNotification('Permission settings saved');
+        }
+
+        function checkUserPermission(user,role) {
             $("#IDuser").attr("value",user);
             document.getElementById('permission-file-list-table').style.display="block";
             $('#setPermissionButton').prop("disabled", false);
