@@ -27,11 +27,11 @@ class AccessUsersController extends Controller
         $adminusercompany = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
 
         $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
-        $group = AccessGroup::where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
+        $group = AccessGroup::where('client_id', \globals::get_client_id())->get();
         $project = Project::where('client_id', \globals::get_client_id())->get();
         $owners = User::where('client_id', \globals::get_client_id())->where('type', 0)->where('user_id', Auth::user()->user_id)->get();
         $listGroup = AccessGroup::where('client_id', \globals::get_client_id())->get();
-        array_unshift($group, 0);
+        // array_unshift($group, 0);
         // array_unshift($project, 0);
 
         return view('adminuser.users.index', compact('clientuser','group','owners', 'listGroup', 'project'));

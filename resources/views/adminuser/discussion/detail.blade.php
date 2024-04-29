@@ -188,7 +188,7 @@
                                 <form id="fileForm" enctype="multipart/form-data">
                                     @csrf
                                     <div class="input-group">
-                                        <input type="hidden" name="id" value="{{ base64_encode($comment->id) }}">
+                                        <input type="hidden" name="id" value="{{ !empty($comment->id) ? base64_encode($comment->id) : '' }}">
                                         <textarea style="width:100%;" name="comment" id="comment" placeholder="Add an answer"></textarea>
                                         <span class="input-group-btn">
                                             <button id="actSubmitQNA" type="submit" class="btn btn-lg btn-primary" style="margin-top:-5px;">Submit</button>

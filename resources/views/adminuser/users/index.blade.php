@@ -281,13 +281,9 @@
                         
                         <div id="data_group" class="company_id">
                             <h5 class="usercompany">Group</h5>
-                            <select class="form-control select2" data-placeholder="Unassigned" multiple name="group[]">
+                            <select class="form-control select2" data-placeholder="Select group" multiple name="group[]">
                                 @foreach($group as $groups)
-                                    @if($groups == 0)
-                                        <option value="0">Unassigned</option>
-                                    @else
-                                        <option value="{{$groups}}">{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
-                                    @endif
+                                    <option value="{{ $groups->group_id }}">{{ $groups->group_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -334,11 +330,7 @@
                     <br>
                     <select class="form-control select2" multiple name="group_num">
                         @foreach($group as $groups)
-                            @if($groups == 0)
-                                <option value="0">Unassigned</option>
-                            @else
-                                <option value="{{$groups}}">{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
-                            @endif
+                            <option value="{{ $groups->group_id }}">{{ $groups->group_name }}</option>
                         @endforeach
                     </select>
                     <br>
