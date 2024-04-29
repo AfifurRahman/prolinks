@@ -21,7 +21,7 @@ class DocumentController extends Controller
     public function Index($subproject)  //done check
     {
         try {
-            $origin = 'uploads/'. \globals::get_client_id(). '/'. base64_decode($subproject);
+            $origin = 'uploads/'.\globals::get_client_id(). '/'. base64_decode($subproject);
             $permission =  explode('/', base64_decode($subproject), 5);
            
 
