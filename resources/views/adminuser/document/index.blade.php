@@ -335,8 +335,6 @@
         </div>
     </div>
 
-    {{explode('/', $origin)[2]}}
-
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">
             @if (empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
@@ -886,6 +884,8 @@
  
                 $('#uploadFileSubmit').on('click', function(e) {
                     e.preventDefault();
+                    $('.removeFileButton').text('Uploading...');
+
                     const formData = new FormData();
                     formData.append("location", "{{ base64_encode($origin) }}");
                     files.forEach(file => formData.append('files[]', file));
