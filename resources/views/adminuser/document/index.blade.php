@@ -48,8 +48,8 @@
             </div>
             <div class="modal-body">
                 <div class="upload-helper">
-                    <button onclick="document.getElementById('fileInput').click();">Browse files</button>
-                    <button onclick="clearFiles()"><i class="fa fa-times"></i>Clear all</button>
+                    <button id="browseFiles" class="create-btn" onclick="document.getElementById('fileInput').click();">Browse files</button>
+                    <button id="clearFiles"  class="delete-btn" onclick="clearFiles()"><i class="fa fa-times"></i>&nbsp;Clear all</button>
                 </div>
                 <div class="dataTable">
                     <table id="upload-preview-table" class="table">
@@ -885,6 +885,9 @@
                 $('#uploadFileSubmit').on('click', function(e) {
                     e.preventDefault();
                     $('.removeFileButton').text('Uploading...');
+                    $('#uploadFileSubmit').prop("disabled", true);
+                    $('#browseFiles').hide();
+                    $('#clearFiles').hide();
 
                     const formData = new FormData();
                     formData.append("location", "{{ base64_encode($origin) }}");
