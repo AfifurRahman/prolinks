@@ -9,7 +9,13 @@
                             <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
                                 @if(count(\globals::get_project_sidebar()) > 0)
                                     @foreach(\globals::get_project_sidebar() as $mainProject)
-                                        <option value="{{ $mainProject->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $mainProject->subproject_id ? "selected":"" }} >( {{ $mainProject->RefProject->project_name }} ) {{ $mainProject->subproject_name }}</option>
+                                        <optgroup label="{{ $mainProject->project_name }}">
+                                            @if(count($mainProject->RefSubProject) > 0)
+                                                @foreach($mainProject->RefSubProject as $subsProj)
+                                                    <option value="{{ $subsProj->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $subsProj->subproject_id ? "selected":"" }} >{{ $subsProj->subproject_name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </optgroup>
                                     @endforeach
                                 @endif
                             </select>
