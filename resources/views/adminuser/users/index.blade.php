@@ -1,7 +1,5 @@
 @extends('layouts.app_client')
 
-<link href="{{ url('clientuser/userindex.css') }}" rel="stylesheet" type="text/css" />
-
 @section('notification')
     @if(session('notification'))
         <div class="notificationlayer">
@@ -14,6 +12,7 @@
 @endsection
 
 @section('content')
+    <link href="{{ url('clientuser/userindex.css') }}" rel="stylesheet" type="text/css" />
     <div id="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Users</h2>
         <div>
@@ -44,7 +43,7 @@
             <input type="text" id="search_bar" placeholder="Search users...">
         </div>
     </div>
-
+    
     @if(request()->input('tab') == "user")
         <div id="table">
             <table id="tableUser">

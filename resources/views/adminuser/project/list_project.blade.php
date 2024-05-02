@@ -202,6 +202,12 @@
 		.child-row-general {
 			display: none;
 		}
+
+		.button_ico{
+            border:none;
+            background:transparent;
+            margin-right:10px;
+        }
 	</style>
 	<div class="pull-left">
 		<h3 style="color:black;font-size:28px;">Project</h3>
@@ -240,17 +246,18 @@
 							<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id)->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
 						</div>
 					</td>
-					<td style="vertical-align: middle;" width="100">
+					<td align="right" style="vertical-align: middle;" width="100">
 						<div class="dropdown">
-							<button class="btn btn-md dropdown-toggle btn-custom-act" type="button" data-toggle="dropdown">
-								Action&nbsp; <span class="caret"></span>
+							<button class="button_ico dropdown-toggle" data-toggle="dropdown">
+								<i class="fa fa-ellipsis-v"></i>
 							</button>
-							<ul class="dropdown-menu dropdown-menu-right">
+							<ul class="dropdown-menu dropdown-menu-top pull-right">
 								<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $projects }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
 								<span class="divider"></span>
 								<li><a href="#modal-terminate-project" data-toggle="modal" class="text-danger" data-projectid="{{ $projects->project_id }}" onclick="getProjectId(this)"><i class="fa fa-times"></i> Terminate Project</a></li>
 							</ul>
 						</div>
+						
 					</td>
 				</tr>
 				@foreach($projects->RefSubProject as $subs)
@@ -262,12 +269,12 @@
 								<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->subproject_id)->sum('size')) }}</span>
 							</div>
 						</td>
-						<td style="vertical-align: middle;" width="100">
+						<td align="right" style="vertical-align: middle;" width="100">
 							<div class="dropdown">
-								<button class="btn btn-md dropdown-toggle btn-custom-act" type="button" data-toggle="dropdown">
-									Action&nbsp; <span class="caret"></span>
+								<button class="button_ico dropdown-toggle" data-toggle="dropdown">
+									<i class="fa fa-ellipsis-v"></i>
 								</button>
-								<ul class="dropdown-menu dropdown-menu-right">
+								<ul class="dropdown-menu dropdown-menu-top pull-right">
 									<li><a href="#modal-add-subproject" data-toggle="modal" data-title="Edit Sub Project" data-query="{{ $subs }}" onclick="getDetailSubProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
 									<li><a href="#modal-permissions" data-toggle="modal"><i class="fa fa-lock"></i> Permissions</a></li>
 									<li><a href="{{ route('project.delete-sub-project', $subs->subproject_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
