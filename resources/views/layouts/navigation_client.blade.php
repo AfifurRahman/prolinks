@@ -42,9 +42,9 @@
                     <li>
                         <a href="{{ route('discussion.list-discussion') }}" class="waves-effect"><i class="fa fa-comments"></i><span> Q & A </span></a>
                     </li>
-                    <li>
+                    <!-- <li>
                         <a href="xxx" class="waves-effect"><i class="fa fa-list-alt"></i><span> Reports </span></a>
-                    </li>
+                    </li> -->
                 @elseif(Auth::user()->type == \globals::set_role_collaborator() || Auth::user()->type == \globals::set_role_client())
                     <li>
                         @php

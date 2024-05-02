@@ -139,7 +139,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/questions.png') }}">
 	            	<div class="info-widget">
-		            	<h3>{{ $total_qna }}</h3>
+		            	<h3>{{ $total_qna }}</h3> 
 		            	<p>Total questions</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>
@@ -148,7 +148,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/doc_size.png') }}">
 	            	<div class="info-widget">
-		            	<h3>{{ $total_size }} ({{App\Helpers\GlobalHelper::formatBytes((DB::table('pricing')->where('id', DB::table('clients')->where('client_id',\globals::get_client_id())->value('pricing_id'))->value('allocation_size')) - (DB::table('upload_files')->where('client_id', \globals::get_client_id())->sum('size')))}} free)</h3>
+		            	<h3 style="font-size:12px;">{{ $total_size }} <br> ({{App\Helpers\GlobalHelper::formatBytes((DB::table('pricing')->where('id', DB::table('clients')->where('client_id',\globals::get_client_id())->value('pricing_id'))->value('allocation_size')) - (DB::table('upload_files')->where('client_id', \globals::get_client_id())->sum('size')))}} free)</h3>
 		            	<p>Total document size</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>
