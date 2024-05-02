@@ -23,7 +23,9 @@
                     @endforeach
                 </table>
                 <div class="pull-right">
-                    <button type="button" class="btn btn-primary" onclick="getLinkDoc()">Apply</button>
+                    @if(count($file) > 0)
+                        <button type="button" class="btn btn-primary" onclick="getLinkDoc()">Apply</button>
+                    @endif
                 </div><div style="clear:both;"></div>
             </div>
         </div>
