@@ -32,17 +32,29 @@ use App\Exports\ExportQuestions;
 class DiscussionController extends Controller
 {
     function index() {
-        $all_questions = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->get();
-        $unanswered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->where('deleted', 0)->get();
-        $answered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->where('deleted', 0)->get();
-        $closed = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->where('deleted', 0)->get();
+        if (Auth::user()->type == \globals::set_role_administrator()) {
+            $all_questions = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('deleted', 0)->get();
+            $unanswered = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->where('deleted', 0)->get();
+            $answered = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->where('deleted', 0)->get();
+            $closed = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->where('deleted', 0)->get();
+        }else{
+            $all_questions = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->get();
+            $unanswered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->where('deleted', 0)->get();
+            $answered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->where('deleted', 0)->get();
+            $closed = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->where('deleted', 0)->get();
+        }
         $project = Project::orderBy('id','DESC')->where('client_id', \globals::get_client_id())->where('project_status', \globals::set_project_status_active())->where('parent', '!=', 0)->get();
         $file = Permission::select('upload_files.id', 'upload_files.name')->join('upload_files', 'upload_files.basename', 'permissions.fileid')->where('permissions.user_id', Auth::user()->user_id)->where('permissions.permission', 1)->get();
         return view('adminuser.discussion.index', compact('all_questions', 'unanswered', 'answered', 'closed', 'project', 'file'));
     }
 
     function detail($discussion_id){
-        $detail = Discussion::where('discussion_id', $discussion_id)->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->first();
+        if (Auth::user()->type == \globals::set_role_administrator()) {
+            $detail = Discussion::where('discussion_id', $discussion_id)->where('client_id', \globals::get_client_id())->where('deleted', 0)->first();
+        }else{
+            $detail = Discussion::where('discussion_id', $discussion_id)->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->first();
+        }
+        
         $file = Permission::select('upload_files.id', 'upload_files.name')->join('upload_files', 'upload_files.basename', 'permissions.fileid')->where('permissions.user_id', Auth::user()->user_id)->where('permissions.permission', 1)->get();
 
         return view('adminuser.discussion.detail', compact('discussion_id', 'detail', 'file'));
@@ -135,8 +147,13 @@ class DiscussionController extends Controller
 
             $comment = new DiscussionComment;
             $comment->discussion_id = $getDiscussion->discussion_id;
-            $comment->subproject_id = Auth::user()->session_project;
-            $comment->project_id = SubProject::where('subproject_id', Auth::user()->session_project)->value('project_id');
+            if (Auth::user()->type == \globals::set_role_administrator()) {
+                $comment->subproject_id = $getDiscussion->subproject_id;
+                $comment->project_id = $getDiscussion->project_id;
+            }else{
+                $comment->subproject_id = Auth::user()->session_project;
+                $comment->project_id = SubProject::where('subproject_id', Auth::user()->session_project)->value('project_id');
+            }
             $comment->user_id = Auth::user()->user_id;
             $comment->client_id = \globals::get_client_id();
             $comment->parent = $id;
