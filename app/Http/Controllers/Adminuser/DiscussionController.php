@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Adminuser;
 use App\Http\Controllers\Controller;
 use App\Models\AssignProject;
 use App\Models\HistoryImportDiscussion;
+use App\Models\Permission;
 use App\Models\SubProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -25,23 +26,24 @@ use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ExportQuestions;
 
 class DiscussionController extends Controller
 {
     function index() {
-        $all_questions = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->get();
-        $unanswered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->get();
-        $answered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->get();
-        $closed = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->get();
+        $all_questions = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->get();
+        $unanswered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->where('deleted', 0)->get();
+        $answered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->where('deleted', 0)->get();
+        $closed = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->where('deleted', 0)->get();
         $project = Project::orderBy('id','DESC')->where('client_id', \globals::get_client_id())->where('project_status', \globals::set_project_status_active())->where('parent', '!=', 0)->get();
-        $file = UploadFile::get();
-        
+        $file = Permission::select('upload_files.id', 'upload_files.name')->join('upload_files', 'upload_files.basename', 'permissions.fileid')->where('permissions.user_id', Auth::user()->user_id)->where('permissions.permission', 1)->get();
         return view('adminuser.discussion.index', compact('all_questions', 'unanswered', 'answered', 'closed', 'project', 'file'));
     }
 
     function detail($discussion_id){
-        $detail = Discussion::where('discussion_id', $discussion_id)->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->first();
-        $file = UploadFile::get();
+        $detail = Discussion::where('discussion_id', $discussion_id)->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->first();
+        $file = Permission::select('upload_files.id', 'upload_files.name')->join('upload_files', 'upload_files.basename', 'permissions.fileid')->where('permissions.user_id', Auth::user()->user_id)->where('permissions.permission', 1)->get();
 
         return view('adminuser.discussion.detail', compact('discussion_id', 'detail', 'file'));
     }
@@ -193,9 +195,32 @@ class DiscussionController extends Controller
         try {
             \DB::beginTransaction();
 
-            $deleted = DiscussionComment::where('id', base64_decode($id))->delete();
+            $deleted = DiscussionComment::where('id', base64_decode($id))->update([
+                'deleted' => 1
+            ]);
             if($deleted){
                 $notification = "Comment deleted!";
+            }
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollback();
+            Alert::error('Error', $e->getMessage());
+        }
+
+        return back()->with('notification', $notification);
+    }
+
+    function delete_discussion($id) {
+        $notification = "";
+        try {
+            \DB::beginTransaction();
+
+            $deleted = Discussion::where('id', base64_decode($id))->update([
+                'deleted' => 1
+            ]);
+            if($deleted){
+                $notification = "Discussion deleted!";
             }
 
             \DB::commit();
@@ -288,6 +313,21 @@ class DiscussionController extends Controller
         return response()->json($results);
     }
 
+    public function export_questions() {
+        $filename = date('Y-m-d').'-discussion.xlsx';
+        $report = DiscussionComment::select(
+                    'discussion_comments.*', 'discussions.subject', 'discussions.priority', 'project.project_name',
+                    'discussions.created_at as created_submitter', 'discussion_comments.created_at as created_comment',
+                    'sub_project.subproject_name', 'discussions.user_id as submitter', 'discussion_comments.user_id as comment_by'
+                )
+                ->join('discussions', 'discussions.discussion_id', 'discussion_comments.discussion_id')
+                ->join('sub_project', 'sub_project.subproject_id', 'discussion_comments.subproject_id')
+                ->join('project', 'project.project_id', 'sub_project.project_id')
+                ->where('discussion_comments.subproject_id', Auth::user()->session_project)
+                ->get();
+        
+        return Excel::download(new ExportQuestions($report), $filename);
+    }
     private function csvToArray($filename = '', $delimiter = ';'){
         if (!file_exists($filename) || !is_readable($filename))
             return false;
@@ -385,14 +425,19 @@ class DiscussionController extends Controller
                         $attach->file_extension = $uploads->getClientOriginalExtension();
                         $attach->file_size = $uploads->getSize();
                         if($attach->save()){
-                            $folders = new UploadFolder;
-                            $folders->project_id = $project_id;
-                            $folders->basename = $baseName;
-                            $folders->name = "Discussion";
-                            $folders->access_user = Auth::user()->email;
-                            $folders->status = 1;
-                            $folders->uploaded_by = Auth::user()->user_id; 
-                            $folders->save();
+                            $exist_folder = UploadFolder::where('project_id', $project_id)->where('client_id', $client_id)->where('name', 'Discussion')->first();
+                            if (empty($exist_folder->id)) {
+                                $folders = new UploadFolder;
+                                $folders->index = 9999;
+                                $folders->project_id = $project_id;
+                                $folders->subproject_id = $subproject_id;
+                                $folders->basename = $baseName;
+                                $folders->name = "Discussion";
+                                $folders->client_id = \globals::get_client_id();
+                                $folders->status = 1;
+                                $folders->uploaded_by = Auth::user()->user_id; 
+                                $folders->save();
+                            }
                         }
                     }
                 }

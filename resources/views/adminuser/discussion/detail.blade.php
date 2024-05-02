@@ -201,7 +201,7 @@
                                         <div style="float:left; margin-left:10px;">
                                             <input type="file" class="btn btn-default radius-button" style="color:#1570EF;" name="upload_doc[]" id="upload_doc" multiple />
                                         </div> <div style="clear:both;"></div>
-                                        <div id="result-link-file"></div>
+                                        <div id="result-link-file" style="margin-top:10px;"></div>
                                         <div id="result-upload-file"></div>
                                     </div>
                                 </form>
@@ -233,37 +233,7 @@
         </div>
     </div>
     
-    <div id="modal-link-file" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="custom-modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <div style="float: left;">
-                            <img src="{{ url('template/images/data-company.png') }}" width="24" height="24">
-                        </div>
-                        <div style="float: left; margin-left: 10px;">
-                            <h4 class="modal-title" id="titleModal">
-                                Select from dataroom
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-hover">
-                        @foreach($file as $files)
-                            <tr>
-                                <td><input type="checkbox" value="{{ $files->id }}" data-filename="{{ $files->name }}" name="link_document" id="link_document" /> {{ $files->name }} </td>
-                            </tr>
-                        @endforeach
-                    </table>
-                    
-                    <button type="button" class="btn btn-primary" onclick="getLinkDoc()">Apply</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    @include('adminuser.discussion.modal_link_file')
     @include('adminuser.discussion.modal_close_questions')
     @include('adminuser.discussion.modal_open_questions')
 @endsection
@@ -284,13 +254,12 @@
             var res = "";
             $.each(link_document, function(i) {
                 var $this = $(this);
-                console.log($this.data('filename'));
-                console.log("+++++++++++++");
-                // check if the checkbox is checked
                 if($this.is(":checked")) {
-                    res += "<div class='linkItem"+i+"'>"
-                        res += "<label class='label label-default'><i class='fa fa-paperclip'></i> <input type='checkbox' name='link_doc[]' class='hidden-checkbox' value='"+$this.val()+"' checked>"+$this.data('filename')+"</label>"
-                        res += "<a href='javascript:void(0)' onclick='removeItem("+i+")'><i class='fa fa-times'></i></a>"
+                    res += "<div class='linkItem"+i+"' style='margin-bottom:3px;'>"
+                        res += "<div class='btn-group'>"
+                            res += "<a class='btn btn-default radius-button'><i class='fa fa-paperclip'></i> <input type='checkbox' name='link_doc[]' class='hidden-checkbox' value='"+$this.val()+"' checked>"+$this.data('filename')+"</a>"
+                            res += "<a class='btn btn-default' title='remove file' href='javascript:void(0)' onclick='removeItem("+i+")'><i class='fa fa-times'></i></a>"
+                        res += "</div>"
                     res += "</div>"
                 }
             }); 
@@ -301,9 +270,11 @@
         $("#upload_doc").change(function(){
             var names = [];
             for (var i = 0; i < $(this).get(0).files.length; ++i) {
-                names += "<div class='uploadItem"+i+"'>"
-                    names += "<label class='label label-inverse'><i class='fa fa-upload'></i> "+$(this).get(0).files[i].name+"</label>"
-                    names += "<a href='javascript:void(0)' onclick='removeUploadItem("+i+")'><i class='fa fa-times'></i></a>"
+                names += "<div class='uploadItem"+i+"' style='margin-bottom:3px;'>"
+                    names += "<div class='btn-group'>"
+                        names += "<a class='btn btn-default radius-button'><i class='fa fa-upload'></i> "+$(this).get(0).files[i].name+"</a>"
+                        names += "<a class='btn btn-default' href='javascript:void(0)' onclick='removeUploadItem("+i+")'><i class='fa fa-times'></i></a>"
+                    names += "</div>"
                 names += "</div>"
             }
             $("#result-upload-file").html(names);

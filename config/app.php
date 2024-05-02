@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Anhskohbo\NoCaptcha\NoCaptchaServiceProvider::class,
         RealRashid\SweetAlert\SweetAlertServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -189,6 +190,7 @@ return [
         'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
         'globals' => App\Helpers\GlobalHelper::class,
         'role' => App\Helpers\RolesHelper::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ])->toArray(),
 
 ];

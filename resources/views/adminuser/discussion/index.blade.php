@@ -133,7 +133,7 @@
 		<h3 style="color:black;font-size:28px;">Questions and answers</h3>
 	</div>
 	<div class="pull-right" style="margin-bottom: 24px; margin-top:5px;">
-        <a href="" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"> Export All</a>
+        <a href="{{ route('discussion.export-questions') }}" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"> Export All</a>
         @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_client())
             <a href="#modal-import-questions" data-toggle="modal" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;">Import Questions</a>
             <a href="#modal-add-discussion" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;">Ask a questions</a>
@@ -210,9 +210,11 @@
                 var $this = $(this);
                 // check if the checkbox is checked
                 if($this.is(":checked")) {
-                    res += "<div class='linkItem"+i+"'>"
-                        res += "<label class='label label-default'><i class='fa fa-paperclip'></i> <input type='checkbox' name='link_doc[]' class='hidden-checkbox' value='"+$this.val()+"' checked>"+$this.data('filename')+"</label>"
-                        res += "<a href='javascript:void(0)' onclick='removeItem("+i+")'><i class='fa fa-times'></i></a>"
+                    res += "<div class='linkItem"+i+"' style='margin-bottom:3px;'>"
+                        res += "<div class='btn-group'>"
+                            res += "<a class='btn btn-default radius-button'><i class='fa fa-paperclip'></i> <input type='checkbox' name='link_doc[]' class='hidden-checkbox' value='"+$this.val()+"' checked>"+$this.data('filename')+"</a>"
+                            res += "<a class='btn btn-default' title='remove file' href='javascript:void(0)' onclick='removeItem("+i+")'><i class='fa fa-times'></i></a>"
+                        res += "</div>"
                     res += "</div>"
                 }
             }); 
@@ -223,9 +225,11 @@
         $("#upload_doc").change(function(){
             var names = [];
             for (var i = 0; i < $(this).get(0).files.length; ++i) {
-                names += "<div class='uploadItem"+i+"'>"
-                    names += "<label class='label label-inverse'><i class='fa fa-upload'></i> "+$(this).get(0).files[i].name+"</label>"
-                    names += "<a href='javascript:void(0)' onclick='removeUploadItem("+i+")'><i class='fa fa-times'></i></a>"
+                names += "<div class='uploadItem"+i+"' style='margin-bottom:3px;'>"
+                    names += "<div class='btn-group'>"
+                        names += "<a class='btn btn-default radius-button'><i class='fa fa-upload'></i> "+$(this).get(0).files[i].name+"</a>"
+                        names += "<a class='btn btn-default' title='remove file' href='javascript:void(0)' onclick='removeUploadItem("+i+")'><i class='fa fa-times'></i></a>"
+                    names += "</div>"
                 names += "</div>"
             }
             $("#result-upload-file").html(names);

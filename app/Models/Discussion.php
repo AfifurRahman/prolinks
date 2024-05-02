@@ -28,6 +28,6 @@ class Discussion extends Model
 
     public function RefDiscussion()
     {
-        return $this->hasMany('App\Models\DiscussionComment', 'discussion_id' , 'discussion_id');
+        return $this->hasMany('App\Models\DiscussionComment', 'discussion_id' , 'discussion_id')->where('deleted', 0);
     }
 }
