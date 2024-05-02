@@ -15,14 +15,25 @@
                 </div>
             </div>
             <div class="modal-body">
-                <table id="tableLinksFiles" class="table table-hover">
-                    @foreach($file as $files)
-                        <tr>
-                            <td><input type="checkbox" style="width:20px; height:20px;" value="{{ $files->id }}" data-filename="{{ $files->name }}" name="link_document" id="link_document" />&nbsp; <img src="{{ url('template/images/ext-file.png') }}" width="20" height="20"> {{ $files->name }} </td>
-                        </tr>
-                    @endforeach
-                </table>
+                @if(count($file) > 0)
+                    <table id="tableLinksFiles" class="table table-hover">
+                        @foreach($file as $files)
+                            <tr>
+                                <td><input type="checkbox" style="width:20px; height:20px;" value="{{ $files->id }}" data-filename="{{ $files->name }}" name="link_document" id="link_document" />&nbsp; <img src="{{ url('template/images/ext-file.png') }}" width="20" height="20"> {{ $files->name }} </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                @else
+                    <div class="card-box">
+                        <center>
+                            <img src="{{ url('template/images/empty_qna.png') }}" width="300" />
+                        </center>    
+                    </div>
+                @endif
                 <div class="pull-right">
+                    <button type="button" data-dismiss="modal" class="btn btn-default" style="border-radius: 5px;">
+                        Close
+                    </button>
                     @if(count($file) > 0)
                         <button type="button" class="btn btn-primary" onclick="getLinkDoc()">Apply</button>
                     @endif
