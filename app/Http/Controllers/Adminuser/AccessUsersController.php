@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Http\Request;
 use Session;
+use Alert;
 
 class AccessUsersController extends Controller
 {
@@ -39,12 +40,14 @@ class AccessUsersController extends Controller
 
     public function detail($user_id){
         $clientuser = ClientUser::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->firstOrFail();
-        $group = AccessGroup::where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
-        $project = Project::where('client_id', \globals::get_client_id())->pluck('project_id')->toArray();
-        $groupDetail = AssignUserGroup::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
-        $projectDetail = AssignProject::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->pluck('project_id')->toArray();
-        array_unshift($group, 0);
-        array_unshift($project, 0);
+        $group = AccessGroup::where('client_id', \globals::get_client_id())->get();
+        $project = Project::where('client_id', \globals::get_client_id())->get();
+        $groupDetail = AssignUserGroup::where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
+        $projectDetail = AssignProject::where('client_id', \globals::get_client_id())->pluck('subproject_id')->toArray();
+        // array_unshift($group, 0);
+        // array_unshift($project, 0);
+
+        
 
         return view('adminuser.users.detail', compact('clientuser', 'group', 'project', 'groupDetail', 'projectDetail'));
     }
@@ -75,7 +78,6 @@ class AccessUsersController extends Controller
                             'company' => '-',
                             'client_id' => \globals::get_client_id(),
                             'role' => $request->role,
-                            // 'group_id' => $request->group,
                             'created_by' => Auth::user()->id,
                             'group_id' => 0,
                         ]);
@@ -103,17 +105,14 @@ class AccessUsersController extends Controller
                         
                         if(!empty($request->input('project')) && count($request->input('project')) > 0){
                             foreach ($request->input('project') as $key => $proj) {
-                                $getSUbProject = SubProject::select('subproject_id')->where('project_id', $proj)->get();
-                                foreach ($getSUbProject as $key => $SubProj) {
-                                    $projects = new AssignProject;
-                                    $projects->client_id = \globals::get_client_id();
-                                    $projects->project_id = SubProject::where('subproject_id', $SubProj->subproject_id)->value('project_id');
-                                    $projects->subproject_id = $SubProj->subproject_id;
-                                    $projects->user_id = $users->user_id;
-                                    $projects->email = $users->email;
-                                    $projects->created_by = Auth::user()->id;
-                                    $projects->save();
-                                }
+                                $projects = new AssignProject;
+                                $projects->client_id = \globals::get_client_id();
+                                $projects->project_id = SubProject::where('subproject_id', $proj)->value('project_id');
+                                $projects->subproject_id = $proj;
+                                $projects->user_id = $users->user_id;
+                                $projects->email = $users->email;
+                                $projects->created_by = Auth::user()->id;
+                                $projects->save();
                             }
                         }
         
@@ -175,17 +174,56 @@ class AccessUsersController extends Controller
     public function edit_role (Request $request, $user_id) {
         try {
             \DB::beginTransaction();
+            
+            ClientUser::where('user_id', $user_id)->update([
+                'role' => $request->input('role')
+            ]);
 
-            // coming soon
+            User::where('user_id', $user_id)->update([
+                'type' => $request->input('role')
+            ]);
 
-            if ($update) {
-                $notification = "Role edited";
+            if($request->input('role') == \globals::set_role_administrator()){
+                $deleteGroup = AssignUserGroup::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
+                $deleteProjects = AssignProject::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
+            }elseif($request->input('role') == \globals::set_role_collaborator()){
+                $deleteGroup = AssignUserGroup::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
+            }else{
+                if(!empty($request->input('group')) && count($request->input('group')) > 0){
+                    foreach ($request->input('group') as $key => $grup) {
+                        $deleteGroup = AssignUserGroup::where('group_id', $grup)->where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
+                        $groups = new AssignUserGroup;
+                        $groups->client_id = \globals::get_client_id();
+                        $groups->group_id = $grup;
+                        $groups->user_id = $user_id;
+                        $groups->email = User::where('user_id', $user_id)->value('email');
+                        $groups->created_by = Auth::user()->id;
+                        $groups->save();
+                    }
+                }
+                
+                if(!empty($request->input('project')) && count($request->input('project')) > 0){
+                    foreach ($request->input('project') as $key => $proj) {
+                        $deleteProjects = AssignProject::where('subproject_id', $proj)->where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
+                        $projects = new AssignProject;
+                        $projects->client_id = \globals::get_client_id();
+                        $projects->project_id = SubProject::where('subproject_id', $proj)->value('project_id');
+                        $projects->subproject_id = $proj;
+                        $projects->user_id = $user_id;
+                        $projects->email = User::where('user_id', $user_id)->value('email');
+                        $projects->created_by = Auth::user()->id;
+                        $projects->save();
+                    }
+                }
             }
 
+            $notification = "Role edited";
+
             \DB::commit();
-        } catch (\Exception $th) {
+        } catch (\Exception $e) {
             \DB::rollBack();
-            $notification = "Can't edit role";
+            Alert::error("Error", $e->getMessage());
+            return back();
         }
 
         return back()->with('notification', $notification);  

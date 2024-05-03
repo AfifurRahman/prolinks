@@ -228,36 +228,32 @@
                         </select>
                     </td>
                 </tr>
-                <tr>
+                <tr id="data_group">
                     <td>Group</td>
                     <td>
-                        @if($clientuser->role == 0)
-                            <select class="form-control" disabled>
-                                <option>All</option>
-                            </select>
-                        @else
-                            <select class="form-control select2" data-placeholder="Unassigned" multiple name="group[]">
-                                @foreach($group as $groups)
-                                    <option value="{{$groups}}" {{ in_array($groups, $groupDetail) ? "selected":"" }}>{{ DB::table('access_group')->where('group_id', $groups)->value('group_name') }}</option>
-                                @endforeach
-                            </select>
-                        @endif
+                        <select class="form-control select2" id="group" data-placeholder="Select Group" multiple name="group[]">
+                            @foreach($group as $groups)
+                                <option value="{{ $groups->group_id }}" {{ in_array($groups->group_id, $groupDetail) ? "selected":"" }}>{{ $groups->group_name }}</option>
+                            @endforeach
+                        </select>
+                        <div id="resultGroup"></div>
                     </td>
                 </tr>
-                <tr>
+                <tr id="data_project">
                     <td>Project</td>
                     <td>
-                        @if($clientuser->role == 0)
-                            <select class="form-control" disabled>
-                                <option>All</option>
-                            </select>
-                        @else
-                            <select class="form-control select2" data-placeholder="Unassigned" multiple name="project[]">
-                                @foreach($project as $projects)
-                                    <option value="{{$projects}}" {{ in_array($projects, $projectDetail) ? "selected":"" }}>{{ DB::table('project')->where('project_id', $projects)->value('project_name') }}</option>
-                                @endforeach
-                            </select>
-                        @endif
+                        <select class="form-control select2" id="project" data-placeholder="Select Project" multiple name="project[]">
+                            @foreach($project as $projects)
+                                <optgroup label="{{ $projects->project_name }}">
+                                    @if(count($projects->RefSubProject) > 0)
+                                        @foreach($projects->RefSubProject as $subProjects)
+                                            <option value="{{$subProjects->subproject_id}}" {{ in_array($subProjects->subproject_id, $projectDetail) ? "selected":"" }}>{{ $subProjects->subproject_name }}</option>
+                                        @endforeach
+                                    @endif
+                                </optgroup>
+                            @endforeach
+                        </select>
+                        <div id="resultProject"></div>
                     </td>
                 </tr>
                 <tr>
@@ -293,11 +289,11 @@
                 <td>Group</td>
                 <td>
                     @if($clientuser->role == 0)
-                        <span class="label label-default">All</span>
+                        <a class="btn btn-default">All</a>
                     @else
-                        @php $grups = DB::table('assign_user_group')->select('access_group.group_name')->join('access_group', 'assign_user_group.group_id', 'access_group.group_id')->where('assign_user_group.user_id', $clientuser->user_id)->where('assign_user_group.client_id', \globals::get_client_id())->get() @endphp
+                        @php $grups = DB::table('assign_user_group')->select('access_group.group_name')->join('access_group', 'assign_user_group.group_id', 'access_group.group_id')->where('assign_user_group.client_id', \globals::get_client_id())->get() @endphp
                         @foreach($grups as $grup)
-                            <span class="label label-default">{{ $grup->group_name }}</span>
+                            <a class="btn btn-default">{{ $grup->group_name }}</a>
                         @endforeach
                     @endif
                 </td>
@@ -306,14 +302,14 @@
                 <td>Project</td>
                 <td>
                     @if($clientuser->role == 0)
-                        <span class="label label-default">All</span>
+                        <a class="btn btn-default">All</a>
                     @else
                         @php
-                            $projects = App\Models\AssignProject::where('user_id', $clientuser->user_id)->where('client_id', \globals::get_client_id())->get();
+                            $projects = App\Models\AssignProject::where('client_id', \globals::get_client_id())->get();
                         @endphp
                         @foreach($projects as $project)
                             <div style="margin-bottom:5px;">
-                                <span class="label label-inverse">{{ $project->RefProject->project_name }} ( {{ $project->RefSubProject->subproject_name }} )</span>
+                                <a class="btn btn-default">{{ $project->RefProject->project_name }} ( {{ $project->RefSubProject->subproject_name }} )</a>
                             </div>
                         @endforeach
                     @endif
@@ -336,6 +332,18 @@
         }
 
         function editRole() {
+            var role = $('[name="role"]').val();
+            if (role == 0) {
+                $("#data_group").hide();
+                $("#data_project").hide();
+            }else if(role == 1){
+                $("#data_group").hide();
+                $("#data_project").show();
+            }else{
+                $("#data_group").show();
+                $("#data_project").show();
+            }
+            
             $("#formEditRole").css("display", "block");
             $("#listRole").css("display", "none");
         }
@@ -348,8 +356,10 @@
         function setRole(element) {
             if(element.value == 0){
                 /* jika yg dipilih administrator group & project menjd all */
-                $("#data_group").css("display", "none");
-                $("#data_project").css("display", "none");
+                $("#data_group").hide();
+                $("#data_project").hide();
+                $("#group").prop("required", false);
+                $("#project").prop("required", false);
 
                 var resGroup = "";
                 var resGroup = "<div class='form-group'>";
@@ -369,11 +379,21 @@
 
                 $("#resultGroup").html(resGroup);
                 $("#resultProject").html(resProject);
-            }else{
-                $("#data_group").css("display", "block");
-                $("#data_project").css("display", "block");
+            }else if(element.value == 1){
+                $("#data_group").hide();
+                $("#data_project").show();
+                $("#group").prop("required", false);
+                $("#project").prop("required", true);
+
                 $("#resultGroup").html("");
                 $("#resultProject").html("");
+            }else if(element.value == 2){
+                $("#data_group").show();
+                $("#data_project").show();
+                $("#resultGroup").html("");
+                $("#resultProject").html("");
+                $("#group").prop("required", false);
+                $("#project").prop("required", true);
             }
         }
 

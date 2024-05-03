@@ -160,9 +160,7 @@
                                             <i class="fa fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                            @if($user->role == \globals::set_role_client())
-                                                <li><a onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
-                                            @endif
+                                            <li><a href="#modal-move-group" data-toggle="modal" onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
                                             @if($user->status == 1)
                                                 <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}">Disable User</a></li>
                                             @elseif($user->status == 2)
@@ -291,9 +289,13 @@
                             <h5 class="usercompany">Project <span class="text-danger">*</span></h5>
                             <select class="form-control select2" data-placeholder="Select Project" multiple name="project[]" id="projectsID">
                                 @foreach($project as $projects)
-                                    @if(count($projects->RefSubProject) > 0)
-                                        <option value="{{$projects->project_id}}">{{ $projects->project_name }}</option>
-                                    @endif
+                                    <optgroup label="{{ $projects->project_name }}">
+                                        @if(count($projects->RefSubProject) > 0)
+                                            @foreach($projects->RefSubProject as $subProjects)
+                                                <option value="{{$subProjects->subproject_id}}">{{ $subProjects->subproject_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </optgroup>
                                 @endforeach
                             </select>
                         </div>
@@ -308,40 +310,45 @@
         </div>
     </div>
 
-    <!-- modal -->
-    <div id="moveuser" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div id="inviteuser-title">
-                    <image id="creategroup-ico" src="{{ url('template/images/icon_menu/group.png') }}"></image>
-                    <h5 class="modaltitle-text">Move to group</h5>
+
+    <div id="modal-move-group" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                	<div class="custom-modal-header">
+                		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                		<div style="float: left;">
+                            <img id="creategroup-ico" src="{{ url('template/images/icon_menu/group.png') }}" width="24" height="24">
+	                    </div>
+	                    <div style="float: left; margin-left: 10px;">
+	                        <h4 class="modal-title" id="titleModal">
+                                Move to group
+	                        </h4>
+	                    </div>
+	                </div>
                 </div>
-                
-                <button class="modal-close" onclick="document.getElementById('moveuser').style.display='none'">
-                    <image id="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
+                <div class="modal-body">
+                    <form action="{{ route('adminuser.access-users.move-group')}}" method="POST">
+                        @csrf
+                        <input type="hidden" name="username" id="username">
+                        <br>
+                        <select class="form-control select2" multiple name="group_num">
+                            @foreach($group as $groups)
+                                <option value="{{ $groups->group_id }}">{{ $groups->group_name }}</option>
+                            @endforeach
+                        </select>
+                        <br>
+                        <br>
+                        <div class="formbutton">
+                            <a class="cancelbtn" data-dismiss="modal">Cancel</a>
+                            <button type="submit" class="createbtn">Move</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            
-            <div class="modal-body">
-                <form action="{{ route('adminuser.access-users.move-group')}}" method="POST">
-                    @csrf
-                    <input type="hidden" name="username" id="username">
-                    <br>
-                    <select class="form-control select2" multiple name="group_num">
-                        @foreach($group as $groups)
-                            <option value="{{ $groups->group_id }}">{{ $groups->group_name }}</option>
-                        @endforeach
-                    </select>
-                    <br>
-                    <br>
-                    <div class="formbutton">
-                        <a class="cancelbtn" onclick="document.getElementById('moveuser').style.display='none'">Cancel</a>
-                        <button type="submit" class="createbtn">Move</button>
-                    </div>
-                </form>
-            </div>
-        </div>      
+        </div>
     </div>
+    
     @include('adminuser.users.create_group')
 
     @push('scripts')
@@ -373,7 +380,7 @@
         hideNotification();
 
         function moveGroup(email) {
-            document.getElementById('moveuser').style.display = 'block';
+            // document.getElementById('moveuser').style.display = 'block';
             document.getElementById('username').value = email;
         };
 
