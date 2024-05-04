@@ -112,12 +112,21 @@
                     Actions&nbsp; <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right">
-                    <li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project">Move to group</a></li>
+                    @if($clientuser->role == \globals::set_role_client())
+                        <li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project">Move to group</a></li>
+                    @endif
+
+                    @if($clientuser->status == 0)
+                        <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($clientuser->email_address)) }}"></i>Resend invitation email</a></li>
+                    @endif
+
                     @if($clientuser->status == 1)
                         <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($clientuser->email_address)) }}">Disable User</a></li>
                     @elseif($clientuser->status == 2)
                         <li><a href="{{ route('adminuser.access-users.enable-user', base64_encode($clientuser->email_address)) }}">Enable User</a></li>
                     @endif
+                    <div class="divider"></div>
+                    <li><a onclick="return confirm('are you sure delete this user ?')" href="{{ route('adminuser.access-users.delete-user', base64_encode($clientuser->email_address)) }}" style="color:#D92D20;">Delete User</a></li>
                 </ul>
             </div>
         </div> <div style="clear:both;"></div>
@@ -291,9 +300,11 @@
                     @if($clientuser->role == 0)
                         <a class="btn btn-default">All</a>
                     @else
-                        @php $grups = DB::table('assign_user_group')->select('access_group.group_name')->join('access_group', 'assign_user_group.group_id', 'access_group.group_id')->where('assign_user_group.client_id', \globals::get_client_id())->get() @endphp
+                        @php 
+                            $grups = DB::table('assign_user_group')->select('access_group.group_name')->join('access_group', 'assign_user_group.group_id', 'access_group.group_id')->where('assign_user_group.client_id', \globals::get_client_id())->where('assign_user_group.user_id', $clientuser->user_id)->get() 
+                        @endphp
                         @foreach($grups as $grup)
-                            <a class="btn btn-default">{{ $grup->group_name }}</a>
+                            <a class="btn btn-default"><img src="{{ url('template/images/icon_menu/group.png') }}" width="20" height="20"> {{ $grup->group_name }}</a>
                         @endforeach
                     @endif
                 </td>
@@ -305,11 +316,11 @@
                         <a class="btn btn-default">All</a>
                     @else
                         @php
-                            $projects = App\Models\AssignProject::where('client_id', \globals::get_client_id())->get();
+                            $projects = App\Models\AssignProject::where('user_id', $clientuser->user_id)->where('client_id', \globals::get_client_id())->get();
                         @endphp
                         @foreach($projects as $project)
                             <div style="margin-bottom:5px;">
-                                <a class="btn btn-default">{{ $project->RefProject->project_name }} ( {{ $project->RefSubProject->subproject_name }} )</a>
+                                <a class="btn btn-default"><img src="{{ url('template/images/data-project.png') }}" width="20" height="20"> {{ $project->RefProject->project_name }} ( {{ $project->RefSubProject->subproject_name }} )</a>
                             </div>
                         @endforeach
                     @endif
@@ -317,6 +328,8 @@
             </tr>
         </table>
     </div>
+
+    @include('adminuser.users.move_group')
 @stop
 
 @push('scripts')

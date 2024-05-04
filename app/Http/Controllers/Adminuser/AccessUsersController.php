@@ -25,35 +25,39 @@ class AccessUsersController extends Controller
 {
     public function index()
     {
-        $adminusercompany = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
+        /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
 
-        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
-        $group = AccessGroup::where('client_id', \globals::get_client_id())->get();
-        $project = Project::where('client_id', \globals::get_client_id())->get();
+        $adminusercompany = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
+        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->whereIn('status', [0, 1, 2])->get();
+        $group = AccessGroup::where('client_id', \globals::get_client_id())->where('group_status', 1)->get();
+        $project = Project::where('client_id', \globals::get_client_id())->where('project_status', 1)->get();
         $owners = User::where('client_id', \globals::get_client_id())->where('type', 0)->where('user_id', Auth::user()->user_id)->get();
-        $listGroup = AccessGroup::where('client_id', \globals::get_client_id())->get();
-        // array_unshift($group, 0);
-        // array_unshift($project, 0);
+        $listGroup = AccessGroup::where('client_id', \globals::get_client_id())->whereIn('group_status', [1,2])->get();
 
         return view('adminuser.users.index', compact('clientuser','group','owners', 'listGroup', 'project'));
     }
 
     public function detail($user_id){
-        $clientuser = ClientUser::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->firstOrFail();
-        $group = AccessGroup::where('client_id', \globals::get_client_id())->get();
-        $project = Project::where('client_id', \globals::get_client_id())->get();
-        $groupDetail = AssignUserGroup::where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
-        $projectDetail = AssignProject::where('client_id', \globals::get_client_id())->pluck('subproject_id')->toArray();
-        // array_unshift($group, 0);
-        // array_unshift($project, 0);
-
+        $clientuser = ClientUser::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->whereIn('status', [0, 1, 2])->first();
         
+        if(empty($clientuser->id)){
+            return redirect(route('adminuser.access-users.list', 'tab=user'));
+        }
+
+        $group = AccessGroup::where('client_id', \globals::get_client_id())->where('group_status', 1)->get();
+        $project = Project::where('client_id', \globals::get_client_id())->where('project_status', 1)->get();
+        $groupDetail = AssignUserGroup::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->pluck('group_id')->toArray();
+        $projectDetail = AssignProject::where('user_id', $user_id)->where('client_id', \globals::get_client_id())->pluck('subproject_id')->toArray();
 
         return view('adminuser.users.detail', compact('clientuser', 'group', 'project', 'groupDetail', 'projectDetail'));
     }
 
     public function detail_group($group_id){
-        $group = AccessGroup::where('group_id', $group_id)->where('client_id', \globals::get_client_id())->first();
+        $group = AccessGroup::where('group_id', $group_id)->where('client_id', \globals::get_client_id())->where('group_status', 1)->first();
+        if(empty($group->id)){
+            return redirect(route('adminuser.access-users.list', 'tab=group'));
+        }
+
         $member = AssignUserGroup::where('client_id', \globals::get_client_id())->where('group_id', $group_id)->get();
         return view('adminuser.users.detail_group', compact('group', 'member'));
     }
@@ -152,13 +156,20 @@ class AccessUsersController extends Controller
         try {
             \DB::beginTransaction();
 
-            $update = ClientUser::where('user_id', $user_id)->update([
+            $update1 = ClientUser::where('user_id', $user_id)->update([
                 'name'=> $request->name,
                 'company'=> $request->company,
                 'job_title'=> $request->job_title,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
             ]);
 
-            if ($update) {
+            $update2 = User::where('user_id', $user_id)->update([
+                'name'=> $request->name,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            if ($update1 && $update2) {
                 $notification = "User edited";
             }
 
@@ -176,11 +187,14 @@ class AccessUsersController extends Controller
             \DB::beginTransaction();
             
             ClientUser::where('user_id', $user_id)->update([
-                'role' => $request->input('role')
+                'role' => $request->input('role'),
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
             ]);
 
             User::where('user_id', $user_id)->update([
-                'type' => $request->input('role')
+                'type' => $request->input('role'),
+                'updated_at' => date('Y-m-d H:i:s')
             ]);
 
             if($request->input('role') == \globals::set_role_administrator()){
@@ -188,10 +202,23 @@ class AccessUsersController extends Controller
                 $deleteProjects = AssignProject::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
             }elseif($request->input('role') == \globals::set_role_collaborator()){
                 $deleteGroup = AssignUserGroup::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
+                if(!empty($request->input('project')) && count($request->input('project')) > 0){
+                    $deleteProjects = AssignProject::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
+                    foreach ($request->input('project') as $key => $proj) {
+                        $projects = new AssignProject;
+                        $projects->client_id = \globals::get_client_id();
+                        $projects->project_id = SubProject::where('subproject_id', $proj)->value('project_id');
+                        $projects->subproject_id = $proj;
+                        $projects->user_id = $user_id;
+                        $projects->email = User::where('user_id', $user_id)->value('email');
+                        $projects->created_by = Auth::user()->id;
+                        $projects->save();
+                    }
+                }
             }else{
                 if(!empty($request->input('group')) && count($request->input('group')) > 0){
+                    $deleteGroup = AssignUserGroup::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
                     foreach ($request->input('group') as $key => $grup) {
-                        $deleteGroup = AssignUserGroup::where('group_id', $grup)->where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
                         $groups = new AssignUserGroup;
                         $groups->client_id = \globals::get_client_id();
                         $groups->group_id = $grup;
@@ -203,8 +230,8 @@ class AccessUsersController extends Controller
                 }
                 
                 if(!empty($request->input('project')) && count($request->input('project')) > 0){
+                    $deleteProjects = AssignProject::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
                     foreach ($request->input('project') as $key => $proj) {
-                        $deleteProjects = AssignProject::where('subproject_id', $proj)->where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
                         $projects = new AssignProject;
                         $projects->client_id = \globals::get_client_id();
                         $projects->project_id = SubProject::where('subproject_id', $proj)->value('project_id');
@@ -235,6 +262,8 @@ class AccessUsersController extends Controller
 
             $update = AccessGroup::where('client_id', \globals::get_client_id())->where('group_id', $group_id)->update([
                 'group_desc'=> $request->group_desc,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
             ]);
 
             if ($update) {
@@ -257,7 +286,11 @@ class AccessUsersController extends Controller
 
             $group = $request->group_num;
 
-            DB::table('client_users')->where('email_address', $users)->update(['group_id' => $group]);
+            DB::table('client_users')->where('email_address', $users)->update([
+                'group_id' => $group,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
 
             $notification = "User moved successfully";
         } catch (\Exception $e) {
@@ -293,12 +326,26 @@ class AccessUsersController extends Controller
 
     public function disable_user($encodedEmail)
     {
+        /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
             $email = base64_decode($encodedEmail);
 
-            ClientUser::where('email_address',$email)->update(['status' => 2]);
-    
-            $notification = "User has been disabled";    
+            $update1 = ClientUser::where('email_address',$email)->update([
+                'status' => 2,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $update2 = User::where('email',$email)->update([
+                'status' => 0,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            if ($update1 && $update2) {
+                $notification = "User has been disabled";
+            }
+              
         } catch(\Exception $e) {
             $notification = "Failed to disable user";
         }
@@ -307,14 +354,127 @@ class AccessUsersController extends Controller
     }
     public function enable_user($encodedEmail)
     {
+        /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
             $email = base64_decode($encodedEmail);
 
-            ClientUser::where('email_address',$email)->update(['status' => 1]);
+            $update1 = ClientUser::where('email_address',$email)->update([
+                'status' => 1,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $update2 = User::where('email',$email)->update([
+                'status' => 0,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
             
-            $notification = "User has been enabled";
+            if ($update1 && $update2) {
+                $notification = "User has been enabled";
+            }
+            
         } catch(\Exception $e) {
             $notification= "Failed to enable user";
+        }
+       
+        return back()->with('notification', $notification);
+    }
+
+    public function delete_group($group_id) {
+        try {
+            /* status group : 0 => deleted, 1 => active, 2 => Disabeld */
+            AccessGroup::where('group_id', $group_id)->update([
+                'group_status' => 0,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $notification = "Group has been deleted";
+        } catch(\Exception $e) {
+            $notification= "Failed to delete group";
+        }
+       
+        return back()->with('notification', $notification);
+    }
+
+    public function disabled_group($group_id) {
+        /* status group : 0 => deleted, 1 => active, 2 => Disabeld */
+        /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
+        try {
+            AccessGroup::where('group_id', $group_id)->update([
+                'group_status' => 2,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $checkAssignGroup = AssignUserGroup::where('group_id', $group_id)->get();
+            if (count($checkAssignGroup) > 0) {
+                foreach($checkAssignGroup as $group){
+                    User::where('user_id', $group->user_id)->update([
+                        'status' => 0
+                    ]);
+
+                    ClientUser::where('user_id', $group->user_id)->update([
+                        'status' => 2
+                    ]);
+                }
+            }
+
+            $notification = "Group has been disabled";
+        } catch(\Exception $e) {
+            $notification= "Failed to disabled group";
+        }
+       
+        return back()->with('notification', $notification);
+    }
+
+    public function enable_group($group_id) {
+        /* status group : 0 => deleted, 1 => active, 2 => Disabeld */
+        /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
+        try {
+            AccessGroup::where('group_id', $group_id)->update([
+                'group_status' => 1,
+                'updated_by' => Auth::user()->id,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $checkAssignGroup = AssignUserGroup::where('group_id', $group_id)->get();
+            if (count($checkAssignGroup) > 0) {
+                foreach($checkAssignGroup as $group){
+                    User::where('user_id', $group->user_id)->update([
+                        'status' => 1
+                    ]);
+
+                    ClientUser::where('user_id', $group->user_id)->update([
+                        'status' => 1
+                    ]);
+                }
+            }
+
+            $notification = "Group has been enable";
+        } catch(\Exception $e) {
+            $notification= "Failed to enable group";
+        }
+       
+        return back()->with('notification', $notification);
+    }
+
+    public function delete_user($encodedEmail)
+    {
+        /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
+        try {
+            $email = base64_decode($encodedEmail);
+
+            $update1 = ClientUser::where('email_address',$email)->update(['status' => 3]);
+            $update2 = User::where('email',$email)->update(['status' => 0]);
+            
+            if ($update1 && $update2) {
+                $notification = "User has been deleted";
+            }
+            
+        } catch(\Exception $e) {
+            $notification= "Failed to deleted user";
         }
        
         return back()->with('notification', $notification);

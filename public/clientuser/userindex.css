@@ -54,7 +54,7 @@ table thead th:first-child {
 }
 
 #tableUser td  {
-    padding: 8px 0px 6px 10px;
+    padding: 8px 16px 8px 8px;
     border-bottom:1px solid #CED5DD;
     font-size:13.5px;
     color:black;
@@ -176,7 +176,8 @@ table thead th:first-child {
 }
 
 #table {
-    overflow:auto;
+    /* overflow:auto; */
+    /* overflow: inherit; */
 }
 
 #creategroup-ico {

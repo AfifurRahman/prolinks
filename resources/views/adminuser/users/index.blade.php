@@ -59,7 +59,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                
                     @if(count($owners) > 0)
                         @foreach($owners as $owner)
                             <tr class="company-group">
@@ -74,7 +73,7 @@
                                     <span class="you_status">All</span>
                                 </td> 
                                 <td>
-                                Administrator
+                                    Administrator
                                 </td>
                                 <td>
                                     @if(Auth::user()->email == $owner->email)
@@ -160,15 +159,23 @@
                                             <i class="fa fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                            <li><a href="#modal-move-group" data-toggle="modal" onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
+                                            @if($user->role == \globals::set_role_client())
+                                                <li><a href="#modal-move-group" data-toggle="modal" onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
+                                            @endif
+
                                             @if($user->status == 1)
                                                 <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}">Disable User</a></li>
                                             @elseif($user->status == 2)
                                                 <li><a href="{{ route('adminuser.access-users.enable-user', base64_encode($user->email_address)) }}">Enable User</a></li>
                                             @endif
-                                            <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Send Email</a></li>
+
+                                            @if($user->status == 0)
+                                                <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Resend invitation email</a></li>
+                                            @endif
+                                            <li><a onclick="return confirm('are you sure delete this user ?')" href="{{ route('adminuser.access-users.delete-user', base64_encode($user->email_address)) }}" style="color:#D92D20;">Delete User</a></li>
                                         </ul>
                                     </div>
+                                    
                                 </td>
                             </tr>
                         @endforeach
@@ -201,15 +208,25 @@
                                     </a>
                                 </td>
                                 <td>{{ $list->RefAssignUserGroup->count() }}</td>
-                                <td width="150">{!! \globals::label_status($list->group_status) !!}</td>
+                                <td width="150">
+                                    @if($list->group_status == 1)
+                                        <span class="active_status"> Active</span>
+                                    @elseif($list->group_status == 2)
+                                        <span class="disabled_status"> Disabled</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="dropdown">
                                         <button class="button_ico dropdown-toggle" data-toggle="dropdown">
                                             <i class="fa fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                            <li><a href="">Disable access</a></li>
-                                            <li><a href="">Delete Group</a></li>
+                                            @if($list->group_status == 1)
+                                                <li><a href="#modal-disabled-group" data-toggle="modal" data-url="{{ route('adminuser.access-users.disabled-group', $list->group_id) }}" onclick="getUrlDisableGroup(this)">Disable access</a></li>
+                                            @elseif($list->group_status == 2)
+                                                <li><a href="#modal-enable-group" data-toggle="modal" data-url="{{ route('adminuser.access-users.enable-group', $list->group_id) }}" onclick="getUrlEnableGroup(this)">Enable access</a></li>
+                                            @endif
+                                            <li><a href="#modal-delete-group" data-toggle="modal" data-url="{{ route('adminuser.access-users.delete-group', $list->group_id) }}" onclick="getUrlDeleteGroup(this)" style="color:#D92D20;">Delete Group</a></li>
                                         </ul>
                                     </div>
                                 </td>
@@ -309,47 +326,12 @@
             </div>
         </div>
     </div>
-
-
-    <div id="modal-move-group" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                	<div class="custom-modal-header">
-                		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                		<div style="float: left;">
-                            <img id="creategroup-ico" src="{{ url('template/images/icon_menu/group.png') }}" width="24" height="24">
-	                    </div>
-	                    <div style="float: left; margin-left: 10px;">
-	                        <h4 class="modal-title" id="titleModal">
-                                Move to group
-	                        </h4>
-	                    </div>
-	                </div>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ route('adminuser.access-users.move-group')}}" method="POST">
-                        @csrf
-                        <input type="hidden" name="username" id="username">
-                        <br>
-                        <select class="form-control select2" multiple name="group_num">
-                            @foreach($group as $groups)
-                                <option value="{{ $groups->group_id }}">{{ $groups->group_name }}</option>
-                            @endforeach
-                        </select>
-                        <br>
-                        <br>
-                        <div class="formbutton">
-                            <a class="cancelbtn" data-dismiss="modal">Cancel</a>
-                            <button type="submit" class="createbtn">Move</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
     
+    @include('adminuser.users.move_group')
     @include('adminuser.users.create_group')
+    @include('adminuser.users.modal_disable_group')
+    @include('adminuser.users.modal_enable_group')
+    @include('adminuser.users.modal_delete_group')
 
     @push('scripts')
     <script>
@@ -422,6 +404,42 @@
                 $("#projectsID").prop("required", true);
                 $("#resultGroup").html("");
                 $("#resultProject").html("");
+            }
+        }
+
+        function getUrlDisableGroup(element) {
+            var url = $(element).data('url');
+            $("#get_url_disable_group").val(url);
+        }
+
+        function getUrlEnableGroup(element) {
+            var url = $(element).data('url');
+            $("#get_url_enable_group").val(url);
+        }
+
+        function actDisableGroup() {
+            var getUrlDisabled = $("#get_url_disable_group").val();
+            if (getUrlDisabled != 'undefined') {
+                window.location.href = getUrlDisabled;
+            }
+        }
+
+        function actEnableGroup() {
+            var getUrlEnable = $("#get_url_enable_group").val();
+            if (getUrlEnable != 'undefined') {
+                window.location.href = getUrlEnable;
+            }
+        }
+
+        function getUrlDeleteGroup(element) {
+            var url = $(element).data('url');
+            $("#get_url_delete_group").val(url);
+        }
+
+        function actDeleteGroup() {
+            var getUrlDelete = $("#get_url_delete_group").val();
+            if (getUrlDelete != 'undefined') {
+                window.location.href = getUrlDelete;
             }
         }
     </script>

@@ -79,9 +79,13 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/users/resend-email/{encodedEmail}', 'App\Http\Controllers\Adminuser\AccessUsersController@resend_email')->name('adminuser.access-users.resend-email');
 	Route::get('users/disable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@disable_user')->name('adminuser.access-users.disable-user');
 	Route::get('users/enable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@enable_user')->name('adminuser.access-users.enable-user');
+	Route::get('users/delete-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@delete_user')->name('adminuser.access-users.delete-user');
 
 	/* group */
 	Route::post('/group/save', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
+	Route::get('group/delete-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@delete_group')->name('adminuser.access-users.delete-group');
+	Route::get('group/disabled-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@disabled_group')->name('adminuser.access-users.disabled-group');
+	Route::get('group/enable-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@enable_group')->name('adminuser.access-users.enable-group');
 
 	/* Document */
 	Route::get('documents/sub/{subproject}', 'App\Http\Controllers\Adminuser\DocumentController@Index')->name('adminuser.documents.list');
