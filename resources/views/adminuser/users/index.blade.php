@@ -66,8 +66,9 @@
                                     <input type="checkbox" id="checkbox" disabled />
                                 </td>
                                 <td>
-                                    {!! \globals::get_user_avatar_small($owner->email) !!}
-                                    {{ $owner->email }}
+                                    {!! \globals::get_user_avatar_small($owner->name, $owner->avatar_color) !!}
+                                    <!-- {{ $owner->email }} -->
+                                    {{ $owner->name }}
                                 </td>
                                 <td>
                                     <span class="you_status">All</span>
