@@ -92,6 +92,26 @@ class GlobalHelper
         return $result;
     }
 
+    public static function get_user_avatar($name)
+    {
+        $getFirstChar = substr($name, 0,1);
+        $htmlAvatar = "<div class='user-avatar'>";
+        $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
+        $htmlAvatar .= "</div>";
+
+        return $htmlAvatar;
+    }
+
+    public static function get_user_avatar_small($name)
+    {
+        $getFirstChar = substr($name, 0,1);
+        $htmlAvatar = "<div class='user-avatar-small'>";
+        $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
+        $htmlAvatar .= "</div>";
+
+        return $htmlAvatar;
+    }
+
     public static function set_status_active()
     {
         return 1;

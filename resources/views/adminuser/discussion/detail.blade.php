@@ -149,7 +149,8 @@
                         <a href="#">
                             <div class="inbox-item">
                                 <div class="inbox-item-img">
-                                    <img src="{{ url('template/images/avatar.png') }}" class="img-circle" alt="">
+                                    {!! \globals::get_user_avatar($comment->fullname) !!}
+                                    <!-- <img src="{{ url('template/images/avatar.png') }}" class="img-circle" alt=""> -->
                                 </div>
                                 <div class="box-info">
                                     <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClient->client_name) ? $comment->RefClient->client_name : '' }}</span></p>

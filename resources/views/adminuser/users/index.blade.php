@@ -108,10 +108,11 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('adminuser.access-users.detail', $user->user_id) }}">
-                                        <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}"></image>
                                         @if($user->RefUser->name != "null")
+                                            {!! \globals::get_user_avatar_small($user->name) !!}
                                             {{ $user->name }}
                                         @else
+                                            {!! \globals::get_user_avatar_small($user->email_address) !!}
                                             {{ $user->email_address }}
                                         @endif
                                     </a>
@@ -263,12 +264,12 @@
                 <div class="modal-body">
                     <form action="{{ route('adminuser.access-users.create')}}" method="POST">
                         @csrf
-                        <h5 class="userform">Email address</h5>
+                        <h5 class="userform">Email address <span class="text-danger">*</span></h5>
                         <div class="tags-default tag-email">
                             <input name="email_address" id="email_address" placeholder="Enter email address" required/>
                         </div>
                         
-                        <h5 class="userrole">Role</h5>
+                        <h5 class="userrole">Role <span class="text-danger">*</span></h5>
                         <div class="roleselect">
                             <input type="radio" name="role" value="0" onclick="setRole(this)" required>
                             <div class="roledetail">

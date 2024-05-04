@@ -18,7 +18,7 @@
                 <form action="{{ route('adminuser.access-users.create-group') }}" method="POST">
                     @csrf
                     <div class="form-group">
-                        <label>Group name</label>
+                        <label>Group name <span class="text-danger">*</span></label>
                         <input name="group_name" id="group_name" placeholder="Enter group name" class="form-control" required/>
                     </div>
                     <div class="form-group">

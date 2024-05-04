@@ -104,6 +104,29 @@
             line-height:0px;
             white-space: nowrap;
         }
+
+        .user-avatar {
+            background-color:#FDB022; 
+            color:#FFF; 
+            width:40px; 
+            height:40px; 
+            border-radius:100%; 
+            text-align:center;
+            font-size:27px; 
+            font-weight:bold;
+        }
+
+        .user-avatar-small {
+            background-color:#FDB022; 
+            color:#FFF; 
+            width:25px; 
+            height:25px; 
+            border-radius:100%; 
+            text-align:center;
+            font-size:17px; 
+            font-weight:bold;
+            display: inline-block;
+        }
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
 </head>
@@ -135,7 +158,9 @@
                             <div class="user-info">
                                 <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img>
                                 <div class="user-profile dropdown">
-                                    <img class="user-img" src="{{ url('template/images/avatar.png') }}"></img>
+                                    <!-- <div class="user-avatar">A</div> -->
+                                    {!! \globals::get_user_avatar(Auth::user()->name) !!}
+                                    <!-- <img class="user-img" src="{{ url('template/images/avatar.png') }}"></img> -->
                                     <div class="user-detail">
                                         <div class="user-detail dropdown-toggle" data-toggle="dropdown">
                                             <p class="user-name">
