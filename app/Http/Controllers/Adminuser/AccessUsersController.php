@@ -93,6 +93,7 @@ class AccessUsersController extends Controller
                         $users->email = $email;
                         $users->type = $request->role;
                         $users->password = Hash::make(bcrypt(Str::random(255)));
+                        $users->avatar_color = $this->get_random_avatar_color();
                         $users->save();
 
                         if(!empty($request->input('group')) && count($request->input('group')) > 0){
@@ -536,5 +537,14 @@ class AccessUsersController extends Controller
         }
 
         return back()->with('notification', $notification);
+    }
+
+    private function get_random_avatar_color(){
+        $color = [
+            "#1570EF", "#12B76A", "#D92D20", "#FDB022", "#802b00", "#55552b", "#b30059", "#003366", "#8c1aff"
+        ];
+
+        $random_color = array_rand($color);
+        return $color[$random_color];
     }
 }

@@ -66,7 +66,7 @@
                                     <input type="checkbox" id="checkbox" disabled />
                                 </td>
                                 <td>
-                                    <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}"></image>
+                                    {!! \globals::get_user_avatar_small($owner->email) !!}
                                     {{ $owner->email }}
                                 </td>
                                 <td>
@@ -109,10 +109,10 @@
                                 <td>
                                     <a href="{{ route('adminuser.access-users.detail', $user->user_id) }}">
                                         @if($user->RefUser->name != "null")
-                                            {!! \globals::get_user_avatar_small($user->name) !!}
+                                            {!! \globals::get_user_avatar_small($user->name, $user->RefUser->avatar_color) !!}
                                             {{ $user->name }}
                                         @else
-                                            {!! \globals::get_user_avatar_small($user->email_address) !!}
+                                            {!! \globals::get_user_avatar_small($user->email_address, $user->RefUser->avatar_color) !!}
                                             {{ $user->email_address }}
                                         @endif
                                     </a>

@@ -92,20 +92,20 @@ class GlobalHelper
         return $result;
     }
 
-    public static function get_user_avatar($name)
+    public static function get_user_avatar($name, $color=null)
     {
         $getFirstChar = substr($name, 0,1);
-        $htmlAvatar = "<div class='user-avatar'>";
+        $htmlAvatar = "<div class='user-avatar' style='background-color:".$color."'>";
         $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
         $htmlAvatar .= "</div>";
 
         return $htmlAvatar;
     }
 
-    public static function get_user_avatar_small($name)
+    public static function get_user_avatar_small($name, $color=null)
     {
         $getFirstChar = substr($name, 0,1);
-        $htmlAvatar = "<div class='user-avatar-small'>";
+        $htmlAvatar = "<div class='user-avatar-small' style='background-color:".$color."'>";
         $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
         $htmlAvatar .= "</div>";
 

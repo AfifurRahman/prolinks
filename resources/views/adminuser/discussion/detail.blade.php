@@ -149,7 +149,7 @@
                         <a href="#">
                             <div class="inbox-item">
                                 <div class="inbox-item-img">
-                                    {!! \globals::get_user_avatar($comment->fullname) !!}
+                                    {!! \globals::get_user_avatar($comment->fullname, $comment->RefUser->avatar_color) !!}
                                     <!-- <img src="{{ url('template/images/avatar.png') }}" class="img-circle" alt=""> -->
                                 </div>
                                 <div class="box-info">

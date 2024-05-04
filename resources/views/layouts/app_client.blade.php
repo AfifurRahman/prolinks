@@ -159,7 +159,7 @@
                                 <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img>
                                 <div class="user-profile dropdown">
                                     <!-- <div class="user-avatar">A</div> -->
-                                    {!! \globals::get_user_avatar(Auth::user()->name) !!}
+                                    {!! \globals::get_user_avatar(Auth::user()->name, Auth::user()->avatar_color) !!}
                                     <!-- <img class="user-img" src="{{ url('template/images/avatar.png') }}"></img> -->
                                     <div class="user-detail">
                                         <div class="user-detail dropdown-toggle" data-toggle="dropdown">
