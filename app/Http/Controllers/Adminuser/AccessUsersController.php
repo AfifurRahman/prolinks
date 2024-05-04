@@ -282,18 +282,27 @@ class AccessUsersController extends Controller
     public function move_group(Request $request)
     {
         try {
-            $users = base64_decode($request->username);
+            \DB::beginTransaction();
 
-            $group = $request->group_num;
-
-            DB::table('client_users')->where('email_address', $users)->update([
-                'group_id' => $group,
-                'updated_by' => Auth::user()->id,
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
+            $user_id = $request->user_id;
+            if(!empty($request->input('group')) && count($request->input('group')) > 0){
+                $deleteGroup = AssignUserGroup::where('client_id', \globals::get_client_id())->where('user_id', $user_id)->delete();
+                foreach ($request->input('group') as $key => $grup) {
+                    $groups = new AssignUserGroup;
+                    $groups->client_id = \globals::get_client_id();
+                    $groups->group_id = $grup;
+                    $groups->user_id = $user_id;
+                    $groups->email = User::where('user_id', $user_id)->value('email');
+                    $groups->created_by = Auth::user()->id;
+                    $groups->save();
+                }
+            }
 
             $notification = "User moved successfully";
+
+            \DB::commit();
         } catch (\Exception $e) {
+            \DB::rollBack();
             $notification = "Failed to move user";
         }
 
@@ -328,8 +337,9 @@ class AccessUsersController extends Controller
     {
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
-            $email = base64_decode($encodedEmail);
+            \DB::beginTransaction();
 
+            $email = base64_decode($encodedEmail);
             $update1 = ClientUser::where('email_address',$email)->update([
                 'status' => 2,
                 'updated_by' => Auth::user()->id,
@@ -338,15 +348,16 @@ class AccessUsersController extends Controller
 
             $update2 = User::where('email',$email)->update([
                 'status' => 0,
-                'updated_by' => Auth::user()->id,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
             
             if ($update1 && $update2) {
                 $notification = "User has been disabled";
             }
-              
+            
+            \DB::commit();
         } catch(\Exception $e) {
+            \DB::rollBack();
             $notification = "Failed to disable user";
         }
 
@@ -356,8 +367,9 @@ class AccessUsersController extends Controller
     {
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
-            $email = base64_decode($encodedEmail);
+            \DB::beginTransaction();
 
+            $email = base64_decode($encodedEmail);
             $update1 = ClientUser::where('email_address',$email)->update([
                 'status' => 1,
                 'updated_by' => Auth::user()->id,
@@ -366,7 +378,6 @@ class AccessUsersController extends Controller
 
             $update2 = User::where('email',$email)->update([
                 'status' => 0,
-                'updated_by' => Auth::user()->id,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
             
@@ -374,7 +385,9 @@ class AccessUsersController extends Controller
                 $notification = "User has been enabled";
             }
             
+            \DB::commit();
         } catch(\Exception $e) {
+            \DB::rollBack();
             $notification= "Failed to enable user";
         }
        
@@ -383,6 +396,8 @@ class AccessUsersController extends Controller
 
     public function delete_group($group_id) {
         try {
+            \DB::beginTransaction();
+
             /* status group : 0 => deleted, 1 => active, 2 => Disabeld */
             AccessGroup::where('group_id', $group_id)->update([
                 'group_status' => 0,
@@ -391,7 +406,10 @@ class AccessUsersController extends Controller
             ]);
 
             $notification = "Group has been deleted";
+
+            \DB::commit();
         } catch(\Exception $e) {
+            \DB::rollBack();
             $notification= "Failed to delete group";
         }
        
@@ -402,6 +420,8 @@ class AccessUsersController extends Controller
         /* status group : 0 => deleted, 1 => active, 2 => Disabeld */
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
+            \DB::beginTransaction();
+
             AccessGroup::where('group_id', $group_id)->update([
                 'group_status' => 2,
                 'updated_by' => Auth::user()->id,
@@ -422,7 +442,10 @@ class AccessUsersController extends Controller
             }
 
             $notification = "Group has been disabled";
+
+            \DB::commit();
         } catch(\Exception $e) {
+            \DB::rollBack();
             $notification= "Failed to disabled group";
         }
        
@@ -433,6 +456,8 @@ class AccessUsersController extends Controller
         /* status group : 0 => deleted, 1 => active, 2 => Disabeld */
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
+            \DB::beginTransaction();
+
             AccessGroup::where('group_id', $group_id)->update([
                 'group_status' => 1,
                 'updated_by' => Auth::user()->id,
@@ -453,7 +478,10 @@ class AccessUsersController extends Controller
             }
 
             $notification = "Group has been enable";
+
+            \DB::commit();
         } catch(\Exception $e) {
+            \DB::rollBack();
             $notification= "Failed to enable group";
         }
        
@@ -464,6 +492,8 @@ class AccessUsersController extends Controller
     {
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
+            \DB::beginTransaction();
+
             $email = base64_decode($encodedEmail);
 
             $update1 = ClientUser::where('email_address',$email)->update(['status' => 3]);
@@ -473,7 +503,9 @@ class AccessUsersController extends Controller
                 $notification = "User has been deleted";
             }
             
+            \DB::commit();
         } catch(\Exception $e) {
+            \DB::rollBack();
             $notification= "Failed to deleted user";
         }
        
@@ -482,6 +514,8 @@ class AccessUsersController extends Controller
 
     public function create_group(Request $request) {
         try {
+            \DB::beginTransaction();
+
             $group = new AccessGroup;
             $group->group_id = Str::uuid(4);
             $group->project_id = Session::get('project_id');
@@ -494,8 +528,11 @@ class AccessUsersController extends Controller
             if($group->save()) {
                 $notification = 'success create group';
             }
-        } catch (\Throwable $th) {
-            $notification = $th->getMessage();
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            $notification = "Failed to create group";
         }
 
         return back()->with('notification', $notification);

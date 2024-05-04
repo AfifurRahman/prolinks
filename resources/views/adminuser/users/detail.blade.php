@@ -12,6 +12,7 @@
 @endsection
 
 @section('content')
+    <link href="{{ url('clientuser/userindex.css') }}" rel="stylesheet" type="text/css" />
     <style type="text/css">
         .borderless td, .borderless th {
             border: none !important;
@@ -21,85 +22,11 @@
             color: #CCC;
             font-style: italic;
         }
-        
-        .invited_status{
-            background: #EDF0F2;
-            font-size:12px;
-            font-weight:600;
-            color: #1D2939;
-            padding:5px 10px 5px 10px;
-            border-radius:25px;
-        }
-
-        .active_status{
-            background: #ECFDF3;
-            font-size:12px;
-            font-weight:600;
-            color: #027A48; 
-            padding:5px 10px 5px 10px;
-            border-radius:25px;
-        }
-
-        .you_status{
-            background: #D1E9FF;
-            font-size:12px;
-            font-weight:600;
-            color: #175CD3; 
-            padding:5px 10px 5px 10px;
-            border-radius:25px;
-        }
-
-        .disabled_status {
-            background: #FEF3F2;
-            font-size: 12px;
-            font-weight: 600;
-            color: #912018;
-            padding: 5px 10px 5px 10px;
-            border-radius: 25px;
-        }
 
         .modal-content {
             -webkit-border-radius: 0px !important;
             -moz-border-radius: 0px !important;
             border-radius: 10px !important; 
-        }
-
-        .notificationlayer {
-            position: absolute;
-            width:100%;
-            height:50px;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        #notification {
-            background-color: #FFFFFF;
-            border: 2px solid #12B76A;
-            border-radius: 8px;
-            display: flex;
-            color: #232933;
-            margin: 50px auto;
-            text-align: center;
-            height: 48px;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            transition: top 0.5s ease;    
-        }
-
-        .notificationicon {
-            width:20px;
-            height:20px;
-            margin-top:11px;
-            margin-left:15px;
-        }
-
-        .notificationtext{
-            margin-top:11px;
-            margin-left:8px;
-            margin-right:13px;
-            font-size:14px;
         }
     </style>
     <div class="header-detail">
@@ -113,7 +40,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right">
                     @if($clientuser->role == \globals::set_role_client())
-                        <li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project">Move to group</a></li>
+                        <li><a href="#modal-move-group" data-toggle="modal" onclick="moveGroup('{{ $clientuser->user_id }}')">Move to group</a></li>
                     @endif
 
                     @if($clientuser->status == 0)
@@ -121,12 +48,12 @@
                     @endif
 
                     @if($clientuser->status == 1)
-                        <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($clientuser->email_address)) }}">Disable User</a></li>
+                        <li><a href="#modal-disabled-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.disable-user', base64_encode($clientuser->email_address)) }}" onclick="getUrlDisableUser(this)">Disable User</a></li>
                     @elseif($clientuser->status == 2)
-                        <li><a href="{{ route('adminuser.access-users.enable-user', base64_encode($clientuser->email_address)) }}">Enable User</a></li>
+                        <li><a href="#modal-enable-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.enable-user', base64_encode($clientuser->email_address)) }}" onclick="getUrlEnableUser(this)">Enable User</a></li>
                     @endif
                     <div class="divider"></div>
-                    <li><a onclick="return confirm('are you sure delete this user ?')" href="{{ route('adminuser.access-users.delete-user', base64_encode($clientuser->email_address)) }}" style="color:#D92D20;">Delete User</a></li>
+                    <li><a href="#modal-delete-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.delete-user', base64_encode($clientuser->email_address)) }}" onclick="getUrlDeleteUser(this)" style="color:#D92D20;">Delete User</a></li>
                 </ul>
             </div>
         </div> <div style="clear:both;"></div>
@@ -139,7 +66,7 @@
                     <td colspan="2"><h3>User Information </h3></td>
                 </tr>
                 <tr>
-                    <td width="130">Name</td>
+                    <td width="130">Name <span class="text-danger">*</span></td>
                     <td width="500">
                         <input required type="text" name="name" value="{{ !empty($clientuser->name) ? $clientuser->name : '' }}" class="form-control" />
                     </td>
@@ -147,13 +74,13 @@
                 <tr>
                     <td>Company</td>
                     <td>
-                        <input required type="text" name="company" value="{{ !empty($clientuser->company) ? $clientuser->company : '' }}" class="form-control" />
+                        <input type="text" name="company" value="{{ !empty($clientuser->company) ? $clientuser->company : '' }}" class="form-control" />
                     </td>
                 </tr>
                 <tr>
                     <td>Job Title</td>
                     <td>
-                        <input required type="text" name="job_title" value="{{ !empty($clientuser->job_title) ? $clientuser->job_title : '' }}" class="form-control" />
+                        <input type="text" name="job_title" value="{{ !empty($clientuser->job_title) ? $clientuser->job_title : '' }}" class="form-control" />
                     </td>
                 </tr>
                 <tr>
@@ -228,7 +155,7 @@
                     <td colspan="2"><h3>Role & Group</h3></td>
                 </tr>
                 <tr>
-                    <td width="150">Role</td>
+                    <td width="150">Role <span class="text-danger">*</span></td>
                     <td width="500">
                         <select name="role" onchange="setRole(this)" class="form-control">
                             <option value="0" {{ !empty($clientuser->role) && $clientuser->role == 0 ? "selected":"" }}>Administrator</option>
@@ -249,7 +176,7 @@
                     </td>
                 </tr>
                 <tr id="data_project">
-                    <td>Project</td>
+                    <td>Project <span class="text-danger">*</span></td>
                     <td>
                         <select class="form-control select2" id="project" data-placeholder="Select Project" multiple name="project[]">
                             @foreach($project as $projects)
@@ -330,6 +257,9 @@
     </div>
 
     @include('adminuser.users.move_group')
+    @include('adminuser.users.modal_disable_user')
+    @include('adminuser.users.modal_enable_user')
+    @include('adminuser.users.modal_delete_user')
 @stop
 
 @push('scripts')
@@ -409,6 +339,48 @@
                 $("#project").prop("required", true);
             }
         }
+
+        /* user */
+        function getUrlDisableUser(element) {
+            var url = $(element).data('url');
+            $("#get_url_disable_user").val(url);
+        }
+
+        function actDisableUser() {
+            var getUrlDisabled = $("#get_url_disable_user").val();
+            if (getUrlDisabled != 'undefined') {
+                window.location.href = getUrlDisabled;
+            }
+        }
+
+        function getUrlEnableUser(element) {
+            var url = $(element).data('url');
+            $("#get_url_enable_user").val(url);
+        }
+
+        function actEnableUser() {
+            var getUrlEnable = $("#get_url_enable_user").val();
+            if (getUrlEnable != 'undefined') {
+                window.location.href = getUrlEnable;
+            }
+        }
+
+        function getUrlDeleteUser(element) {
+            var url = $(element).data('url');
+            $("#get_url_delete_user").val(url);
+        }
+
+        function actDeleteUser() {
+            var getUrlDelete = $("#get_url_delete_user").val();
+            if (getUrlDelete != 'undefined') {
+                window.location.href = getUrlDelete;
+            }
+        }
+
+        function moveGroup(email) {
+            // document.getElementById('moveuser').style.display = 'block';
+            document.getElementById('user_id').value = email;
+        };
 
         function hideNotification() {
         setTimeout(function() {

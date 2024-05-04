@@ -63,7 +63,7 @@
                         @foreach($owners as $owner)
                             <tr class="company-group">
                                 <td>
-                                    <input type="checkbox" id="checkbox"/>
+                                    <input type="checkbox" id="checkbox" disabled />
                                 </td>
                                 <td>
                                     <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}"></image>
@@ -160,19 +160,19 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right">
                                             @if($user->role == \globals::set_role_client())
-                                                <li><a href="#modal-move-group" data-toggle="modal" onclick="moveGroup('{{ base64_encode($user->email_address) }}')">Move to group</a></li>
+                                                <li><a href="#modal-move-group" data-toggle="modal" onclick="moveGroup('{{ $user->user_id }}')">Move to group</a></li>
                                             @endif
 
                                             @if($user->status == 1)
-                                                <li><a href="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}">Disable User</a></li>
+                                                <li><a href="#modal-disabled-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}" onclick="getUrlDisableUser(this)">Disable User</a></li>
                                             @elseif($user->status == 2)
-                                                <li><a href="{{ route('adminuser.access-users.enable-user', base64_encode($user->email_address)) }}">Enable User</a></li>
+                                                <li><a href="#modal-enable-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.enable-user', base64_encode($user->email_address)) }}" onclick="getUrlEnableUser(this)">Enable User</a></li>
                                             @endif
 
                                             @if($user->status == 0)
                                                 <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Resend invitation email</a></li>
                                             @endif
-                                            <li><a onclick="return confirm('are you sure delete this user ?')" href="{{ route('adminuser.access-users.delete-user', base64_encode($user->email_address)) }}" style="color:#D92D20;">Delete User</a></li>
+                                            <li><a href="#modal-delete-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.delete-user', base64_encode($user->email_address)) }}" onclick="getUrlDeleteUser(this)" style="color:#D92D20;">Delete User</a></li>
                                         </ul>
                                     </div>
                                     
@@ -329,9 +329,14 @@
     
     @include('adminuser.users.move_group')
     @include('adminuser.users.create_group')
+
     @include('adminuser.users.modal_disable_group')
     @include('adminuser.users.modal_enable_group')
     @include('adminuser.users.modal_delete_group')
+
+    @include('adminuser.users.modal_disable_user')
+    @include('adminuser.users.modal_enable_user')
+    @include('adminuser.users.modal_delete_user')
 
     @push('scripts')
     <script>
@@ -363,7 +368,7 @@
 
         function moveGroup(email) {
             // document.getElementById('moveuser').style.display = 'block';
-            document.getElementById('username').value = email;
+            document.getElementById('user_id').value = email;
         };
 
         function setRole(element) {
@@ -407,6 +412,7 @@
             }
         }
 
+        /* group */
         function getUrlDisableGroup(element) {
             var url = $(element).data('url');
             $("#get_url_disable_group").val(url);
@@ -438,6 +444,43 @@
 
         function actDeleteGroup() {
             var getUrlDelete = $("#get_url_delete_group").val();
+            if (getUrlDelete != 'undefined') {
+                window.location.href = getUrlDelete;
+            }
+        }
+
+        /* user */
+        function getUrlDisableUser(element) {
+            var url = $(element).data('url');
+            $("#get_url_disable_user").val(url);
+        }
+
+        function actDisableUser() {
+            var getUrlDisabled = $("#get_url_disable_user").val();
+            if (getUrlDisabled != 'undefined') {
+                window.location.href = getUrlDisabled;
+            }
+        }
+
+        function getUrlEnableUser(element) {
+            var url = $(element).data('url');
+            $("#get_url_enable_user").val(url);
+        }
+
+        function actEnableUser() {
+            var getUrlEnable = $("#get_url_enable_user").val();
+            if (getUrlEnable != 'undefined') {
+                window.location.href = getUrlEnable;
+            }
+        }
+
+        function getUrlDeleteUser(element) {
+            var url = $(element).data('url');
+            $("#get_url_delete_user").val(url);
+        }
+
+        function actDeleteUser() {
+            var getUrlDelete = $("#get_url_delete_user").val();
             if (getUrlDelete != 'undefined') {
                 window.location.href = getUrlDelete;
             }

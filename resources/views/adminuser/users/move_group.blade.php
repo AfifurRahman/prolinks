@@ -17,9 +17,9 @@
             <div class="modal-body">
                 <form action="{{ route('adminuser.access-users.move-group')}}" method="POST">
                     @csrf
-                    <input type="hidden" name="username" id="username">
+                    <input type="hidden" name="user_id" id="user_id">
                     <br>
-                    <select class="form-control select2" multiple name="group_num">
+                    <select class="form-control select2" multiple name="group[]">
                         @foreach($group as $groups)
                             <option value="{{ $groups->group_id }}">{{ $groups->group_name }}</option>
                         @endforeach
