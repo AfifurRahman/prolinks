@@ -117,9 +117,14 @@
                 <tbody>
                     @foreach($member as $user)
                         <tr>
-                        <td>
-                                <image id="usericon" src="{{ url('template/images/icon_access_users.png') }}" width="24" height="24">
-                                {{ $user->RefClientUser->email_address }}
+                            <td>
+                                @if($user->RefUser->name != "null")
+                                    {!! \globals::get_user_avatar_small($user->RefUser->name, $user->RefUser->avatar_color) !!}
+                                    {{ $user->RefUser->name }}
+                                @else
+                                    {!! \globals::get_user_avatar_small($user->RefClientUser->email_address, $user->RefUser->avatar_color) !!}
+                                    {{ $user->RefClientUser->email_address }}
+                                @endif
                             </td>
                             <td>
                                 @if($user->RefClientUser->role == 0) 
