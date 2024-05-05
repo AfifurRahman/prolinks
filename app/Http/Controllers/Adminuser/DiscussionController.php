@@ -164,6 +164,12 @@ class DiscussionController extends Controller
             $comment->created_by = Auth::user()->id;
             $comment->created_at = date("Y-m-d H:i:s");
             if($comment->save()){
+                if ($getDiscussion->user_id != Auth::user()->user_id) {
+                    Discussion::where('discussion_id', $getDiscussion->discussion_id)->where('client_id', \globals::get_client_id())->update([
+                        'status' => \globals::set_qna_status_answered()
+                    ]);
+                }
+
                 $this->attach_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->subproject_id, $comment->client_id,  $request);
                 $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->subproject_id, $comment->client_id,  $request);
                 $this->send_email_user($comment->project_id, $comment->subproject_id, $comment->client_id, $comment->discussion_id, $request);
@@ -376,7 +382,7 @@ class DiscussionController extends Controller
             $discussion_id = $request->input('discussion_id');
             $updated = Discussion::where('discussion_id', $discussion_id)->update([
                 'status' => \globals::set_qna_status_closed(),
-                'closed_date' => date('d-m-y H:i:s'),
+                'closed_date' => date('d-m-Y H:i:s'),
                 'closed_by' => Auth::user()->id
             ]);
 
@@ -424,13 +430,12 @@ class DiscussionController extends Controller
         if($request->has('upload_doc')){
             if(count($request->file('upload_doc')) > 0){
                 foreach($request->file('upload_doc') as $uploads){
-                    $path = 'uploads/' . Client::where('client_email', Auth::user()->email)->value('client_id').'/'.$project_id.'/discussion'; 
+                    $path = 'uploads/' .$client_id.'/'.$project_id.'/'.$subproject_id.'/discussion'; 
                     Storage::makeDirectory($path, 0755, true);
                     // $results = Storage::disk('public')->put($path, $uploads, 'public');
                     $baseName = Str::random(8);
                     $results = $uploads->storeAs($path, $baseName);
                     if($results){
-                        
                         $attach = new DiscussionAttachFile;
                         $attach->comment_id = $comment_id;
                         $attach->discussion_id = $discussion_id;
@@ -439,24 +444,50 @@ class DiscussionController extends Controller
                         $attach->client_id = $client_id;
                         $attach->user_id = Auth::user()->user_id;
                         $attach->file_name = $uploads->getClientOriginalName();
-                        $attach->basename = $baseName;
+                        $attach->basename = basename($baseName);
                         $attach->file_url = $path;
                         $attach->file_extension = $uploads->getClientOriginalExtension();
                         $attach->file_size = $uploads->getSize();
                         if($attach->save()){
-                            $exist_folder = UploadFolder::where('project_id', $project_id)->where('client_id', $client_id)->where('name', 'Discussion')->first();
+                            $exist_folder = UploadFolder::where('project_id', $project_id)->where('client_id', $client_id)->where('name', 'discussion')->first();
                             if (empty($exist_folder->id)) {
                                 $folders = new UploadFolder;
                                 $folders->index = 9999;
                                 $folders->project_id = $project_id;
                                 $folders->subproject_id = $subproject_id;
                                 $folders->basename = $baseName;
-                                $folders->name = "Discussion";
+                                $folders->parent = $path;
+                                $folders->directory = $path;
+                                $folders->name = "discussion";
                                 $folders->client_id = \globals::get_client_id();
                                 $folders->status = 1;
                                 $folders->uploaded_by = Auth::user()->user_id; 
                                 $folders->save();
                             }
+                            
+                            $maxIndex = max(UploadFile::where('directory', $path)->max('index'), UploadFolder::where('parent', $path)->max('index'));
+                            $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+                            // insert upload file
+                            $files = new UploadFile;
+                            $files->index = $fileIndex;
+                            $files->project_id = $project_id;
+                            $files->subproject_id = $subproject_id;
+                            $files->directory = $path;
+                            $files->basename = basename($baseName);
+                            $files->name = $attach->file_name;
+                            $files->client_id = \globals::get_client_id();
+                            $files->mime_type = $attach->file_extension;
+                            $files->size = $attach->file_size;
+                            $files->status = 1;
+                            $files->uploaded_by = Auth::user()->user_id;
+                            $files->save();
+
+                            $permissions = new Permission;
+                            $permissions->user_id = Auth::user()->user_id;
+                            $permissions->fileid = $files->basename;
+                            $permissions->permission = 1;
+                            $permissions->created_at = date('Y-m-d H:i:s');
+                            $permissions->save();
                         }
                     }
                 }

@@ -124,15 +124,17 @@
                 <h3>
                     {{ $detail->subject }}
                     @if($detail->status == \globals::set_qna_status_unanswered())
-                        <label class="label label-primary">Open</label>
+                        <label class="label label-primary" style="background-color:#D1E9FF; color:#175CD3; border-radius:10px; font-size:14px;">Submitted</label>
+                    @elseif($detail->status == \globals::set_qna_status_answered())
+                        <label class="label label-success" style="background-color:#D1FADF; color:#3C914D; border-radius:10px; font-size:14px;">Answered</label>
                     @elseif($detail->status == \globals::set_qna_status_closed())
-                        <label class="label label-inverse">Question closed</label>
+                        <label class="label label-inverse" style="background-color:#EDF0F2; color:#1D2939; border-radius:10px; font-size:14px;">Closed</label>
                     @endif
                 </h3>
             </div>
             <div class="pull-right">
                 @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
-                    @if($detail->status == \globals::set_qna_status_unanswered())
+                    @if($detail->status == \globals::set_qna_status_unanswered() || $detail->status == \globals::set_qna_status_answered())
                         <a href="#modal-confirm-status-close" data-toggle="modal" class="btn btn-default" style="margin-top:5px;">Close questions</a>
                     @elseif($detail->status == \globals::set_qna_status_closed())
                         <a href="#modal-confirm-status-open" data-toggle="modal" class="btn btn-primary" style="margin-top:5px;">Open questions</a>
@@ -183,7 +185,7 @@
                         </a>
                     @endforeach
 
-                    @if($detail->status == \globals::set_qna_status_unanswered())
+                    @if($detail->status == \globals::set_qna_status_unanswered() || $detail->status == \globals::set_qna_status_answered())
                         <div class="inbox-item">
                             <div class="box-info">
                                 <form id="fileForm" enctype="multipart/form-data">
