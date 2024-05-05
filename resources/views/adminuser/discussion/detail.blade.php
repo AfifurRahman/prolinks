@@ -241,6 +241,14 @@
 
 @push('scripts')
     <script type="text/javascript">
+        $(document).ready(function () {
+            $(".tableLinksFiles").dataTable({
+                "bPaginate": false,
+                "bInfo": true,
+                "bSort": false,
+            });
+        });
+
         function hideNotification() {
         setTimeout(function() {
             $('#notification').fadeOut();

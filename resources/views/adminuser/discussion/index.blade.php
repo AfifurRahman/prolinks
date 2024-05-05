@@ -200,6 +200,12 @@
                 "dom": 'rtip',
                 "stripeClasses": false,
             });
+
+            $(".tableLinksFiles").dataTable({
+                "bPaginate": false,
+                "bInfo": true,
+                "bSort": false,
+            });
         });
 
         function getLinkDoc() {

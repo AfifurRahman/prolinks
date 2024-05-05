@@ -16,12 +16,19 @@
             </div>
             <div class="modal-body">
                 @if(count($file) > 0)
-                    <table id="tableLinksFiles" class="table table-hover">
-                        @foreach($file as $files)
+                    <table class="tableLinksFiles table table-hover">
+                        <thead>
                             <tr>
-                                <td><input type="checkbox" style="width:20px; height:20px;" value="{{ $files->id }}" data-filename="{{ $files->name }}" name="link_document" id="link_document" />&nbsp; <img src="{{ url('template/images/ext-file.png') }}" width="20" height="20"> {{ $files->name }} </td>
+                                <th></th>
                             </tr>
-                        @endforeach
+                        </thead>
+                        <tbody>
+                            @foreach($file as $files)
+                                <tr>
+                                    <td><input type="checkbox" style="width:20px; height:20px;" value="{{ $files->id }}" data-filename="{{ $files->name }}" name="link_document" id="link_document" />&nbsp; <img src="{{ url('template/images/ext-file.png') }}" width="20" height="20"> {{ $files->name }} </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                     </table>
                 @else
                     <div class="card-box">

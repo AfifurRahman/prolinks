@@ -127,6 +127,15 @@
             font-weight:bold;
             display: inline-block;
         }
+
+        .text-active {
+            color: #1570EF !important;
+            font-weight: bold !important;
+        }
+
+        .text-active img {
+            filter: sepia(100%) hue-rotate(190deg) saturate(500%);
+        }
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
 </head>
