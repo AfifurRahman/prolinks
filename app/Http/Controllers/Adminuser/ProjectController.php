@@ -202,7 +202,12 @@ class ProjectController extends Controller
 		$subProject = SubProject::where('subproject_id', $request->input('main_project_id'))->first();
 		
 		Session::put('project_id', $request->input('main_project_id'));
-		User::where('id', Auth::user()->id)->update(['session_project'=> $subProject->subproject_id]);
-		return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)));
+		$update = User::where('id', Auth::user()->id)->update(['session_project'=> $request->input('main_project_id')]);
+		if ($update) {
+			$notification = "Project changed";
+		}
+
+		return back()->with('notification', $notification);
+		// return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)))->with('notification', $notification);
     }
 }
