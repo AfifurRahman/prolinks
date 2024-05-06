@@ -210,7 +210,7 @@ class GlobalHelper
         // $models = SubProject::where('client_id', \globals::get_client_id())->whereIn('subproject_id', $assignProject)->get();
         // return $models;
         $assignProject = AssignProject::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->pluck('project_id')->toArray();
-        $models = Project::where('client_id', \globals::get_client_id())->whereIn('project_id', $assignProject)->get();
+        $models = Project::where('client_id', \globals::get_client_id())->where('project_status', 1)->whereIn('project_id', $assignProject)->get();
         return $models;
     }
 

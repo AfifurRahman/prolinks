@@ -382,7 +382,7 @@ class DiscussionController extends Controller
             $discussion_id = $request->input('discussion_id');
             $updated = Discussion::where('discussion_id', $discussion_id)->update([
                 'status' => \globals::set_qna_status_closed(),
-                'closed_date' => date('d-m-Y H:i:s'),
+                'closed_date' => date('Y-m-d H:i:s'),
                 'closed_by' => Auth::user()->id
             ]);
 

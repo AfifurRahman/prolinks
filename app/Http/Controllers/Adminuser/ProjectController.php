@@ -207,7 +207,14 @@ class ProjectController extends Controller
 			$notification = "Project changed";
 		}
 
-		return back()->with('notification', $notification);
-		// return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)))->with('notification', $notification);
+		$uriPrev = parse_url(url()->previous(), PHP_URL_PATH);
+		$explodeUri = explode('/', $uriPrev);
+		$uri = $explodeUri[1];
+		
+		if (!empty($uri) && $uri == "documents") {
+			return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)))->with('notification', $notification);
+		}else{
+			return back()->with('notification', $notification);
+		}
     }
 }
