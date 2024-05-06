@@ -162,8 +162,7 @@
                                             @if(!empty($link_file->RefFile->id))
                                                 <div style="margin-bottom:5px;">
                                                     @php
-                                                        $subproject1 = $link_file->project_id."/".$link_file->subproject1_id;
-                                                        $origin1 = 'uploads/'.$link_file->client_id. '/'.$subproject1;
+                                                        $origin1 = $link_file->RefFile->directory;
                                                         $files1 = $link_file->RefFile->directory."/".$link_file->RefFile->basename;
                                                     @endphp
                                                     <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin1), base64_encode(basename($files1)) ] ) }}" class="btn btn-default radius-button">
