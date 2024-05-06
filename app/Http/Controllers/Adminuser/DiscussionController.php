@@ -52,10 +52,10 @@ class DiscussionController extends Controller
 
     function detail($discussion_id){
         if (Auth::user()->type == \globals::set_role_administrator()) {
-            $detail = Discussion::where('discussion_id', $discussion_id)->where('client_id', \globals::get_client_id())->where('deleted', 0)->first();
+            $detail = Discussion::where('discussion_id', $discussion_id)->where('client_id', \globals::get_client_id())->where('deleted', 0)->firstOrFail();
             $file = UploadFile::select('upload_files.id', 'upload_files.name')->where('upload_files.client_id', \globals::get_client_id())->get();
         }else{
-            $detail = Discussion::where('discussion_id', $discussion_id)->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->first();
+            $detail = Discussion::where('discussion_id', $discussion_id)->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->firstOrFail();
             $file = Permission::select('upload_files.id', 'upload_files.name')->join('upload_files', 'upload_files.basename', 'permissions.fileid')->where('permissions.user_id', Auth::user()->user_id)->where('permissions.permission', 1)->get();
         }
 

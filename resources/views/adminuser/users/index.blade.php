@@ -308,13 +308,13 @@
                             <h5 class="usercompany">Project <span class="text-danger">*</span></h5>
                             <select class="form-control select2" data-placeholder="Select Project" multiple name="project[]" id="projectsID">
                                 @foreach($project as $projects)
-                                    <optgroup label="{{ $projects->project_name }}">
-                                        @if(count($projects->RefSubProject) > 0)
+                                    @if(count($projects->RefSubProject) > 0)
+                                        <optgroup label="{{ $projects->project_name }}">
                                             @foreach($projects->RefSubProject as $subProjects)
                                                 <option value="{{$subProjects->subproject_id}}">{{ $subProjects->subproject_name }}</option>
                                             @endforeach
-                                        @endif
-                                    </optgroup>
+                                        </optgroup>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>
