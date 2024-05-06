@@ -229,7 +229,7 @@ class DocumentController extends Controller
                 return response()->json(['success' => false, 'message' => 'Same folder name already exist']);
             }
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
         
     }
