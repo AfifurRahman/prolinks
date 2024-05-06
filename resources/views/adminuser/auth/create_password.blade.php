@@ -18,11 +18,12 @@
                 width: 60%;
                 margin: 0 auto;
                 margin-top: 50px;
+                margin-left: 50px;
             }
 
             .card img {
                 width: 200px;
-                height: 70px;
+                height: 50px;
             }
 
             .card h3 {
@@ -33,7 +34,7 @@
         <body>
             <div class="row">
                 <div class="col-md-6">
-                    <img src="{{ url('template/images/banner_login.png') }}">
+                    <img src="{{ url('template/images/banner_login.png') }}" width="100%">
                 </div>
                 <div class="col-md-6">
                     <div class="card">
