@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Auth;
 
 class Project extends Model
 {
@@ -26,6 +27,6 @@ class Project extends Model
     }
 
     public function RefAssignProject(){
-        return $this->hasMany('App\Models\AssignProject', 'project_id' , 'project_id');
+        return $this->hasMany('App\Models\AssignProject', 'project_id' , 'project_id')->where('user_id', Auth::user()->user_id);
     }
 }
