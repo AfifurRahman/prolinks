@@ -165,8 +165,9 @@ class ClientController extends Controller
     	\role::check_permission(array('send-email-client'));
 
     	try {
-    		$users = User::select('users.id','users.email', 'clients.client_name')->join('clients', 'users.id', 'clients.user_id')->where('clients.client_id', $id)->first();
-    		//send mail
+    		$users = User::select('users.id','users.email', 'clients.client_name')->join('clients', 'users.user_id', 'clients.user_id')->where('clients.client_id', $id)->first();
+    		
+			//send mail
 			$token = Password::getRepository()->create($users);
 			$details = [
 				'client_name' => $users->client_name,
