@@ -263,7 +263,7 @@
 	                </div>
                 </div>
                 <div class="modal-body">
-                    <form action="{{ route('adminuser.access-users.create')}}" method="POST">
+                    <form id="app-submit-form">
                         @csrf
                         <h5 class="userform">Email address <span class="text-danger">*</span></h5>
                         <div class="tags-default tag-email">
@@ -321,7 +321,7 @@
                         <div id="resultProject"></div>
                         <div class="formbutton">
                             <a class="cancelbtn" data-dismiss="modal">Cancel</a>
-                            <button class="createbtn" type="submit">Invite</button>
+                            <button id="processInvite" class="btn btn-primary" style="border-radius:6px;" type="submit">Invite</button>
                         </div>
                     </form>
                 </div>
@@ -487,6 +487,29 @@
                 window.location.href = getUrlDelete;
             }
         }
+
+        $('#app-submit-form').submit(function(e){
+             e.preventDefault();
+             var formData = new FormData(this);
+             $.ajax({
+                url: "{{ route('adminuser.access-users.create')}}",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                beforeSend: function(){
+                    $("#processInvite").prop('disabled', true);
+                    $("#processInvite").html("loading..");
+                },
+                success: function(response){
+                    console.log(response);
+                    location.reload();
+                },
+                error: function(xhr, status, error){
+                    alert(xhr.responseText);
+                }
+            });
+        });
     </script>
     @endpush
 @endsection

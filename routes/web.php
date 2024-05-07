@@ -144,7 +144,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::post('/discussion/change-status-qna-closed', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_closed')->name('discussion.change-status-qna-closed');
 		Route::post('/discussion/change-status-qna-open', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_open')->name('discussion.change-status-qna-open');
 		Route::get('/discussion/delete-comment/{id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_comment')->name('discussion.delete-comment');
-		Route::get('/discussion/delete-discussion/{id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_discussion')->name('discussion.delete-discussion');
+		Route::get('/discussion/delete-discussion/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_discussion')->name('discussion.delete-discussion');
 		Route::post('/discussion/import-questions', 'App\Http\Controllers\Adminuser\DiscussionController@import_questions')->name('discussion.import-questions');
 		Route::get('/discussion/export-questions', 'App\Http\Controllers\Adminuser\DiscussionController@export_questions')->name('discussion.export-questions');
 	});

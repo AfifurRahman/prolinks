@@ -299,7 +299,8 @@
                     names += "</div>"
                 names += "</div>"
             }
-            $("#result-upload-file").html(names);
+            
+            $("#result-upload-file").append(names);
         })
 
         function removeItem(idx) {

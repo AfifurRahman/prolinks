@@ -1,7 +1,9 @@
 <table class="tableGlobal">
     <thead>
         <tr>
-            <th></th>
+            <th>
+                <input type="checkbox" style="width:30px; height:16px;" />
+            </th>
             <th>ID</th>
             <th>Subject</th>
             <th>Submitter</th>
@@ -13,8 +15,8 @@
     <tbody>
         @foreach($list_questions as $key => $qna)
             <tr>
-                <td>
-                    <input type="checkbox" />
+                <td width="50">
+                    <input type="checkbox" style="width:30px; height:16px;" />
                 </td>
                 <td>{{ $qna->id }}</td>
                 <td>
@@ -38,12 +40,13 @@
                         <ul class="dropdown-menu dropdown-menu-top pull-right">
                             <li><a href="{{ route('discussion.detail-discussion', $qna->discussion_id) }}"></i>View Detail</a></li>
                             @if(Auth::user()->type == \globals::set_role_collaborator() || Auth::user()->type == \globals::set_role_administrator())
-                                @if($qna->status == \globals::set_qna_status_unanswered())
+                                @if($qna->status == \globals::set_qna_status_unanswered() || $qna->status == \globals::set_qna_status_answered())
                                     <li><a href="#modal-confirm-status-close" data-discussionid="{{ $qna->discussion_id }}" onclick="getDiscussionID(this)" data-toggle="modal">Close question</a></li>
                                 @elseif($qna->status == \globals::set_qna_status_closed())
                                     <li><a href="#modal-confirm-status-open" data-discussionid="{{ $qna->discussion_id }}" onclick="getDiscussionID(this)" data-toggle="modal">Open question</a></li>
                                 @endif
                             @endif
+                            <li><a href="#modal-remove-questions" data-toggle="modal" data-url="{{ route('discussion.delete-discussion', $qna->discussion_id) }}" onclick="getUrlDeleteQna(this)" style="color:#D92D20;"></i>Remove question</a></li>
                         </ul>
                     </div>
                 </td>

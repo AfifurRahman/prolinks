@@ -236,16 +236,17 @@ class DiscussionController extends Controller
         return back()->with('notification', $notification);
     }
 
-    function delete_discussion($id) {
+    function delete_discussion($discussion_id) {
         $notification = "";
         try {
             \DB::beginTransaction();
 
-            $deleted = Discussion::where('id', base64_decode($id))->update([
+            $deleted = Discussion::where('discussion_id', $discussion_id)->update([
                 'deleted' => 1
             ]);
+
             if($deleted){
-                $notification = "Discussion deleted!";
+                $notification = "Discussion removed";
             }
 
             \DB::commit();

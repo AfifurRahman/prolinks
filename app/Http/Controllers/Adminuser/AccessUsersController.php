@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Adminuser;
 
 use App\Models\SubProject;
+use App\Models\TrashUsers;
 use Auth;
 use App\Models\User;
 use App\Models\ClientUser;
@@ -28,8 +29,8 @@ class AccessUsersController extends Controller
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
 
         $adminusercompany = DB::table('clients')->where('client_email',Auth::user()->email)->value('client_id');
-        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->whereIn('status', [0, 1, 2])->get();
-        $group = AccessGroup::where('client_id', \globals::get_client_id())->where('group_status', 1)->get();
+        $clientuser = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->whereIn('status', [0, 1, 2])->orderBy('id', 'DESC')->get();
+        $group = AccessGroup::where('client_id', \globals::get_client_id())->where('group_status', 1)->orderBy('id', 'DESC')->get();
         $project = Project::where('client_id', \globals::get_client_id())->where('project_status', 1)->get();
         $owners = User::where('client_id', \globals::get_client_id())->where('type', 0)->where('user_id', Auth::user()->user_id)->get();
         $listGroup = AccessGroup::where('client_id', \globals::get_client_id())->whereIn('group_status', [1,2])->get();
@@ -71,7 +72,8 @@ class AccessUsersController extends Controller
 
             foreach ($emailAddresses as $email) {
                 if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $existingUser = ClientUser::where('email_address', $email)->first();
+                    /* status client use : 3 => deleted */
+                    $existingUser = ClientUser::where('email_address', $email)->where('status', '!=', 3)->first();
                     
                     if (!$existingUser) {
                         $userID = Str::uuid(4);
@@ -146,11 +148,13 @@ class AccessUsersController extends Controller
 
             \DB::commit();
         } catch (\Exception $e) {
-            var_dump($e->getMessage()); die();
             \DB::rollBack();
             $notification = "Can't invite user";
         }
-        return back()->with('notification', $notification);   
+
+        Session::flash('notification', $notification);
+        return response()->json($notification);
+        // return back()->with('notification', $notification);   
     }
 
     public function edit (Request $request, $user_id) {
@@ -496,11 +500,34 @@ class AccessUsersController extends Controller
             \DB::beginTransaction();
 
             $email = base64_decode($encodedEmail);
-
-            $update1 = ClientUser::where('email_address',$email)->update(['status' => 3]);
-            $update2 = User::where('email',$email)->update(['status' => 0]);
             
-            if ($update1 && $update2) {
+            $update1 = ClientUser::where('email_address',$email)->update(['status' => 3]);
+            
+            $getUsers = User::where('email',$email)->first();
+            if (!empty($getUsers->id)) {
+                $trashUsers = new TrashUsers;
+                $trashUsers->user_id = $getUsers->user_id;
+                $trashUsers->client_id = $getUsers->client_id;
+                $trashUsers->name = $getUsers->name;
+                $trashUsers->username = $getUsers->username;
+                $trashUsers->email = $getUsers->email;
+                $trashUsers->email_verified_at = $getUsers->email_verified_at;
+                $trashUsers->password = $getUsers->password;
+                $trashUsers->type = $getUsers->type;
+                $trashUsers->status = $getUsers->status;
+                $trashUsers->avatar_color = $getUsers->avatar_color;
+                $trashUsers->session_project = $getUsers->session_project;
+                $trashUsers->last_signed = $getUsers->last_signed;
+                $trashUsers->deleted = 1;
+                $trashUsers->created_at = date('Y-m-d H:i:s');
+                if ($trashUsers->save()) {
+                    AssignUserGroup::where('user_id', $trashUsers->user_id)->delete();
+                }
+            }
+            
+            $deleted = User::where('email',$email)->delete();
+            
+            if ($update1 && $deleted) {
                 $notification = "User has been deleted";
             }
             

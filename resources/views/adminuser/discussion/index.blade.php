@@ -181,6 +181,7 @@
     @include('adminuser.discussion.modal_close_questions')
     @include('adminuser.discussion.modal_open_questions')
     @include('adminuser.discussion.modal_import_questions')
+    @include('adminuser.discussion.modal_remove_questions')
 @endsection
 @push('scripts')
 	<script type="text/javascript">
@@ -315,6 +316,18 @@
         function getDiscussionID(element) {
             var discussion_id = $(element).data('discussionid');
             $("#discussion_id").val(discussion_id);
+        }
+
+        function getUrlDeleteQna(element) {
+            var url = $(element).data('url');
+            $("#get_url_delete_qna").val(url);
+        }
+
+        function actDeleteQna() {
+            var getUrlDelete = $("#get_url_delete_qna").val();
+            if (getUrlDelete != 'undefined') {
+                window.location.href = getUrlDelete;
+            }
         }
     </script>
 @endpush
