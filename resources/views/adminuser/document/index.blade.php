@@ -28,8 +28,8 @@
                 <div class="drag-area" id="dragArea" ondrop="handleDrop(event)">
                     <image class="modal-upload-img" style="width:56px;height:56px;" src="{{ url('template/images/icon_menu/modal_upload.png') }}"></image>
                     <span class="header">Drop your file(s) here</span>
-                    <button class="modal-upload-btn" onclick="document.getElementById('fileInput').click();">Browse</button>
-                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" multiple onchange="handleFileSelection(this)">
+                    <button class="modal-upload-btn" onclick="document.getElementById('fileInput').click()">Browse</button>
+                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" accept=".doc, .docx, .xls, .xlsx, .ppt, .pptx, image/*, video/*, .zip" multiple onchange="handleFileSelection(this)">
                 </div>
             </div>
         </div>
@@ -48,7 +48,7 @@
             </div>
             <div class="modal-body">
                 <div class="upload-helper">
-                    <button id="browseFiles" class="create-btn" onclick="document.getElementById('fileInput').click();">Browse files</button>
+                    <button id="browseFiles" class="create-btn" onclick="document.getElementById('fileInput').click()">Browse files</button>
                     <button id="clearFiles"  class="delete-btn" onclick="clearFiles()"><i class="fa fa-times"></i>&nbsp;Clear all</button>
                 </div>
                 <div class="dataTable">
@@ -70,8 +70,8 @@
                     </table>
                 </div>
                 <div class="form-button">
-                    <a class="cancel-btn" onclick="document.getElementById('upload-preview-modal').style.display='none'">Cancel</a>
-                    <button class="create-btn" id="uploadFileSubmit">Upload files</button>
+                    <button class="cancel-btn" onclick="document.getElementById('upload-preview-modal').style.display='none'">Cancel</button>
+                    <button class="upload-btn" id="uploadFileSubmit">Upload files</button>
                 </div>
             </div>
         </div>
@@ -395,12 +395,12 @@
         <table class="tableDocument">
             <thead>
                 <tr>
-                    <th id="check"><input type="checkbox" class="checkbox" disabled/></th>
+                    <th data-sortable = "false" id="check"><input type="checkbox" class="checkbox" disabled/></th>
                     <th id="index">Index</th>
                     <th id="name">File name</th>
                     <th id="created">Created at</th>
-                    <th id="size">Size / type</th>
-                    <th id="navigationdot">&nbsp;</th>
+                    <th data-sortable = "false" id="size">Size / type</th>
+                    <th data-sortable = "false" id="navigationdot">&nbsp;</th>
                 </tr>
             </thead>
             @if($directorytype == 0)
@@ -471,18 +471,6 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
-                                            Copy
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="">
-                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
-                                            Cut
-                                        </a>
-                                    </li>
-                                    <li>
                                         <a style="color:red;" onclick="deleteFolder('miaw')">
                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                             Delete
@@ -530,18 +518,6 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right">
                                             <li>
-                                                <a href="">
-                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/show.png') }}">
-                                                    View
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="">
-                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/printer.png') }}">
-                                                    Print
-                                                </a>
-                                            </li>
-                                            <li>
                                                 <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                                                     <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
                                                     Download
@@ -551,18 +527,6 @@
                                                 <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
                                                     <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                                     Rename
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="">
-                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
-                                                    Copy
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a href="">
-                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
-                                                    Cut
                                                 </a>
                                             </li>
                                             <li>
@@ -610,18 +574,6 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-top pull-right">
                                         <li>
-                                            <a href="">
-                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/show.png') }}">
-                                                View
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="">
-                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/printer.png') }}">
-                                                Print
-                                            </a>
-                                        </li>
-                                        <li>
                                             <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
                                                 Download
@@ -631,18 +583,6 @@
                                             <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                                 Rename
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="">
-                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
-                                                Copy
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="">
-                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
-                                                Cut
                                             </a>
                                         </li>
                                         <li>
@@ -695,7 +635,7 @@
             $('.tableDocument').dataTable({
                 "bPaginate": false,
                 "bInfo": false,
-                "bSort": false,
+                "bSort": true,
                 "dom": 'rtip',
                 "stripeClasses": false,
             });
@@ -870,45 +810,44 @@
         }
 
         function handleFileSelection(input) {
-            if (input.files && input.files.length > 0) {
-                
-                for (let i = 0; i < input.files.length; i++) {
-                    files.push(input.files[i]);
-                }
+            for (let i = 0; i < input.files.length; i++) {
+                files.push(input.files[i]);
+            }
 
-                displayFileData(files);
+            displayFileData(files);
 
-                document.getElementById('upload-preview-modal').style.display='block';
-                document.getElementById('upload-modal').style.display='none';
-                
- 
-                $('#uploadFileSubmit').on('click', function(e) {
-                    e.preventDefault();
-                    $('.removeFileButton').text('Uploading...');
-                    $('#uploadFileSubmit').prop("disabled", true);
-                    $('#browseFiles').hide();
-                    $('#clearFiles').hide();
+            document.getElementById('upload-preview-modal').style.display='block';
+            document.getElementById('upload-modal').style.display='none';
+            
 
-                    const formData = new FormData();
-                    formData.append("location", "{{ base64_encode($origin) }}");
-                    files.forEach(file => formData.append('files[]', file));
+            $('#uploadFileSubmit').on('click', function(e) {
+                e.preventDefault();
+                $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i>');
+                $('.removeFileButton').prop("disabled", true);
+                $('#uploadFileSubmit').prop("disabled", true);
+                $('.cancel-btn').prop("disabled", true);
+                $('.modal-close').prop("disabled", true);
+                $("#uploadFileSubmit").removeClass("upload-btn");
+                $('#browseFiles').hide();
+                $('#clearFiles').hide();
 
-                    fetch('{{ route("adminuser.documents.upload") }}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('upload-preview-modal').style.display = 'none';
-                        showNotification(data.message);
-                    });
+                const formData = new FormData();
+                formData.append("location", "{{ base64_encode($origin) }}");
+                files.forEach(file => formData.append('files[]', file));
+
+                fetch('{{ route("adminuser.documents.upload") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('upload-preview-modal').style.display = 'none';
+                    showNotification(data.message);
                 });
-
-                console.log(files);
-            } 
+            });
         }
 
         function displayFileData() {
@@ -920,7 +859,7 @@
                 newRow.innerHTML = `
                     <td>${file.name}</td>
                     <td>${convertByte(file.size)}</td>
-                    <td><button onclick="removeFile(${index})" class="removeFileButton"><i class="fa fa-times"></i></button></td>
+                    <td><button onclick="removeFile(${index})" id="removeFileButton" class="removeFileButton"><i class="fa fa-times"></i></button></td>
                 `;
                 tableBody.appendChild(newRow);
             });
@@ -988,7 +927,6 @@
                     console.log(data);
                 });
             });
-            console.log(userid);
         }
 
         function savePermission() {

@@ -331,7 +331,7 @@ class DocumentController extends Controller
         $search = $request->query('name');
         $allItems = array_merge(Storage::allDirectories($directory), Storage::allFiles($directory));
         $searchFiles = UploadFile::where('name', 'LIKE', '%'.$search.'%')->pluck('basename')->toArray();
-        $searchFolders = UploadFolder::where('name', 'LIKE', '%'.$search.'%')->pluck('basename')->toArray();
+        $searchFolders = UploadFolder::where('name', 'LIKE', '%'.$search.'%')->pluck('name')->toArray();
         $searchQuery = array_merge($searchFiles,$searchFolders);
         $filteredItems = [];
 
