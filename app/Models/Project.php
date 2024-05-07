@@ -24,4 +24,8 @@ class Project extends Model
     public function RefSubProject(){
         return $this->hasMany('App\Models\SubProject', 'project_id' , 'project_id');
     }
+
+    public function RefAssignProject(){
+        return $this->hasMany('App\Models\AssignProject', 'project_id' , 'project_id');
+    }
 }

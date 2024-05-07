@@ -10,9 +10,9 @@
                                 @if(count(\globals::get_project_sidebar()) > 0)
                                     @foreach(\globals::get_project_sidebar() as $mainProject)
                                         <optgroup label="{{ $mainProject->project_name }}">
-                                            @if(count($mainProject->RefSubProject) > 0)
-                                                @foreach($mainProject->RefSubProject as $subsProj)
-                                                    <option value="{{ $subsProj->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $subsProj->subproject_id ? "selected":"" }} >{{ $subsProj->subproject_name }}</option>
+                                            @if(count($mainProject->RefAssignProject) > 0)
+                                                @foreach($mainProject->RefAssignProject as $subsProj)
+                                                    <option value="{{ $subsProj->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $subsProj->subproject_id ? "selected":"" }} >{{ $subsProj->RefSubProject->subproject_name }}</option>
                                                 @endforeach
                                             @endif
                                         </optgroup>
