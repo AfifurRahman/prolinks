@@ -13,27 +13,22 @@
 
 @section('content')
     <!-- Edit Folder Name Modal -->
-    <div id="rename-folder-modal" class="modal">
+    <div id="delete-folder-modal" class="modal">
         <div class="modal-content">
             <div class="modal-topbar">
                 <div class="upload-modal-title">
-                    <h5 class="modal-title-text">Rename folder</h5>
+                    <h5 class="modal-delete-file-title">Delete folder</h5>
                 </div>
-                <button class="modal-close" onclick="document.getElementById('create-folder-modal').style.display='none'">
+                <button class="modal-close" onclick="document.getElementById('delete-folder-modal').style.display='none'">
                     <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
                 </button>
             </div>
-
             <div class="modal-body">
-                <form action="{{ route('adminuser.documents.rename_folder') }}" method="POST">
-                    @csrf
-                    <label>Folder name</label>
-                    <input type="text" class="form-control" name="new_name" id="folder_name"></input>
-                    <input type="hidden" id="old-name" name="old_name" value=""></input>
-                    <div class="form-button">
-                        <button class="create-btn" type="submit">Rename Folder</button>
-                    </div>
-                </form>
+                <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue? You can't undo this action.</p>
+                <div class="form-button">
+                    <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                    <button class="delete-btn" type="submit">Delete</button>
+                </div>
             </div>
         </div>
     </div>
@@ -75,33 +70,47 @@
                     <td></td>
                     <td></td>
                     <td>
-                        <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(substr($origin,0,-9))) }}">
-                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                            ...
-                        </a>
+                        @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
+                            <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
+                                <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
+                                Up to  {{ DB::table('upload_folders')->where('name', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('displayname') }}
+                            </a>
+                        @else
+                            <a class="fol-fil" href="{{ route('adminuser.documents.list', base64_encode(DB::table('upload_folders')->where('directory', $origin)->value('project_id'). '/'. DB::table('upload_folders')->where('directory', $origin)->value('subproject_id'))) }}">
+                                <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
+                                Up to {{DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('subproject_name')}}
+                            </a>
+                        @endif
                     </td>
                     <td></td>
                     <td></td>
                     <td></td>
                 </tr>
             @endif
+            
             @foreach ($folders as $directory)
-                @if(DB::table('upload_folders')->where('basename', basename($directory))->value('status') == 1)
+                @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
                     <tr>
                         <td><input type="checkbox" class="checkbox" /></td>
-                        <td>1</td>
                         <td>
-                            @if($origin == "")
-                                <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode(basename($directory))) }}">
-                                    <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                                    {{ DB::table('upload_folders')->where('basename', basename($directory))->value('name') }}
-                                </a>
-                            @else
-                                <a class="fol-fil" href="{{ route('adminuser.documents.folder', base64_encode($origin.'/'.basename($directory))) }}">
-                                    <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                                    {{ DB::table('upload_folders')->where('basename', basename($directory))->value('name') }}
-                                </a>
-                            @endif
+                            @php
+                                $index = '';
+                                foreach(array_slice(explode('/', $origin), 4) as $path) {
+                                    $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                }
+                                $index .= DB::table('upload_folders')->where('name', basename($directory))->value('index');
+                            @endphp
+                            {{$index}}
+                        </td>
+                        <td>
+                            <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $origin . '/' . basename($directory))->value('basename'))) }}">
+                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
+                                @if(is_null(DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname')))
+                                    {{ basename($directory) }}
+                                @else
+                                    {{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}
+                                @endif
+                            </a>
                         </td>
                         <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($directory))->format('d M Y, H:i') }}</td>
                         <td>Directory</td>
@@ -111,38 +120,144 @@
                                     <i class="fa fa-ellipsis-v"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                    <li><a onclick="rename('{{ base64_encode(basename($directory)) }}')">Edit folder</a></li>
-                                    <li><a href="{{ route('adminuser.documents.delete_folder', base64_encode(basename($directory))) }}">Delete folder</a></li>
+                                    <li>
+                                        <a href="">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                            Download
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a onclick="renameFolder('{{ basename($directory) }}', '{{$index}}', '{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}')">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                            Rename
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a style="color:red;" onclick="deleteFolder('miaw')">
+                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                            Delete
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </td>
                     </tr>
                 @endif
             @endforeach
+            
             @foreach ($files as $file)
-                @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
-                    <tr>
-                        <td><input type="checkbox" class="checkbox" /></td>
-                        <td>1</td>
-                        <td>
-                            <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
-                            <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
-                                {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
-                            </a>
-                        </td>
-                        <td>{{ date('d M Y, H:i', strtotime(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))) }}</td>
-                        <td>{{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}</td>
-                        <td>
-                            <div class="dropdown">
-                                <button class="button_ico dropdown-toggle" data-toggle="dropdown">
-                                    <i class="fa fa-ellipsis-v"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-top pull-right">
-                                    <li><a href="{{ route('adminuser.documents.delete_file', basename($file)) }}">Delete file</a></li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
+                @if(Auth::user()->type == 1 || Auth::user()->type == 2)
+                    @if(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission') == '1' || is_null(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission')))
+                        @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                            <tr>
+                                <td><input type="checkbox" class="checkbox" /></td>
+                                <td>
+                                    @php
+                                        $index = '';
+                                        foreach(array_slice(explode('/', $origin), 4) as $path) {
+                                            $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                        }
+                                        $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+                                    @endphp
+                                    {{$index}}
+                                </td>
+                                <td>
+                                    <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                        <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
+                                        {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
+                                </td>
+                                <td>
+                                    {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                            <i class="fa fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                            <li>
+                                                <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                                    Download
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                    Rename
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                    Delete
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
+                    @endif
+                @elseif (Auth::user()->type == 0)
+                    @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                        <tr>
+                            <td><input type="checkbox" class="checkbox" /></td>
+                            <td>
+                                @php
+                                    $index = '';
+                                    foreach(array_slice(explode('/', $origin), 4) as $path) {
+                                        $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                    }
+                                    $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+                                @endphp
+                                {{$index}}
+                            </td>
+                            <td>
+                                <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                    <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
+                                    {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
+                            </td>
+                            <td>
+                                {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="button_ico dropdown-toggle" data-toggle="dropdown">
+                                        <i class="fa fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                        <li>
+                                            <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
+                                                Download
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                Rename
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
+                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                Delete
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 @endif
             @endforeach
         </table>

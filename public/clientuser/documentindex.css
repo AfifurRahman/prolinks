@@ -364,6 +364,22 @@ h3 {
     color:#FFFFFF;
 }
 
+.upload-btn{
+    padding: 11px 16px 9px 16px;
+    border:none;
+    border-radius:6px;
+    background:#1570EF;
+    color:#FFFFFF;
+}
+
+.upload-btn-disabled{
+    padding: 11px 16px 9px 16px;
+    border:none;
+    border-radius:6px;
+    background:#393d41;
+    color:#FFFFFF;
+}
+
 .cancel-btn{
     padding: 11px 16px 9px 16px;
     border:none;
