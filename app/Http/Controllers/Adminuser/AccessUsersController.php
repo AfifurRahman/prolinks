@@ -505,23 +505,7 @@ class AccessUsersController extends Controller
             
             $getUsers = User::where('email',$email)->first();
             if (!empty($getUsers->id)) {
-                $trashUsers = new TrashUsers;
-                $trashUsers->user_id = $getUsers->user_id;
-                $trashUsers->client_id = $getUsers->client_id;
-                $trashUsers->name = $getUsers->name;
-                $trashUsers->username = $getUsers->username;
-                $trashUsers->email = $getUsers->email;
-                $trashUsers->email_verified_at = $getUsers->email_verified_at;
-                $trashUsers->password = $getUsers->password;
-                $trashUsers->type = $getUsers->type;
-                $trashUsers->status = $getUsers->status;
-                $trashUsers->avatar_color = $getUsers->avatar_color;
-                $trashUsers->session_project = $getUsers->session_project;
-                $trashUsers->last_signed = $getUsers->last_signed;
-                $trashUsers->created_at = date('Y-m-d H:i:s');
-                if ($trashUsers->save()) {
-                    AssignUserGroup::where('user_id', $trashUsers->user_id)->delete();
-                }
+                AssignUserGroup::where('user_id', $getUsers->user_id)->delete();
             }
             
             $deleted = User::where('email',$email)->delete();
