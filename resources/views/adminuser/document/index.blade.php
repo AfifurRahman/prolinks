@@ -56,9 +56,9 @@
                     <table id="upload-preview-table" class="table">
                         <thead>
                             <tr>
-                                <th>File name</th>
-                                <th>Size</th>
-                                <th>Action</th>
+                                <th style="width:70%;">File name</th>
+                                <th style="width:20%;">Size</th>
+                                <th style="width:10%;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="upload-preview-list">
