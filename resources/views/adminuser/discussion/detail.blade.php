@@ -148,52 +148,54 @@
             <div class="detail-qna">
                 <div class="inbox-widget">
                     @foreach($detail->RefDiscussion as $comment)
-                        <a href="#">
-                            <div class="inbox-item">
-                                <div class="inbox-item-img">
-                                    {!! \globals::get_user_avatar($comment->fullname, $comment->RefUser->avatar_color) !!}
-                                    <!-- <img src="{{ url('template/images/avatar.png') }}" class="img-circle" alt=""> -->
-                                </div>
-                                <div class="box-info">
-                                    <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClient->client_name) ? $comment->RefClient->client_name : '' }}</span></p>
-                                    <p class="inbox-item-text">{{ $comment->content }}</p>
-                                    <div class="box-file">
-                                        @foreach($comment->RefDiscussionLinkFile as $link_file)
-                                            @if(!empty($link_file->RefFile->id))
-                                                <div style="margin-bottom:5px;">
+                        @if(!empty($comment->RefUser->id))
+                            <a href="#">
+                                <div class="inbox-item">
+                                    <div class="inbox-item-img">
+                                        {!! \globals::get_user_avatar($comment->fullname, $comment->RefUser->avatar_color) !!}
+                                        <!-- <img src="{{ url('template/images/avatar.png') }}" class="img-circle" alt=""> -->
+                                    </div>
+                                    <div class="box-info">
+                                        <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClient->client_name) ? $comment->RefClient->client_name : '' }}</span></p>
+                                        <p class="inbox-item-text">{{ $comment->content }}</p>
+                                        <div class="box-file">
+                                            @foreach($comment->RefDiscussionLinkFile as $link_file)
+                                                @if(!empty($link_file->RefFile->id))
+                                                    <div style="margin-bottom:5px;">
+                                                        @php
+                                                            $origin1 = $link_file->RefFile->directory;
+                                                            $files1 = $link_file->RefFile->directory."/".$link_file->RefFile->basename;
+                                                        @endphp
+                                                        <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin1), base64_encode(basename($files1)) ] ) }}" class="btn btn-default radius-button">
+                                                            <i class="fa fa-paperclip"></i> {{ $link_file->file_name }} <i class="fa fa-download"></i>
+                                                        </a>
+                                                    </div>
+                                                @endif                                
+                                            @endforeach
+
+                                            @foreach($comment->RefDiscussionAttachFile as $attach_file)
+                                                <div>
                                                     @php
-                                                        $origin1 = $link_file->RefFile->directory;
-                                                        $files1 = $link_file->RefFile->directory."/".$link_file->RefFile->basename;
+                                                        $subproject = $attach_file->project_id."/".$attach_file->subproject_id;
+                                                        $origin = 'uploads/'.$attach_file->client_id. '/'.$subproject.'/discussion';
+                                                        $files = $attach_file->file_url."/".$attach_file->basename;
                                                     @endphp
-                                                    <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin1), base64_encode(basename($files1)) ] ) }}" class="btn btn-default radius-button">
-                                                        <i class="fa fa-paperclip"></i> {{ $link_file->file_name }} <i class="fa fa-download"></i>
+                                                    <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($files)) ] ) }}" class="btn btn-default radius-button">
+                                                    <i class="fa fa-file"></i> {{ $attach_file->file_name }} <i class="fa fa-download"></i>
                                                     </a>
                                                 </div>
-                                            @endif                                
-                                        @endforeach
-
-                                        @foreach($comment->RefDiscussionAttachFile as $attach_file)
-                                            <div>
-                                                @php
-                                                    $subproject = $attach_file->project_id."/".$attach_file->subproject_id;
-                                                    $origin = 'uploads/'.$attach_file->client_id. '/'.$subproject.'/discussion';
-                                                    $files = $attach_file->file_url."/".$attach_file->basename;
-                                                @endphp
-                                                <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($files)) ] ) }}" class="btn btn-default radius-button">
-                                                <i class="fa fa-file"></i> {{ $attach_file->file_name }} <i class="fa fa-download"></i>
-                                                </a>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="box-time">
-                                        <span>{{ date('d M Y H:i', strtotime($comment->created_at)) }}</span>  
-                                        @if(Auth::user()->id == $comment->created_by)
-                                            · <a href="{{ route('discussion.delete-comment', base64_encode($comment->id)) }}" onclick="return confirm('are you sure delete this comment ?')">Delete</a>
-                                        @endif
+                                            @endforeach
+                                        </div>
+                                        <div class="box-time">
+                                            <span>{{ date('d M Y H:i', strtotime($comment->created_at)) }}</span>  
+                                            @if(Auth::user()->id == $comment->created_by)
+                                                · <a href="{{ route('discussion.delete-comment', base64_encode($comment->id)) }}" onclick="return confirm('are you sure delete this comment ?')">Delete</a>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </a>
+                            </a>
+                        @endif
                     @endforeach
 
                     @if($detail->status == \globals::set_qna_status_unanswered() || $detail->status == \globals::set_qna_status_answered())
