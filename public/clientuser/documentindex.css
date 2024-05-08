@@ -186,18 +186,6 @@
     margin-bottom:4.5px;
 }
 
-.modal {
-    display: none;
-    position:absolute;
-    z-index: 20000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.65);
-}
-
 .modal-content {
     background-color: #fefefe;
     margin: 3% auto;

@@ -139,6 +139,14 @@
         .text-active img {
             filter: sepia(100%) hue-rotate(190deg) saturate(500%);
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.65);
+        }
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
 </head>
