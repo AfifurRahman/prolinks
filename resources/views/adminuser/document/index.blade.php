@@ -376,9 +376,15 @@
             </div>
         </div>
     </div>
+
     <p>
         
     </p>
+    <a href="{{ route('project.list-project') }}">
+        <h4 style="color:#337ab7;">
+            <i class="fa fa-arrow-left"></i> Back
+        </h4>
+    </a>
     <div class="box_helper">
         <div>
             <!--

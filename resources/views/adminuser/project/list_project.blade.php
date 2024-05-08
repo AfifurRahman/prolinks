@@ -120,6 +120,25 @@
 		  	transform: translate(-50%, -50%);
 	    }
 
+		.image-project2 {
+	    	border: solid 1px #EDF0F2;
+	    	width: 28px;
+	    	height: 28px;
+	    	border-radius: 8px;
+	    	position: relative;
+	    }
+
+	    .image-project2 img {
+	    	width: 22px;
+	    	height: 22px;
+	    	margin: 0;
+		  	position: absolute;
+		  	top: 50%;
+		  	left: 50%;
+		  	-ms-transform: translate(-50%, -50%);
+		  	transform: translate(-50%, -50%);
+	    }
+
 	    .title-project h3 {
 	    	font-size: 16px;
 	    	font-weight: 600;
@@ -137,7 +156,7 @@
 	    }
 
 		.title-subproject {
-			margin-left: 65px;
+			/* margin-left: 65px; */
 		}
 
 		.title-subproject h3 {
@@ -273,7 +292,12 @@
 						@foreach($projects->RefSubProject as $subs)
 							<tr class="child-row-general child-row{{ $key }}">
 								<td></td>
-								<td colspan="2">
+								<td align="right">
+									<div class="image-project2">
+										<img src="{{ url('template/images/icon-projects1.png') }}">
+									</div>
+								</td>
+								<td>
 									<div class="title-subproject">
 										<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($subs->project_id.'/'.$subs->subproject_id)) }}">{{ $subs->subproject_name }}</a></h3>
 										<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->subproject_id)->sum('size')) }}</span>
