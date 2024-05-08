@@ -69,6 +69,7 @@
             width:260px;
             height:40px;
             padding:4px 8px 4px 8px;
+            margin-right:-75px;
         }
 
         .user-img{
@@ -165,7 +166,9 @@
                         </li>
                     </ul>
 
-                    @yield('notification')
+                    <div>
+                        @yield('notification')
+                    </div>
 
                     <ul class="nav navbar-nav navbar-right">
                         <div style="margin-top: 10px;">
