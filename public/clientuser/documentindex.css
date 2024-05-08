@@ -42,11 +42,16 @@
     width:5%;
 }
 
+.viewcontainer {
+    width:100%;
+    height:100%;
+}
+
 .tableContainer {
-    overflow:auto;
+    overflow: auto;
     position: sticky;
     width: 100%;
-    height:68vh;
+    height: 70vh;
 }
 
 .tableDocument thead th:first-child {
@@ -57,10 +62,11 @@
     border-top-right-radius: 10px;
 }
 
+
 .tableDocument {
-    border-collapse: separate;
     border:1px solid #CED5DD;
     border-radius: 7px;
+    position: absolute;
     width: 100%;
 }
 
