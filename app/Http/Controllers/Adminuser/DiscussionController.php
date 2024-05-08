@@ -475,7 +475,7 @@ class DiscussionController extends Controller
                                 $folders->project_id = $project_id;
                                 $folders->subproject_id = $subproject_id;
                                 $folders->basename = $baseName;
-                                $folders->parent = $path;
+                                $folders->parent = $path2;
                                 $folders->directory = $path;
                                 $folders->name = "discussion";
                                 $folders->client_id = \globals::get_client_id();
