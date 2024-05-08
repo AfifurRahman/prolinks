@@ -159,36 +159,44 @@
 				<div class="card-box">
 					<div class="resume-viewed">
 						<h3>Most viewed documents</h3>
-						<table class="table table-hover borderless">
-							<thead>
-								<tr>
-									<th>Filename</th>
-									<th>Unique view</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Control of Quality and Regulatory...xls</td>
-									<td>798</td>
-								</tr>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Facilities Management.doc</td>
-									<td>492</td>
-								</tr>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> External Audits.pdf</td>
-									<td>447</td>
-								</tr>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/ext-img.png') }}"> Employee Training and Developm...img</td>
-									<td>274</td>
-								</tr>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Internal Quality Audits.docs</td>
-									<td>185</td>
-								</tr>
-							</tbody>
-						</table>
+						@if(true)
+							<div class="card-box1">
+								<center>
+									<img src="http://127.0.0.1:8000/template/images/empty_qna.png" width="300" />
+								</center>    
+							</div>
+						@else
+							<table class="table table-hover borderless">
+								<thead>
+									<tr>
+										<th>Filename</th>
+										<th>Unique view</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Control of Quality and Regulatory...xls</td>
+										<td>798</td>
+									</tr>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Facilities Management.doc</td>
+										<td>492</td>
+									</tr>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> External Audits.pdf</td>
+										<td>447</td>
+									</tr>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/ext-img.png') }}"> Employee Training and Developm...img</td>
+										<td>274</td>
+									</tr>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Internal Quality Audits.docs</td>
+										<td>185</td>
+									</tr>
+								</tbody>
+							</table>
+						@endif
 					</div>
 				</div>
 			</div>
@@ -196,36 +204,44 @@
 				<div class="card-box">
 					<div class="resume-viewed">
 						<h3>Most active users</h3>
-						<table class="table table-hover borderless">
-							<thead>
-								<tr>
-									<th>User name</th>
-									<th>Docs. accessed</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Yanuar Adhitia Tutkey</td>
-									<td>994</td>
-								</tr>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Aryo Agung Benardi</td>
-									<td>826</td>
-								</tr>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Deny Stefany Febri</td>
-									<td>738</td>
-								</tr>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Christin Purnama</td>
-									<td>600</td>
-								</tr>
-								<tr>
-									<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Rizki Agung Maulana</td>
-									<td>274</td>
-								</tr>
-							</tbody>
-						</table>
+						@if(true)
+							<div class="card-box1">
+								<center>
+									<img src="http://127.0.0.1:8000/template/images/empty_qna.png" width="300" />
+								</center>    
+							</div>
+						@else
+							<table class="table table-hover borderless">
+								<thead>
+									<tr>
+										<th>User name</th>
+										<th>Docs. accessed</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Yanuar Adhitia Tutkey</td>
+										<td>994</td>
+									</tr>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Aryo Agung Benardi</td>
+										<td>826</td>
+									</tr>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Deny Stefany Febri</td>
+										<td>738</td>
+									</tr>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Christin Purnama</td>
+										<td>600</td>
+									</tr>
+									<tr>
+										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Rizki Agung Maulana</td>
+										<td>274</td>
+									</tr>
+								</tbody>
+							</table>
+						@endif
 					</div>
 				</div>
 			</div>

@@ -176,7 +176,7 @@
                     <ul class="nav navbar-nav navbar-right">
                         <div style="margin-top: 10px;">
                             <div class="user-info">
-                                <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img>
+                                <!-- <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img> -->
                                 <div class="user-profile dropdown">
                                     <!-- <div class="user-avatar">A</div> -->
                                     {!! \globals::get_user_avatar(Auth::user()->name, Auth::user()->avatar_color) !!}

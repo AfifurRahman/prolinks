@@ -199,6 +199,7 @@ class ProjectController extends Controller
 
     public function change_main_project(Request $request)
     {
+		$notification = "";
 		$subProject = SubProject::where('subproject_id', $request->input('main_project_id'))->first();
 		
 		Session::put('project_id', $request->input('main_project_id'));
