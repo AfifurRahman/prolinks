@@ -192,7 +192,7 @@ class DiscussionController extends Controller
         $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->get();
         if(count($receiver_email) > 0){
             foreach ($receiver_email as $key => $value) {
-                if ($value->RefUser->email != Auth::user()->email) {
+                if (!empty($value->RefUser->email) && $value->RefUser->email != Auth::user()->email) {
                     $set_subject = "";
                     if(!empty($request->input('subject'))){
                         $set_subject = $request->input('subject');
