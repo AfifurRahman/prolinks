@@ -341,16 +341,30 @@ class DiscussionController extends Controller
 
     public function export_questions() {
         $filename = date('Y-m-d').'-discussion.xlsx';
-        $report = DiscussionComment::select(
-                    'discussion_comments.*', 'discussions.subject', 'discussions.priority', 'project.project_name',
-                    'discussions.created_at as created_submitter', 'discussion_comments.created_at as created_comment',
-                    'sub_project.subproject_name', 'discussions.user_id as submitter', 'discussion_comments.user_id as comment_by'
-                )
-                ->join('discussions', 'discussions.discussion_id', 'discussion_comments.discussion_id')
-                ->join('sub_project', 'sub_project.subproject_id', 'discussion_comments.subproject_id')
-                ->join('project', 'project.project_id', 'sub_project.project_id')
-                ->where('discussion_comments.subproject_id', Auth::user()->session_project)
-                ->get();
+        $report = [];
+        if (Auth::user()->type == \globals::set_role_administrator()) {
+            $report = DiscussionComment::select(
+                'discussion_comments.*', 'discussions.subject', 'discussions.priority', 'project.project_name',
+                'discussions.created_at as created_submitter', 'discussion_comments.created_at as created_comment',
+                'sub_project.subproject_name', 'discussions.user_id as submitter', 'discussion_comments.user_id as comment_by'
+            )
+            ->join('discussions', 'discussions.discussion_id', 'discussion_comments.discussion_id')
+            ->join('sub_project', 'sub_project.subproject_id', 'discussion_comments.subproject_id')
+            ->join('project', 'project.project_id', 'sub_project.project_id')
+            ->where('discussions.client_id', \globals::get_client_id())
+            ->get();
+        }else{
+            $report = DiscussionComment::select(
+                        'discussion_comments.*', 'discussions.subject', 'discussions.priority', 'project.project_name',
+                        'discussions.created_at as created_submitter', 'discussion_comments.created_at as created_comment',
+                        'sub_project.subproject_name', 'discussions.user_id as submitter', 'discussion_comments.user_id as comment_by'
+                    )
+                    ->join('discussions', 'discussions.discussion_id', 'discussion_comments.discussion_id')
+                    ->join('sub_project', 'sub_project.subproject_id', 'discussion_comments.subproject_id')
+                    ->join('project', 'project.project_id', 'sub_project.project_id')
+                    ->where('discussion_comments.subproject_id', Auth::user()->session_project)
+                    ->get();
+        }
         
         return Excel::download(new ExportQuestions($report), $filename);
     }

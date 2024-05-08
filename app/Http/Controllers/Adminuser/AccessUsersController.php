@@ -382,7 +382,7 @@ class AccessUsersController extends Controller
             ]);
 
             $update2 = User::where('email',$email)->update([
-                'status' => 0,
+                'status' => 1,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
             

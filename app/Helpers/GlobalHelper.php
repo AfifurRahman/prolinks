@@ -1,6 +1,7 @@
 <?php
 namespace App\Helpers;
  
+use App\Models\ClientUser;
 use App\Models\SubProject;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
@@ -401,7 +402,7 @@ class GlobalHelper
     }
 
     public static function get_username($userid){
-        $results = User::where('user_id', $userid)->pluck('name')->first();
+        $results = ClientUser::where('user_id', $userid)->pluck('name')->first();
         return $results;
     }
 }
