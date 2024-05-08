@@ -478,6 +478,7 @@ class DiscussionController extends Controller
                                 $folders->parent = $path2;
                                 $folders->directory = $path;
                                 $folders->name = "discussion";
+                                $folders->displayname = "discussion";
                                 $folders->client_id = \globals::get_client_id();
                                 $folders->status = 1;
                                 $folders->uploaded_by = Auth::user()->user_id; 
