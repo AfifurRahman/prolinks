@@ -1,11 +1,3 @@
-.tableContainer {
-    border-radius:0px;
-    overflow:auto;
-    height:80vh;
-    position:sticky;
-    bottom:-200px;
-}
-
 .removeFileButton{
     background:none;
     border:none;
@@ -41,6 +33,12 @@
     width:5%;
 }
 
+.tableContainer {
+    overflow:auto;
+    position: sticky;
+    width: 100%;
+}
+
 .tableDocument thead th:first-child {
     border-top-left-radius: 10px;
 }
@@ -53,8 +51,7 @@
     border-collapse: separate;
     border:1px solid #CED5DD;
     border-radius: 7px;
-    visibility: hidden;
-    width:100%;
+    width: 100%;
 }
 
 .tableDocument th {
@@ -191,8 +188,8 @@
 
 .modal {
     display: none;
-    position: fixed;
-    z-index: 1;
+    position:absolute;
+    z-index: 20000;
     left: 0;
     top: 0;
     width: 100%;
