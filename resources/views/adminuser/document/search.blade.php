@@ -1,7 +1,5 @@
 @extends('layouts.app_client')
 
-<link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
-
 @section('notification')
     <div class="notificationlayer">
         <div class="notification">
@@ -12,6 +10,7 @@
 @endsection
 
 @section('content')
+    <link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
     <!-- Edit Folder Name Modal -->
     <div id="delete-folder-modal" class="modal">
         <div class="modal-content">
@@ -49,7 +48,7 @@
         </div>
         <div class="searchbox">
                 <img class="search_icon" src="{{ url('template/images/icon_menu/search.png') }}">
-                <input type="text" name="name" class="searchbar" id="searchInput" value="{{ isset($search) ? $search : '' }}"placeholder="Search sub project...">
+                <input type="text" name="name" class="searchbar" id="searchInput" value="{{ isset($search) ? $search : '' }}" placeholder="Search sub project...">
         </div>
     </div>
     

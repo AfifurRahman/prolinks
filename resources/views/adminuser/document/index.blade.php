@@ -1,7 +1,7 @@
 @extends('layouts.app_client')
 @php date_default_timezone_set('Asia/Jakarta'); @endphp
 
-<link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
+
 
 @section('notification')
     <div class="notificationlayer">
@@ -13,6 +13,7 @@
 @endsection
 
 @section('content')
+    <link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
     <!--Upload Modal-->
     <div id="upload-modal" class="modal">
         <div class="modal-content">
@@ -29,7 +30,7 @@
                     <image class="modal-upload-img" style="width:56px;height:56px;" src="{{ url('template/images/icon_menu/modal_upload.png') }}"></image>
                     <span class="header">Drop your file(s) here</span>
                     <button class="modal-upload-btn" onclick="document.getElementById('fileInput').click()">Browse</button>
-                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" accept=".doc, .docx, .xls, .xlsx, .ppt, .pptx, image/*, video/*, .zip" multiple onchange="handleFileSelection(this)">
+                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" accept=".doc, .pdf, .txt, .docx, .xls, .xlsx, .ppt, .csv, .pptx, image/*, video/*, .zip, .rar, .7z" multiple oninput="handleFileSelection(this)">
                 </div>
             </div>
         </div>
@@ -604,6 +605,7 @@
     @push('scripts')
     <script>
         let files = [];
+        let a = 0;
         
         document.addEventListener('DOMContentLoaded', function() {
             const dragArea = document.getElementById('dragArea');
@@ -818,41 +820,47 @@
 
             document.getElementById('upload-preview-modal').style.display='block';
             document.getElementById('upload-modal').style.display='none';
-            
 
             $('#uploadFileSubmit').on('click', function(e) {
-                e.preventDefault();
-                $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i>');
-                $('.removeFileButton').prop("disabled", true);
-                $('#uploadFileSubmit').prop("disabled", true);
-                $('.cancel-btn').prop("disabled", true);
-                $('.modal-close').prop("disabled", true);
-                $("#uploadFileSubmit").removeClass("upload-btn");
-                $('#browseFiles').hide();
-                $('#clearFiles').hide();
+                if (a == 0) {
+                    a = 1;
+                    e.preventDefault();
+                    $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i>');
+                    $('.removeFileButton').prop("disabled", true);
+                    $('#uploadFileSubmit').prop("disabled", true);
+                    $('.cancel-btn').prop("disabled", true);
+                    $('.modal-close').prop("disabled", true);
+                    $("#uploadFileSubmit").removeClass("upload-btn");
+                    $('#browseFiles').hide();
+                    $('#clearFiles').hide();
 
-                const formData = new FormData();
-                formData.append("location", "{{ base64_encode($origin) }}");
-                files.forEach(file => formData.append('files[]', file));
+                    console.log(files);
 
-                fetch('{{ route("adminuser.documents.upload") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    const formData = new FormData();
+                    formData.append("location", "{{ base64_encode($origin) }}");
+                    files.forEach(file => formData.append('files[]', file));
+
+                    fetch('{{ route("adminuser.documents.upload") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('upload-preview-modal').style.display = 'none';
+                        showNotification(data.message);
+                    });
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('upload-preview-modal').style.display = 'none';
-                    showNotification(data.message);
-                });
             });
         }
 
         function displayFileData() {
             const tableBody = document.getElementById('upload-preview-list');
             tableBody.innerHTML = '';
+
+            console.log(files);
 
             files.forEach((file, index) => {
                 const newRow = document.createElement('tr');
