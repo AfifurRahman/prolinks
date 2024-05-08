@@ -109,7 +109,7 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('adminuser.access-users.detail', $user->user_id) }}">
-                                        @if($user->RefUser->name != "null")
+                                        @if(!empty($user->RefUser->name) && $user->RefUser->name != "null")
                                             {!! \globals::get_user_avatar_small($user->name, $user->RefUser->avatar_color) !!}
                                             {{ $user->name }}
                                         @else

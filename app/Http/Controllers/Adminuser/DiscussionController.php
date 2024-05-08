@@ -432,6 +432,7 @@ class DiscussionController extends Controller
             if(count($request->file('upload_doc')) > 0){
                 foreach($request->file('upload_doc') as $uploads){
                     $path = 'uploads/' .$client_id.'/'.$project_id.'/'.$subproject_id.'/discussion'; 
+                    $path2 = 'uploads/' .$client_id.'/'.$project_id.'/'.$subproject_id; 
                     Storage::makeDirectory($path, 0755, true);
                     // $results = Storage::disk('public')->put($path, $uploads, 'public');
                     $baseName = Str::random(8);
@@ -452,8 +453,11 @@ class DiscussionController extends Controller
                         if($attach->save()){
                             $exist_folder = UploadFolder::where('project_id', $project_id)->where('client_id', $client_id)->where('name', 'discussion')->first();
                             if (empty($exist_folder->id)) {
+                                $maxIndex = max(UploadFile::where('directory', $path2)->max('index'), UploadFolder::where('parent', $path2)->max('index'));
+                                $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+
                                 $folders = new UploadFolder;
-                                $folders->index = 9999;
+                                $folders->index = $fileIndex;
                                 $folders->project_id = $project_id;
                                 $folders->subproject_id = $subproject_id;
                                 $folders->basename = $baseName;
