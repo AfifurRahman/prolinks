@@ -139,6 +139,14 @@
         .text-active img {
             filter: sepia(100%) hue-rotate(190deg) saturate(500%);
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.65);
+        }
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
 </head>
@@ -181,7 +189,7 @@
                                             <p class="user-company">{{ !empty(Auth::user()->RefClient->client_name) ? Auth::user()->RefClient->client_name : '-' }}</p>
                                         </div>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right" style="margin-top:10px;">
-                                            <li><a>Edit Profile</a></li>
+                                            <!-- <li><a>Edit Profile</a></li> -->
                                             <li>
                                                 <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                                     <input type="checkbox" id="logout-checkbox" style="display: none;">

@@ -13,7 +13,7 @@
                 <form id="form-import" enctype="multipart/form-data">
                     @csrf
                     <div class="body-template-import">
-                        <a href="{{ url('template/template_import_qna/discussion_import_template.csv') }}" class="btn btn-default" style="width:100%; text-align:left;">
+                        <a href="{{ url('template/template_import_qna/discussion_import_template.csv') }}" download="discussion_import_template.csv" class="btn btn-default" style="width:100%; text-align:left;">
                             <span style="color:#1570EF;">Template file.csv</span> <br>
                             <span style="color:#586474;">Download this file as a starting point of your file</span>
                             <div class="pull-right">
