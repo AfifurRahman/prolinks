@@ -1,7 +1,7 @@
 @extends('layouts.app_client')
 @php date_default_timezone_set('Asia/Jakarta'); @endphp
 
-
+<link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
 
 @section('notification')
     <div class="notificationlayer">
@@ -13,7 +13,7 @@
 @endsection
 
 @section('content')
-    <link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
+    
     <!--Upload Modal-->
     <div id="upload-modal" class="modal">
         <div class="modal-content">
