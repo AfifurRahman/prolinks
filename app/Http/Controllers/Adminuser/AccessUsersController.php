@@ -518,7 +518,6 @@ class AccessUsersController extends Controller
                 $trashUsers->avatar_color = $getUsers->avatar_color;
                 $trashUsers->session_project = $getUsers->session_project;
                 $trashUsers->last_signed = $getUsers->last_signed;
-                $trashUsers->deleted = 1;
                 $trashUsers->created_at = date('Y-m-d H:i:s');
                 if ($trashUsers->save()) {
                     AssignUserGroup::where('user_id', $trashUsers->user_id)->delete();
