@@ -208,6 +208,14 @@
             background:transparent;
             margin-right:10px;
         }
+
+		.project_table{
+			overflow: auto;
+			position: sticky;
+			width: 100%;
+			height: 70vh;
+		}
+
 	</style>
 	<div class="pull-left">
 		<h3 style="color:black;font-size:28px;">Project</h3>
@@ -225,67 +233,70 @@
 		<i class="mdi mdi-information"></i>
 		Add a subproject so start uploading files.
 	</div>
+	<div class="project_table">
 	@if(count($project) > 0)
-	<table class="table table-hover custom-table">
-		<tbody>
-			@foreach($project as $key => $projects)
-				<tr class="">
-					<td width="50" style="vertical-align: middle;" align="center">
-						@if(count($projects->RefSubProject) > 0)
-							<a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)"><span class="caret"></span></a>
-						@endif
-					</td>
-					<td width="48">
-						<div class="image-project">
-							<img src="{{ url('template/images/icon-projects1.png') }}">
-						</div>
-					</td>
-					<td style="vertical-align: middle;">
-						<div class="title-project">
-							<h3><a href="">{{ $projects->project_name }}</a></h3>
-							<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id)->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
-						</div>
-					</td>
-					<td align="right" style="vertical-align: middle;" width="100">
-						<div class="dropdown">
-							<button class="button_ico dropdown-toggle" data-toggle="dropdown">
-								<i class="fa fa-ellipsis-v"></i>
-							</button>
-							<ul class="dropdown-menu dropdown-menu-top pull-right">
-								<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $projects }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
-								<span class="divider"></span>
-								<li><a href="#modal-terminate-project" data-toggle="modal" class="text-danger" data-projectid="{{ $projects->project_id }}" onclick="getProjectId(this)"><i class="fa fa-times"></i> Terminate Project</a></li>
-							</ul>
-						</div>
-						
-					</td>
-				</tr>
-				@foreach($projects->RefSubProject as $subs)
-					<tr class="child-row-general child-row{{ $key }}">
-						<td></td>
-						<td colspan="2">
-							<div class="title-subproject">
-								<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($subs->project_id.'/'.$subs->subproject_id)) }}">{{ $subs->subproject_name }}</a></h3>
-								<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->subproject_id)->sum('size')) }}</span>
-							</div>
-						</td>
-						<td align="right" style="vertical-align: middle;" width="100">
-							<div class="dropdown">
-								<button class="button_ico dropdown-toggle" data-toggle="dropdown">
-									<i class="fa fa-ellipsis-v"></i>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-top pull-right">
-									<li><a href="#modal-add-subproject" data-toggle="modal" data-title="Edit Sub Project" data-query="{{ $subs }}" onclick="getDetailSubProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
-									<li><a href="#modal-permissions" data-toggle="modal"><i class="fa fa-lock"></i> Permissions</a></li>
-									<li><a href="{{ route('project.delete-sub-project', $subs->subproject_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
-								</ul>
-							</div>
-						</td>
-					</tr>
-				@endforeach
-			@endforeach
-		</tbody>
-	</table>
+		
+			<table class="table table-hover custom-table">
+				<tbody>
+					@foreach($project as $key => $projects)
+						<tr class="">
+							<td width="50" style="vertical-align: middle;" align="center">
+								@if(count($projects->RefSubProject) > 0)
+									<a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)"><span class="caret"></span></a>
+								@endif
+							</td>
+							<td width="48">
+								<div class="image-project">
+									<img src="{{ url('template/images/icon-projects1.png') }}">
+								</div>
+							</td>
+							<td style="vertical-align: middle;">
+								<div class="title-project">
+									<h3><a href="">{{ $projects->project_name }}</a></h3>
+									<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id)->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
+								</div>
+							</td>
+							<td align="right" style="vertical-align: middle;" width="100">
+								<div class="dropdown">
+									<button class="button_ico dropdown-toggle" data-toggle="dropdown">
+										<i class="fa fa-ellipsis-v"></i>
+									</button>
+									<ul class="dropdown-menu dropdown-menu-top pull-right">
+										<li><a href="#modal-add-project" data-toggle="modal" data-title="Edit Project" data-query="{{ $projects }}" onclick="getDetailProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
+										<span class="divider"></span>
+										<li><a href="#modal-terminate-project" data-toggle="modal" class="text-danger" data-projectid="{{ $projects->project_id }}" onclick="getProjectId(this)"><i class="fa fa-times"></i> Terminate Project</a></li>
+									</ul>
+								</div>
+								
+							</td>
+						</tr>
+						@foreach($projects->RefSubProject as $subs)
+							<tr class="child-row-general child-row{{ $key }}">
+								<td></td>
+								<td colspan="2">
+									<div class="title-subproject">
+										<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($subs->project_id.'/'.$subs->subproject_id)) }}">{{ $subs->subproject_name }}</a></h3>
+										<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->subproject_id)->sum('size')) }}</span>
+									</div>
+								</td>
+								<td align="right" style="vertical-align: middle;" width="100">
+									<div class="dropdown">
+										<button class="button_ico dropdown-toggle" data-toggle="dropdown">
+											<i class="fa fa-ellipsis-v"></i>
+										</button>
+										<ul class="dropdown-menu dropdown-menu-top pull-right">
+											<li><a href="#modal-add-subproject" data-toggle="modal" data-title="Edit Sub Project" data-query="{{ $subs }}" onclick="getDetailSubProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
+											<li><a href="#modal-permissions" data-toggle="modal"><i class="fa fa-lock"></i> Permissions</a></li>
+											<li><a href="{{ route('project.delete-sub-project', $subs->subproject_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
+										</ul>
+									</div>
+								</td>
+							</tr>
+						@endforeach
+					@endforeach
+				</tbody>
+			</table>
+		
 	@else
 		<div class="card-box">
 			<center>
@@ -293,6 +304,7 @@
 			</center>    
 		</div>
 	@endif
+	</div>
 
 	<div id="modal-add-project" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
         <div class="modal-dialog">

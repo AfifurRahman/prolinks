@@ -381,10 +381,12 @@
     </p>
     <div class="box_helper">
         <div>
+            <!--
             <button class="filter_button">
                 <image class="filter_icon" src="{{ url('template/images/icon_menu/filter.png') }}"></image>
                 Filter
             </button>
+-->
         </div>
         <div class="searchbox">
                 <img class="search_icon" src="{{ url('template/images/icon_menu/search.png') }}">
