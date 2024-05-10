@@ -487,10 +487,10 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-top pull-right">
                                         <li>
-                                            <a onclick="downloadFolder('{{ base64_encode($directory) }}')">
+                                            <a href="{{ route('adminuser.documents.downloadfolder', base64_encode($directory)) }}">
                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
                                                 Download
-                                            </a>
+                                            </a>    
                                         </li>
                                         <li>
                                             <a onclick="renameFolder('{{ basename($directory) }}', '{{$index}}', '{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}')">
@@ -1081,20 +1081,6 @@
                     document.getElementById('rename-folder-modal').style.display='none';
                     showNotification(data.message);
                 });
-            });
-        }
-
-        function downloadFolder(folder) {
-            var formData = new FormData();
-            
-            formData.append('folder', folder);
-
-            fetch('{{ route("adminuser.documents.downloadfolder") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
             });
         }
 

@@ -277,10 +277,10 @@ class DocumentController extends Controller
         }
     }
 
-    public function DownloadFolder(Request $request)
+    public function DownloadFolder($folder)
     {
         try {
-            $folderName = base64_decode($request->folder);
+            $folderName = base64_decode($folder);
             $files = Storage::allFiles($folderName);
             $tempZipFile = tempnam(sys_get_temp_dir(), 'folder_zip');
             $zip = new ZipArchive();
@@ -315,7 +315,7 @@ class DocumentController extends Controller
             
             $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip';
             Storage::put($destinationPath, file_get_contents($tempZipFile));
-    
+
             return Storage::disk('local')->download($destinationPath, basename($folderName) . '.zip');
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
