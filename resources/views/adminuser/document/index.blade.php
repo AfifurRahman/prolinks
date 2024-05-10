@@ -171,7 +171,7 @@
                 <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue? You can't undo this action.</p>
                 <div class="form-button">
                     <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
-                    <button class="delete-btn" type="submit">Delete</button>
+                    <button class="delete-btn" id="deleteFolderSubmit">Delete</button>
                 </div>
             </div>
         </div>
@@ -487,7 +487,7 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-top pull-right">
                                         <li>
-                                            <a href="">
+                                            <a onclick="downloadFolder('{{ base64_encode($directory) }}')">
                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
                                                 Download
                                             </a>
@@ -499,7 +499,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a style="color:red;" onclick="deleteFolder('miaw')">
+                                            <a style="color:red;" onclick="deleteFolder('{{ base64_encode($directory) }}')">
                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                                 Delete
                                             </a>
@@ -1081,6 +1081,20 @@
                     document.getElementById('rename-folder-modal').style.display='none';
                     showNotification(data.message);
                 });
+            });
+        }
+
+        function downloadFolder(folder) {
+            var formData = new FormData();
+            
+            formData.append('folder', folder);
+
+            fetch('{{ route("adminuser.documents.downloadfolder") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
             });
         }
 

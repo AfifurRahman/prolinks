@@ -99,6 +99,7 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
 	Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
 	Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
+	Route::post('documents/down/folder', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
 	Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
 	Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@MultipleUpload')->name('adminuser.documents.multiupload');
 });
