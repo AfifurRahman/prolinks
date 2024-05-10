@@ -51,11 +51,11 @@
                     <button id="browseFiles" class="create-btn" onclick="document.getElementById('fileInput').click()">Browse files</button>
                     <button id="clearFiles"  class="delete-btn" onclick="clearFiles()"><i class="fa fa-times"></i>&nbsp;Clear all</button>
                 </div>
-                <div class="dataTable">
+                <div class="tableUploadPreview">
                     <table id="upload-preview-table" class="table">
                         <thead>
                             <tr>
-                                <th style="width:70%;">File name</th>
+                                <th style="width:200px;">File name</th>
                                 <th style="width:20%;">Size</th>
                                 <th style="width:10%;">Action</th>
                             </tr>
