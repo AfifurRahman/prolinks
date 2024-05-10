@@ -492,18 +492,20 @@
                                                 Download
                                             </a>    
                                         </li>
-                                        <li>
-                                            <a onclick="renameFolder('{{ basename($directory) }}', '{{$index}}', '{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}')">
-                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
-                                                Rename
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a style="color:red;" onclick="deleteFolder('{{ base64_encode($directory) }}')">
-                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
-                                                Delete
-                                            </a>
-                                        </li>
+                                        @if(Auth::user()->type == \globals::set_role_administrator())
+                                            <li>
+                                                <a onclick="renameFolder('{{ basename($directory) }}', '{{$index}}', '{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}')">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                    Rename
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a style="color:red;" onclick="deleteFolder('{{ base64_encode($directory) }}')">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                    Delete
+                                                </a>
+                                            </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </td>
@@ -551,18 +553,20 @@
                                                         Download
                                                     </a>
                                                 </li>
-                                                <li>
-                                                    <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
-                                                        <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
-                                                        Rename
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
-                                                        <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
-                                                        Delete
-                                                    </a>
-                                                </li>
+                                                @if(Auth::user()->type == \globals::set_role_administrator())
+                                                    <li>
+                                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
+                                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                            Rename
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
+                                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                            Delete
+                                                        </a>
+                                                    </li>
+                                                @endif
                                             </ul>
                                         </div>
                                     </td>
