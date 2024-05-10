@@ -290,7 +290,7 @@
                         <div class="roleselect">
                             <input type="radio" name="role" value="2" onclick="setRole(this)" required>
                             <div class="roledetail">
-                                <p class="roletitle">Client<p>
+                                <p class="roletitle">Reviewer<p>
                                 <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
                             </div>
                         </div>
