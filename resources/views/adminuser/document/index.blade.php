@@ -1095,10 +1095,6 @@
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.message);
             });
         }
 
