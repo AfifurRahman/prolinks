@@ -281,12 +281,10 @@ class DocumentController extends Controller
     {
         try {
             $folderName = base64_decode($request->folder);
-
             $files = Storage::allFiles($folderName);
             $tempZipFile = tempnam(sys_get_temp_dir(), 'folder_zip');
             $zip = new ZipArchive();
             $zip->open($tempZipFile, ZipArchive::CREATE);
-            $xxx = "";
             $fileName = "";
             $fileFolder = "";
             foreach ($files as $file) {
@@ -298,29 +296,28 @@ class DocumentController extends Controller
 
                 $basenameFile = explode('/', $relativePath);
                 $basenameFile = end($basenameFile);
-                $basenameFile = UploadFile::where('basename', $basenameFile)->value('name');
-
-                if ($Path == "") {
-                    $fixedPath = $basenameFile;
-                } else {
-                    $fixedPath = $Path . '/' . $basenameFile;
-                }  
                 
-                $zip->addFile(Storage::path($file), $fixedPath);
+
+                if (UploadFile::where('basename', $basenameFile)->value('status') == '1') {
+                    $basenameFile = UploadFile::where('basename', $basenameFile)->value('name');
+
+                    if ($Path == "") {
+                        $fixedPath = $basenameFile;
+                    } else {
+                        $fixedPath = $Path . '/' . $basenameFile;
+                    }  
+                    
+                    $zip->addFile(Storage::path($file), $fixedPath);
+                }
             }
 
             $zip->close();
             
-            $headers = [
-                'Content-Type' => 'application/zip',
-                'Content-Disposition' => 'attachment; filename="' . basename($folderName) . '.zip"',
-            ];
-            
-            return response()->stream(function () use ($tempZipFile) {
-                readfile($tempZipFile);
-                unlink($tempZipFile);
-            }, 200, $headers);
-
+            $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip';
+            Storage::put($destinationPath, file_get_contents($tempZipFile));
+    
+            // Download the stored zip file
+            return Storage::download($destinationPath, basename($folderName) . '.zip');
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
