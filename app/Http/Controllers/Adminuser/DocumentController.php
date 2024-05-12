@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Adminuser;
 
 use App\Http\Controllers\Controller;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -15,6 +16,7 @@ use App\Models\UploadFile;
 use App\Models\UploadFolder;
 use App\Models\Permission;
 use Auth;
+use ZipArchive;
 
 class DocumentController extends Controller
 {
@@ -275,6 +277,51 @@ class DocumentController extends Controller
         }
     }
 
+    public function DownloadFolder($folder)
+    {
+        try {
+            $folderName = base64_decode($folder);
+            $files = Storage::allFiles($folderName);
+            $tempZipFile = tempnam(sys_get_temp_dir(), 'folder_zip');
+            $zip = new ZipArchive();
+            $zip->open($tempZipFile, ZipArchive::CREATE);
+            $fileName = "";
+            $fileFolder = "";
+            foreach ($files as $file) {
+                $relativePath = substr($file, strlen($folderName) + 1);
+
+                $Path = explode('/', $relativePath);
+                array_pop($Path);
+                $Path = implode('/', $Path);
+
+                $basenameFile = explode('/', $relativePath);
+                $basenameFile = end($basenameFile);
+                
+
+                if (UploadFile::where('basename', $basenameFile)->value('status') == '1') {
+                    $basenameFile = UploadFile::where('basename', $basenameFile)->value('name');
+
+                    if ($Path == "") {
+                        $fixedPath = $basenameFile;
+                    } else {
+                        $fixedPath = $Path . '/' . $basenameFile;
+                    }  
+                    
+                    $zip->addFile(Storage::path($file), $fixedPath);
+                }
+            }
+
+            $zip->close();
+            
+            $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip';
+            Storage::put($destinationPath, file_get_contents($tempZipFile));
+
+            return Storage::disk('local')->download($destinationPath, basename($folderName) . '.zip');
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
     public function RenameFile(Request $request)
     {
         try {
@@ -316,12 +363,12 @@ class DocumentController extends Controller
     public function DeleteFolder(Request $request) {
         try {
             $foldername = base64_decode($request->folder);
-            UploadFolder::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
-            UploadFile::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
+            UploadFolder::where('directory', $foldername)->update(['status' => 0]);
+
+            return response()->json(['success' => true, 'message' =>'Successfully removed the folder']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
-        return back();
     }
 
     public function Search(Request $request) {

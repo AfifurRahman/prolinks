@@ -47,12 +47,12 @@
     height:100%;
 }
 
-.tableContainer {
-    overflow: auto;
-    position: sticky;
-    width: 100%;
-    height: 66vh;
+.tableUploadPreview{
+    height:500px;
+    width:103%;
+    overflow-x:hidden;
 }
+
 
 .tableDocument thead th:first-child {
     border-top-left-radius: 10px;
@@ -62,11 +62,15 @@
     border-top-right-radius: 10px;
 }
 
+.tableContainer {
+    padding-bottom: 80px;
+}
+
 
 .tableDocument {
     border:1px solid #CED5DD;
     border-radius: 7px;
-    position: absolute;
+    position: sticky;
     width: 100%;
 }
 

@@ -73,7 +73,7 @@ class AccessUsersController extends Controller
             foreach ($emailAddresses as $email) {
                 if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
                     /* status client use : 3 => deleted */
-                    $existingUser = ClientUser::where('email_address', $email)->where('status', '!=', 3)->first();
+                    $existingUser = ClientUser::where('email_address', $email)->where('status', '!=', 3)->where('client_id', \globals::get_client_id())->first();
                     
                     if (!$existingUser) {
                         $userID = Str::uuid(4);
