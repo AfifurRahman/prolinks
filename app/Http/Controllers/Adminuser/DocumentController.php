@@ -27,7 +27,15 @@ class DocumentController extends Controller
             $permission =  explode('/', base64_decode($subproject), 5);
            
 
-            $files = Storage::files($origin);
+            $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
+                return [
+                    'path' => $file,
+                    'upload_date' => Storage::lastModified($file) 
+                ];
+            });
+
+            $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
+
             $folders = Storage::directories($origin);
             $directorytype = 1; //1 is parent
 
@@ -249,7 +257,15 @@ class DocumentController extends Controller
                 $directorytype = 1;
             }
            
-            $files = Storage::files($directory);
+            $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
+                return [
+                    'path' => $file,
+                    'upload_date' => Storage::lastModified($file) 
+                ];
+            });
+
+            $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
+
             $folders = Storage::directories($directory);
 
             $path = explode('/', $directory, 5);
