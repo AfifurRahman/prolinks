@@ -32,7 +32,7 @@
 	<tbody>
 		@foreach($report as $key => $value)
             <tr>
-				<td style="width:120px;">{{ $value->id }}</td>
+				<td style="width:120px;">{{ sprintf("ID%05d", DB::table('discussions')->where('discussion_id', $value->discussion_id)->value('id')) }}</td>
 				<td style="width:120px;">{{ $value->subject }}</td>
 				<td style="width:120px;">{!! \globals::label_qna_priority($value->priority) !!}</td>
 				<td style="width:120px;">{!! \globals::label_qna_status($value->status) !!}</td>
