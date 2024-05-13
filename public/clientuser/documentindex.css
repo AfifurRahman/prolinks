@@ -27,7 +27,11 @@
 }
 
 #name {
-    width:52%;
+    width:42%;
+}
+
+#uploaded {
+    width:10%;
 }
 
 #created {

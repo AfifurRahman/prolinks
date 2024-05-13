@@ -429,6 +429,7 @@
                         <th id="index">Index</th>
                         <th id="name">File name</th>
                         <th id="created">Created at</th>
+                        <th id="uploaded">Uploaded by</th>
                         <th data-sortable = "false" id="size">Size / type</th>
                         <th data-sortable = "false" id="navigationdot">&nbsp;</th>
                     </tr>
@@ -450,6 +451,7 @@
                                 </a>
                             @endif
                         </td>
+                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -485,6 +487,7 @@
                                 </a>
                             </td>
                             <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($directory))->format('d M Y, H:i') }}</td>
+                            <td> {{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}</td>
                             <td>Directory</td>
                             <td>
                                 <div class="dropdown">
@@ -547,6 +550,7 @@
                                     <td>
                                         {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
                                     </td>
+                                    <td>{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name')  }}</td>
                                     <td>
                                         {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                     </td>
@@ -608,6 +612,7 @@
                                 <td>
                                     {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
                                 </td>
+                                <td>{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name')  }}</td>
                                 <td>
                                     {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                 </td>
