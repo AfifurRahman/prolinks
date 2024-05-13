@@ -270,8 +270,15 @@ class DocumentController extends Controller
             $dir = base64_decode($path);
             $data = base64_decode($file);
             $directory = $dir . '/' . $data;
+            $index = '';
 
-            return Storage::disk('local')->download($directory, UploadFile::where('basename', $data)->value('name'));
+            foreach(array_slice(explode('/', UploadFile::where('basename', $data)->value('directory')), 4) as $path) {
+                $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+            }
+
+            $index .= DB::table('upload_files')->where('basename', basename($data))->value('index');
+
+            return Storage::disk('local')->download($directory, $index . ' - ' . UploadFile::where('basename', $data)->value('name'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
