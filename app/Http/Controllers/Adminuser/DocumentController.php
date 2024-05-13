@@ -272,8 +272,11 @@ class DocumentController extends Controller
             $directory = $dir . '/' . $data;
             $index = '';
 
+            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $data)->value('directory')), 0, 4));
+
             foreach(array_slice(explode('/', UploadFile::where('basename', $data)->value('directory')), 4) as $path) {
-                $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                $originPath .= '/' . $path;
+                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
             }
 
             $index .= DB::table('upload_files')->where('basename', basename($data))->value('index');
@@ -294,7 +297,11 @@ class DocumentController extends Controller
             $zip->open($tempZipFile, ZipArchive::CREATE);
             $fileName = "";
             $fileFolder = "";
+            $log = '';
+
             foreach ($files as $file) {
+                $index = '';
+
                 $relativePath = substr($file, strlen($folderName) + 1);
 
                 $Path = explode('/', $relativePath);
@@ -306,17 +313,56 @@ class DocumentController extends Controller
                 
 
                 if (UploadFile::where('basename', $basenameFile)->value('status') == '1') {
-                    $basenameFile = UploadFile::where('basename', $basenameFile)->value('name');
+                    
+                    $pathFile = UploadFile::where('basename', $basenameFile)->value('directory');
+
+                    $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $basenameFile)->value('directory')), 0, 4));
+                    foreach(array_slice(explode('/', UploadFile::where('basename', $basenameFile)->value('directory')), 4) as $path) {
+                        $originPath .= '/' . $path;
+                        $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                    }
+                    
+                    $index .= DB::table('upload_files')->where('basename', basename($basenameFile))->value('index');
+                    $basenameFile = $index . ' - ' .UploadFile::where('basename', $basenameFile)->value('name');
 
                     if ($Path == "") {
                         $fixedPath = $basenameFile;
                     } else {
-                        $fixedPath = $Path . '/' . $basenameFile;
+                        $FullPath = '';
+                        $OriginFullPath = $folderName;
+
+                        foreach(explode('/', $Path) as $paths) {
+                            $index = '';
+                            
+                            $OriginFullPath .= '/' . $paths;
+                            
+                            $originPath = implode('/', array_slice(explode('/', UploadFolder::where('directory', $OriginFullPath)->value('parent')), 0, 4));
+
+                            foreach(array_slice(explode('/', UploadFolder::where('directory', $OriginFullPath)->value('parent')), 4) as $path) {
+                                $originPath .= '/' . $path;
+                                
+                                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                            }
+
+                            $index .= DB::table('upload_folders')->where('directory', $OriginFullPath)->value('index');
+
+    
+                            $Path = $index . ' - ' . $paths;
+
+                            
+                            $log .= $OriginFullPath;
+
+                            $FullPath .= $Path . '/';
+                        }
+                        
+
+                        $fixedPath =  $FullPath . $basenameFile;
                     }  
                     
                     $zip->addFile(Storage::path($file), $fixedPath);
                 }
             }
+
 
             $zip->close();
             

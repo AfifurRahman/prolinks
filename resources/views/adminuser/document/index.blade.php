@@ -463,10 +463,14 @@
                             <td>
                                 @php
                                     $index = '';
+                                    $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
+
                                     foreach(array_slice(explode('/', $origin), 4) as $path) {
-                                        $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                        $originPath .= '/' . $path;
+
+                                        $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
                                     }
-                                    $index .= DB::table('upload_folders')->where('name', basename($directory))->value('index');
+                                    $index .= DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('index');
                                 @endphp
                                 {{$index}}
                             </td>
@@ -524,8 +528,11 @@
                                     <td>
                                         @php
                                             $index = '';
+                                            $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
+
                                             foreach(array_slice(explode('/', $origin), 4) as $path) {
-                                                $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                                $originPath .= '/' . $path;
+                                                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
                                             }
                                             $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
                                         @endphp
@@ -582,8 +589,11 @@
                                 <td>
                                     @php
                                         $index = '';
+                                        $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
+
                                         foreach(array_slice(explode('/', $origin), 4) as $path) {
-                                            $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                            $originPath .= '/' . $path;
+                                            $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
                                         }
                                         $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
                                     @endphp
