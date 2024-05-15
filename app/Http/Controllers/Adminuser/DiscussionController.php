@@ -43,7 +43,8 @@ class DiscussionController extends Controller
             $unanswered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->where('deleted', 0)->get();
             $answered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->where('deleted', 0)->get();
             $closed = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->where('deleted', 0)->get();
-            $file = Permission::select('upload_files.id', 'upload_files.name')->join('upload_files', 'upload_files.basename', 'permissions.fileid')->where('permissions.user_id', Auth::user()->user_id)->where('permissions.permission', 1)->get();
+            $file = UploadFile::select('upload_files.id', 'upload_files.name')->where('subproject_id', Auth::user()->session_project)->where('upload_files.client_id', \globals::get_client_id())->get();
+            //$file = Permission::select('upload_files.id', 'upload_files.name')->join('upload_files', 'upload_files.basename', 'permissions.fileid')->where('permissions.user_id', Auth::user()->user_id)->where('permissions.permission', 1)->get();
         }
 
         $project = Project::orderBy('id','DESC')->where('client_id', \globals::get_client_id())->where('project_status', \globals::set_project_status_active())->where('parent', '!=', 0)->get();
@@ -189,12 +190,38 @@ class DiscussionController extends Controller
 
     function send_email_user($project_id, $subproject_id, $client_id, $discussion_id, $request){
         $discussion_creator = User::where('id', Auth::user()->id)->first();
-        $creatorRole = Auth::user()->type;
         $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->get();
+        $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->get();
+
+        if(count($receiver_admin) > 0){
+            foreach ($receiver_admin as $key => $value) {
+                if($value->email != Auth::user()->email) {
+                    $set_subject = "";
+
+                    if(!empty($request->input('subject'))){
+                        $set_subject = $request->input('subject');
+                    }else{
+                        $set_subject = Discussion::where('discussion_id', $discussion_id)->where('client_id', $client_id)->value('subject');
+                    }
+
+                    $details = [
+                        'discussion_creator' => $discussion_creator->name,
+                        'receiver_name' => $value->email,
+                        'project_name' => Project::where('project_id', $project_id)->value('project_name'),
+                        'subject' => $set_subject,
+                        'comment' => $request->input('comment'),
+                        'link' => route('discussion.detail-discussion', $discussion_id)
+                    ];
+    
+                    \Mail::to($value->email)->send(new \App\Mail\DiscussionUsers($details));
+                }
+            }
+        }
+
         if(count($receiver_email) > 0){
             foreach ($receiver_email as $key => $value) {
                 if (!empty($value->RefUser->email) && $value->RefUser->email != Auth::user()->email) {
-                    if(DB::table('users')->where('user_id', $value->user_id)->value('type') != $creatorRole) {
+                    if($value->email != Auth::user()->email) {
                         $set_subject = "";
                         if(!empty($request->input('subject'))){
                             $set_subject = $request->input('subject');

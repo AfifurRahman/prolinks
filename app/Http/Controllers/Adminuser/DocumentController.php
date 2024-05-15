@@ -197,12 +197,27 @@ class DocumentController extends Controller
                             ]);
 
                             $receiver_email = AssignProject::where('subproject_id', $locationParts[3])->where('client_id', \globals::get_client_id())->get();
+                            $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->get();
 
-                            $uploaderRole = Auth::user()->type;
+                            if(count($receiver_admin) > 0) {
+                                foreach ($receiver_admin as $key => $value) {
+                                    if($value->email != Auth::user()->email) {
+                                        $details = [
+                                            'receiver' => $value->email,
+                                            'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
+                                            'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
+                                            'file_name' => $file->getClientOriginalName() ,
+                                            'file_size' => GlobalHelper::formatBytes($file->getSize()),
+                                            'url' => route('adminuser.documents.list', base64_encode($locationParts[2]. '/' . $locationParts[3])),
+                                        ];
+                                        \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                                    }
+                                }
+                            }
 
                             if(count($receiver_email) > 0) {
                                 foreach ($receiver_email as $key => $value) {
-                                    if(DB::table('users')->where('user_id', $value->user_id)->value('type') != $uploaderRole) {
+                                    if($value->email != Auth::user()->email) {
                                         $details = [
                                             'receiver' => $value->email,
                                             'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
