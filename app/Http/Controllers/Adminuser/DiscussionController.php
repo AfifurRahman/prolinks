@@ -189,27 +189,30 @@ class DiscussionController extends Controller
 
     function send_email_user($project_id, $subproject_id, $client_id, $discussion_id, $request){
         $discussion_creator = User::where('id', Auth::user()->id)->first();
+        $creatorRole = Auth::user()->type;
         $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->get();
         if(count($receiver_email) > 0){
             foreach ($receiver_email as $key => $value) {
                 if (!empty($value->RefUser->email) && $value->RefUser->email != Auth::user()->email) {
-                    $set_subject = "";
-                    if(!empty($request->input('subject'))){
-                        $set_subject = $request->input('subject');
-                    }else{
-                        $set_subject = Discussion::where('discussion_id', $discussion_id)->where('client_id', $client_id)->value('subject');
-                    }
-
-                    $details = [
-                        'discussion_creator' => $discussion_creator->name,
-                        'receiver_name' => $value->RefUser->name,
-                        'project_name' => $value->RefProject->project_name,
-                        'subject' => $set_subject,
-                        'comment' => $request->input('comment'),
-                        'link' => route('discussion.detail-discussion', $discussion_id)
-                    ];
+                    if(DB::table('users')->where('user_id', $value->user_id)->value('type') != $creatorRole) {
+                        $set_subject = "";
+                        if(!empty($request->input('subject'))){
+                            $set_subject = $request->input('subject');
+                        }else{
+                            $set_subject = Discussion::where('discussion_id', $discussion_id)->where('client_id', $client_id)->value('subject');
+                        }
     
-                    \Mail::to($value->RefUser->email)->send(new \App\Mail\DiscussionUsers($details));
+                        $details = [
+                            'discussion_creator' => $discussion_creator->name,
+                            'receiver_name' => $value->RefUser->name,
+                            'project_name' => $value->RefProject->project_name,
+                            'subject' => $set_subject,
+                            'comment' => $request->input('comment'),
+                            'link' => route('discussion.detail-discussion', $discussion_id)
+                        ];
+        
+                        \Mail::to($value->RefUser->email)->send(new \App\Mail\DiscussionUsers($details));
+                    }
                 } 
             }
         }

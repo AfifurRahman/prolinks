@@ -25,7 +25,6 @@
 			<th style="width:120px;">Submitted By User</th>
             <th style="width:120px;">Last Updated On</th>
             <th style="width:120px;">{{ 'Question / Answer' }}</th>
-			<th style="width:120px;">Latest Answer</th>
 			<th style="width:120px;">Related Document(s)</th>
 		</tr>
 	</thead>
@@ -40,7 +39,6 @@
 				<td style="width:120px;">{{ DB::table('users')->where('user_id', $value->user_id)->value('name') }}</td>
 				<td style="width:120px;">{{ $value->updated_at }}</td>
 				<td style="width:120px;">{{ $value->content }}</td>
-				<td style="width:120px;">{{ DB::table('discussion_comments')->where('id', DB::table('discussion_comments')->where('discussion_id', $value->discussion_id)->max('id'))->value('content') }}</td>
 				<td style="width:120px;">{{ DB::table('discussion_attach_files')->where('comment_id',$value->id)->value('file_name') }}</td>
 			</tr>
         @endforeach

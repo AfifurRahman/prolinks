@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Adminuser;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\GlobalHelper;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -11,9 +12,11 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Client;
+use App\Models\Project;
 use App\Models\ClientUser;
 use App\Models\UploadFile;
 use App\Models\UploadFolder;
+use App\Models\AssignProject;
 use App\Models\Permission;
 use Auth;
 use ZipArchive;
@@ -192,6 +195,27 @@ class DocumentController extends Controller
                                 'status' => 1,
                                 'uploaded_by' => Auth::user()->user_id,
                             ]);
+
+                            $receiver_email = AssignProject::where('subproject_id', $locationParts[3])->where('client_id', \globals::get_client_id())->get();
+
+                            $uploaderRole = Auth::user()->type;
+
+                            if(count($receiver_email) > 0) {
+                                foreach ($receiver_email as $key => $value) {
+                                    if(DB::table('users')->where('user_id', $value->user_id)->value('type') != $uploaderRole) {
+                                        $details = [
+                                            'receiver' => $value->email,
+                                            'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
+                                            'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
+                                            'file_name' => $file->getClientOriginalName() ,
+                                            'file_size' => GlobalHelper::formatBytes($file->getSize()),
+                                            'url' => route('adminuser.documents.list', base64_encode($locationParts[2]. '/' . $locationParts[3])),
+                                        ];
+                                        \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                                    }
+                                }
+                            }
+
                         } else {
                             return response()->json(['success' => false, 'message' => 'You dont have sufficient quota']);
                         }
