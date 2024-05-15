@@ -689,6 +689,7 @@
                 "bInfo": false,
                 "bSort": true,
                 "dom": 'rtip',
+                "order" : [[1, "asc"]],
                 "stripeClasses": false,
             });
 
