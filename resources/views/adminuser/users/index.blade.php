@@ -305,7 +305,7 @@
                         </div>
                         <div id="resultGroup"></div>
                         <div id="data_project">
-                            <h5 class="usercompany">Project <span class="text-danger">*</span></h5>
+                            <h5 class="usercompany">Subproject <span class="text-danger">*</span></h5>
                             <select class="form-control select2" data-placeholder="Select Project" multiple name="project[]" id="projectsID">
                                 @foreach($project as $projects)
                                     @if(count($projects->RefSubProject) > 0)
