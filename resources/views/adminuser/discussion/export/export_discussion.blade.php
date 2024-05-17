@@ -24,23 +24,21 @@
             <th style="width:120px;">Submitted Date</th>
 			<th style="width:120px;">Submitted By User</th>
             <th style="width:120px;">Last Updated On</th>
-            <th style="width:120px;">Question</th>
-			<th style="width:120px;">Total Number of Answers</th>
+            <th style="width:120px;">{{ 'Question / Answer' }}</th>
 			<th style="width:120px;">Related Document(s)</th>
 		</tr>
 	</thead>
 	<tbody>
 		@foreach($report as $key => $value)
             <tr>
-				<td style="width:120px;">{{ $value->id }}</td>
+				<td style="width:120px;">{{ sprintf("ID%05d", DB::table('discussions')->where('discussion_id', $value->discussion_id)->value('id')) }}</td>
 				<td style="width:120px;">{{ $value->subject }}</td>
 				<td style="width:120px;">{!! \globals::label_qna_priority($value->priority) !!}</td>
 				<td style="width:120px;">{!! \globals::label_qna_status($value->status) !!}</td>
 				<td style="width:120px;">{{ $value->created_at }}</td>
-				<td style="width:120px;">{!! \globals::get_username($value->submitter) !!}</td>
+				<td style="width:120px;">{{ DB::table('users')->where('user_id', $value->user_id)->value('name') }}</td>
 				<td style="width:120px;">{{ $value->updated_at }}</td>
 				<td style="width:120px;">{{ $value->content }}</td>
-                <td style="width:120px;">{{ DB::table('discussion_comments')->where('discussion_id', $value->discussion_id)->count() - 1 }}</td>
 				<td style="width:120px;">{{ DB::table('discussion_attach_files')->where('comment_id',$value->id)->value('file_name') }}</td>
 			</tr>
         @endforeach

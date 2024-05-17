@@ -51,11 +51,11 @@
                     <button id="browseFiles" class="create-btn" onclick="document.getElementById('fileInput').click()">Browse files</button>
                     <button id="clearFiles"  class="delete-btn" onclick="clearFiles()"><i class="fa fa-times"></i>&nbsp;Clear all</button>
                 </div>
-                <div class="dataTable">
+                <div class="tableUploadPreview">
                     <table id="upload-preview-table" class="table">
                         <thead>
                             <tr>
-                                <th style="width:70%;">File name</th>
+                                <th style="width:200px;">File name</th>
                                 <th style="width:20%;">Size</th>
                                 <th style="width:10%;">Action</th>
                             </tr>
@@ -171,7 +171,7 @@
                 <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue? You can't undo this action.</p>
                 <div class="form-button">
                     <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
-                    <button class="delete-btn" type="submit">Delete</button>
+                    <button class="delete-btn" id="deleteFolderSubmit">Delete</button>
                 </div>
             </div>
         </div>
@@ -429,6 +429,7 @@
                         <th id="index">Index</th>
                         <th id="name">File name</th>
                         <th id="created">Created at</th>
+                        <th id="uploaded">Uploaded by</th>
                         <th data-sortable = "false" id="size">Size / type</th>
                         <th data-sortable = "false" id="navigationdot">&nbsp;</th>
                     </tr>
@@ -453,6 +454,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                     </tr>
                 @endif
                 
@@ -463,10 +465,14 @@
                             <td>
                                 @php
                                     $index = '';
+                                    $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
+
                                     foreach(array_slice(explode('/', $origin), 4) as $path) {
-                                        $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                        $originPath .= '/' . $path;
+
+                                        $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
                                     }
-                                    $index .= DB::table('upload_folders')->where('name', basename($directory))->value('index');
+                                    $index .= DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('index');
                                 @endphp
                                 {{$index}}
                             </td>
@@ -481,6 +487,7 @@
                                 </a>
                             </td>
                             <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($directory))->format('d M Y, H:i') }}</td>
+                            <td> {{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}</td>
                             <td>Directory</td>
                             <td>
                                 <div class="dropdown">
@@ -489,23 +496,25 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-top pull-right">
                                         <li>
-                                            <a href="">
+                                            <a href="{{ route('adminuser.documents.downloadfolder', base64_encode($directory)) }}">
                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
                                                 Download
-                                            </a>
+                                            </a>    
                                         </li>
-                                        <li>
-                                            <a onclick="renameFolder('{{ basename($directory) }}', '{{$index}}', '{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}')">
-                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
-                                                Rename
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a style="color:red;" onclick="deleteFolder('miaw')">
-                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
-                                                Delete
-                                            </a>
-                                        </li>
+                                        @if(Auth::user()->type == \globals::set_role_administrator())
+                                            <li>
+                                                <a onclick="renameFolder('{{ basename($directory) }}', '{{$index}}', '{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('displayname') }}')">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                    Rename
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a style="color:red;" onclick="deleteFolder('{{ base64_encode($directory) }}')">
+                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                    Delete
+                                                </a>
+                                            </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </td>
@@ -522,8 +531,11 @@
                                     <td>
                                         @php
                                             $index = '';
+                                            $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
+
                                             foreach(array_slice(explode('/', $origin), 4) as $path) {
-                                                $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                                $originPath .= '/' . $path;
+                                                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
                                             }
                                             $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
                                         @endphp
@@ -538,6 +550,7 @@
                                     <td>
                                         {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
                                     </td>
+                                    <td>{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name')  }}</td>
                                     <td>
                                         {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                     </td>
@@ -553,18 +566,20 @@
                                                         Download
                                                     </a>
                                                 </li>
-                                                <li>
-                                                    <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
-                                                        <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
-                                                        Rename
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
-                                                        <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
-                                                        Delete
-                                                    </a>
-                                                </li>
+                                                @if(Auth::user()->type == \globals::set_role_administrator())
+                                                    <li>
+                                                        <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
+                                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                            Rename
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
+                                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                            Delete
+                                                        </a>
+                                                    </li>
+                                                @endif
                                             </ul>
                                         </div>
                                     </td>
@@ -578,8 +593,11 @@
                                 <td>
                                     @php
                                         $index = '';
+                                        $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
+
                                         foreach(array_slice(explode('/', $origin), 4) as $path) {
-                                            $index .= DB::table('upload_folders')->where('name', $path)->value('index') . '.';
+                                            $originPath .= '/' . $path;
+                                            $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
                                         }
                                         $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
                                     @endphp
@@ -594,6 +612,7 @@
                                 <td>
                                     {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
                                 </td>
+                                <td>{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name')  }}</td>
                                 <td>
                                     {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                 </td>
@@ -609,18 +628,20 @@
                                                     Download
                                                 </a>
                                             </li>
-                                            <li>
-                                                <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
-                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
-                                                    Rename
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
-                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
-                                                    Delete
-                                                </a>
-                                            </li>
+                                            @if(Auth::user()->type == \globals::set_role_administrator())
+                                                <li>
+                                                    <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
+                                                        <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
+                                                        Rename
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
+                                                        <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
+                                                        Delete
+                                                    </a>
+                                                </li>
+                                            @endif
                                         </ul>
                                     </div>
                                 </td>
@@ -665,9 +686,10 @@
 
             $('.tableDocument').dataTable({
                 "bPaginate": false,
-                "bInfo": false,
+                "bInfo": true,
                 "bSort": true,
                 "dom": 'rtip',
+                "order" : [[1, "asc"]],
                 "stripeClasses": false,
             });
 

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Adminuser;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\GlobalHelper;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -10,11 +12,14 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Client;
+use App\Models\Project;
 use App\Models\ClientUser;
 use App\Models\UploadFile;
 use App\Models\UploadFolder;
+use App\Models\AssignProject;
 use App\Models\Permission;
 use Auth;
+use ZipArchive;
 
 class DocumentController extends Controller
 {
@@ -25,7 +30,15 @@ class DocumentController extends Controller
             $permission =  explode('/', base64_decode($subproject), 5);
            
 
-            $files = Storage::files($origin);
+            $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
+                return [
+                    'path' => $file,
+                    'upload_date' => Storage::lastModified($file) 
+                ];
+            });
+
+            $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
+
             $folders = Storage::directories($origin);
             $directorytype = 1; //1 is parent
 
@@ -182,6 +195,44 @@ class DocumentController extends Controller
                                 'status' => 1,
                                 'uploaded_by' => Auth::user()->user_id,
                             ]);
+
+                            $receiver_email = AssignProject::where('subproject_id', $locationParts[3])->where('client_id', \globals::get_client_id())->get();
+                            $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
+
+                            if(count($receiver_admin) > 0) {
+                                foreach ($receiver_admin as $key => $value) {
+                                    if($value->email != Auth::user()->email) {
+                                        $details = [
+                                            'receiver' => $value->email,
+                                            'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
+                                            'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
+                                            'file_name' => $file->getClientOriginalName() ,
+                                            'file_size' => GlobalHelper::formatBytes($file->getSize()),
+                                            'url' => route('adminuser.documents.list', base64_encode($locationParts[2]. '/' . $locationParts[3])),
+                                        ];
+                                        \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                                    }
+                                }
+                            }
+
+                            if(count($receiver_email) > 0) {
+                                foreach ($receiver_email as $key => $value) {
+                                    if($value->email != Auth::user()->email) {
+                                        if(User::where('user_id', $value->user_id)->value('status') == '1') {
+                                            $details = [
+                                                'receiver' => $value->email,
+                                                'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
+                                                'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
+                                                'file_name' => $file->getClientOriginalName() ,
+                                                'file_size' => GlobalHelper::formatBytes($file->getSize()),
+                                                'url' => route('adminuser.documents.list', base64_encode($locationParts[2]. '/' . $locationParts[3])),
+                                            ];
+                                            \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                                        }
+                                    }
+                                }
+                            }
+
                         } else {
                             return response()->json(['success' => false, 'message' => 'You dont have sufficient quota']);
                         }
@@ -247,7 +298,15 @@ class DocumentController extends Controller
                 $directorytype = 1;
             }
            
-            $files = Storage::files($directory);
+            $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
+                return [
+                    'path' => $file,
+                    'upload_date' => Storage::lastModified($file) 
+                ];
+            });
+
+            $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
+
             $folders = Storage::directories($directory);
 
             $path = explode('/', $directory, 5);
@@ -268,10 +327,108 @@ class DocumentController extends Controller
             $dir = base64_decode($path);
             $data = base64_decode($file);
             $directory = $dir . '/' . $data;
+            $index = '';
 
-            return Storage::disk('local')->download($directory, UploadFile::where('basename', $data)->value('name'));
+            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $data)->value('directory')), 0, 4));
+
+            foreach(array_slice(explode('/', UploadFile::where('basename', $data)->value('directory')), 4) as $path) {
+                $originPath .= '/' . $path;
+                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+            }
+
+            $index .= DB::table('upload_files')->where('basename', basename($data))->value('index');
+
+            return Storage::disk('local')->download($directory, $index . ' - ' . UploadFile::where('basename', $data)->value('name'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
+        }
+    }
+
+    public function DownloadFolder($folder)
+    {
+        try {
+            $folderName = base64_decode($folder);
+            $files = Storage::allFiles($folderName);
+            $tempZipFile = tempnam(sys_get_temp_dir(), 'folder_zip');
+            $zip = new ZipArchive();
+            $zip->open($tempZipFile, ZipArchive::CREATE);
+            $fileName = "";
+            $fileFolder = "";
+            $log = '';
+
+            foreach ($files as $file) {
+                $index = '';
+
+                $relativePath = substr($file, strlen($folderName) + 1);
+
+                $Path = explode('/', $relativePath);
+                array_pop($Path);
+                $Path = implode('/', $Path);
+
+                $basenameFile = explode('/', $relativePath);
+                $basenameFile = end($basenameFile);
+                
+
+                if (Auth::user()->type == '0' || ((UploadFile::where('basename', $basenameFile)->value('status') == '1') && ((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $basenameFile)->value('permission') == '1') || is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $basenameFile)->value('permission'))))) {
+                    
+                    $pathFile = UploadFile::where('basename', $basenameFile)->value('directory');
+
+                    $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $basenameFile)->value('directory')), 0, 4));
+                    foreach(array_slice(explode('/', UploadFile::where('basename', $basenameFile)->value('directory')), 4) as $path) {
+                        $originPath .= '/' . $path;
+                        $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                    }
+                    
+                    $index .= DB::table('upload_files')->where('basename', basename($basenameFile))->value('index');
+                    $basenameFile = $index . ' - ' .UploadFile::where('basename', $basenameFile)->value('name');
+
+                    if ($Path == "") {
+                        $fixedPath = $basenameFile;
+                    } else {
+                        $FullPath = '';
+                        $OriginFullPath = $folderName;
+
+                        foreach(explode('/', $Path) as $paths) {
+                            $index = '';
+                            
+                            $OriginFullPath .= '/' . $paths;
+                            
+                            $originPath = implode('/', array_slice(explode('/', UploadFolder::where('directory', $OriginFullPath)->value('parent')), 0, 4));
+
+                            foreach(array_slice(explode('/', UploadFolder::where('directory', $OriginFullPath)->value('parent')), 4) as $path) {
+                                $originPath .= '/' . $path;
+                                
+                                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                            }
+
+                            $index .= DB::table('upload_folders')->where('directory', $OriginFullPath)->value('index');
+
+    
+                            $Path = $index . ' - ' . $paths;
+
+                            
+                            $log .= $OriginFullPath;
+
+                            $FullPath .= $Path . '/';
+                        }
+                        
+
+                        $fixedPath =  $FullPath . $basenameFile;
+                    }  
+                    
+                    $zip->addFile(Storage::path($file), $fixedPath);
+                }
+            }
+
+
+            $zip->close();
+            
+            $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip';
+            Storage::put($destinationPath, file_get_contents($tempZipFile));
+
+            return Storage::disk('local')->download($destinationPath, basename($folderName) . '.zip');
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
@@ -316,12 +473,12 @@ class DocumentController extends Controller
     public function DeleteFolder(Request $request) {
         try {
             $foldername = base64_decode($request->folder);
-            UploadFolder::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
-            UploadFile::where('directory', 'LIKE', '%'.$foldername.'%')->update(['status' => 0]);
+            UploadFolder::where('directory', $foldername)->update(['status' => 0]);
+
+            return response()->json(['success' => true, 'message' =>'Successfully removed the folder']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
-        return back();
     }
 
     public function Search(Request $request) {

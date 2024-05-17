@@ -196,7 +196,7 @@
         $(document).ready(function () {
             $('.tableGlobal').dataTable({
                 "bPaginate": true,
-                "bInfo": false,
+                "bInfo": true,
                 "bSort": true,
                 "dom": 'rtip',
                 "stripeClasses": false,

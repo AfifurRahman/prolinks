@@ -474,6 +474,8 @@ class AccessUsersController extends Controller
                 ]);
             }
 
+            User::where('email', $email)->update(['remember_token' => $token]);
+
             $details = [
                 'client_name' => $email,
                 'link' => URL::to('/create-password') . '/' . $token . '?email=' . str_replace("@", "%40", $email),
