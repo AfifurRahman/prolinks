@@ -283,7 +283,7 @@
                             <input type="radio" name="role" value="1" onclick="setRole(this)" required>
                             <div class="roledetail">
                                 <p class="roletitle">Collaborator<p>
-                                <p class="roledesc">Can view, download, and ask questions based on their group permissions.</p>
+                                <p class="roledesc">Access to specific subprojects is restricted; users can view, upload, and respond to questions based on their subproject access.</p>
                             </div>
                         </div>
 
