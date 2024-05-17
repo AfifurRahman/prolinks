@@ -271,7 +271,7 @@
 							</td>
 							<td style="vertical-align: middle;">
 								<div class="title-project">
-									<h3><a href="">{{ $projects->project_name }}</a></h3>
+									<h3><a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)">{{ $projects->project_name }}</a></h3>
 									<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id)->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
 								</div>
 							</td>
@@ -290,7 +290,7 @@
 							</td>
 						</tr>
 						@foreach($projects->RefSubProject as $subs)
-							<tr class="child-row-general child-row{{ $key }}">
+							<tr class="child-row-general child-row{{ $key }}" style="display: table-row;">
 								<td></td>
 								<td align="right">
 									<div class="image-project2">

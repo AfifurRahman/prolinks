@@ -686,7 +686,7 @@
 
             $('.tableDocument').dataTable({
                 "bPaginate": false,
-                "bInfo": false,
+                "bInfo": true,
                 "bSort": true,
                 "dom": 'rtip',
                 "order" : [[1, "asc"]],
