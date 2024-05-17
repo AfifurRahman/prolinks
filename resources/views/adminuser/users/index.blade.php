@@ -164,13 +164,14 @@
                                             @if($user->role == \globals::set_role_client())
                                                 <li><a href="#modal-move-group" data-toggle="modal" onclick="moveGroup('{{ $user->user_id }}')">Move to group</a></li>
                                             @endif
-
+                                            <!-- 1 => enable 2 => disable -->
                                             @if($user->status == 1)
                                                 <li><a href="#modal-disabled-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.disable-user', base64_encode($user->email_address)) }}" onclick="getUrlDisableUser(this)">Disable User</a></li>
                                             @elseif($user->status == 2)
                                                 <li><a href="#modal-enable-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.enable-user', base64_encode($user->email_address)) }}" onclick="getUrlEnableUser(this)">Enable User</a></li>
                                             @endif
-
+                                            
+                                            <!-- if user not active -->
                                             @if($user->status == 0)
                                                 <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Resend invitation email</a></li>
                                             @endif

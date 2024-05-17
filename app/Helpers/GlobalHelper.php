@@ -207,11 +207,14 @@ class GlobalHelper
 
     public static function get_project_sidebar()
     {
-        // $assignProject = AssignProject::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->pluck('subproject_id')->toArray();
-        // $models = SubProject::where('client_id', \globals::get_client_id())->whereIn('subproject_id', $assignProject)->get();
-        // return $models;
         $assignProject = AssignProject::where('user_id', Auth::user()->user_id)->orderBy('id', 'DESC')->pluck('project_id')->toArray();
-        $models = Project::where('client_id', \globals::get_client_id())->where('project_status', 1)->whereIn('project_id', $assignProject)->get();
+        $models = Project::where('project_status', 1)->whereIn('project_id', $assignProject)->get();
+        return $models;
+    }
+
+    public static function get_project_sidebar_administrator()
+    {
+        $models = Project::where('client_id', Auth::user()->client_id)->where('project_status', 1)->get();
         return $models;
     }
 

@@ -46,8 +46,12 @@ class LoginController extends Controller
             $user = Auth::user();
             /* status user : 0 => inactive, 1 => active */
             if ($user->status == 1) {
+                $desc = $user->name." has successfully logged in";
+                \log::create($request->all(), "success", $desc);
                 return true;
             } else {
+                $desc = "user ".$user->name." failed to login";
+                \log::create($request->all(), "failed", $desc);
                 Auth::logout();
                 return false;
             }

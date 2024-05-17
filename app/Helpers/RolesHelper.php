@@ -35,4 +35,18 @@ class RolesHelper
             abort(redirect(route('backend.not-found')));
         }
     }
+
+    public static function get_role_client()
+    {
+        $roles = Auth::user()->RefClientUser;
+
+        $result = [];
+        if (count($roles) > 0) {
+            foreach ($roles as $key => $value) {
+                $result[] = $value->role;
+            }
+        }
+
+        return $result;
+    }
 }

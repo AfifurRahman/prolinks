@@ -18,11 +18,11 @@ class AssignUserGroup extends Model
 
     public function RefClientUser()
     {
-        return $this->hasOne('App\Models\ClientUser', 'user_id' , 'user_id');
+        return $this->hasOne('App\Models\ClientUser', 'user_id' , 'user_id')->where('client_id', \globals::get_client_id());
     }
 
     public function RefGroup()
     {
-        return $this->hasOne('App\Models\AccessGroup', 'group_id' , 'group_id');
+        return $this->hasOne('App\Models\AccessGroup', 'group_id' , 'group_id')->where('client_id', \globals::get_client_id());
     }
 }

@@ -79,6 +79,9 @@ class DiscussionController extends Controller
                 ]);
 
                 if ($update) {
+                    $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                    $desc = Auth::user()->name." updated discussion on sub project ".$projectname;
+                    \log::create(request()->all(), "success", $desc);
                     $notification = "Discussion updated!";
                 }
             }else{
@@ -114,6 +117,11 @@ class DiscussionController extends Controller
                         $this->send_email_user($comment->project_id, $comment->subproject_id, $comment->client_id, $comment->discussion_id, $request);
                         $notification = "Discussion created!";
                         $discussion_id = $discussion->discussion_id;
+
+                        $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                        $desc = Auth::user()->name." created discussion on sub project ".$projectname;
+                        \log::create(request()->all(), "success", $desc);
+
                         $results = [
                             'errcode' => 200,
                             'message' => "Discussion created!",
@@ -126,6 +134,8 @@ class DiscussionController extends Controller
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollback();
+
+            \log::create(request()->all(), "error", $e->getMessage());
             $notification = "Error";
             $results = [
                 'errcode' => 500,
@@ -174,13 +184,18 @@ class DiscussionController extends Controller
                 $this->link_file_discussion($comment->id, $comment->discussion_id, $comment->project_id, $comment->subproject_id, $comment->client_id,  $request);
                 $this->send_email_user($comment->project_id, $comment->subproject_id, $comment->client_id, $comment->discussion_id, $request);
                 $notification = "Discussion created!";
+
+                $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                $desc = Auth::user()->name." created comment on sub project ".$projectname;
+                \log::create(request()->all(), "success", $desc);
             }
 
             \DB::commit();
         } catch (\Exception $e) {
           \DB::rollback();
-          Alert::error('Error', $e->getMessage());
-          return back();
+
+          \log::create(request()->all(), "error", $e->getMessage());
+          $notification = "failed discussion created!";
         }
         
         Session::flash('notification', $notification);
@@ -224,13 +239,19 @@ class DiscussionController extends Controller
                 'deleted' => 1
             ]);
             if($deleted){
+                $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                $commentname = DiscussionComment::where('id', base64_decode($id))->value('content');
+                $desc = Auth::user()->name." delete comment ".$commentname." on sub project ".$projectname;
+                \log::create(request()->all(), "success", $desc);
                 $notification = "Comment deleted!";
             }
 
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollback();
-            Alert::error('Error', $e->getMessage());
+
+            \log::create(request()->all(), "error", $e->getMessage());
+            $notification = "failed to delete comment";
         }
 
         return back()->with('notification', $notification);
@@ -246,13 +267,19 @@ class DiscussionController extends Controller
             ]);
 
             if($deleted){
+                $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                $subject = Discussion::where('discussion_id', $discussion_id)->value('subject');
+                $desc = Auth::user()->name." removed discussion ".$subject." on sub project ".$projectname;
+                \log::create(request()->all(), "success", $desc);
                 $notification = "Discussion removed";
             }
 
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollback();
-            Alert::error('Error', $e->getMessage());
+
+            \log::create(request()->all(), "error", $e->getMessage());
+            $notification = "failed to remove discussion";
         }
 
         return back()->with('notification', $notification);
@@ -321,17 +348,24 @@ class DiscussionController extends Controller
                         'errcode' => 200,
                         'message' => "".count($cvtArrayFile)." questions submitted",
                     ];
+
+                    $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                    $desc = Auth::user()->name." import discussion ".$file->getClientOriginalName()." on sub project ".$projectname;
+                    \log::create(request()->all(), "success", $desc);
                 }
             }else{
                 $notification = "data not found";
+                \log::create(request()->all(), "error", $notification);
             }
 
             \DB::commit();
         } catch (\Exception $e) {
             \DB::rollback();
+
+            \log::create(request()->all(), "error", $e->getMessage());
             $results = [
                 'errcode' => 500,
-                'message' => $e->getMessage()
+                'message' => 'failed to import QnA'
             ];
         }
 
@@ -365,6 +399,10 @@ class DiscussionController extends Controller
                     ->where('discussion_comments.subproject_id', Auth::user()->session_project)
                     ->get();
         }
+
+        $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+        $desc = Auth::user()->name." export discussion on sub project ".$projectname;
+        \log::create(request()->all(), "success", $desc);
         
         return Excel::download(new ExportQuestions($report), $filename);
     }
@@ -402,12 +440,18 @@ class DiscussionController extends Controller
             ]);
 
             if($updated){
+                $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                $qnaname = Discussion::where('discussion_id', $discussion_id)->value('subject');
+                $desc = Auth::user()->name." close discussion ".$qnaname." on sub project ".$projectname;
+                \log::create(request()->all(), "success", $desc);
                 $notification = "Question closed";
             }
 
             \DB::commit();
         } catch (\Exception $e) {
           \DB::rollback();
+
+          \log::create(request()->all(), "error", $e->getMessage());
           Alert::error('Error', $e->getMessage());
           return back();
         }
@@ -434,6 +478,8 @@ class DiscussionController extends Controller
             \DB::commit();
         } catch (\Exception $e) {
           \DB::rollback();
+
+          \log::create(request()->all(), "error", $e->getMessage());
           Alert::error('Error', $e->getMessage());
           return back();
         }

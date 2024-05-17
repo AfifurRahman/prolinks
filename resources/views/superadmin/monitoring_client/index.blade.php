@@ -45,8 +45,8 @@
 				<th>No</th>
 				<th>Client Name</th>
 				<th>Package Type</th>
-				<th>Allocation Size</th>
-				<th>Allocation Usage</th>
+				<th>Allocation Use</th>
+				<th>Allocation Free</th>
 				<th>Action</th>
 			</tr>
 		</thead>
@@ -57,11 +57,15 @@
 						<td>{{ $loop->iteration }}</td>
 						<td>{{ $client->client_name }}</td>
 						<td>{{ !empty($client->RefPricing->pricing_name) ? $client->RefPricing->pricing_name : '' }}</td>
-						<td>0</td>
-						<td>0</td>
+						<td>
+							{{ \globals::formatBytes(\DB::table('upload_files')->where('client_id', $client->client_id)->sum('size')) }}
+						</td>
+						<td>
+							{{App\Helpers\GlobalHelper::formatBytes((DB::table('pricing')->where('id', DB::table('clients')->where('client_id',$client->client_id)->value('pricing_id'))->value('allocation_size')) - (DB::table('upload_files')->where('client_id', $client->client_id)->sum('size')))}}
+						</td>
 						<td>
 							@if(\role::get_permission(array('detail-monitoring')))
-								<a href="{{ route('backend.monitoring.detail', $client->client_id) }}" data-toggle="tooltip" title="detail monitoring"><i class="fa fa-search"></i></a>
+								<a href="{{ route('backend.monitoring.detail', $client->client_id."?tab=dashboard") }}" data-toggle="tooltip" title="access dashboard client"><i class="fa fa-search"></i></a>
 							@endif
 						</td>
 					</tr>

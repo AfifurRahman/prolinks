@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Adminuser;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssignProject;
 use App\Models\SubProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -21,6 +22,10 @@ class ProjectController extends Controller
 {
 	public function list_project()
 	{
+		if (Auth::user()->type != \globals::set_role_administrator()) {
+            return abort(404);
+        }
+		
 		$project = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->where('project_status', \globals::set_project_status_active())->orderBy('id', 'DESC')->get();
 		$company = Company::where('company_status', \globals::set_status_company_active())->get();
 		$parentProject = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->where('project_status', \globals::set_project_status_active())->get();
@@ -51,6 +56,8 @@ class ProjectController extends Controller
 				]);
 
 				if ($updated) {
+					$desc = Auth::user()->name." has been updated project ".$request->input('project_name');
+					\log::create($request->all(), "success", $desc);
 	                $notification = "Project updated!";
 	            }
 			}else{
@@ -67,6 +74,9 @@ class ProjectController extends Controller
 	            $project->created_at = date('Y-m-d H:i:s');
 
 	            if ($project->save()) {
+					$desc = Auth::user()->name." has been created project ".$project->project_name;
+					\log::create($request->all(), "success", $desc);
+
 	            	$notification = "Project created!";
 	            	$projectId = $project->project_id;
 	            }
@@ -75,6 +85,8 @@ class ProjectController extends Controller
 			\DB::commit();
 		} catch (\Exception $e) {
 			\DB::rollback();
+
+			\log::create($request->all(), "error", $e->getMessage());
 			Alert::error('Error', $e->getMessage());
 			return back();
 		}
@@ -98,6 +110,8 @@ class ProjectController extends Controller
 				]);
 
 				if ($updated) {
+					$desc = Auth::user()->name." has been updated sub project ".$request->input('project_name');
+					\log::create($request->all(), "success", $desc);
 	                $notification = "Subroject updated!";
 	            }
 			}else{
@@ -112,15 +126,31 @@ class ProjectController extends Controller
 	            $project->created_at = date('Y-m-d H:i:s');
 
 	            if ($project->save()) {
-	            	$notification = "Subroject created!";
+					$assign = new AssignProject;
+					$assign->client_id = \globals::get_client_id();
+					$assign->project_id = $project->project_id;
+					$assign->subproject_id = $project->subproject_id;
+					$assign->user_id = $project->user_id;
+					$assign->clientuser_id = ClientUser::where('user_id', $project->user_id)->where('client_id', \globals::get_client_id())->value('id');
+					$assign->email = User::where('user_id', $project->user_id)->value('email');
+					$assign->created_by = $project->created_by;
+					if ($assign->save()) {
+						$desc = Auth::user()->name." has been created sub project ".$project->subproject_name;
+						\log::create($request->all(), "success", $desc);
+
+						$notification = "Subroject created!";
+					}
 	            }
 			}
 			\DB::commit();
 		} catch (\Exception $e) {
 			\DB::rollback();
+
+			\log::create($request->all(), "error", $e->getMessage());
 			Alert::error('Error', $e->getMessage());
 			return back();
 		}
+		
 		return redirect(route('project.list-project'))->with('notification', $notification);
 	}
 
@@ -136,12 +166,18 @@ class ProjectController extends Controller
 			]);
 
 			if ($terminate) {
+				$projname = Project::where('project_id', $project_id)->value('project_name');
+				$desc = Auth::user()->name." has been terminate project ".$projname." with reason ".$request->input('terminate_reason');
+				\log::create($request->all(), "success", $desc);
+				
 				$notification = 'Project terminated';
 			}
 
 			\DB::commit();
-		} catch (\Exception $th) {
+		} catch (\Exception $e) {
 			\DB::rollback();
+
+			\log::create($request->all(), "error", $e->getMessage());
 			Alert::error('Error', $e->getMessage());
 			return back();
 		}
@@ -156,12 +192,18 @@ class ProjectController extends Controller
 
 			$deleted = Project::where('project_id', $id)->delete();
 			if ($deleted) {
+				$projname = Project::where('project_id', $id)->value('project_name');
+				$desc = Auth::user()->name." has been deleted project ".$projname;
+				\log::create(request()->all(), "success", $desc);
+
 				$notification = "Project deleted!";
 			}
 
 			\DB::commit();
 		} catch (\Exception $e) {
 			\DB::rollback();
+
+			\log::create(request()->all(), "error", $e->getMessage());
 			Alert::error('Error', $e->getMessage());
 			return back();
 		}
@@ -176,12 +218,18 @@ class ProjectController extends Controller
 
 			$deleted = SubProject::where('subproject_id', $id)->delete();
 			if ($deleted) {
+				$projname = SubProject::where('subproject_id', $id)->value('subproject_name');
+				$desc = Auth::user()->name." has been deleted sub project ".$projname;
+				\log::create(request()->all(), "success", $desc);
+
 				$notification = "Subproject deleted!";
 			}
 
 			\DB::commit();
 		} catch (\Exception $e) {
 			\DB::rollback();
+
+			\log::create(request()->all(), "error", $e->getMessage());
 			Alert::error('Error', $e->getMessage());
 			return back();
 		}
@@ -199,23 +247,43 @@ class ProjectController extends Controller
 
     public function change_main_project(Request $request)
     {
-		$notification = "";
-		$subProject = SubProject::where('subproject_id', $request->input('main_project_id'))->first();
-		
-		Session::put('project_id', $request->input('main_project_id'));
-		$update = User::where('id', Auth::user()->id)->update(['session_project'=> $request->input('main_project_id')]);
-		if ($update) {
-			$notification = "Project changed";
-		}
+		try {
+			$notification = "";
+			$subProject = SubProject::where('subproject_id', $request->input('main_project_id'))->first();
+			
+			Session::put('project_id', $request->input('main_project_id'));
+			
+			$types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $request->input('main_project_id'))->where('assign_project.user_id', Auth::user()->user_id)->value('role');
+			$client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $request->input('main_project_id'))->where('assign_project.user_id', Auth::user()->user_id)->value('client_users.client_id');
+			
+			$update = User::where('id', Auth::user()->id)->update([
+				'type' => $types,
+				'client_id' => $client_id,
+				'session_project'=> $request->input('main_project_id')
+			]);
+			
+			if ($update) {
+				$desc = Auth::user()->name." switch to sub project ".$subProject->subproject_name;
+				\log::create(request()->all(), "success", $desc);
+				
+				$notification = "Project changed";
+			}
 
-		$uriPrev = parse_url(url()->previous(), PHP_URL_PATH);
-		$explodeUri = explode('/', $uriPrev);
-		$uri = $explodeUri[1];
-		
-		if (!empty($uri) && $uri == "documents") {
-			return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)))->with('notification', $notification);
-		}else{
-			return back()->with('notification', $notification);
+			$uriPrev = parse_url(url()->previous(), PHP_URL_PATH);
+			$explodeUri = explode('/', $uriPrev);
+			$uri = $explodeUri[1];
+			
+			if (!empty($uri) && $uri == "documents") {
+				return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)))->with('notification', $notification);
+			}else{
+				return back()->with('notification', $notification);
+			}
+
+		} catch (\Exception $e) {
+
+			\log::create($request->all(), "error", $e->getMessage());
+			return back()->with('notification', "failed to change sub project");
 		}
+		
     }
 }

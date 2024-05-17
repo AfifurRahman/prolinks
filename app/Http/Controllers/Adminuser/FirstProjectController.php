@@ -42,14 +42,15 @@ class FirstProjectController extends Controller
             $project->created_by = Auth::user()->id;
             
             if ($project->save()) {
-                /* add session project id */
-                // Session::put('project_id', $project->project_id);
-                // User::where('id', Auth::user()->id)->update(['session_project'=> $project->project_id]);
+                $desc = Auth::user()->name." has been created project ".$project->project_name;
+                \log::create($request->all(), "success", $desc);
                 $notification = "Project created!";
             }
 
     		\DB::commit();
     	} catch (\Exception $e) {
+            \log::create($request->all(), "error", $e->getMessage());
+
     		\DB::rollback();
 			Alert::error('Error', $e->getMessage());
     	    return back();

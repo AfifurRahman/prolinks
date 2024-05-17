@@ -13,6 +13,7 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Session;
+use Auth;
 
 
 class AuthController extends Controller
@@ -59,8 +60,12 @@ class AuthController extends Controller
 							'name' => $request->input('fullname')
 						]);
 					}
+
+					$desc = $request->input('fullname'). " success created password";
+					\log::create($request->all(), "success", $desc);
     			}
     		}else{
+				\log::create($request->all(), "error", 'Failed, client not found');
     			Session::flash('message', 'Failed, client not found'); 
 				return back();
     		}
@@ -68,6 +73,8 @@ class AuthController extends Controller
     		\DB::commit();
     	} catch (\Exception $e) {
     		\DB::rollback();
+
+			\log::create($request->all(), "error", $e->getMessage());
     		Session::flash('message', $e->getMessage()); 
 			return back();
     	}
@@ -77,13 +84,25 @@ class AuthController extends Controller
 
     public function validate_check_set_pswd($token, $email)
     {
-        $get_users = User::where('remember_token', $token)->where('email', $email)->first();
-
+        $get_users = User::where('email', $email)->first();
+		
         $result = false;
         if (!empty($get_users->email) && $get_users->password_created == \globals::create_pswd_client_yes()) {
-            $result = true;
+            $this->update_account_exist($email);
+			$result = true;
         }
 
         return $result;
     }
+
+	public function update_account_exist($email)
+    {
+		/* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
+		$client_users = ClientUser::where('email_address', $email)->where('status', 0)->first();
+		if (!empty($client_users->id)) {
+			ClientUser::where('id', $client_users->id)->update([
+				'status' => 1
+			]);
+		}
+	}
 }

@@ -190,6 +190,7 @@ return [
         'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
         'globals' => App\Helpers\GlobalHelper::class,
         'role' => App\Helpers\RolesHelper::class,
+        'log' => App\Helpers\LogHelper::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ])->toArray(),
 

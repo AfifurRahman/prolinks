@@ -103,6 +103,12 @@
                         <a href="{{ route('backend.monitoring.list') }}" class="waves-effect"><i class="mdi mdi-laptop-mac"></i><span> Monitoring </span></a>
                     </li>
                 @endif
+
+                @if(in_array("log-activity", $userRole))
+                    <li>
+                        <a href="{{ route('backend.log.list') }}" class="waves-effect"><i class="fa fa-history"></i><span> Log Activity </span></a>
+                    </li>
+                @endif
             </ul>
             
             

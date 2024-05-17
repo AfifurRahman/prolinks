@@ -156,7 +156,7 @@
                                         <!-- <img src="{{ url('template/images/avatar.png') }}" class="img-circle" alt=""> -->
                                     </div>
                                     <div class="box-info">
-                                        <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClient->client_name) ? $comment->RefClient->client_name : '' }}</span></p>
+                                        <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClientUser->company) ? $comment->RefClient->company : '' }}</span></p>
                                         <p class="inbox-item-text">{{ $comment->content }}</p>
                                         <div class="box-file">
                                             @foreach($comment->RefDiscussionLinkFile as $link_file)

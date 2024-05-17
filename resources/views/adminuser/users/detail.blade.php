@@ -31,7 +31,7 @@
     </style>
     <div class="header-detail">
         <div class="pull-left">
-            <h2 id="title" style="color:black;font-size:28px;">{{ !empty($clientuser->name) ? $clientuser->name : $clientuser->RefUser->email }}</h2>
+            <h2 id="title" style="color:black;font-size:28px;">{{ !empty($clientuser->name) ? $clientuser->name : $clientuser->email_address }}</h2>
         </div>
         <div class="pull-right">
             <div class="dropdown" style="margin-top:10px; z-index:99;">
@@ -243,7 +243,7 @@
                         <a class="btn btn-default">All</a>
                     @else
                         @php
-                            $projects = App\Models\AssignProject::where('user_id', $clientuser->user_id)->where('client_id', \globals::get_client_id())->get();
+                            $projects = App\Models\AssignProject::where('user_id', $clientuser->user_id)->where('client_id', $clientuser->client_id)->get();
                         @endphp
                         @foreach($projects as $project)
                             <div style="margin-bottom:5px;">

@@ -49,4 +49,9 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Models\Client', 'client_id' , 'client_id');
     }
+
+    public function RefClientUser()
+    {
+        return $this->hasMany('App\Models\ClientUser', 'user_id' , 'user_id');
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClientUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
@@ -105,10 +106,25 @@ class ClientController extends Controller
 		  					'user_id' => $users->user_id
 		  				]);
 
+						$clientuser = new ClientUser;
+						$clientuser->user_id = $users->user_id;
+						$clientuser->email_address = $clients->client_email;
+						$clientuser->name = $clients->client_name;
+						$clientuser->client_id = $clients->client_id;
+						$clientuser->company = "-";
+						$clientuser->job_title = "-";
+						$clientuser->role = 0; // role administrator
+						$clientuser->group_id = 0;
+						$clientuser->status = 1;
+						$clientuser->created_by = $clients->created_by;
+						$clientuser->created_at = $clients->created_at;
+						$clientuser->save();
+
 		  				//send mail
 		  				$token = Password::getRepository()->create($users);
 		  				$details = [
 		  					'client_name' => $clients->client_name,
+							'exist_account' => "NO",
 		  					'link' => URL::to('/create-password') . '/' . $token . '?email=' . str_replace("@", "%40", $clients->client_email),
 		  				];
 		  				$sendMail = \Mail::to($users->email)->send(new \App\Mail\CreateAdminUsersPassword($details));

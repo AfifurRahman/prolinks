@@ -221,6 +221,17 @@
                         <label for="delete-users" data-on-label="On" data-off-label="Off"></label>
                     </td>
                 </tr>
+                <tr>
+                    <th colspan="2" class="bg-default">Log</th>
+                </tr>
+                <tr>
+                    <td style="text-indent: 30px;"><i class="fa fa-list-alt"></i> Log Activity</td>
+                    <td>
+                        <input type="checkbox" id="log-activity" {{ in_array('log-activity', $decodeAccess) ? 'checked':'' }} switch="primary" name="menu_access[]" value="log-activity" />
+                        <label for="log-activity" data-on-label="On" data-off-label="Off"></label>
+                    </td>
+                </tr>
+                
             </tbody>
         </table>
         <div class="button-submit">

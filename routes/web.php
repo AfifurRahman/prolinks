@@ -62,6 +62,9 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 	Route::get('/monitoring/list', 'App\Http\Controllers\Superadmin\MonitoringClientController@list')->name('backend.monitoring.list');
 	Route::get('/monitoring/detail/{id}', 'App\Http\Controllers\Superadmin\MonitoringClientController@detail')->name('backend.monitoring.detail');
 
+	/* Log Activity */
+	Route::get('/log/list', 'App\Http\Controllers\Superadmin\LogController@index')->name('backend.log.list');
+
 	Route::get('/not-found', 'App\Http\Controllers\Superadmin\DashboardController@not_found')->name('backend.not-found');
 });
 
