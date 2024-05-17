@@ -2,8 +2,8 @@
 	<thead>
 		<tr>
 			<th style="text-align:left; font-size:17px;font-weight:bold;" colspan="12">
-				<h3>{{'Project Room : Q&A All Questions' }}</h3>
-			<th>
+				<h3>{{ 'Project Room : Q&A All Questions' }}</h3>
+			</th>
 		</tr>
 		<tr>
 			<th style="text-align:left; font-size:17px;font-weight:bold;" colspan="12">
@@ -29,7 +29,9 @@
 		</tr>
 	</thead>
 	<tbody>
-		@foreach($report as $key => $value)
+		@foreach($report->sortBy(function ($value) {
+            return DB::table('discussions')->where('discussion_id', $value->discussion_id)->value('id');
+        }) as $key => $value)
             <tr>
 				<td style="width:120px;">{{ sprintf("ID%05d", DB::table('discussions')->where('discussion_id', $value->discussion_id)->value('id')) }}</td>
 				<td style="width:120px;">{{ $value->subject }}</td>
@@ -39,9 +41,8 @@
 				<td style="width:120px;">{{ DB::table('users')->where('user_id', $value->user_id)->value('name') }}</td>
 				<td style="width:120px;">{{ $value->updated_at }}</td>
 				<td style="width:120px;">{{ $value->content }}</td>
-				<td style="width:120px;">{{ DB::table('discussion_attach_files')->where('comment_id',$value->id)->value('file_name') }}</td>
+				<td style="width:120px;">{{ DB::table('discussion_attach_files')->where('comment_id', $value->id)->value('file_name') }}</td>
 			</tr>
         @endforeach
 	</tbody>
-
 </table>
