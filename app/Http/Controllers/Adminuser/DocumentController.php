@@ -197,7 +197,7 @@ class DocumentController extends Controller
                             ]);
 
                             $receiver_email = AssignProject::where('subproject_id', $locationParts[3])->where('client_id', \globals::get_client_id())->get();
-                            $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->get();
+                            $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
 
                             if(count($receiver_admin) > 0) {
                                 foreach ($receiver_admin as $key => $value) {
@@ -218,15 +218,17 @@ class DocumentController extends Controller
                             if(count($receiver_email) > 0) {
                                 foreach ($receiver_email as $key => $value) {
                                     if($value->email != Auth::user()->email) {
-                                        $details = [
-                                            'receiver' => $value->email,
-                                            'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
-                                            'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
-                                            'file_name' => $file->getClientOriginalName() ,
-                                            'file_size' => GlobalHelper::formatBytes($file->getSize()),
-                                            'url' => route('adminuser.documents.list', base64_encode($locationParts[2]. '/' . $locationParts[3])),
-                                        ];
-                                        \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                                        if(User::where('user_id', $value->user_id)->value('status') == '1') {
+                                            $details = [
+                                                'receiver' => $value->email,
+                                                'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
+                                                'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
+                                                'file_name' => $file->getClientOriginalName() ,
+                                                'file_size' => GlobalHelper::formatBytes($file->getSize()),
+                                                'url' => route('adminuser.documents.list', base64_encode($locationParts[2]. '/' . $locationParts[3])),
+                                            ];
+                                            \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                                        }
                                     }
                                 }
                             }
@@ -367,7 +369,7 @@ class DocumentController extends Controller
                 $basenameFile = end($basenameFile);
                 
 
-                if (UploadFile::where('basename', $basenameFile)->value('status') == '1') {
+                if (Auth::user()->type == '0' || ((UploadFile::where('basename', $basenameFile)->value('status') == '1') && ((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $basenameFile)->value('permission') == '1') || is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $basenameFile)->value('permission'))))) {
                     
                     $pathFile = UploadFile::where('basename', $basenameFile)->value('directory');
 

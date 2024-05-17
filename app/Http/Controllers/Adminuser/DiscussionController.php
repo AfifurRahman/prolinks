@@ -192,7 +192,7 @@ class DiscussionController extends Controller
     function send_email_user($project_id, $subproject_id, $client_id, $discussion_id, $request){
         $discussion_creator = User::where('id', Auth::user()->id)->first();
         $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->get();
-        $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->get();
+        $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
 
         if(count($receiver_admin) > 0){
             foreach ($receiver_admin as $key => $value) {
