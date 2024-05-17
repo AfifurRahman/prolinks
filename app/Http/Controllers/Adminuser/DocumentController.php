@@ -321,6 +321,10 @@ class DocumentController extends Controller
         }
     }
 
+    public function ViewFile($file) {
+        
+    }
+
     public function DownloadFile($path, $file)
     {
         try {
@@ -369,7 +373,7 @@ class DocumentController extends Controller
                 $basenameFile = end($basenameFile);
                 
 
-                if (Auth::user()->type == '0' || ((UploadFile::where('basename', $basenameFile)->value('status') == '1') && ((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $basenameFile)->value('permission') == '1') || is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $basenameFile)->value('permission'))))) {
+                if (Auth::user()->type == '0' ||     ((UploadFile::where('basename', $basenameFile)->value('status') == '1') && ((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $basenameFile)->value('permission') == '1') || is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $basenameFile)->value('permission'))))) {
                     
                     $pathFile = UploadFile::where('basename', $basenameFile)->value('directory');
 
