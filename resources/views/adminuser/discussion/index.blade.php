@@ -146,7 +146,7 @@
                     <a href="#all" data-toggle="tab" aria-expanded="true">All</a>
                 </li>
                 <li class="">
-                    <a href="#unanswered" data-toggle="tab" aria-expanded="false">Unanswered</a>
+                    <a href="#unanswered" data-toggle="tab" aria-expanded="false">Unanswered <span class="badge badge-danger">{{ count($unanswered) }}</span></a>
                 </li>
                 <li class="">
                     <a href="#answered" data-toggle="tab" aria-expanded="false">Answered</a>

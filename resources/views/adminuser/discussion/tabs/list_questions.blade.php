@@ -18,8 +18,8 @@
                 <td width="50">
                     <input type="checkbox" style="width:30px; height:16px;" />
                 </td>
-                <td>{{ $qna->id }}</td>
-                <td>
+                <td width="50">{{ $qna->id }}</td>
+                <td width="400">
                     @if($qna->priority == \globals::set_qna_priority_high())
                         <img src="{{ url('template/images/priority_high.png') }}" width="24" height="24" />
                     @elseif($qna->priority == \globals::set_qna_priority_medium())
@@ -29,9 +29,9 @@
                     @endif
                     <a href="{{ route('discussion.detail-discussion', $qna->discussion_id) }}">{{ $qna->subject }}</a>
                 </td>
-                <td>{!! \globals::get_username($qna->user_id) !!}</td>
-                <td>{!! \globals::label_qna_status($qna->status) !!}</td>
-                <td>{!! date('d M Y H:i', strtotime($qna->created_at)) !!}</td>
+                <td width="150">{!! \globals::get_username($qna->user_id) !!}</td>
+                <td width="100">{!! \globals::label_qna_status($qna->status) !!}</td>
+                <td width="150">{!! date('d M Y H:i', strtotime($qna->created_at)) !!}</td>
                 <td>
                     <div class="dropdown">
                         <button class="button_ico dropdown-toggle" data-toggle="dropdown">
