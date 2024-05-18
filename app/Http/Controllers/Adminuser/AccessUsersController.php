@@ -178,7 +178,9 @@ class AccessUsersController extends Controller
                             $token = $existingAccess->remember_token;
                             $session_project = AssignProject::where('user_id', $userID)->where('client_id', \globals::get_client_id())->orderBy('id', 'DESC')->value('subproject_id');
                             $types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $userID)->value('role');
+                            $client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $userID)->value('client_users.client_id');
                             User::where('user_id', $userID)->update([
+                                'client_id' => $client_id,
                                 'session_project' => $session_project,
                                 'type' => $types
                             ]);

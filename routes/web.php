@@ -17,6 +17,59 @@ Route::get('/run-migrations', function () {
     return Artisan::call('migrate', ["--path" => "database/migrations", "--force" => true]);
 });
 
+Route::get('/run-query-update-clientid-in-assign-project', function () {
+    $model = App\Models\ClientUser::get();
+	foreach ($model as $key => $value) {
+		App\Models\AssignProject::where('client_id', $value->client_id)->where('user_id', $value->user_id)->update([
+			'clientuser_id' => $value->id
+		]);
+	}
+});
+
+Route::get('/run-query-insert-clientuser', function () {
+    $model = App\Models\User::where('type', 0)->get();
+	foreach ($model as $key => $value) {
+		$checkExist = App\Models\ClientUser::where('client_id', $value->client_id)->where('user_id', $value->user_id)->first();
+		if (empty($checkExist->id)) {
+			$assign = new App\Models\ClientUser;
+			$assign->user_id = $value->user_id;
+			$assign->email_address = $value->email;
+			$assign->name = $value->name;
+			$assign->client_id = $value->client_id;
+			$assign->company = "-";
+			$assign->job_title = "-";
+			$assign->role = $value->type;
+			$assign->role_param = null;
+			$assign->status = 1;
+			$assign->created_by = $value->id;
+			$assign->created_at = $value->created_at;
+			$assign->save();
+		}
+	}
+});
+
+Route::get('/run-query-insert-assign-project', function () {
+    $model = App\Models\ClientUser::where('role', 0)->get();
+	foreach ($model as $key => $value) {
+		$checkExist = App\Models\AssignProject::where('client_id', $value->client_id)->where('user_id', $value->user_id)->first();
+		if (empty($checkExist->id)) {
+			$projectID = App\Models\Project::where('user_id', $value->user_id)->where('client_id', $value->client_id)->value('project_id');
+			$subprojectID = App\Models\SubProject::where('user_id', $value->user_id)->where('client_id', $value->client_id)->value('subproject_id');
+			
+			$assign = new App\Models\AssignProject;
+			$assign->client_id = $value->client_id;
+			$assign->project_id = !empty($projectID) ? $projectID : 'belum ada';
+			$assign->subproject_id = !empty($subprojectID) ? $subprojectID : 'belum ada';
+			$assign->user_id = $value->user_id;
+			$assign->clientuser_id = $value->id;
+			$assign->email = $value->email_address;
+			$assign->created_by = $value->created_by;
+			$assign->created_at = $value->created_at;
+			$assign->save();
+		}
+	}
+});
+
 /* SUPERADMIN */
 Route::get('/backend/login', 'App\Http\Controllers\Superadmin\Auth\LoginController@index')->name('backend-login');
 Route::post('/backend/process-login', 'App\Http\Controllers\Superadmin\Auth\LoginController@process_login')->name('process-login-backend');
@@ -68,46 +121,6 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 	Route::get('/not-found', 'App\Http\Controllers\Superadmin\DashboardController@not_found')->name('backend.not-found');
 });
 
-/* ADMINUSER AUTH */
-Route::group(['middleware' => 'auth'], function () {
-	/* Clientuser */
-	Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
-	Route::get('/users/detail/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail')->name('adminuser.access-users.detail');
-	Route::get('/users/detail-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail_group')->name('adminuser.access-users.detail-group');
-	Route::post('/users/edit/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit')->name('adminuser.access-users.edit');
-	Route::post('/users/edit-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_group')->name('adminuser.access-users.edit-group');
-	Route::post('/users/edit_role/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_role')->name('adminuser.access-users.edit-role');
-	Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
-	Route::post('/users/move-group', 'App\Http\Controllers\Adminuser\AccessUsersController@move_group')->name('adminuser.access-users.move-group');
-	Route::get('/users/resend-email/{encodedEmail}', 'App\Http\Controllers\Adminuser\AccessUsersController@resend_email')->name('adminuser.access-users.resend-email');
-	Route::get('users/disable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@disable_user')->name('adminuser.access-users.disable-user');
-	Route::get('users/enable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@enable_user')->name('adminuser.access-users.enable-user');
-	Route::get('users/delete-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@delete_user')->name('adminuser.access-users.delete-user');
-
-	/* group */
-	Route::post('/group/save', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
-	Route::get('group/delete-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@delete_group')->name('adminuser.access-users.delete-group');
-	Route::get('group/disabled-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@disabled_group')->name('adminuser.access-users.disabled-group');
-	Route::get('group/enable-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@enable_group')->name('adminuser.access-users.enable-group');
-
-	/* Document */
-	Route::get('documents/sub/{subproject}', 'App\Http\Controllers\Adminuser\DocumentController@Index')->name('adminuser.documents.list');
-	Route::get('documents/{folder}','App\Http\Controllers\Adminuser\DocumentController@OpenFolder')->name('adminuser.documents.openfolder');
-	Route::get('documents/download/{path}/{file}','App\Http\Controllers\Adminuser\DocumentController@DownloadFile')->name('adminuser.documents.downloadfile');
-	Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@Search')->name('adminuser.documents.search');
-	Route::get('documents/down/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
-	Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
-	Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');
-	Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@UploadFiles')->name('adminuser.documents.upload');
-	Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');
-	Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
-	Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
-	Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
-	Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
-	Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@MultipleUpload')->name('adminuser.documents.multiupload');
-});
-
-
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -120,6 +133,42 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 		Route::post('change-main-project', 'App\Http\Controllers\Adminuser\ProjectController@change_main_project')->name('project.change-main-project');
 		
+		/* Clientuser */
+		Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
+		Route::get('/users/detail/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail')->name('adminuser.access-users.detail');
+		Route::get('/users/detail-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail_group')->name('adminuser.access-users.detail-group');
+		Route::post('/users/edit/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit')->name('adminuser.access-users.edit');
+		Route::post('/users/edit-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_group')->name('adminuser.access-users.edit-group');
+		Route::post('/users/edit_role/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_role')->name('adminuser.access-users.edit-role');
+		Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
+		Route::post('/users/move-group', 'App\Http\Controllers\Adminuser\AccessUsersController@move_group')->name('adminuser.access-users.move-group');
+		Route::get('/users/resend-email/{encodedEmail}', 'App\Http\Controllers\Adminuser\AccessUsersController@resend_email')->name('adminuser.access-users.resend-email');
+		Route::get('users/disable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@disable_user')->name('adminuser.access-users.disable-user');
+		Route::get('users/enable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@enable_user')->name('adminuser.access-users.enable-user');
+		Route::get('users/delete-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@delete_user')->name('adminuser.access-users.delete-user');
+
+		/* group */
+		Route::post('/group/save', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
+		Route::get('group/delete-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@delete_group')->name('adminuser.access-users.delete-group');
+		Route::get('group/disabled-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@disabled_group')->name('adminuser.access-users.disabled-group');
+		Route::get('group/enable-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@enable_group')->name('adminuser.access-users.enable-group');
+
+		/* Document */
+		Route::get('documents/sub/{subproject}', 'App\Http\Controllers\Adminuser\DocumentController@Index')->name('adminuser.documents.list');
+		Route::get('documents/{folder}','App\Http\Controllers\Adminuser\DocumentController@OpenFolder')->name('adminuser.documents.openfolder');
+		Route::get('documents/download/{path}/{file}','App\Http\Controllers\Adminuser\DocumentController@DownloadFile')->name('adminuser.documents.downloadfile');
+		Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@Search')->name('adminuser.documents.search');
+		Route::get('documents/down/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
+		Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
+		Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');
+		Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@UploadFiles')->name('adminuser.documents.upload');
+		Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');
+		Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
+		Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
+		Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
+		Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
+		Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@MultipleUpload')->name('adminuser.documents.multiupload');
+
 		/* Companies */
 		Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');
 		Route::get('/company/detail/{id}', 'App\Http\Controllers\Adminuser\CompanyController@detail_company')->name('company.detail-company');
