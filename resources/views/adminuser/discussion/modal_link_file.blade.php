@@ -1,5 +1,5 @@
 <div id="modal-link-file" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-    <div class="modal-dialog modal-md">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="custom-modal-header">
@@ -20,12 +20,17 @@
                         <thead>
                             <tr>
                                 <th></th>
+                                <th>Filename</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($file as $files)
                                 <tr>
-                                    <td><input type="checkbox" style="width:20px; height:20px;" value="{{ $files->id }}" data-filename="{{ $files->name }}" name="link_document" id="link_document" />&nbsp; <img src="{{ url('template/images/ext-file.png') }}" width="20" height="20"> {{ $files->name }} </td>
+                                    <td width="10" align="right"><input type="checkbox" style="width:20px; height:20px;" value="{{ $files->id }}" data-filename="{{ $files->name }}" name="link_document" id="link_document" /></td>
+                                    <td width="500">
+                                        <img src="{{ url('template/images/ext-file.png') }}" width="20" height="20"> 
+                                        {{ $files->name }} 
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>

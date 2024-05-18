@@ -204,7 +204,7 @@
             });
 
             $(".tableLinksFiles").dataTable({
-                "bPaginate": true,
+                "bPaginate": false,
                 "bInfo": true,
                 "bSort": true,
             });
