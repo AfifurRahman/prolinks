@@ -195,17 +195,18 @@
 
         $(document).ready(function () {
             $('.tableGlobal').dataTable({
-                "bPaginate": true,
-                "bInfo": true,
-                "bSort": true,
-                "dom": 'rtip',
-                "stripeClasses": false,
+                // "bPaginate": true,
+                // "bInfo": true,
+                // "bSort": true,
+                // "bFilter": true,
+                // "dom": 'rtip',
+                // "stripeClasses": false,
             });
 
             $(".tableLinksFiles").dataTable({
-                "bPaginate": false,
+                "bPaginate": true,
                 "bInfo": true,
-                "bSort": false,
+                "bSort": true,
             });
         });
 
