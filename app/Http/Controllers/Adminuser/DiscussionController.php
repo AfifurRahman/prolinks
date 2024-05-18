@@ -59,6 +59,7 @@ class DiscussionController extends Controller
             $detail = Discussion::where('discussion_id', $discussion_id)->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->firstOrFail();
             //$file = Permission::select('upload_files.id', 'upload_files.name')->join('upload_files', 'upload_files.basename', 'permissions.fileid')->where('permissions.user_id', Auth::user()->user_id)->where('permissions.permission', 1)->get();
             $file = UploadFile::select('upload_files.id', 'upload_files.name')->where('upload_files.client_id', \globals::get_client_id())->get();
+            
         }
 
         return view('adminuser.discussion.detail', compact('discussion_id', 'detail', 'file'));
