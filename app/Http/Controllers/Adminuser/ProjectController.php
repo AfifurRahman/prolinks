@@ -190,7 +190,7 @@ class ProjectController extends Controller
 		try {
 			\DB::beginTransaction();
 
-			$deleted = Project::where('project_id', $id)->delete();
+			$deleted = Project::where('project_id', $id)->where('client_id', \globals::get_client_id())->delete();
 			if ($deleted) {
 				$projname = Project::where('project_id', $id)->value('project_name');
 				$desc = Auth::user()->name." has been deleted project ".$projname;
@@ -216,8 +216,9 @@ class ProjectController extends Controller
 		try {
 			\DB::beginTransaction();
 
-			$deleted = SubProject::where('subproject_id', $id)->delete();
+			$deleted = SubProject::where('subproject_id', $id)->where('client_id', \globals::get_client_id())->delete();
 			if ($deleted) {
+				AssignProject::where('subproject_id', $id)->where('client_id', \globals::get_client_id())->delete();
 				$projname = SubProject::where('subproject_id', $id)->value('subproject_name');
 				$desc = Auth::user()->name." has been deleted sub project ".$projname;
 				\log::create(request()->all(), "success", $desc);

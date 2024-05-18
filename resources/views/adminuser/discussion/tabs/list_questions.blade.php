@@ -46,7 +46,12 @@
                                     <li><a href="#modal-confirm-status-open" data-discussionid="{{ $qna->discussion_id }}" onclick="getDiscussionID(this)" data-toggle="modal">Open question</a></li>
                                 @endif
                             @endif
-                            <li><a href="#modal-remove-questions" data-toggle="modal" data-url="{{ route('discussion.delete-discussion', $qna->discussion_id) }}" onclick="getUrlDeleteQna(this)" style="color:#D92D20;"></i>Remove question</a></li>
+
+                            @if(Auth::user()->type == \globals::set_role_collaborator() || Auth::user()->type == \globals::set_role_client())
+                                @if(Auth::user()->user_id == $qna->user_id)
+                                    <li><a href="#modal-remove-questions" data-toggle="modal" data-url="{{ route('discussion.delete-discussion', $qna->discussion_id) }}" onclick="getUrlDeleteQna(this)" style="color:#D92D20;"></i>Remove question</a></li>
+                                @endif
+                            @endif
                         </ul>
                     </div>
                 </td>
