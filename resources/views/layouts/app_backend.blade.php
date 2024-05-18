@@ -67,7 +67,7 @@
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
-                        <li style="margin-left: -35px;">
+                        <li>
                             <button class="button-menu-mobile open-left waves-effect">
                                 <img src="{{ url('template/images/icon-expand.png') }}" style="margin-top: 20px;" width="30" height="30">
                                 <!-- <i class="fa fa-chevron-circle-left" style="color: #666;"></i> -->
@@ -78,9 +78,40 @@
                         </li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <div style="margin-top: 13px;">
-                            @yield('navigations')
-                        </div>
+                        <li class="dropdown user-box">
+                            <a href="" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown" aria-expanded="true">
+                                <img src="{{ url('template/images/avatar.png') }}" alt="user-img" class="img-circle user-img">
+                                <span class="caret"></span>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right user-list notify-list">
+                                <li>
+                                    <h5>
+                                        {{ Auth::guard('backend')->user()->first_name." ".Auth::guard('backend')->user()->last_name }} <br>
+                                        @php
+                                            use App\Models\AdminBackend;
+                                            $admin = AdminBackend::where('superuser_id', Auth::guard('backend')->user()->superuser_id)->first();
+
+                                            $userRole = [];
+                                            if(!empty($admin->RefRole->access)){
+                                                $userRole = json_decode($admin->RefRole->access, TRUE);
+                                            }
+
+                                        @endphp
+                                        <span class="text-primary">{{ !empty($admin->RefRole->role_name) ? $admin->RefRole->role_name : '-' }}</span>
+                                    </h5>
+                                </li>
+                                
+                                <li><a href="{{ route('backend.profile') }}"><i class="ti-user m-r-5"></i> Profile</a></li>
+                                <li>
+                                    <a href="{{ route('backend-logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="ti-power-off m-r-5"></i> {{ __('Logout') }}</a>
+                                    <form id="logout-form" action="{{ route('backend-logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                </li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -91,7 +122,7 @@
         <div class="content-page">
             <div class="content">
                 <div class="container">
-                    <div style="padding: 20px; margin-top: 10px;">
+                    <div style="padding: 0px; margin-top: 10px;">
                         @yield('content')
                     </div>
                 </div>

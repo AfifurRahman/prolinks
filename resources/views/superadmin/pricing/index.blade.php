@@ -1,11 +1,5 @@
 @extends('layouts.app_backend')
 
-@section('navigations')
-	@if(\role::get_permission(array('add-pricing')))
-		<a href="#modal-add-pricing" data-toggle="modal" class="btn btn-rounded btn-lg btn-primary"><i class="fa fa-plus-circle"></i> Add Pricing</a>
-	@endif
-	<a href="{{ route('backend.pricing.list') }}" data-toggle="tooltip" data-placement="bottom" title="reload page" class="btn btn-rounded btn-lg btn-success"><i class="fa fa-refresh"></i></a>
-@endsection
 @section('content')
 	<script type="text/javascript">
 		var title = document.getElementById('title');
@@ -55,6 +49,12 @@
 		    border-radius: 10px !important; 
 		}
 	</style>
+	<div class="pull-right">
+		@if(\role::get_permission(array('add-pricing')))
+			<a href="#modal-add-pricing" data-toggle="modal" class="btn btn-rounded btn-lg btn-primary"><i class="fa fa-plus-circle"></i> Add Pricing</a>
+		@endif
+		<a href="{{ route('backend.pricing.list') }}" data-toggle="tooltip" data-placement="bottom" title="reload page" class="btn btn-rounded btn-lg btn-success"><i class="fa fa-refresh"></i></a>
+	</div> <div style="clear:both;"></div> <br>
 	<table id="tablePricing">
 		<thead>
 			<tr style="background-color: #F5F5F5;">

@@ -1,12 +1,5 @@
 @extends('layouts.app_backend')
 
-@section('navigations')
-	@if(\role::get_permission(array('add-client')))
-		<a href="{{ route('backend.client.add') }}" class="btn btn-lg btn-rounded btn-primary"><i class="fa fa-plus-circle"></i> Add Client</a>
-	@endif
-	<a href="{{ route('backend.client.list') }}" data-toggle="tooltip" data-placement="bottom" title="reload page" class="btn btn-lg btn-rounded btn-success"><i class="fa fa-refresh"></i></a>
-@endsection
-
 @section('content')
 	<script type="text/javascript">
 		var title = document.getElementById('title');
@@ -46,6 +39,12 @@
 		    background-color: #f0f0f0;
 		}
 	</style>
+	<div class="pull-right">
+		@if(\role::get_permission(array('add-client')))
+			<a href="{{ route('backend.client.add') }}" class="btn btn-lg btn-rounded btn-primary"><i class="fa fa-plus-circle"></i> Add Client</a>
+		@endif
+		<a href="{{ route('backend.client.list') }}" data-toggle="tooltip" data-placement="bottom" title="reload page" class="btn btn-lg btn-rounded btn-success"><i class="fa fa-refresh"></i></a>
+	</div><div style="clear:both;"></div> <br>
 	<table id="tableClients">
 		<thead>
 			<tr>
@@ -63,7 +62,7 @@
 			@if(count($clients) > 0)
 				@foreach($clients as $key => $client)
 					<tr>
-						<td>{{ $loop->iteration }}</td>
+						<td width="50">{{ $loop->iteration }}</td>
 						<td>{{ $client->client_name }}</td>
 						<td>{{ $client->client_email }}</td>
 						<td>{{ $client->client_phone }}</td>

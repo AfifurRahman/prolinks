@@ -24,8 +24,7 @@
 </style>
 <table class="table">
     <thead>
-        <tr>
-            <th><input type="checkbox" id="checkbox" disabled/></th>
+        <tr style="border:solid 1px #D7D7D7;">
             <th>Name</th>
             <th>Group</th>
             <th>Role</th>
@@ -37,15 +36,12 @@
     <tbody>
         @if(count($clientuser) > 0)
             @foreach($clientuser as $user)
-                <tr>
-                    <td>
-                        <input type="checkbox" id="checkbox"/>
-                    </td>
+                <tr style="border:solid 1px #D7D7D7;">
                     <td>
                         <a href="{{ route('adminuser.access-users.detail', $user->user_id) }}">
                             @if(!empty($user->RefUser->name) && $user->RefUser->name != "null")
-                                {!! \globals::get_user_avatar_small($user->name, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
-                                {{ $user->name }}
+                                {!! \globals::get_user_avatar_small(!empty($user->name) ? $user->name : $user->email_address, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
+                                {{ !empty($user->name) ? $user->name : $user->email_address }}
                             @else
                                 {!! \globals::get_user_avatar_small($user->email_address, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
                                 {{ $user->email_address }}

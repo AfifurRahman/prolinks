@@ -1,12 +1,5 @@
 @extends('layouts.app_backend')
 
-@section('navigations')
-    <a href="{{ route('backend.access-users.add-admin') }}" class="btn btn-primary btn-lg btn-rounded">
-        <i class="fa fa-plus-circle"></i> Add Admin
-    </a>
-    <a href="{{ route('backend.access-users.admin-management') }}" data-toggle="tooltip" data-placement="bottom" title="reload page" class="btn btn-lg btn-rounded btn-success"><i class="fa fa-refresh"></i></a>
-@endsection
-
 @section('content')
      <script type="text/javascript">
         var title = document.getElementById('title');
@@ -46,6 +39,12 @@
             background-color: #f0f0f0;
         }
     </style>
+    <div class="pull-right">
+        <a href="{{ route('backend.access-users.add-admin') }}" class="btn btn-primary btn-lg btn-rounded">
+            <i class="fa fa-plus-circle"></i> Add Admin
+        </a>
+        <a href="{{ route('backend.access-users.admin-management') }}" data-toggle="tooltip" data-placement="bottom" title="reload page" class="btn btn-lg btn-rounded btn-success"><i class="fa fa-refresh"></i></a>
+    </div><div style="clear:both;"></div> <br>
     <table id="tableAdminManagement">
         <thead>
             <tr>

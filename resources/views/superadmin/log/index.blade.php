@@ -46,31 +46,31 @@
             overflow-x: scroll; 
         }
 	</style>
+    <form id="app-filter" class="form-inline" action="" method="GET">
+        <select name="sort" id="sort" onchange="getFilter()" class="form-control">
+            <option value="DESC" {{ !empty(request()->input('sort')) && request()->input('sort') == "DESC" ? "selected":"" }}>DESC</option>
+            <option value="ASC" {{ !empty(request()->input('sort')) && request()->input('sort') == "ASC" ? "selected":"" }}>ASC</option>
+        </select>
+        <input type="month" name="date_created" onchange="getFilter()" value="{{ !empty(request()->input('date_created')) ? request()->input('date_created') : '' }}" class="form-control" />
+        <select name="client_id" id="client_id" onchange="getFilter()" class="form-control">
+            <option value="">All Client</option>
+            @if (count($client) > 0)
+                @foreach ($client as $clients)
+                    <option value="{{ $clients->client_id }}" {{ !empty(request()->input('client_id')) && request()->input('client_id') == $clients->client_id ? "selected":"" }} >{{ $clients->client_name }}</option>
+                @endforeach
+            @endif
+        </select>
+        <div class="input-group">
+            <input type="text" name="description" class="form-control" value="{{ !empty(request()->input('description')) ? request()->input('description') : '' }}" placeholder="filter description" />
+            <span class="input-group-btn">
+                <button type="submit" class="btn waves-effect waves-light btn-inverse">Filter</button>
+            </span>
+        </div>
+        <a href="{{ route('backend.log.list') }}" class="btn btn-default btn-md" data-toggle="tooltip" title="Reset Log">
+            <i class="fa fa-remove"></i>
+        </a>
+    </form><br>
     <div class="search-table-outter">
-        <form id="app-filter" class="form-inline" action="" method="GET">
-            <select name="sort" id="sort" onchange="getFilter()" class="form-control">
-                <option value="DESC" {{ !empty(request()->input('sort')) && request()->input('sort') == "DESC" ? "selected":"" }}>DESC</option>
-                <option value="ASC" {{ !empty(request()->input('sort')) && request()->input('sort') == "ASC" ? "selected":"" }}>ASC</option>
-            </select>
-            <input type="month" name="date_created" onchange="getFilter()" value="{{ !empty(request()->input('date_created')) ? request()->input('date_created') : '' }}" class="form-control" />
-            <select name="client_id" id="client_id" onchange="getFilter()" class="form-control">
-                <option value="">All Client</option>
-                @if (count($client) > 0)
-                    @foreach ($client as $clients)
-                        <option value="{{ $clients->client_id }}" {{ !empty(request()->input('client_id')) && request()->input('client_id') == $clients->client_id ? "selected":"" }} >{{ $clients->client_name }}</option>
-                    @endforeach
-                @endif
-            </select>
-            <div class="input-group">
-                <input type="text" name="description" class="form-control" value="{{ !empty(request()->input('description')) ? request()->input('description') : '' }}" placeholder="filter description" />
-                <span class="input-group-btn">
-                    <button type="submit" class="btn waves-effect waves-light btn-inverse">Filter</button>
-                </span>
-            </div>
-            <a href="{{ route('backend.log.list') }}" class="btn btn-default btn-md" data-toggle="tooltip" title="Reset Log">
-                <i class="fa fa-remove"></i>
-            </a>
-        </form><br>
         <table class="table-bordered" id="tableLog">
             <thead>
                 <tr style="background-color: #F7F7F7;">

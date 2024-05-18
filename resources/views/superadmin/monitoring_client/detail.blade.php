@@ -10,15 +10,17 @@
 	<div class="header-info-client">
         <a href="{{ route('backend.monitoring.list') }}" class="btn btn-default btn-rounded"><i class="fa fa-arrow-left"></i> Back</a>
         <div class="pull-right">
-            <select name="clients_name" class="form-control" style="width: 350px;">
+            <select name="clients_name" id="clients_name" onchange="changeClient(this)" class="form-control" style="width: 350px;">
                 @foreach($client as $optionsClient)
                     <option value="{{ $optionsClient->client_id }}" {{ !empty($clients->client_id) && $clients->client_id == $optionsClient->client_id ? "selected": "" }}>{{ $optionsClient->client_name }}</option>
                 @endforeach
             </select>
         </div><div style="clear: both;"></div>
     </div>
-    <h3>{{ $clients->client_name }}</h3>
-    <ul class="nav nav-tabs tabs-bordered">
+    <div style="margin-bottom:20px;">
+        <h3>{{ $clients->client_name }}</h3>
+    </div>
+    <ul class="nav nav-tabs">
         <li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "dashboard" ? "active":"" }}">
             <a href="?tab=dashboard" aria-expanded="false">
                 <span class="visible-xs"><i class="fa fa-home"></i></span>
@@ -62,6 +64,8 @@
 
 @push('scripts')
 	<script type="text/javascript">
-		
+		function changeClient(element) {
+            window.location.href = "{{ URL::to('backend/monitoring/detail') }}"+ "/" + element.value + "?tab=" + "{{ !empty(request()->input('tab')) ? request()->input('tab') : 'dashboard' }}";
+        }
 	</script>
 @endpush

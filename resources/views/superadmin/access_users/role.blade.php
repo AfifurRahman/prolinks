@@ -1,12 +1,5 @@
 @extends('layouts.app_backend')
 
-@section('navigations')
-    <a href="{{ route('backend.access-users.add-role') }}" class="btn btn-primary btn-lg btn-rounded">
-        <i class="fa fa-plus-circle"></i> Add Role
-    </a>
-    <a href="{{ route('backend.access-users.role') }}" data-toggle="tooltip" data-placement="bottom" title="reload page" class="btn btn-success btn-rounded btn-lg"><i class="fa fa-refresh"></i></a>
-@endsection
-
 @section('content')
     <script type="text/javascript">
         var title = document.getElementById('title');
@@ -46,6 +39,12 @@
             background-color: #f0f0f0;
         }
     </style>
+    <div class="pull-right">
+        <a href="{{ route('backend.access-users.add-role') }}" class="btn btn-primary btn-lg btn-rounded">
+            <i class="fa fa-plus-circle"></i> Add Role
+        </a>
+        <a href="{{ route('backend.access-users.role') }}" data-toggle="tooltip" data-placement="bottom" title="reload page" class="btn btn-success btn-rounded btn-lg"><i class="fa fa-refresh"></i></a>
+    </div><div style="clear:both;"></div> <br>
     <table id="tableRole">
         <thead>
             <tr>

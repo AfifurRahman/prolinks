@@ -120,7 +120,7 @@
                             <td>
                                 @if(!empty($user->RefUser->name) && $user->RefUser->name != "null")
                                     {!! \globals::get_user_avatar_small($user->RefUser->name, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
-                                    {{ $user->RefClientUser->name }}
+                                    {{ !empty($user->RefClientUser->name) ? $user->RefClientUser->name : $user->RefClientUser->email_address }}
                                 @else
                                     {!! \globals::get_user_avatar_small($user->RefClientUser->email_address, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
                                     {{ $user->RefClientUser->email_address }}
