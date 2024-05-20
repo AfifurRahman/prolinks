@@ -150,7 +150,7 @@
         <div class="topbar">
             <div class="topbar-left" style="background: #F1F5F9;">
                 <div id="view_primary_logo" style="display: block;">
-                    <img src="{{ url('template/images/logo2.png') }}" width="80%" style="margin-top: 12px;">
+                    <img src="{{ url('template/images/logo2.png') }}" class="logoprolink" width="80%" style="margin-top: 12px;">
                 </div>
                 <div id="view_fav_logo" style="display: none;">
                     <img src="{{ url('template/images/logo_fav.png') }}" width="90%">

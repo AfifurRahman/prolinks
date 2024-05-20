@@ -156,10 +156,13 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		/* Document */
 		Route::get('documents/sub/{subproject}', 'App\Http\Controllers\Adminuser\DocumentController@Index')->name('adminuser.documents.list');
 		Route::get('documents/{folder}','App\Http\Controllers\Adminuser\DocumentController@OpenFolder')->name('adminuser.documents.openfolder');
-		Route::get('documents/download/{path}/{file}','App\Http\Controllers\Adminuser\DocumentController@DownloadFile')->name('adminuser.documents.downloadfile');
+		Route::get('documents/download/{file}','App\Http\Controllers\Adminuser\DocumentController@DownloadFile')->name('adminuser.documents.downloadfile');
+		Route::get('documents/download/zip/{link}','App\Http\Controllers\Adminuser\DocumentController@DownloadZip')->name('adminuser.documents.downloadzip');
 		Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@Search')->name('adminuser.documents.search');
-		Route::get('documents/down/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
+		Route::get('documents/zip/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
+		Route::get('documents/view/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ViewFile')->name('adminuser.documents.view');
 		Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
+		Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
 		Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');
 		Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@UploadFiles')->name('adminuser.documents.upload');
 		Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');

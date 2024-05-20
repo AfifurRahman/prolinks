@@ -424,7 +424,17 @@
         <div class="tableContainer">
             <table class="tableDocument">
                 <thead>
-                    <tr>
+                    <tr class="checkToolBar" style="visibility:collapse;">
+                        <th data-sortable = "false">
+                            <input type="checkbox" class="checkbox" disabled/>
+                        </th>
+                        <th colspan='6'>
+                            # items selected
+                            <button onclick="downloadFiles()">Download</button>
+                            <button>Clear selection</button>
+                        </th>
+                    </tr>
+                    <tr class="headerBar">
                         <th data-sortable = "false" id="check"><input type="checkbox" class="checkbox" disabled/></th>
                         <th id="index">Index</th>
                         <th id="name">File name</th>
@@ -461,7 +471,7 @@
                 @foreach ($folders as $directory)
                     @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
                         <tr>
-                            <td><input type="checkbox" class="checkbox" /></td>
+                            <td><input type="checkbox" class="checkbox" disabled/></td>
                             <td>
                                 @php
                                     $index = '';
@@ -527,7 +537,7 @@
                         @if(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission') == '1' || is_null(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission')))
                             @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                                 <tr>
-                                    <td><input type="checkbox" class="checkbox" /></td>
+                                    <td><input type="checkbox" class="checkbox" value="{{ base64_encode(basename($file)) }}" /></td>
                                     <td>
                                         @php
                                             $index = '';
@@ -542,7 +552,7 @@
                                         {{$index}}
                                     </td>
                                     <td>
-                                        <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                        <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
                                             <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                             {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                                         </a>
@@ -561,7 +571,7 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-top pull-right">
                                                 <li>
-                                                    <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                                    <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
                                                         <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
                                                         Download
                                                     </a>
@@ -589,7 +599,7 @@
                     @elseif (Auth::user()->type == 0)
                         @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                             <tr>
-                                <td><input type="checkbox" class="checkbox" /></td>
+                                <td><input type="checkbox" class="checkbox" value="{{ base64_encode(basename($file)) }}"/></td>
                                 <td>
                                     @php
                                         $index = '';
@@ -604,7 +614,7 @@
                                     {{$index}}
                                 </td>
                                 <td>
-                                    <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                    <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
                                         <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                         {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                                     </a>
@@ -623,7 +633,7 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right">
                                             <li>
-                                                <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($file)) ] ) }}">
+                                                <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
                                                     <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
                                                     Download
                                                 </a>
@@ -655,10 +665,44 @@
     @push('scripts')
     <script>
         let files = [];
+        let files1 = [];
+        
         let a = 0;
+        let easteregg = 0;
+        
         
         document.addEventListener('DOMContentLoaded', function() {
             const dragArea = document.getElementById('dragArea');
+            const checkboxes = document.querySelectorAll('.checkbox');
+
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    var checked = $('.checkbox:checked').length;
+                    var checkedValues = [];
+                    
+                    $('.checkbox:checked').each(function() {
+                        checkedValues.push($(this).val()); 
+                    });
+
+                    console.log(checkedValues);
+                    files1 = checkedValues;
+                    if(checked > 0) {
+                        $(".headerBar").css("visibility", "collapse");
+                        $(".checkToolBar").css("visibility", "visible");
+                    } else {
+                        $(".headerBar").css("visibility", "visible");
+                        $(".checkToolBar").css("visibility", "collapse");
+                    }
+                });
+            });
+
+            $('.logoprolink').on('click', function(e) {
+                easteregg += 1;
+                if(easteregg == 25) {
+                    location.replace('https://www.youtube.com/watch?v=3En7HtcG914');
+                }
+            });
+
 
             dragArea.addEventListener('dragover', e => {
                 e.preventDefault();
@@ -1079,13 +1123,32 @@
             });
         }
 
+        function downloadFiles() {
+            var formData = new FormData();
+
+            console.log(files1);
+            
+            formData.append('files', files1);
+
+            fetch('{{ route("adminuser.documents.downloadfiles")}}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                showNotification(data.message);
+            });
+        }
+
         function renameFolder(folder, index, name) {
             document.getElementById('rename-folder-modal').style.display='block';
             $("#folder-index").attr("value", index);
             $("#newFolderName").attr("value", name);
 
             $('#renameFolderSubmit').on('click', function(e) {
-                console.log('ts')
                 e.preventDefault();
                 var formData = new FormData();
 
