@@ -12,6 +12,6 @@
     </style>
 </head>
 <body>
-    <iframe src="" class="pdf-viewer"></iframe>
+    <iframe src="{{ $fullPath }}" allow-same-origin class="pdf-viewer"></iframe>
 </body>
 </html>

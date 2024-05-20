@@ -322,30 +322,75 @@ class DocumentController extends Controller
     }
 
     public function ViewFile($file) {
-        
+        try {
+            $file = base64_decode($file);
+
+            $directory = UploadFile::where('basename', $file)->value('directory');
+
+            $fullPath = $directory . '/' . $file;
+
+            return view('adminuser.document.viewer.pdf', compact('fullPath'));
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 
-    public function DownloadFile($path, $file)
+    public function DownloadFile($file)
     {
         try {
-            $dir = base64_decode($path);
-            $data = base64_decode($file);
-            $directory = $dir . '/' . $data;
+            $file = base64_decode($file);
+            $directory = UploadFile::where('basename', $file)->value('directory');
+            $fullPath = $directory . '/' . $file;
+
             $index = '';
+            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 0, 4));
 
-            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $data)->value('directory')), 0, 4));
-
-            foreach(array_slice(explode('/', UploadFile::where('basename', $data)->value('directory')), 4) as $path) {
+            foreach(array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 4) as $path) {
                 $originPath .= '/' . $path;
                 $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
             }
 
-            $index .= DB::table('upload_files')->where('basename', basename($data))->value('index');
+            $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
 
-            return Storage::disk('local')->download($directory, $index . ' - ' . UploadFile::where('basename', $data)->value('name'));
+            return Storage::disk('local')->download($fullPath, $index . ' - ' . UploadFile::where('basename', $file)->value('name'));
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
+    }
+
+    public function DownloadFiles(Request $request) {
+        try {
+            $files = $request->input('files');
+            $files = explode(',', $files);
+
+            $tempZipFile = tempnam(sys_get_temp_dir(), 'folder_zip');
+            $zip = new ZipArchive();
+            $zip->open($tempZipFile, ZipArchive::CREATE);
+            $arr = [];
+            foreach($files as $file) {
+                $filename = base64_decode($file);
+                $directory = UploadFile::where('basename', $filename)->value('directory');
+
+                $fullPath = $directory . '/' . $filename;
+                $originalName = UploadFile::where('basename', $filename)->value('name');
+
+                $zip->addFile(Storage::path($fullPath), $originalName);
+            }
+
+            $zip->close();
+            
+            $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip';
+
+            Storage::put($destinationPath, file_get_contents($tempZipFile));
+
+            return $this->DownloadZip($destinationPath);
+        } catch (\Exception $e) {
+             return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function DownloadZip($link) {
+        return Storage::disk('local')->download($link, 'files.zip');
     }
 
     public function DownloadFolder($folder)
