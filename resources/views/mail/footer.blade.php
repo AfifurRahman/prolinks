@@ -3,15 +3,14 @@
 			                <tr>
 			                  <td class="content-block powered-by">
 			                  	<p>
-			                  		<b>	PT Synergy Asia</b><br>
+			                  		<b>Synergy Asia</b><br>
 			                  		Ciputra International<br>
-			                  		Tokopedia Care Tower - 17th Floor Unit 02<br>
+									Tower 3, Floor 17th Unit 02<br>
 			                  		Jl. Lingkar Luar Barat No. 101<br>
 			                  		Jakarta, 11740
 			                  	</p>
 			                  	<p>
-			                  		Tel: +6221 3972 6868 &nbsp;&nbsp;&nbsp;&nbsp;
-			                  		Whatsapp: +62815 180 6868
+								  	Tel. +62815 180 6868
 			                  	</p>
 			                    © {!! date('Y') !!} Prolinks.id All rights reserved.
 			                  </td>

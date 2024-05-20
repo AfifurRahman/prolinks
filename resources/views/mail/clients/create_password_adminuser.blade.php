@@ -29,7 +29,7 @@
 
             If you have any questions or encounter any issues, feel free to reach out to our support team.<br><br>
             Regards, <br>
-            Admin Prolinks
+            Admin
             <hr class="hr-custom">
           </td>
         </tr>

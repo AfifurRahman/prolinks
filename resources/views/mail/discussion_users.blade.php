@@ -15,7 +15,7 @@
             <a href="{{ !empty($details['link']) ? $details['link'] : '' }}">{{ !empty($details['link']) ? $details['link'] : '' }}</a>
             <br><br>
             Regards, <br>
-            Admin Prolinks
+            Admin
             <hr class="hr-custom">
           </td>
         </tr>
