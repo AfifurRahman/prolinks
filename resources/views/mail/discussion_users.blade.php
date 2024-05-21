@@ -12,7 +12,9 @@
             <b>Subject :</b> {{ !empty($details['subject']) ? $details['subject'] : '' }}<br>
             <b>Comment :</b> {{ !empty($details['comment']) ? $details['comment'] : '' }}<br><br>
             You can view the discussion on the following link:<br>
-            <a href="{{ !empty($details['link']) ? $details['link'] : '' }}">{{ !empty($details['link']) ? $details['link'] : '' }}</a>
+            <div style="width:480px;">
+              <a href="{{ !empty($details['link']) ? $details['link'] : '' }}" style="word-wrap: break-word;">{{ !empty($details['link']) ? $details['link'] : '' }}</a>
+            </div>
             <br><br>
             Regards, <br>
             Admin
