@@ -368,5 +368,5 @@
           		<div class="content">
           			<div align="center" style="margin-bottom: 10px;">
           				<img class="fluid image-responsive image-size" src="{{ url('template/images/logo2.png') }}" alt="Prolinks Logo" style="width: 128px; height: 34px;">
-		  				<h6 style="margin: 0; padding: 0; font-size: 10px;">VDR & Data Management</h6>
+		  				<h6 style="margin: 0; padding: 0; font-size: 10px;">M&A Data Management</h6>
 					</div>

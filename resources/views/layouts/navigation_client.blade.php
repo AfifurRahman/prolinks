@@ -9,13 +9,15 @@
                             <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
                                 @if(count(\globals::get_project_sidebar()) > 0)
                                     @foreach(\globals::get_project_sidebar() as $mainProject)
-                                        <optgroup label="{{ $mainProject->project_name }}">
-                                            @if(count($mainProject->RefAssignProject) > 0)
-                                                @foreach($mainProject->RefAssignProject as $subsProj)
-                                                    <option value="{{ $subsProj->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $subsProj->subproject_id ? "selected":"" }} >{{ $subsProj->RefSubProject->subproject_name }}</option>
-                                                @endforeach
-                                            @endif
-                                        </optgroup>
+                                        @if(!empty($mainProject->RefAssignProject) && count($mainProject->RefAssignProject) > 0)
+                                            <optgroup label="{{ $mainProject->project_name }}">
+                                                @if(count($mainProject->RefAssignProject) > 0)
+                                                    @foreach($mainProject->RefAssignProject as $subsProj)
+                                                        <option value="{{ $subsProj->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $subsProj->subproject_id ? "selected":"" }} >{{ $subsProj->RefSubProject->subproject_name }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </optgroup>
+                                        @endif
                                     @endforeach
                                 @endif
                             </select>

@@ -27,6 +27,6 @@ class Project extends Model
     }
 
     public function RefAssignProject(){
-        return $this->hasMany('App\Models\AssignProject', 'project_id' , 'project_id')->where('user_id', Auth::user()->user_id);
+        return $this->hasMany('App\Models\AssignProject', 'project_id' , 'project_id')->where('user_id', Auth::user()->user_id)->where('deleted', 0);
     }
 }

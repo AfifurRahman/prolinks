@@ -27,6 +27,11 @@ class ClientUser extends Model
         return $this->hasOne('App\Models\User', 'user_id' , 'user_id');
     }
 
+    public function RefClient()
+    {
+        return $this->hasOne('App\Models\Client', 'client_id' , 'client_id');
+    }
+
     public function RefCreatedName()
     {
         return $this->hasOne('App\Models\User', 'id' , 'created_by');
