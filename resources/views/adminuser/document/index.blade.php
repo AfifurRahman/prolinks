@@ -674,7 +674,11 @@
         let easteregg = 0;
 
         var table = document.querySelector('.tableDocument');
-        var rowCount = table.rows.length - 3;
+        @if($directorytype == 0)
+            var rowCount = table.rows.length - 3;
+        @else
+            var rowCount = table.rows.length - 2;
+        @endif
         $('#rowCounts').text(rowCount);
 
         
