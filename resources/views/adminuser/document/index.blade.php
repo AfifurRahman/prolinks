@@ -429,9 +429,9 @@
                             <input type="checkbox" class="checkbox" disabled/>
                         </th>
                         <th colspan='6'>
-                            # items selected
-                            <button onclick="downloadFiles()">Download</button>
-                            <button>Clear selection</button>
+                            <span id="selectedCount">0</span>&nbsp;items selected
+                            <button class="miniDownload" onclick="downloadFiles()">Download</button>
+                            <button class="miniClear" onclick="uncheckAll()">Clear selection</button>
                         </th>
                     </tr>
                     <tr class="headerBar">
@@ -684,11 +684,11 @@
                         checkedValues.push($(this).val()); 
                     });
 
-                    console.log(checkedValues);
                     files1 = checkedValues;
                     if(checked > 0) {
                         $(".headerBar").css("visibility", "collapse");
                         $(".checkToolBar").css("visibility", "visible");
+                        $('#selectedCount').text(checked);
                     } else {
                         $(".headerBar").css("visibility", "visible");
                         $(".checkToolBar").css("visibility", "collapse");
@@ -822,7 +822,6 @@
             }
             
             function handleFiles(files, paths) {
-                console.log(paths);
                 const formData = new FormData();
                 formData.append("location", "{{ base64_encode($origin) }}");
                 formData.append("filePath", paths);
@@ -877,15 +876,6 @@
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log(data);
-                    // Handle response data here
-                })
-                .catch(error => {
-                    console.error('Error occurred:', error);
-                    // Handle error response here
                 });
             });
 
@@ -929,8 +919,6 @@
                     $('#browseFiles').hide();
                     $('#clearFiles').hide();
 
-                    console.log(files);
-
                     const formData = new FormData();
                     formData.append("location", "{{ base64_encode($origin) }}");
                     files.forEach(file => formData.append('files[]', file));
@@ -954,8 +942,6 @@
         function displayFileData() {
             const tableBody = document.getElementById('upload-preview-list');
             tableBody.innerHTML = '';
-
-            console.log(files);
 
             files.forEach((file, index) => {
                 const newRow = document.createElement('tr');
@@ -1017,17 +1003,12 @@
                 });
                 formData.append('userid', $('#IDuser').val());
 
-                console.log(checkboxStatusArray);
-                    fetch('{{ route("adminuser.documents.setpermission") }}', {
+                fetch('{{ route("adminuser.documents.setpermission") }}', {
                     method: 'POST',
                     body: formData,
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
                 });
             });
         }
@@ -1123,10 +1104,14 @@
             });
         }
 
+        function uncheckAll() {
+            $('.checkbox').prop('checked', false);
+            $(".headerBar").css("visibility", "visible");
+            $(".checkToolBar").css("visibility", "collapse");
+        }
+
         function downloadFiles() {
             var formData = new FormData();
-
-            console.log(files1);
             
             formData.append('files', files1);
 
