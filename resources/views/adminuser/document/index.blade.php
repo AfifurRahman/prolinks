@@ -552,7 +552,7 @@
                                         {{$index}}
                                     </td>
                                     <td>
-                                        <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
+                                        <a class="fol-fil" href="{{ route('adminuser.documents.view', base64_encode(basename($file))) }}">
                                             <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                             {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                                         </a>
@@ -614,7 +614,7 @@
                                     {{$index}}
                                 </td>
                                 <td>
-                                    <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
+                                    <a class="fol-fil" href="{{ route('adminuser.documents.view', base64_encode(basename($file))) }}">
                                         <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                         {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                                     </a>
@@ -660,6 +660,8 @@
                     @endif
                 @endforeach
             </table>
+
+            <p>Showing <span id="rowCounts">0</span> files and folders.</p>
         </div>
     </div>
     @push('scripts')
@@ -669,9 +671,17 @@
         
         let a = 0;
         let easteregg = 0;
+
+        var table = document.querySelector('.tableDocument');
+        var rowCount = table.rows.length - 3;
+        $('#rowCounts').text(rowCount);
+
         
         
         document.addEventListener('DOMContentLoaded', function() {
+            
+       
+
             const dragArea = document.getElementById('dragArea');
             const checkboxes = document.querySelectorAll('.checkbox');
 
@@ -730,7 +740,7 @@
 
             $('.tableDocument').dataTable({
                 "bPaginate": false,
-                "bInfo": true,
+                "bInfo": false,
                 "bSort": true,
                 "dom": 'rtip',
                 "order" : [[1, "asc"]],

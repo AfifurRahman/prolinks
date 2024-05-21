@@ -329,11 +329,8 @@ class DocumentController extends Controller
         try {
             $file = base64_decode($file);
 
-            $directory = UploadFile::where('basename', $file)->value('directory');
 
-            $fullPath = $directory . '/' . $file;
-
-            return view('adminuser.document.viewer.pdf', compact('fullPath'));
+            return view('adminuser.document.viewer.pdf', compact('file'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
