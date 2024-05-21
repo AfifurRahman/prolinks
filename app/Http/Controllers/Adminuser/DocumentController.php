@@ -329,8 +329,14 @@ class DocumentController extends Controller
         try {
             $file = base64_decode($file);
 
+            $mimeType = UploadFile::where('basename', $file)->value('mime_type');
 
-            return view('adminuser.document.viewer.pdf', compact('file'));
+            if (str_starts_with($mimeType, 'image/')) {
+                return view('adminuser.document.viewer.image', compact('file'));
+            }
+            else {
+                return back();
+            }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
