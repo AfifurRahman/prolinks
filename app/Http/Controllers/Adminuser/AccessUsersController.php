@@ -87,151 +87,159 @@ class AccessUsersController extends Controller
                     $existingUser = ClientUser::where('email_address', $email)->where('status', '!=', 3)->where('client_id', \globals::get_client_id())->first();
                     
                     if (!$existingUser) {
-                        $existingAccess = User::where('email', $email)->first();
 
-                        $userID = "";
-                        $userName = "";
-                        if (empty($existingAccess->id)) {
-                            $userID = Str::uuid(4);
+                        /* if sub project doesnt exist */
+                        $check_subproject = SubProject::where('client_id', \globals::get_client_id())->where('subproject_status', 1)->get();
+                        if (count($check_subproject) > 0) {
+                            $existingAccess = User::where('email', $email)->first();
+
+                            $userID = "";
                             $userName = "";
-                        }else{
-                            $userID = $existingAccess->user_id;
-                            $userName = $existingAccess->name;
-                        }
-
-                        $client_user = new ClientUser;
-                        $client_user->user_id = $userID;
-                        $client_user->email_address = $email;
-                        $client_user->name = $userName;
-                        $client_user->company = '-';
-                        $client_user->client_id = \globals::get_client_id();
-                        $client_user->role = $request->role;
-                        $client_user->created_by = Auth::user()->id;
-                        $client_user->group_id = 0;
-                        $client_user->save();
-                        
-                        $newIDUsers = "";
-                        if (empty($existingAccess->id)) {
-                            $users = new User;
-                            $users->client_id = \globals::get_client_id();
-                            $users->user_id = $userID;
-                            $users->name = "null";
-                            $users->email = $email;
-                            $users->type = $request->role;
-                            $users->password = Hash::make(bcrypt(Str::random(255)));
-                            $users->avatar_color = $this->get_random_avatar_color();
-                            if ($users->save()) {
-                                $newIDUsers = $users->id;
+                            if (empty($existingAccess->id)) {
+                                $userID = Str::uuid(4);
+                                $userName = "";
+                            }else{
+                                $userID = $existingAccess->user_id;
+                                $userName = $existingAccess->name;
                             }
-                        }
 
-                        if(!empty($request->input('group')) && count($request->input('group')) > 0){
-                            foreach ($request->input('group') as $key => $grup) {
-                                $groups = new AssignUserGroup;
-                                $groups->client_id = \globals::get_client_id();
-                                $groups->group_id = $grup;
-                                $groups->user_id = $userID;
-                                $groups->email = $email;
-                                $groups->created_by = Auth::user()->id;
-                                $groups->save();
+                            $client_user = new ClientUser;
+                            $client_user->user_id = $userID;
+                            $client_user->email_address = $email;
+                            $client_user->name = $userName;
+                            $client_user->company = '-';
+                            $client_user->client_id = \globals::get_client_id();
+                            $client_user->role = $request->role;
+                            $client_user->created_by = Auth::user()->id;
+                            $client_user->group_id = 0;
+                            $client_user->save();
+
+                            $newIDUsers = "";
+                            if (empty($existingAccess->id)) {
+                                $users = new User;
+                                $users->client_id = \globals::get_client_id();
+                                $users->user_id = $userID;
+                                $users->name = "null";
+                                $users->email = $email;
+                                $users->type = $request->role;
+                                $users->password = Hash::make(bcrypt(Str::random(255)));
+                                $users->avatar_color = $this->get_random_avatar_color();
+                                if ($users->save()) {
+                                    $newIDUsers = $users->id;
+                                }
                             }
-                        }
-                        
-                        if ($request->role == \globals::set_role_administrator()) {
-                            $get_project = Project::where('client_id', \globals::get_client_id())->where('project_status', 1)->get();
-                            if (count($get_project) > 0) {
-                                foreach ($get_project as $key => $proj) {
-                                    if (count($proj->RefSubProject) > 0) {
-                                        foreach ($proj->RefSubProject as $key => $subproj) {
-                                            $projects = new AssignProject;
-                                            $projects->client_id = \globals::get_client_id();
-                                            $projects->project_id = $subproj->project_id;
-                                            $projects->subproject_id = $subproj->subproject_id;
-                                            $projects->user_id = $userID;
-                                            $projects->clientuser_id = $client_user->id;
-                                            $projects->email = $email;
-                                            $projects->created_by = Auth::user()->id;
-                                            $projects->save();
-                                        } 
+
+                            if(!empty($request->input('group')) && count($request->input('group')) > 0){
+                                foreach ($request->input('group') as $key => $grup) {
+                                    $groups = new AssignUserGroup;
+                                    $groups->client_id = \globals::get_client_id();
+                                    $groups->group_id = $grup;
+                                    $groups->user_id = $userID;
+                                    $groups->email = $email;
+                                    $groups->created_by = Auth::user()->id;
+                                    $groups->save();
+                                }
+                            }
+
+                            if ($request->role == \globals::set_role_administrator()) {
+                                $get_project = Project::where('client_id', \globals::get_client_id())->where('project_status', 1)->get();
+                                if (count($get_project) > 0) {
+                                    foreach ($get_project as $key => $proj) {
+                                        if (count($proj->RefSubProject) > 0) {
+                                            foreach ($proj->RefSubProject as $key => $subproj) {
+                                                $projects = new AssignProject;
+                                                $projects->client_id = \globals::get_client_id();
+                                                $projects->project_id = $subproj->project_id;
+                                                $projects->subproject_id = $subproj->subproject_id;
+                                                $projects->user_id = $userID;
+                                                $projects->clientuser_id = $client_user->id;
+                                                $projects->email = $email;
+                                                $projects->created_by = Auth::user()->id;
+                                                $projects->save();
+                                            } 
+                                        }
+                                    }
+                                }
+                            }else{
+                                if(!empty($request->input('project')) && count($request->input('project')) > 0){
+                                    foreach ($request->input('project') as $key => $proj) {
+                                        $projects = new AssignProject;
+                                        $projects->client_id = \globals::get_client_id();
+                                        $projects->project_id = SubProject::where('subproject_id', $proj)->value('project_id');
+                                        $projects->subproject_id = $proj;
+                                        $projects->user_id = $userID;
+                                        $projects->clientuser_id = $client_user->id;
+                                        $projects->email = $email;
+                                        $projects->created_by = Auth::user()->id;
+                                        $projects->save();
                                     }
                                 }
                             }
-                        }else{
-                            if(!empty($request->input('project')) && count($request->input('project')) > 0){
-                                foreach ($request->input('project') as $key => $proj) {
-                                    $projects = new AssignProject;
-                                    $projects->client_id = \globals::get_client_id();
-                                    $projects->project_id = SubProject::where('subproject_id', $proj)->value('project_id');
-                                    $projects->subproject_id = $proj;
-                                    $projects->user_id = $userID;
-                                    $projects->clientuser_id = $client_user->id;
-                                    $projects->email = $email;
-                                    $projects->created_by = Auth::user()->id;
-                                    $projects->save();
+
+                            $token = "";
+                            if (!empty($existingAccess->id)) {
+                                $token = $existingAccess->remember_token;
+                                $session_project = AssignProject::where('user_id', $userID)->where('client_id', \globals::get_client_id())->orderBy('id', 'DESC')->value('subproject_id');
+                                $types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $userID)->value('role');
+                                $client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $userID)->value('client_users.client_id');
+                                User::where('user_id', $userID)->update([
+                                    'client_id' => $client_id,
+                                    'session_project' => $session_project,
+                                    'type' => $types
+                                ]);
+                            }elseif (empty($existingAccess->id)) {
+                                $token = Password::getRepository()->create($users);
+                            }
+                            
+                            $link = URL::to('/create-password') . '/' . $token . '?email=' . str_replace("@", "%40", $email);
+                            $existAccount = "";
+                            if (!empty($existingAccess->id)) {
+                                // $link = URL::to('/login');
+                                $existAccount = "YES";
+                            }else{
+                            $existAccount = "NO";
+                            }
+
+                            $details = [
+                                'client_name' => $email,
+                                'exist_account' => $existAccount,
+                                'link' => $link
+                            ];
+            
+                            $sendMail = \Mail::to($email)->send(new \App\Mail\CreateAdminClientPassword($details));
+
+                            if ($sendMail) {
+                                if (empty($existingAccess->id)) {
+                                    User::where('id', $newIDUsers)->update([
+                                        'remember_token' => $token
+                                    ]);
                                 }
                             }
-                        }
-                        
-                         
-                        $token = "";
-                        if (!empty($existingAccess->id)) {
-                            $token = $existingAccess->remember_token;
-                            $session_project = AssignProject::where('user_id', $userID)->where('client_id', \globals::get_client_id())->orderBy('id', 'DESC')->value('subproject_id');
-                            $types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $userID)->value('role');
-                            $client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $userID)->value('client_users.client_id');
-                            User::where('user_id', $userID)->update([
-                                'client_id' => $client_id,
-                                'session_project' => $session_project,
-                                'type' => $types
-                            ]);
-                        }elseif (empty($existingAccess->id)) {
-                            $token = Password::getRepository()->create($users);
-                        }
-                        
-                        $link = URL::to('/create-password') . '/' . $token . '?email=' . str_replace("@", "%40", $email);
-                        $existAccount = "";
-                        if (!empty($existingAccess->id)) {
-                            // $link = URL::to('/login');
-                            $existAccount = "YES";
-                        }else{
-                           $existAccount = "NO";
-                        }
 
-                        $details = [
-                            'client_name' => $email,
-                            'exist_account' => $existAccount,
-                            'link' => $link
-                        ];
-        
-                        $sendMail = \Mail::to($email)->send(new \App\Mail\CreateAdminClientPassword($details));
-
-                        if ($sendMail) {
-                            if (empty($existingAccess->id)) {
-                                User::where('id', $newIDUsers)->update([
-                                    'remember_token' => $token
-                                ]);
+                            $role_name = "";
+                            if ($request->role == 0) {
+                                $role_name = "Administrator";
+                            }elseif ($request->role == 1) {
+                                $role_name = "Collaborator";
+                            }elseif ($request->role == 2) {
+                                $role_name = "Reviewer";
                             }
-                        }
 
-                        $role_name = "";
-                        if ($request->role == 0) {
-                            $role_name = "Administrator";
-                        }elseif ($request->role == 1) {
-                            $role_name = "Collaborator";
-                        }elseif ($request->role == 2) {
-                            $role_name = "Reviewer";
-                        }
+                            $desc = Auth::user()->name." invited ".$email." as ".$role_name;
+                            \log::create($request->all(), "success", $desc);
+                            $notification = "User invited";
 
-                        $desc = Auth::user()->name." invited ".$email." as ".$role_name;
-						\log::create($request->all(), "success", $desc);
-                        $notification = "User invited";
+                        }else{
+                            $notification = "failed invitation, please add a subproject before invite users";
+                            \log::create($request->all(), "error", $notification);
+                        }
                     } else {
                         $notification = "User already exist!";
-                        \log::create($request->all(), "success", $notification);
+                        \log::create($request->all(), "error", $notification);
                     };
                 } else {
                     $notification = "Invalid email";
-                    \log::create($request->all(), "success", $notification);
+                    \log::create($request->all(), "error", $notification);
                 }
             };
 
@@ -496,30 +504,41 @@ class AccessUsersController extends Controller
         return back()->with('notification', $notification);
     }
 
-    public function disable_user($encodedEmail)
+    public function disable_user($encodedID)
     {
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
             \DB::beginTransaction();
 
-            $email = base64_decode($encodedEmail);
-            $update1 = ClientUser::where('email_address',$email)->where('client_id', \globals::get_client_id())->update([
+            $id = base64_decode($encodedID);
+            $update1 = ClientUser::where('id',$id)->where('client_id', \globals::get_client_id())->update([
                 'status' => 2,
                 'updated_by' => Auth::user()->id,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
-
-            // $update2 = User::where('email',$email)->update([
-            //     'status' => 0,
-            //     'updated_at' => date('Y-m-d H:i:s')
-            // ]);
             
             if ($update1) {
-                $name_user = ClientUser::where('email_address',$email)->where('client_id', \globals::get_client_id())->value('name');
-                $desc = Auth::user()->name." has been disabled ".$name_user;
-			    \log::create(request()->all(), "success", $desc);
+                $getUsers = ClientUser::where('id',$id)->where('client_id', \globals::get_client_id())->first();
+                if (!empty($getUsers->id)) {
+                    AssignProject::where('clientuser_id', $getUsers->id)->where('client_id', $getUsers->client_id)->update([
+                        'deleted' => 1
+                    ]);
+                    
+                    $session_project = AssignProject::where('user_id', $getUsers->user_id)->orderBy('id', 'DESC')->value('subproject_id');
+                    $types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $getUsers->user_id)->value('role');
+                    $client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $getUsers->user_id)->value('client_users.client_id');
+                    User::where('email', $getUsers->email_address)->update([
+                        'client_id' => $client_id,
+                        'session_project' => $session_project,
+                        'type' => $types
+                    ]);
 
-                $notification = "User has been disabled";
+                    $name_user = ClientUser::where('email_address',$getUsers->email_address)->where('client_id', \globals::get_client_id())->value('name');
+                    $desc = Auth::user()->name." has been disabled ".$name_user;
+                    \log::create(request()->all(), "success", $desc);
+
+                    $notification = "User has been disabled";
+                }
             }
             
             \DB::commit();
@@ -532,29 +551,40 @@ class AccessUsersController extends Controller
 
         return back()->with('notification', $notification);
     }
-    public function enable_user($encodedEmail)
+    public function enable_user($encodedID)
     {
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
             \DB::beginTransaction();
 
-            $email = base64_decode($encodedEmail);
-            $update1 = ClientUser::where('email_address',$email)->where('client_id', \globals::get_client_id())->update([
+            $id = base64_decode($encodedID);
+            $update1 = ClientUser::where('id',$id)->where('client_id', \globals::get_client_id())->update([
                 'status' => 1,
                 'updated_by' => Auth::user()->id,
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
-
-            // $update2 = User::where('email',$email)->update([
-            //     'status' => 1,
-            //     'updated_at' => date('Y-m-d H:i:s')
-            // ]);
             
             if ($update1) {
-                $name_user = ClientUser::where('email_address',$email)->where('client_id', \globals::get_client_id())->value('name');
-                $desc = Auth::user()->name." has been enabled ".$name_user;
-			    \log::create(request()->all(), "success", $desc);
-                $notification = "User has been enabled";
+                $getUsers = ClientUser::where('id',$id)->where('client_id', \globals::get_client_id())->first();
+                if (!empty($getUsers->id)) {
+                    AssignProject::where('clientuser_id', $getUsers->id)->where('client_id', $getUsers->client_id)->update([
+                        'deleted' => 0
+                    ]);
+                    
+                    $session_project = AssignProject::where('user_id', $getUsers->user_id)->orderBy('id', 'DESC')->value('subproject_id');
+                    $types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $getUsers->user_id)->value('role');
+                    $client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $getUsers->user_id)->value('client_users.client_id');
+                    User::where('email', $getUsers->email_address)->update([
+                        'client_id' => $client_id,
+                        'session_project' => $session_project,
+                        'type' => $types
+                    ]);
+
+                    $name_user = ClientUser::where('email_address',$getUsers->email_address)->where('client_id', \globals::get_client_id())->value('name');
+                    $desc = Auth::user()->name." has been enabled ".$name_user;
+                    \log::create(request()->all(), "success", $desc);
+                    $notification = "User has been enabled";
+                }
             }
             
             \DB::commit();
@@ -677,25 +707,35 @@ class AccessUsersController extends Controller
         return back()->with('notification', $notification);
     }
 
-    public function delete_user($encodedEmail)
+    public function delete_user($encodedID)
     {
         /* status client user : 0 => invite, 1 => active, 2 => Disabeld, 3 => deleted */
         try {
             \DB::beginTransaction();
 
-            $email = base64_decode($encodedEmail);
+            $id = base64_decode($encodedID);
             
-            $update1 = ClientUser::where('email_address',$email)->where('client_id', \globals::get_client_id())->update(['status' => 3]);
+            $update1 = ClientUser::where('id',$id)->where('client_id', \globals::get_client_id())->update(['status' => 3]);
             
-            $getUsers = User::where('email',$email)->first();
+            $getUsers = ClientUser::where('id',$id)->where('client_id', \globals::get_client_id())->first();
             if (!empty($getUsers->id)) {
-                AssignUserGroup::where('user_id', $getUsers->user_id)->delete();
+                AssignUserGroup::where('user_id', $getUsers->user_id)->where('client_id', $getUsers->client_id)->delete();
+                AssignProject::where('clientuser_id', $getUsers->id)->where('client_id', $getUsers->client_id)->delete();
+                
+                $session_project = AssignProject::where('user_id', $getUsers->user_id)->orderBy('id', 'DESC')->value('subproject_id');
+                $types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $getUsers->user_id)->value('role');
+                $client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', $getUsers->user_id)->value('client_users.client_id');
+                User::where('email', $getUsers->email_address)->update([
+                    'client_id' => $client_id,
+                    'session_project' => $session_project,
+                    'type' => $types
+                ]);
             }
             
             // $deleted = User::where('email',$email)->delete();
             
             if ($update1) {
-                $user_name = ClientUser::where('email_address',$email)->where('client_id', \globals::get_client_id())->value('name');
+                $user_name = $getUsers->name;
                 $desc = Auth::user()->name." deleted user ".$user_name;
                 \log::create(request()->all(), "success", $desc);
                 

@@ -3,7 +3,7 @@
 			                <tr>
 			                  <td class="content-block powered-by">
 			                  	<p>
-			                  		<b>Synergy Asia</b><br>
+			                  		<b>PT. Synergy Asia</b><br>
 			                  		Ciputra International<br>
 									Tower 3, Floor 17th Unit 02<br>
 			                  		Jl. Lingkar Luar Barat No. 101<br>
