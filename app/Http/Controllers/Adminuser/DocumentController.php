@@ -203,7 +203,7 @@ class DocumentController extends Controller
                                 foreach ($receiver_admin as $key => $value) {
                                     if($value->email != Auth::user()->email) {
                                         $details = [
-                                            'receiver' => $value->email,
+                                            'receiver' => $value->name,
                                             'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
                                             'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
                                             'file_name' => $file->getClientOriginalName() ,
@@ -220,7 +220,7 @@ class DocumentController extends Controller
                                     if($value->email != Auth::user()->email) {
                                         if(User::where('user_id', $value->user_id)->value('status') == '1') {
                                             $details = [
-                                                'receiver' => $value->email,
+                                                'receiver' => User::where('user_id',$value->user_id)->value('name'),
                                                 'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
                                                 'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
                                                 'file_name' => $file->getClientOriginalName() ,
