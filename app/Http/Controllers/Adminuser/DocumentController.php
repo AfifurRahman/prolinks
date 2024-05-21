@@ -199,16 +199,20 @@ class DocumentController extends Controller
                             $receiver_email = AssignProject::where('subproject_id', $locationParts[3])->where('client_id', \globals::get_client_id())->get();
                             $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
 
+                            $link = array_slice(explode('/', $path), 2);
+                            $link = implode('/', $link);
+                            
+
                             if(count($receiver_admin) > 0) {
                                 foreach ($receiver_admin as $key => $value) {
                                     if($value->email != Auth::user()->email) {
                                         $details = [
-                                            'receiver' => $value->email,
+                                            'receiver' => $value->name,
                                             'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
                                             'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
                                             'file_name' => $file->getClientOriginalName() ,
                                             'file_size' => GlobalHelper::formatBytes($file->getSize()),
-                                            'url' => route('adminuser.documents.list', base64_encode($locationParts[2]. '/' . $locationParts[3])),
+                                            'url' => route('adminuser.documents.list', base64_encode($link)),
                                         ];
                                         \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
                                     }
@@ -220,12 +224,12 @@ class DocumentController extends Controller
                                     if($value->email != Auth::user()->email) {
                                         if(User::where('user_id', $value->user_id)->value('status') == '1') {
                                             $details = [
-                                                'receiver' => $value->email,
+                                                'receiver' => User::where('user_id',$value->user_id)->value('name'),
                                                 'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
                                                 'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
                                                 'file_name' => $file->getClientOriginalName() ,
                                                 'file_size' => GlobalHelper::formatBytes($file->getSize()),
-                                                'url' => route('adminuser.documents.list', base64_encode($locationParts[2]. '/' . $locationParts[3])),
+                                                'url' => route('adminuser.documents.list', base64_encode($link)),
                                             ];
                                             \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
                                         }
@@ -325,11 +329,8 @@ class DocumentController extends Controller
         try {
             $file = base64_decode($file);
 
-            $directory = UploadFile::where('basename', $file)->value('directory');
 
-            $fullPath = $directory . '/' . $file;
-
-            return view('adminuser.document.viewer.pdf', compact('fullPath'));
+            return view('adminuser.document.viewer.pdf', compact('file'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -383,14 +384,19 @@ class DocumentController extends Controller
 
             Storage::put($destinationPath, file_get_contents($tempZipFile));
 
-            return $this->DownloadZip($destinationPath);
+            return response()->json(['success' => true, 'link' => base64_encode($destinationPath)]);
         } catch (\Exception $e) {
              return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    public function DownloadZip($link) {
-        return Storage::disk('local')->download($link, 'files.zip');
+    public function DownloadZip($link = null) {
+        try {
+
+            return Storage::disk('local')->download(base64_decode($link), 'files.zip');
+        } catch ( \Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 
     public function DownloadFolder($folder)

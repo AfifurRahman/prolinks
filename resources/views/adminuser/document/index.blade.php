@@ -429,9 +429,9 @@
                             <input type="checkbox" class="checkbox" disabled/>
                         </th>
                         <th colspan='6'>
-                            # items selected
-                            <button onclick="downloadFiles()">Download</button>
-                            <button>Clear selection</button>
+                            <span id="selectedCount">0</span>&nbsp;items selected
+                            <button class="miniDownload" onclick="downloadFiles()">Download</button>
+                            <button class="miniClear" onclick="uncheckAll()">Clear selection</button>
                         </th>
                     </tr>
                     <tr class="headerBar">
@@ -447,8 +447,9 @@
                 @if($directorytype == 0)
                     <tr>
                         <td></td>
-                        <td></td>
+                        <td><pan style="display:none">0</span></td>
                         <td>
+                            <span style="display:none">AAAAAA</span>
                             @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
                                 <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
                                     <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
@@ -552,7 +553,7 @@
                                         {{$index}}
                                     </td>
                                     <td>
-                                        <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
+                                        <a class="fol-fil" href="{{ route('adminuser.documents.view', base64_encode(basename($file))) }}">
                                             <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                             {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                                         </a>
@@ -614,7 +615,7 @@
                                     {{$index}}
                                 </td>
                                 <td>
-                                    <a class="fol-fil" href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
+                                    <a class="fol-fil" href="{{ route('adminuser.documents.view', base64_encode(basename($file))) }}">
                                         <image class="file-icon" src="{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}" />
                                         {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                                     </a>
@@ -660,6 +661,8 @@
                     @endif
                 @endforeach
             </table>
+
+            <p>Showing <span id="rowCounts">0</span> files and folders.</p>
         </div>
     </div>
     @push('scripts')
@@ -669,9 +672,21 @@
         
         let a = 0;
         let easteregg = 0;
+
+        var table = document.querySelector('.tableDocument');
+        @if($directorytype == 0)
+            var rowCount = table.rows.length - 3;
+        @else
+            var rowCount = table.rows.length - 2;
+        @endif
+        $('#rowCounts').text(rowCount);
+
         
         
         document.addEventListener('DOMContentLoaded', function() {
+            
+       
+
             const dragArea = document.getElementById('dragArea');
             const checkboxes = document.querySelectorAll('.checkbox');
 
@@ -684,11 +699,11 @@
                         checkedValues.push($(this).val()); 
                     });
 
-                    console.log(checkedValues);
                     files1 = checkedValues;
                     if(checked > 0) {
                         $(".headerBar").css("visibility", "collapse");
                         $(".checkToolBar").css("visibility", "visible");
+                        $('#selectedCount').text(checked);
                     } else {
                         $(".headerBar").css("visibility", "visible");
                         $(".checkToolBar").css("visibility", "collapse");
@@ -730,7 +745,7 @@
 
             $('.tableDocument').dataTable({
                 "bPaginate": false,
-                "bInfo": true,
+                "bInfo": false,
                 "bSort": true,
                 "dom": 'rtip',
                 "order" : [[1, "asc"]],
@@ -822,7 +837,6 @@
             }
             
             function handleFiles(files, paths) {
-                console.log(paths);
                 const formData = new FormData();
                 formData.append("location", "{{ base64_encode($origin) }}");
                 formData.append("filePath", paths);
@@ -877,15 +891,6 @@
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log(data);
-                    // Handle response data here
-                })
-                .catch(error => {
-                    console.error('Error occurred:', error);
-                    // Handle error response here
                 });
             });
 
@@ -929,8 +934,6 @@
                     $('#browseFiles').hide();
                     $('#clearFiles').hide();
 
-                    console.log(files);
-
                     const formData = new FormData();
                     formData.append("location", "{{ base64_encode($origin) }}");
                     files.forEach(file => formData.append('files[]', file));
@@ -954,8 +957,6 @@
         function displayFileData() {
             const tableBody = document.getElementById('upload-preview-list');
             tableBody.innerHTML = '';
-
-            console.log(files);
 
             files.forEach((file, index) => {
                 const newRow = document.createElement('tr');
@@ -1017,17 +1018,12 @@
                 });
                 formData.append('userid', $('#IDuser').val());
 
-                console.log(checkboxStatusArray);
-                    fetch('{{ route("adminuser.documents.setpermission") }}', {
+                fetch('{{ route("adminuser.documents.setpermission") }}', {
                     method: 'POST',
                     body: formData,
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
                 });
             });
         }
@@ -1123,10 +1119,14 @@
             });
         }
 
+        function uncheckAll() {
+            $('.checkbox').prop('checked', false);
+            $(".headerBar").css("visibility", "visible");
+            $(".checkToolBar").css("visibility", "collapse");
+        }
+
         function downloadFiles() {
             var formData = new FormData();
-
-            console.log(files1);
             
             formData.append('files', files1);
 
@@ -1139,7 +1139,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                showNotification(data.message);
+                location.replace("{{ route('adminuser.documents.downloadzip', '') }}" + '/' + data.link);
             });
         }
 

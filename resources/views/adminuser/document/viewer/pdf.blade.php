@@ -12,6 +12,6 @@
     </style>
 </head>
 <body>
-    <iframe src="{{ $fullPath }}" allow-same-origin class="pdf-viewer"></iframe>
+    <iframe src="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}" allow-same-origin class="pdf-viewer"></iframe>
 </body>
 </html>

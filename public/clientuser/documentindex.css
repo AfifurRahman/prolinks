@@ -560,3 +560,21 @@ h3 {
     background:#F04438;
     color:#FFFFFF;
 }
+
+.miniDownload{
+    border:none;
+    border-radius:10px;
+    background:#1570EF;
+    margin-left:8px;
+    color:#FFFFFF;
+    padding:4px 8px 4px 8px;
+}
+
+.miniClear{
+    border:none;
+    border-radius:10px;
+    background:#F04438;
+    margin-left:4px;
+    color:#FFFFFF;
+    padding:4px 8px 4px 8px;
+}
