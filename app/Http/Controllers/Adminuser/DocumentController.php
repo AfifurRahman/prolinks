@@ -383,14 +383,19 @@ class DocumentController extends Controller
 
             Storage::put($destinationPath, file_get_contents($tempZipFile));
 
-            return $this->DownloadZip($destinationPath);
+            return response()->json(['success' => true, 'link' => base64_encode($destinationPath)]);
         } catch (\Exception $e) {
              return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    public function DownloadZip($link) {
-        return Storage::disk('local')->download($link, 'files.zip');
+    public function DownloadZip($link = null) {
+        try {
+
+            return Storage::disk('local')->download(base64_decode($link), 'files.zip');
+        } catch ( \Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 
     public function DownloadFolder($folder)

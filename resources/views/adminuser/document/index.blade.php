@@ -1139,7 +1139,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                showNotification(data.message);
+                location.replace("{{ route('adminuser.documents.downloadzip', '') }}" + '/' + data.link);
             });
         }
 

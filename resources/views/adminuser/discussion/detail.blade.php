@@ -165,7 +165,7 @@
                                                         @php
                                                             $origin1 = $link_file->RefFile->directory;
                                                             $files1 = $link_file->RefFile->directory."/".$link_file->RefFile->basename;
-                                                        @endphp
+                                                        @endphp 
                                                         <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($files1))) }}" class="btn btn-default radius-button">
                                                             <i class="fa fa-paperclip"></i> {{ $link_file->file_name }} <i class="fa fa-download"></i>
                                                         </a>
