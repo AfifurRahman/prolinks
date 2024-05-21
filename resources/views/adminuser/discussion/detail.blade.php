@@ -166,7 +166,7 @@
                                                             $origin1 = $link_file->RefFile->directory;
                                                             $files1 = $link_file->RefFile->directory."/".$link_file->RefFile->basename;
                                                         @endphp
-                                                        <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin1), base64_encode(basename($files1)) ] ) }}" class="btn btn-default radius-button">
+                                                        <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($files1))) }}" class="btn btn-default radius-button">
                                                             <i class="fa fa-paperclip"></i> {{ $link_file->file_name }} <i class="fa fa-download"></i>
                                                         </a>
                                                     </div>
@@ -180,7 +180,7 @@
                                                         $origin = 'uploads/'.$attach_file->client_id. '/'.$subproject.'/discussion';
                                                         $files = $attach_file->file_url."/".$attach_file->basename;
                                                     @endphp
-                                                    <a href="{{ route('adminuser.documents.downloadfile', [ base64_encode($origin), base64_encode(basename($files)) ] ) }}" class="btn btn-default radius-button">
+                                                    <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($files)) ) }}" class="btn btn-default radius-button">
                                                     <i class="fa fa-file"></i> {{ $attach_file->file_name }} <i class="fa fa-download"></i>
                                                     </a>
                                                 </div>
