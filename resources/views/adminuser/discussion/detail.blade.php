@@ -157,7 +157,7 @@
                                     </div>
                                     <div class="box-info">
                                         <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClientUser->company) ? $comment->RefClient->company : '' }}</span></p>
-                                        <p class="inbox-item-text">{{ $comment->content }}</p>
+                                        <p class="inbox-item-text">{!! nl2br($comment->content) !!}</p>
                                         <div class="box-file">
                                             @foreach($comment->RefDiscussionLinkFile as $link_file)
                                                 @if(!empty($link_file->RefFile->id))
