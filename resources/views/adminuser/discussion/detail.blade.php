@@ -149,7 +149,7 @@
                 <div class="inbox-widget">
                     @foreach($detail->RefDiscussion as $comment)
                         @if(!empty($comment->RefUser->id))
-                            <a href="#">
+                            <!-- <a href="#"> -->
                                 <div class="inbox-item">
                                     <div class="inbox-item-img">
                                         {!! \globals::get_user_avatar($comment->fullname, $comment->RefUser->avatar_color) !!}
@@ -194,7 +194,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </a>
+                            <!-- </a> -->
                         @endif
                     @endforeach
 
