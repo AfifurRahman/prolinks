@@ -12,6 +12,6 @@
     </style>
 </head>
 <body>
-    <iframe src="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}" allow-same-origin class="pdf-viewer"></iframe>
+    <img src="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}">
 </body>
 </html>

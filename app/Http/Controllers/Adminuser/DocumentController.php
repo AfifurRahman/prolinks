@@ -329,8 +329,14 @@ class DocumentController extends Controller
         try {
             $file = base64_decode($file);
 
+            $mimeType = UploadFile::where('basename', $file)->value('mime_type');
 
-            return view('adminuser.document.viewer.pdf', compact('file'));
+            if (str_starts_with($mimeType, 'image/')) {
+                return view('adminuser.document.viewer.image', compact('file'));
+            }
+            else {
+                return back();
+            }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -369,13 +375,23 @@ class DocumentController extends Controller
             $zip->open($tempZipFile, ZipArchive::CREATE);
             $arr = [];
             foreach($files as $file) {
+                $index = '';
                 $filename = base64_decode($file);
+                $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $filename)->value('directory')), 0, 4));
+
+                foreach(array_slice(explode('/', UploadFile::where('basename', $filename)->value('directory')), 4) as $path) {
+                    $originPath .= '/' . $path;
+                    $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                }
+
+                $index .= DB::table('upload_files')->where('basename', basename($filename))->value('index');
+
                 $directory = UploadFile::where('basename', $filename)->value('directory');
 
                 $fullPath = $directory . '/' . $filename;
                 $originalName = UploadFile::where('basename', $filename)->value('name');
 
-                $zip->addFile(Storage::path($fullPath), $originalName);
+                $zip->addFile(Storage::path($fullPath), $index . ' - ' .$originalName);
             }
 
             $zip->close();
