@@ -10,7 +10,7 @@
             New project discussion created from <b>{{ !empty($details['discussion_creator']) ? $details['discussion_creator'] : '' }}</b><br><br>
             <b>Project :</b> {{ !empty($details['project_name']) ? $details['project_name'] : '' }}<br>
             <b>Subject :</b> {{ !empty($details['subject']) ? $details['subject'] : '' }}<br>
-            <b>Comment :</b> {{ !empty($details['comment']) ? $details['comment'] : '' }}<br><br>
+            <b>Comment :</b> {!! !empty($details['comment']) ? nl2br($details['comment']) : '' !!}<br><br>
             You can view the discussion on the following link:<br>
             <div style="width:480px;">
               <a href="{{ !empty($details['link']) ? $details['link'] : '' }}" style="word-wrap: break-word;">{{ !empty($details['link']) ? $details['link'] : '' }}</a>
