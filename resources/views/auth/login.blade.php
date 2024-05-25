@@ -99,7 +99,7 @@
                                     @endif
                                     <div class="copyright">
                                         <p>
-                                            Copyright ©2024 Prolinks&nbsp;&nbsp; • <a href="">Privacy policy</a>&nbsp;&nbsp; • <a href="">Terms of use</a>
+                                            Copyright ©{{ date('Y') }} Prolinks&nbsp;&nbsp; • <a href="">Privacy policy</a>&nbsp;&nbsp; • <a href="">Terms of use</a>
                                         </p>
                                     </div>
                                 </div>

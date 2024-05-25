@@ -17,77 +17,77 @@ Route::get('/run-migrations', function () {
     return Artisan::call('migrate', ["--path" => "database/migrations", "--force" => true]);
 });
 
-Route::get('/run-query-update-clientid-in-assign-project', function () {
-    $model = App\Models\ClientUser::get();
-	foreach ($model as $key => $value) {
-		App\Models\AssignProject::where('client_id', $value->client_id)->where('user_id', $value->user_id)->update([
-			'clientuser_id' => $value->id
-		]);
-	}
-});
+// Route::get('/run-query-update-clientid-in-assign-project', function () {
+//     $model = App\Models\ClientUser::get();
+// 	foreach ($model as $key => $value) {
+// 		App\Models\AssignProject::where('client_id', $value->client_id)->where('user_id', $value->user_id)->update([
+// 			'clientuser_id' => $value->id
+// 		]);
+// 	}
+// });
 
-Route::get('/run-query-insert-clientuser', function () {
-    $model = App\Models\User::where('type', 0)->get();
-	foreach ($model as $key => $value) {
-		$checkExist = App\Models\ClientUser::where('client_id', $value->client_id)->where('user_id', $value->user_id)->first();
-		if (empty($checkExist->id)) {
-			$assign = new App\Models\ClientUser;
-			$assign->user_id = $value->user_id;
-			$assign->email_address = $value->email;
-			$assign->name = $value->name;
-			$assign->client_id = $value->client_id;
-			$assign->company = "-";
-			$assign->job_title = "-";
-			$assign->role = $value->type;
-			$assign->role_param = null;
-			$assign->status = 1;
-			$assign->created_by = $value->id;
-			$assign->created_at = $value->created_at;
-			$assign->save();
-		}
-	}
-});
+// Route::get('/run-query-insert-clientuser', function () {
+//     $model = App\Models\User::where('type', 0)->get();
+// 	foreach ($model as $key => $value) {
+// 		$checkExist = App\Models\ClientUser::where('client_id', $value->client_id)->where('user_id', $value->user_id)->first();
+// 		if (empty($checkExist->id)) {
+// 			$assign = new App\Models\ClientUser;
+// 			$assign->user_id = $value->user_id;
+// 			$assign->email_address = $value->email;
+// 			$assign->name = $value->name;
+// 			$assign->client_id = $value->client_id;
+// 			$assign->company = "-";
+// 			$assign->job_title = "-";
+// 			$assign->role = $value->type;
+// 			$assign->role_param = null;
+// 			$assign->status = 1;
+// 			$assign->created_by = $value->id;
+// 			$assign->created_at = $value->created_at;
+// 			$assign->save();
+// 		}
+// 	}
+// });
 
-Route::get('/run-query-insert-assign-project', function () {
-    $model = App\Models\ClientUser::where('role', 0)->get();
-	foreach ($model as $key => $value) {
-		$checkExist = App\Models\AssignProject::where('client_id', $value->client_id)->where('user_id', $value->user_id)->first();
-		if (empty($checkExist->id)) {
-			$projectID = App\Models\Project::where('user_id', $value->user_id)->where('client_id', $value->client_id)->value('project_id');
-			$subprojectID = App\Models\SubProject::where('user_id', $value->user_id)->where('client_id', $value->client_id)->value('subproject_id');
+// Route::get('/run-query-insert-assign-project', function () {
+//     $model = App\Models\ClientUser::where('role', 0)->get();
+// 	foreach ($model as $key => $value) {
+// 		$checkExist = App\Models\AssignProject::where('client_id', $value->client_id)->where('user_id', $value->user_id)->first();
+// 		if (empty($checkExist->id)) {
+// 			$projectID = App\Models\Project::where('user_id', $value->user_id)->where('client_id', $value->client_id)->value('project_id');
+// 			$subprojectID = App\Models\SubProject::where('user_id', $value->user_id)->where('client_id', $value->client_id)->value('subproject_id');
 			
-			$assign = new App\Models\AssignProject;
-			$assign->client_id = $value->client_id;
-			$assign->project_id = !empty($projectID) ? $projectID : 'belum ada';
-			$assign->subproject_id = !empty($subprojectID) ? $subprojectID : 'belum ada';
-			$assign->user_id = $value->user_id;
-			$assign->clientuser_id = $value->id;
-			$assign->email = $value->email_address;
-			$assign->created_by = $value->created_by;
-			$assign->created_at = $value->created_at;
-			$assign->save();
-		}
-	}
-});
+// 			$assign = new App\Models\AssignProject;
+// 			$assign->client_id = $value->client_id;
+// 			$assign->project_id = !empty($projectID) ? $projectID : 'belum ada';
+// 			$assign->subproject_id = !empty($subprojectID) ? $subprojectID : 'belum ada';
+// 			$assign->user_id = $value->user_id;
+// 			$assign->clientuser_id = $value->id;
+// 			$assign->email = $value->email_address;
+// 			$assign->created_by = $value->created_by;
+// 			$assign->created_at = $value->created_at;
+// 			$assign->save();
+// 		}
+// 	}
+// });
 
-Route::get('/run-query-insert-setting-email-notification', function () {
-    $model = App\Models\AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->get();
+// Route::get('/run-query-insert-setting-email-notification', function () {
+//     $model = App\Models\AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->get();
 
-	foreach ($model as $key => $value) {
-		$exist = App\Models\SettingEmailNotification::where('clientuser_id', $value->clientuser_id)->where('user_id', $value->user_id)->where('client_id', $value->client_id)->where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->first();
-		if (empty($exist->id)) {
-			$settings = new App\Models\SettingEmailNotification;
-			$settings->client_id = $value->client_id;
-			$settings->user_id = $value->user_id;
-			$settings->project_id = $value->project_id;
-			$settings->subproject_id = $value->subproject_id;
-			$settings->clientuser_id = $value->id;
-			$settings->created_by = $value->id;
-			$settings->created_at = date('Y-m-d H:i:s');
-			$settings->save();
-		}
-	}
-});
+// 	foreach ($model as $key => $value) {
+// 		$exist = App\Models\SettingEmailNotification::where('clientuser_id', $value->clientuser_id)->where('user_id', $value->user_id)->where('client_id', $value->client_id)->where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->first();
+// 		if (empty($exist->id)) {
+// 			$settings = new App\Models\SettingEmailNotification;
+// 			$settings->client_id = $value->client_id;
+// 			$settings->user_id = $value->user_id;
+// 			$settings->project_id = $value->project_id;
+// 			$settings->subproject_id = $value->subproject_id;
+// 			$settings->clientuser_id = $value->id;
+// 			$settings->created_by = $value->id;
+// 			$settings->created_at = date('Y-m-d H:i:s');
+// 			$settings->save();
+// 		}
+// 	}
+// });
 
 /* SUPERADMIN */
 Route::get('/backend/login', 'App\Http\Controllers\Superadmin\Auth\LoginController@index')->name('backend-login');
