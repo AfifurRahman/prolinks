@@ -498,7 +498,7 @@ class DocumentController extends Controller
 
             $zip->close();
             
-            $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip';
+            $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip'; 
             Storage::put($destinationPath, file_get_contents($tempZipFile));
 
             return Storage::disk('local')->download($destinationPath, basename($folderName) . '.zip');
