@@ -193,7 +193,7 @@ class DiscussionController extends Controller
                 $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
                 $desc = Auth::user()->name." created comment on sub project ".$projectname;
                 \log::create(request()->all(), "success", $desc);
-                \log::push_notification('New Comment Added', $type=0, $getDiscussion->discussion_id);
+                \log::push_notification('New Comment Added', $type=0, $getDiscussion->discussion_id, $getDiscussion->subproject_id);
             }
 
             \DB::commit();

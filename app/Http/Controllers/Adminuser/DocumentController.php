@@ -199,6 +199,7 @@ class DocumentController extends Controller
 
                             $receiver_email = AssignProject::where('subproject_id', $locationParts[3])->where('client_id', \globals::get_client_id())->get();
                             $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
+                            // \log::push_notification('New File Added', $type=1, basename($filePath), $locationParts[3]);
 
                             $link = array_slice(explode('/', $path), 2);
                             $link = implode('/', $link);

@@ -65,11 +65,11 @@ class LogHelper
         return $model; 
     }
 
-    public static function push_notification($text, $type, $resultID=null)
+    public static function push_notification($text, $type, $resultID=null, $subproject_id=null)
     {
         $assign_project = [];
-        if (Auth::user()->type == \globals::set_role_administrator()) {
-            $assign_project = AssignProject::where('client_id', Auth::user()->client_id)->where('deleted', 0)->get();
+        if (Auth::user()->type == \globals::set_role_administrator() && $subproject_id != null) {
+            $assign_project = AssignProject::where('subproject_id', $subproject_id)->where('client_id', Auth::user()->client_id)->where('deleted', 0)->get();
         }else{
             $assign_project = AssignProject::where('subproject_id', Auth::user()->session_project)->where('client_id', Auth::user()->client_id)->where('deleted', 0)->get();
         }
