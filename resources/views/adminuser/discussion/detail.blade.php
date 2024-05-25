@@ -238,7 +238,15 @@
                     </tr>
                     <tr>
                         <td>Priority</td>
-                        <td>{!! \globals::label_qna_priority($detail->priority) !!}</td>
+                        <td>
+                            @if($detail->priority == \globals::set_qna_priority_high())
+                                <img src="{{ url('template/images/priority_high.png') }}" width="24" height="24" /> High
+                            @elseif($detail->priority == \globals::set_qna_priority_medium())
+                                <img src="{{ url('template/images/priority_medium.png') }}" width="24" height="24" /> Medium
+                            @elseif($detail->priority == \globals::set_qna_priority_low())
+                                <img src="{{ url('template/images/priority_low.png') }}" width="24" height="24" /> Low
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <td>Project</td>

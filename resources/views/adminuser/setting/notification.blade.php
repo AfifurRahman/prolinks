@@ -20,7 +20,14 @@
                             <div class="user-desc" style="margin-top:-20px; text-overflow:ellipsis;">
                                 <span class="name"><b>{{ $notify->sender_name }}</b> - {{ $notify->text }}</span>
                                 <span class="time">{{ $notify->created_at }}</span>
+                                @if ($notify->is_read == 0)
+                                    <div class="pull-right">
+                                        <i class="fa fa-circle text-default"></i>
+                                    </div>
+                                @endif
+                                
                             </div>
+                            
                         </a>
                     </li>
                 @endforeach

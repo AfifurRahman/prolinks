@@ -109,8 +109,13 @@ class LogHelper
 
     public static function get_notification($limit=null, $isRead=false)
     {
-        $model = Notification::where('client_id', Auth::user()->client_id)->where('user_id', Auth::user()->user_id)->where('subproject_id', Auth::user()->session_project);
-        
+        $model = [];
+        if (Auth::user()->type == \globals::set_role_administrator()) {
+            $model = Notification::where('client_id', Auth::user()->client_id)->where('user_id', Auth::user()->user_id);
+        }else{
+            $model = Notification::where('client_id', Auth::user()->client_id)->where('user_id', Auth::user()->user_id)->where('subproject_id', Auth::user()->session_project);
+        }
+
         if ($isRead == true) {
             $model->where('is_read', 1);
         }else{
@@ -126,7 +131,12 @@ class LogHelper
 
     public static function get_all_notification($limit=null)
     {
-        $model = Notification::where('client_id', Auth::user()->client_id)->where('user_id', Auth::user()->user_id)->where('subproject_id', Auth::user()->session_project);
+        $model = [];
+        if (Auth::user()->type == \globals::set_role_administrator()) {
+            $model = Notification::where('client_id', Auth::user()->client_id)->where('user_id', Auth::user()->user_id);
+        }else{
+            $model = Notification::where('client_id', Auth::user()->client_id)->where('user_id', Auth::user()->user_id)->where('subproject_id', Auth::user()->session_project);
+        }
         
         if(!empty($limit)){
             $model->limit($limit);
