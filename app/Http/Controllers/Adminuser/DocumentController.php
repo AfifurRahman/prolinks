@@ -18,6 +18,7 @@ use App\Models\UploadFile;
 use App\Models\UploadFolder;
 use App\Models\AssignProject;
 use App\Models\Permission;
+use App\Models\SettingEmailNotification;
 use Auth;
 use ZipArchive;
 
@@ -203,35 +204,38 @@ class DocumentController extends Controller
                             $link = implode('/', $link);
                             
 
-                            if(count($receiver_admin) > 0) {
-                                foreach ($receiver_admin as $key => $value) {
-                                    if($value->email != Auth::user()->email) {
-                                        $details = [
-                                            'receiver' => $value->name,
-                                            'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
-                                            'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
-                                            'file_name' => $file->getClientOriginalName() ,
-                                            'file_size' => GlobalHelper::formatBytes($file->getSize()),
-                                            'url' => route('adminuser.documents.list', base64_encode($link)),
-                                        ];
-                                        \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
-                                    }
-                                }
-                            }
+                            // if(count($receiver_admin) > 0) {
+                            //     foreach ($receiver_admin as $key => $value) {
+                            //         if($value->email != Auth::user()->email) {
+                            //             $details = [
+                            //                 'receiver' => $value->name,
+                            //                 'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
+                            //                 'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
+                            //                 'file_name' => $file->getClientOriginalName() ,
+                            //                 'file_size' => GlobalHelper::formatBytes($file->getSize()),
+                            //                 'url' => route('adminuser.documents.list', base64_encode($link)),
+                            //             ];
+                            //             \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                            //         }
+                            //     }
+                            // }
 
                             if(count($receiver_email) > 0) {
                                 foreach ($receiver_email as $key => $value) {
                                     if($value->email != Auth::user()->email) {
                                         if(User::where('user_id', $value->user_id)->value('status') == '1') {
-                                            $details = [
-                                                'receiver' => User::where('user_id',$value->user_id)->value('name'),
-                                                'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
-                                                'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
-                                                'file_name' => $file->getClientOriginalName() ,
-                                                'file_size' => GlobalHelper::formatBytes($file->getSize()),
-                                                'url' => route('adminuser.documents.list', base64_encode($link)),
-                                            ];
-                                            \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                                            $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('client_id', $value->client_id)->where('user_id', $value->user_id)->where('clientuser_id', $value->clientuser_id)->value('is_upload_file');
+                                            if (!empty($check_settings) && $check_settings == 1) {
+                                                $details = [
+                                                    'receiver' => User::where('user_id',$value->user_id)->value('name'),
+                                                    'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
+                                                    'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
+                                                    'file_name' => $file->getClientOriginalName() ,
+                                                    'file_size' => GlobalHelper::formatBytes($file->getSize()),
+                                                    'url' => route('adminuser.documents.list', base64_encode($link)),
+                                                ];
+                                                \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
+                                            }
                                         }
                                     }
                                 }
