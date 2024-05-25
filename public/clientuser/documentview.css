@@ -1,0 +1,113 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #000000;
+}
+
+.navigationBar {
+    width: 100%;
+    height: 50px;
+    background: #FFFFFF;
+    border: 2px #D0D5DD solid;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.imageViewer{
+    display:block;
+    margin:auto;
+    height:auto;
+}
+
+.icon {
+    height: 20px;
+    width: 20px;
+    margin-top: 6px;
+    margin-bottom: 4.5px;
+}
+
+.icon1 {
+    height: 20px;
+    width: 20px;
+    margin-right:8px;
+    margin-top: 6px;
+    margin-bottom: 4.5px;
+}
+
+.action {
+    margin-right: 10px;
+}
+
+.action1 {
+    margin-right: 14px;
+}
+
+.icon-print {
+    height: 20px;
+    width: 20px;
+    margin-right: 140px;
+    margin-top: 6px;
+    margin-bottom: 4.5px;
+}
+
+.icon-download {
+    height: 20px;
+    width: 20px;
+    margin-right: 10px;
+    margin-top: 6px;
+    margin-bottom: 4.5px;
+}
+
+.titleBar {
+    margin-left: 18px;
+    margin-right:180px;
+    display: flex;
+    align-items: center;
+}
+
+.modal-close-ico {
+    margin-top: -6px;
+    margin-right: -8px;
+    width: 24px;
+    height: 24px;
+}
+
+.buttonAction {
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.zoomAction {
+    margin-left:20px;
+    margin-right:10px;
+}
+
+.closeAction {
+    display: flex;
+    align-items: center;
+    margin-right: 24px;
+}
+
+.actionBar {
+    display: flex;
+    align-items: center;
+}
+
+.main {
+    padding: 16px;
+    margin-top: 20px;
+    width: 100%;
+    height: 85vh;
+    overflow: auto;
+    cursor: grab;
+    cursor: -o-grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+.bar{
+    height:28px;
+    width:3px;
+}

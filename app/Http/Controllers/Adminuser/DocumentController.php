@@ -328,11 +328,15 @@ class DocumentController extends Controller
     public function ViewFile($file) {
         try {
             $file = base64_decode($file);
+            $path = UploadFile::where('basename', $file)->value('directory');
+
+            $link = array_slice(explode('/', $path), 2);
+            $link = implode('/', $link);
 
             $mimeType = UploadFile::where('basename', $file)->value('mime_type');
 
             if (str_starts_with($mimeType, 'image/')) {
-                return view('adminuser.document.viewer.image', compact('file'));
+                return view('adminuser.document.viewer.image', compact('file', 'link'));
             }
             else {
                 return back();
