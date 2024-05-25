@@ -70,6 +70,25 @@ Route::get('/run-query-insert-assign-project', function () {
 	}
 });
 
+Route::get('/run-query-insert-setting-email-notification', function () {
+    $model = App\Models\AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->get();
+
+	foreach ($model as $key => $value) {
+		$exist = App\Models\SettingEmailNotification::where('clientuser_id', $value->clientuser_id)->where('user_id', $value->user_id)->where('client_id', $value->client_id)->where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->first();
+		if (empty($exist->id)) {
+			$settings = new App\Models\SettingEmailNotification;
+			$settings->client_id = $value->client_id;
+			$settings->user_id = $value->user_id;
+			$settings->project_id = $value->project_id;
+			$settings->subproject_id = $value->subproject_id;
+			$settings->clientuser_id = $value->id;
+			$settings->created_by = $value->id;
+			$settings->created_at = date('Y-m-d H:i:s');
+			$settings->save();
+		}
+	}
+});
+
 /* SUPERADMIN */
 Route::get('/backend/login', 'App\Http\Controllers\Superadmin\Auth\LoginController@index')->name('backend-login');
 Route::post('/backend/process-login', 'App\Http\Controllers\Superadmin\Auth\LoginController@process_login')->name('process-login-backend');
@@ -203,5 +222,11 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::get('/discussion/delete-discussion/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_discussion')->name('discussion.delete-discussion');
 		Route::post('/discussion/import-questions', 'App\Http\Controllers\Adminuser\DiscussionController@import_questions')->name('discussion.import-questions');
 		Route::get('/discussion/export-questions', 'App\Http\Controllers\Adminuser\DiscussionController@export_questions')->name('discussion.export-questions');
+		
+		/* Setting */
+		Route::get('/setting', 'App\Http\Controllers\Adminuser\SettingController@index')->name('setting');
+		Route::post('/setting/save-setting-email', 'App\Http\Controllers\Adminuser\SettingController@save_setting_email')->name('setting.save-setting-email');
+		Route::get('/all-notification', 'App\Http\Controllers\Adminuser\SettingController@all_notification')->name('notification.list');
+		Route::post('/read-notification', 'App\Http\Controllers\Adminuser\SettingController@read_notification')->name('notification.read');
 	});
 });

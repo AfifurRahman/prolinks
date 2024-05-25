@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Adminuser;
 
+use App\Models\SettingEmailNotification;
 use App\Models\SubProject;
 use App\Models\TrashUsers;
 use Auth;
@@ -156,6 +157,16 @@ class AccessUsersController extends Controller
                                                 $projects->email = $email;
                                                 $projects->created_by = Auth::user()->id;
                                                 $projects->save();
+
+                                                $settings = new SettingEmailNotification;
+                                                $settings->client_id = $projects->client_id;
+                                                $settings->user_id = $projects->user_id;
+                                                $settings->project_id = $projects->project_id;
+                                                $settings->subproject_id = $projects->subproject_id;
+                                                $settings->clientuser_id = $projects->clientuser_id;
+                                                $settings->created_by = $projects->created_by;
+                                                $settings->created_at = date('Y-m-d H:i:s');
+                                                $settings->save();
                                             } 
                                         }
                                     }
@@ -172,6 +183,16 @@ class AccessUsersController extends Controller
                                         $projects->email = $email;
                                         $projects->created_by = Auth::user()->id;
                                         $projects->save();
+
+                                        $settings = new SettingEmailNotification;
+                                        $settings->client_id = $projects->client_id;
+                                        $settings->user_id = $projects->user_id;
+                                        $settings->project_id = $projects->project_id;
+                                        $settings->subproject_id = $projects->subproject_id;
+                                        $settings->clientuser_id = $projects->clientuser_id;
+                                        $settings->created_by = $projects->created_by;
+                                        $settings->created_at = date('Y-m-d H:i:s');
+                                        $settings->save();
                                     }
                                 }
                             }

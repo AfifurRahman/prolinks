@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Adminuser;
 
 use App\Http\Controllers\Controller;
 use App\Models\AssignProject;
+use App\Models\SettingEmailNotification;
 use App\Models\SubProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -135,6 +136,16 @@ class ProjectController extends Controller
 					$assign->email = User::where('user_id', $project->user_id)->value('email');
 					$assign->created_by = $project->created_by;
 					if ($assign->save()) {
+						$settings = new SettingEmailNotification;
+						$settings->client_id = $assign->client_id;
+						$settings->user_id = $assign->user_id;
+						$settings->project_id = $assign->project_id;
+						$settings->subproject_id = $assign->subproject_id;
+						$settings->clientuser_id = $assign->clientuser_id;
+						$settings->created_by = $assign->created_by;
+						$settings->created_at = date('Y-m-d H:i:s');
+						$settings->save();
+
 						$desc = Auth::user()->name." has been created sub project ".$project->subproject_name;
 						\log::create($request->all(), "success", $desc);
 

@@ -1,6 +1,8 @@
 <?php
 namespace App\Helpers;
  
+use App\Models\AssignProject;
+use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Auth;
@@ -61,5 +63,75 @@ class LogHelper
     {
         $model = LogActivity::orderBy('id', 'DESC')->first();
         return $model; 
+    }
+
+    public static function push_notification($text, $type, $resultID=null)
+    {
+        $assign_project = [];
+        if (Auth::user()->type == \globals::set_role_administrator()) {
+            $assign_project = AssignProject::where('client_id', Auth::user()->client_id)->where('deleted', 0)->get();
+        }else{
+            $assign_project = AssignProject::where('subproject_id', Auth::user()->session_project)->where('client_id', Auth::user()->client_id)->where('deleted', 0)->get();
+        }
+        
+        $link = "";
+        if ($type == 0) {
+            if ($resultID != null) {
+                $link = route('discussion.detail-discussion', $resultID);
+            }
+        }
+        
+        if (count($assign_project) > 0) {
+            foreach ($assign_project as $key => $value) {
+                $notif = new Notification;
+                $notif->client_id = $value->client_id;
+                $notif->user_id = $value->user_id;
+                $notif->project_id = $value->project_id;
+                $notif->clientuser_id = $value->clientuser_id;
+                $notif->subproject_id = $value->subproject_id;
+                $notif->type = $type;
+                $notif->text = $text;
+                $notif->link = $link;
+                $notif->sender_name = Auth::user()->name;
+                $notif->created_by = Auth::user()->id;
+                $notif->created_at = date('Y-m-d H:i:s');
+                $notif->save();
+            }
+        }
+    }
+
+    public static function read_notification($id)
+    {
+        Notification::where('id', $id)->update([
+            'is_read' => 1
+        ]);
+    }
+
+    public static function get_notification($limit=null, $isRead=false)
+    {
+        $model = Notification::where('client_id', Auth::user()->client_id)->where('user_id', Auth::user()->user_id)->where('subproject_id', Auth::user()->session_project);
+        
+        if ($isRead == true) {
+            $model->where('is_read', 1);
+        }else{
+            $model->where('is_read', 0);
+        }
+
+        if(!empty($limit)){
+            $model->limit($limit);
+        }
+
+        return $model->orderBy('id', 'DESC')->paginate(30);
+    }
+
+    public static function get_all_notification($limit=null)
+    {
+        $model = Notification::where('client_id', Auth::user()->client_id)->where('user_id', Auth::user()->user_id)->where('subproject_id', Auth::user()->session_project);
+        
+        if(!empty($limit)){
+            $model->limit($limit);
+        }
+
+        return $model->orderBy('id', 'DESC')->paginate(30);
     }
 }

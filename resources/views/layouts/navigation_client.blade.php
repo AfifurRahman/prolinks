@@ -1,4 +1,4 @@
-<div class="left side-menu" style="background: #F1F5F9; padding: 10px;">
+<div class="left side-menu" style="background: #F1F5F9; padding: 10px; position:fixed;">
     <div class="sidebar-inner slimscrollleft">
         <div id="sidebar-menu">
             <form id="app-change-project" action="{{ route('project.change-main-project') }}" method="POST">
@@ -47,6 +47,11 @@
                 if($uri == "discussion"){
                     $active_discussion = "active text-active";
                 }
+
+                $active_setting = "";
+                if($uri == "setting"){
+                    $active_setting = "active text-active";
+                }
             @endphp
             <ul style="margin-top:14px">
                 <li class="menu-title">MAIN MENU</li>
@@ -74,6 +79,10 @@
                         <a href="{{ route('discussion.list-discussion') }}" class="waves-effect {{ $active_discussion }}"><img src="{{ url('template/images/icon_menu/question.png') }}" width="20" height="20"><span class="{{ $active_discussion }}"> Q & A </span></a>
                     </li>
                 @endif
+
+                <li>
+                    <a href="{{ route('setting', 'tab=email_setting') }}" class="waves-effect {{ $active_setting }}"><img src="{{ url('template/images/icon_menu/settings.png') }}" width="20" height="20"><span class="{{ $active_setting }}"> Settings </span></a>
+                </li>
             </ul>
         </div>
     </div>

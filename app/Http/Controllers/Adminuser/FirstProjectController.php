@@ -56,6 +56,6 @@ class FirstProjectController extends Controller
     	    return back();
         }
 
-    	return redirect(route('home'))->with('notification', $notification);
+    	return redirect(route('project.list-project'))->with('notification', $notification);
     }
 }

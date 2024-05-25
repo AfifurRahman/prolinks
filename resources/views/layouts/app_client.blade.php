@@ -112,12 +112,15 @@
         .user-avatar {
             background-color:#FDB022; 
             color:#FFF; 
-            width:40px; 
-            height:40px; 
+            width:36px; 
+            height:36px; 
             border-radius:100%; 
             text-align:center;
-            font-size:27px; 
+            font-size:25px; 
             font-weight:bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .user-avatar-small {
@@ -171,36 +174,72 @@
                     </div>
 
                     <ul class="nav navbar-nav navbar-right">
-                        <div style="margin-top: 10px;">
-                            <div class="user-info">
-                                <!-- <img class="user-notification" src="{{ url('template/images/icon_menu/notification.png') }}"></img> -->
-                                <div class="user-profile dropdown">
-                                    <!-- <div class="user-avatar">A</div> -->
-                                    {!! \globals::get_user_avatar(Auth::user()->name, Auth::user()->avatar_color) !!}
-                                    <!-- <img class="user-img" src="{{ url('template/images/avatar.png') }}"></img> -->
-                                    <div class="user-detail">
-                                        <div class="user-detail dropdown-toggle" data-toggle="dropdown">
-                                            <p class="user-name">
-                                                {{ Auth::user()->name }}
-                                            </p>
-                                            <p class="user-company">{{ !empty(Auth::user()->RefClient->client_name) ? Auth::user()->RefClient->client_name : '-' }}</p>
-                                        </div>
-                                        <ul class="dropdown-menu dropdown-menu-top pull-right" style="margin-top:10px;">
-                                            <!-- <li><a>Edit Profile</a></li> -->
-                                            <li>
-                                                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                                    <input type="checkbox" id="logout-checkbox" style="display: none;">
-                                                    <label for="logout-checkbox">Sign out</label>
-                                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                                        @csrf
-                                                    </form>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <li>
+                            <a href="#" class="right-menu-item dropdown-toggle" data-toggle="dropdown">
+                                <i class="mdi mdi-bell"></i>
+                                <span class="badge up bg-success">{{ count(\log::get_notification()) }}</span>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right dropdown-lg user-list notify-list">
+                                <li>
+                                    <h5>Notifications</h5>
+                                </li>
+                                @if (count(\log::get_notification(10)))
+                                    @foreach (\log::get_notification(10) as $notify )
+                                        <li title="{{ $notify->sender_name }} - {{ $notify->text }}" data-toggle="tooltip" data-placement="left">
+                                            <a href="#" data-url="{{ $notify->link }}" data-id="{{ $notify->id }}" onclick="readNotification(this)" class="user-list-item">
+                                                @if ($notify->type == 0)
+                                                    <div class="icon bg-warning">
+                                                        <i class="mdi mdi-comment"></i>
+                                                    </div>
+                                                @elseif($notify->type == 1)
+                                                     <div class="icon bg-info">
+                                                        <i class="mdi mdi-file"></i>
+                                                    </div>
+                                                @endif
+
+                                                <div class="user-desc">
+                                                    <span class="name"><b>{{ $notify->sender_name }}</b> - {{ $notify->text }}</span>
+                                                    <span class="time">{{ $notify->created_at }}</span>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                @endif
+                                <li class="all-msgs text-center">
+                                    <p class="m-0"><a href="{{ route('notification.list') }}">See all Notification</a></p>
+                                </li>
+                            </ul>
+
+                        </li>
+                        <li class="dropdown user-box">
+                            <a href="" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown" aria-expanded="true" style="display:flex;">
+                                {!! \globals::get_user_avatar(Auth::user()->name, Auth::user()->avatar_color) !!}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right user-list notify-list">
+                                <li style="background-color:#f3f3f3;">
+                                    <h5 style="margin-bottom:0em; padding: 10px 0px 0px 0px;">Hi, {{ Auth::user()->name }}</h5>
+                                    <p style="text-align:center; margin-top:0em;">
+                                        @if (Auth::user()->type == \globals::set_role_administrator())
+                                            Administrator
+                                        @elseif(Auth::user()->type == \globals::set_role_collaborator())
+                                            Collaborator
+                                        @elseif(Auth::user()->type == \globals::set_role_client())
+                                            Reviewer
+                                        @endif
+                                    </p>
+                                </li>
+                                <li>
+                                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <input type="checkbox" id="logout-checkbox" style="display: none;">
+                                        <label for="logout-checkbox"><i class="ti-power-off m-r-5"></i>Sign out</label>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -289,6 +328,22 @@
                 }
             });
         });
+
+        function readNotification(element) {
+            var id = $(element).data('id');
+            var url = $(element).data('url');
+            $.ajax({
+                type: "POST",
+                data:{
+                    "_token": "{{ csrf_token() }}",
+                    "id": id
+                },
+                url: "{{ route('notification.read') }}",
+                success:function(output) {
+                    window.location.href = url;
+                }
+            });
+        }
 
         function formatNumber(n) {
           // format number 1000000 to 1,234,567
