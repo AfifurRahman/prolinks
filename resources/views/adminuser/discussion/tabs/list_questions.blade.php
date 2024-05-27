@@ -39,10 +39,12 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-top pull-right">
                             <li><a href="{{ route('discussion.detail-discussion', $qna->discussion_id) }}"></i>View Detail</a></li>
-                            @if(Auth::user()->type == \globals::set_role_collaborator() || Auth::user()->type == \globals::set_role_administrator())
-                                @if($qna->status == \globals::set_qna_status_unanswered() || $qna->status == \globals::set_qna_status_answered())
+                            @if($qna->status == \globals::set_qna_status_unanswered() || $qna->status == \globals::set_qna_status_answered())
+                                @if ($qna->user_id == Auth::user()->user_id) 
                                     <li><a href="#modal-confirm-status-close" data-discussionid="{{ $qna->discussion_id }}" onclick="getDiscussionID(this)" data-toggle="modal">Close question</a></li>
-                                @elseif($qna->status == \globals::set_qna_status_closed())
+                                @endif
+                            @elseif($qna->status == \globals::set_qna_status_closed())
+                                @if ($qna->user_id == Auth::user()->user_id)
                                     <li><a href="#modal-confirm-status-open" data-discussionid="{{ $qna->discussion_id }}" onclick="getDiscussionID(this)" data-toggle="modal">Open question</a></li>
                                 @endif
                             @endif

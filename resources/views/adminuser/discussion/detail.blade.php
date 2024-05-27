@@ -133,10 +133,12 @@
                 </h3>
             </div>
             <div class="pull-right">
-                @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
-                    @if($detail->status == \globals::set_qna_status_unanswered() || $detail->status == \globals::set_qna_status_answered())
+                @if($detail->status == \globals::set_qna_status_unanswered() || $detail->status == \globals::set_qna_status_answered())
+                    @if ($detail->user_id == Auth::user()->user_id)
                         <a href="#modal-confirm-status-close" data-toggle="modal" class="btn btn-default" style="margin-top:5px;">Close questions</a>
-                    @elseif($detail->status == \globals::set_qna_status_closed())
+                    @endif
+                @elseif($detail->status == \globals::set_qna_status_closed())
+                    @if ($detail->user_id == Auth::user()->user_id)
                         <a href="#modal-confirm-status-open" data-toggle="modal" class="btn btn-primary" style="margin-top:5px;">Open questions</a>
                     @endif
                 @endif
