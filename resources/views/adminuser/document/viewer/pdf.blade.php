@@ -30,6 +30,6 @@
         </div>
     </div>
     <div class="PDFframe">
-        <iframe src="{{ route('adminuser.documents.serve', ['file' => base64_encode($file)]) }}" type="application/pdf">
+        <iframe src="{{ route('adminuser.documents.serve', ['file' => base64_encode($file)]) }}#toolbar=0" type="application/pdf">
     </div>
 </body>

@@ -350,6 +350,9 @@ class DocumentController extends Controller
 
             $mimeType = UploadFile::where('basename', $file)->value('mime_type');
 
+            $desc = Auth::user()->name . " viewed file " . $file;
+            \log::create(request()->all(), "success", $desc);
+
             if (str_starts_with($mimeType, 'image/')) {
                 return view('adminuser.document.viewer.image', compact('file', 'link'));
             }
