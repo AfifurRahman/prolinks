@@ -107,6 +107,9 @@ class DocumentController extends Controller
                     }
                 }
             }
+            $desc = Auth::user()->name . " set permission on user " . $request->userid;
+            \log::create(request()->all(), "success", $desc);
+
             return response()->json($testing);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
@@ -199,6 +202,10 @@ class DocumentController extends Controller
 
                             $receiver_email = AssignProject::where('subproject_id', $locationParts[3])->where('client_id', \globals::get_client_id())->get();
                             $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
+
+                            $desc = Auth::user()->name . " uploaded file " . $file->getClientOriginalName();
+                            \log::create(request()->all(), "success", $desc);
+            
                             // \log::push_notification('New File Added', $type=1, basename($filePath), $locationParts[3]);
 
                             $link = array_slice(explode('/', $path), 2);
@@ -265,6 +272,8 @@ class DocumentController extends Controller
             $folders = UploadFolder::where('parent', $currentPath)->where('name', $request->folderName)->value('name');
 
             if (is_null($folders)){
+                Storage::makeDirectory($path, 0755,true);
+
                 $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('parent', $originPath)->max('index'));
                 $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
         
@@ -282,7 +291,8 @@ class DocumentController extends Controller
                     'uploaded_by' => Auth::user()->user_id, 
                 ]);
         
-                Storage::makeDirectory($path, 0755,true);
+                $desc = Auth::user()->name . " created folder " . $request->folderName;
+                \log::create(request()->all(), "success", $desc);
 
                 return response()->json(['success' => true, 'message' => 'Folder successfully created']);
             } else {
@@ -368,6 +378,9 @@ class DocumentController extends Controller
 
             $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
 
+            $desc = Auth::user()->name . " downloaded file " . $file;
+            \log::create(request()->all(), "success", $desc);
+
             return Storage::disk('local')->download($fullPath, $index . ' - ' . UploadFile::where('basename', $file)->value('name'));
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
@@ -408,6 +421,9 @@ class DocumentController extends Controller
             $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip';
 
             Storage::put($destinationPath, file_get_contents($tempZipFile));
+
+            $desc = Auth::user()->name . " downloaded files";
+            \log::create(request()->all(), "success", $desc);
 
             return response()->json(['success' => true, 'link' => base64_encode($destinationPath)]);
         } catch (\Exception $e) {
@@ -506,6 +522,9 @@ class DocumentController extends Controller
             $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip'; 
             Storage::put($destinationPath, file_get_contents($tempZipFile));
 
+            $desc = Auth::user()->name . " downloaded folder path " . $folder;
+            \log::create(request()->all(), "success", $desc);
+
             return Storage::disk('local')->download($destinationPath, basename($folderName) . '.zip');
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
@@ -520,6 +539,9 @@ class DocumentController extends Controller
             $extension = pathinfo(UploadFile::where('basename', $old_name)->value('name'), PATHINFO_EXTENSION);
             UploadFile::where('basename', $old_name)->update(['name' => $new_name . '.' . $extension]);
 
+            $desc = Auth::user()->name . " renamed file " . $old_name . " to " . $new_name;
+            \log::create(request()->all(), "success", $desc);
+
             return response()->json(['success' => true, 'message' =>'Successfully rename the file']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Failed to rename the file']);
@@ -530,6 +552,9 @@ class DocumentController extends Controller
     {
         try {
             UploadFile::where('basename', base64_decode($request->file))->update(['status' => 0]);
+
+            $desc = Auth::user()->name . " deleted file " . base64_decode($request->file);
+            \log::create(request()->all(), "success", $desc);
 
             return response()->json(['success' => true, 'message' => 'File successfully removed']);
         } catch (\Exception $e) {
@@ -544,6 +569,9 @@ class DocumentController extends Controller
             $location = base64_decode($request->location);
             UploadFolder::where('parent', $location)->where('name', $name)->update(['displayname' => $request->newname]);
 
+            $desc = Auth::user()->name . " renamed folder " . $name . " to " . $request->newname;
+            \log::create(request()->all(), "success", $desc);
+
             return response()->json(['success' => true, 'message' => 'Folder successfully renamed']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
@@ -554,6 +582,9 @@ class DocumentController extends Controller
         try {
             $foldername = base64_decode($request->folder);
             UploadFolder::where('directory', $foldername)->update(['status' => 0]);
+
+            $desc = Auth::user()->name . " deleted folder " . $foldername;
+            \log::create(request()->all(), "success", $desc);
 
             return response()->json(['success' => true, 'message' =>'Successfully removed the folder']);
         } catch (\Exception $e) {
