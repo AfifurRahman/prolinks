@@ -180,6 +180,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 		Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@Search')->name('adminuser.documents.search');
 		Route::get('documents/zip/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
 		Route::get('documents/view/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ViewFile')->name('adminuser.documents.view');
+		Route::get('documents/serve/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ServeFile')->name('adminuser.documents.serve');
 		Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
 		Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
 		Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');

@@ -353,8 +353,30 @@ class DocumentController extends Controller
             if (str_starts_with($mimeType, 'image/')) {
                 return view('adminuser.document.viewer.image', compact('file', 'link'));
             }
-            else {
+            elseif (str_starts_with($mimeType, 'application/pdf')) {
+                return view('adminuser.document.viewer.pdf', compact('file', 'link'));
+            } else {
                 return back();
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function ServeFile($file)
+    {
+        try {
+            $file = base64_decode($file);
+            $path = UploadFile::where('basename', $file)->value('directory');
+
+            if (Storage::disk('local')->exists($path)) {
+                $fileContents = Storage::disk('local')->get($path . '/' . $file);
+                $mimeType = Storage::disk('local')->mimeType($path . '/' . $file);
+
+                return response($fileContents, 200)
+                    ->header('Content-Type', $mimeType);
+            } else {
+                abort(404);
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
