@@ -177,34 +177,42 @@
                         <li>
                             <a href="#" class="right-menu-item dropdown-toggle" data-toggle="dropdown">
                                 <i class="mdi mdi-bell"></i>
-                                <span class="badge up bg-success">{{ count(\log::get_notification()) }}</span>
+                                <span class="badge up bg-success">
+                                    @if(!\role::check_user_disabled())
+                                        {{ count(\log::get_notification()) }}
+                                    @else
+                                        0
+                                    @endif
+                                </span>
                             </a>
 
                             <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right dropdown-lg user-list notify-list">
                                 <li>
                                     <h5>Notifications</h5>
                                 </li>
-                                @if (count(\log::get_notification(10)))
-                                    @foreach (\log::get_notification(10) as $notify )
-                                        <li title="{{ $notify->sender_name }} - {{ $notify->text }}" data-toggle="tooltip" data-placement="left">
-                                            <a href="#" data-url="{{ $notify->link }}" data-id="{{ $notify->id }}" onclick="readNotification(this)" class="user-list-item">
-                                                @if ($notify->type == 0)
-                                                    <div class="icon bg-warning">
-                                                        <i class="mdi mdi-comment"></i>
-                                                    </div>
-                                                @elseif($notify->type == 1)
-                                                     <div class="icon bg-info">
-                                                        <i class="mdi mdi-file"></i>
-                                                    </div>
-                                                @endif
+                                @if(!\role::check_user_disabled())
+                                    @if (count(\log::get_notification(5)))
+                                        @foreach (\log::get_notification(5) as $notify )
+                                            <li title="{{ $notify->sender_name }} - {{ $notify->text }}" data-toggle="tooltip" data-placement="left">
+                                                <a href="#" data-url="{{ $notify->link }}" data-id="{{ $notify->id }}" onclick="readNotification(this)" class="user-list-item">
+                                                    @if ($notify->type == 0)
+                                                        <div class="icon bg-warning">
+                                                            <i class="mdi mdi-comment"></i>
+                                                        </div>
+                                                    @elseif($notify->type == 1)
+                                                        <div class="icon bg-info">
+                                                            <i class="mdi mdi-file"></i>
+                                                        </div>
+                                                    @endif
 
-                                                <div class="user-desc">
-                                                    <span class="name"><b>{{ $notify->sender_name }}</b> - {{ $notify->text }}</span>
-                                                    <span class="time">{{ $notify->created_at }}</span>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    @endforeach
+                                                    <div class="user-desc">
+                                                        <span class="name"><b>{{ $notify->sender_name }}</b> - {{ $notify->text }}</span>
+                                                        <span class="time">{{ $notify->created_at }}</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    @endif
                                 @endif
                                 <li class="all-msgs text-center">
                                     <p class="m-0"><a href="{{ route('notification.list') }}">See all Notification</a></p>
