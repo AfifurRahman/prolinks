@@ -126,7 +126,7 @@ class LogHelper
             $model->limit($limit);
         }
 
-        return $model->orderBy('id', 'DESC')->paginate(30);
+        return $model->orderBy('id', 'DESC')->get();
     }
 
     public static function get_all_notification($limit=null)
