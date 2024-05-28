@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\URL;
 use Auth;
 use App\Models\User;
 use App\Models\AdminBackend;
+use App\Models\AssignProject;
 
 class RolesHelper
 {
@@ -45,6 +46,17 @@ class RolesHelper
             foreach ($roles as $key => $value) {
                 $result[] = $value->role;
             }
+        }
+
+        return $result;
+    }
+
+    public static function check_user_disabled()
+    {
+        $check = AssignProject::where('user_id', Auth::user()->user_id)->where('client_id', Auth::user()->client_id)->where('deleted', 1)->get();
+        $result = false;
+        if (count($check) > 0) {
+            $result = true;
         }
 
         return $result;
