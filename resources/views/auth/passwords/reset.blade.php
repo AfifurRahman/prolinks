@@ -100,6 +100,8 @@
                                         Copyright ©{{ date('Y') }} Prolinks&nbsp;&nbsp; • <a href="">Privacy policy</a>&nbsp;&nbsp; • <a href="">Terms of use</a>
                                     </p>
                                 </div>
+                                <img src="{{ url('template/images/icon-iso.png') }}" style="width:100px; height: 30px;">&nbsp;&nbsp;
+                                <img src="{{ url('template/images/logo-pse.png') }}" style="width:100px; height: 40px;">
                             </form>
                         </div>
                     </div>

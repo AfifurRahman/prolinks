@@ -150,7 +150,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 	Route::group(['middleware' => ['verify_project']], function () {
 		Route::post('change-main-project', 'App\Http\Controllers\Adminuser\ProjectController@change_main_project')->name('project.change-main-project');
 
-		Route::group(['middleware' => ['check_access_user']], function () {
+		// Route::group(['middleware' => ['check_access_user']], function () {
 			/* Home */
 			Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 			Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -183,6 +183,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@Search')->name('adminuser.documents.search');
 			Route::get('documents/zip/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
 			Route::get('documents/view/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ViewFile')->name('adminuser.documents.view');
+			Route::get('documents/serve/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ServeFile')->name('adminuser.documents.serve');
 			Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
 			Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
 			Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');
@@ -231,6 +232,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('/setting/save-setting-email', 'App\Http\Controllers\Adminuser\SettingController@save_setting_email')->name('setting.save-setting-email');
 			Route::get('/all-notification', 'App\Http\Controllers\Adminuser\SettingController@all_notification')->name('notification.list');
 			Route::post('/read-notification', 'App\Http\Controllers\Adminuser\SettingController@read_notification')->name('notification.read');
-		});
+		// });
 	});
 });
