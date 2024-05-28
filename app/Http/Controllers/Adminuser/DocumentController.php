@@ -648,73 +648,18 @@ class DocumentController extends Controller
     }
 
     public function MultipleUpload(Request $request) {
-        $arr = explode(',', $request->paths);
-        $dirList = array();
-        $result = array();
-    
-        foreach ($arr as $folder) {
-            $directory = explode('/', $folder);
-            $ext = "";
-            for ($i = 0; $i < count($directory) - 1; $i++) {
-                $ext .= $directory[$i] . '/';
-            }
-            array_push($dirList, $ext);
-        }
-    
-        $dirList = array_unique($dirList);
-    
-        foreach ($dirList as $path) {
-            $parts = array_filter(explode('/', $path));
-            $lastPart = end($parts);
-            array_pop($parts);
-            $temp = &$result;
-    
-            foreach ($parts as $part) {
-                $temp = &$temp[$part];
-            }
-    
-            $temp[$lastPart] = [];
-        }
-    
-        $this->createFolders($result, $request->location);
-    }
-    
-    private function createFolders($array, $location) {
-        foreach ($array as $key => $value) {
-            if (!empty($key)) {
-                $randomString = Str::random(8);
+        try {
+           
+                $files = $request->file('files');
 
-                $locationParts = explode('/', base64_decode($location), 5);
-
-                $originPath =  base64_decode($location);
-                $path = base64_decode($location) . '/' . $key;
-                
-                $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('parent', $originPath)->max('index'));
-                $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
-
-                $folders = UploadFolder::where('name', $request->folder_name)->value('name');
-                
-                if(is_null($folders)){
-                    UploadFolder::create([
-                        'index' => $folderIndex,
-                        'project_id' => $locationParts[2],
-                        'subproject_id' => $locationParts[3],
-                        'parent' => $originPath,
-                        'directory' => $path,
-                        'basename' => $randomString,
-                        'name' => $key,
-                        'client_id' => \globals::get_client_id(),
-                        'status' => 1,
-                        'uploaded_by' => Auth::user()->user_id,
-                    ]);
-            
-                    Storage::makeDirectory($path, 0755, true);
+                foreach ($files as $file) {
+                    $file->storeAs('app/', $file->getClientOriginalName());
                 }
-                   
-                if (is_array($value)) {
-                    $this->createFolders($value, base64_encode(base64_decode($location) . '/' . $key));
-                }
-            }
+           
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
+        
+        
     }
 }

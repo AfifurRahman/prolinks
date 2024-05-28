@@ -681,12 +681,7 @@
         @endif
         $('#rowCounts').text(rowCount);
 
-        
-        
         document.addEventListener('DOMContentLoaded', function() {
-            
-       
-
             const dragArea = document.getElementById('dragArea');
             const checkboxes = document.querySelectorAll('.checkbox');
 
@@ -762,143 +757,96 @@
 
         // Handle drag and drop file
         function handleDrop(event) {
-            async function traverseFileTreePromise(item, path = "", folder) {
-                return new Promise(resolve => {
-                    if (item.isFile) {
-                        item.file(file => {
-                            file.file = file.name;
-                            folder.push(file);
-                            resolve(file);
-                        });
-                    } else if (item.isDirectory) {
-                        let dirReader = item.createReader();
-                        dirReader.readEntries(entries => {
-                            let entriesPromises = [];
-                            subfolder = [];
-                            folder.push({ folder: item.name, subfolder });
-                            for (let entr of entries)
-                                entriesPromises.push(
-                                     traverseFileTreePromise(
-                                        entr,
-                                        path + item.name + "/", // Update the path here
-                                        subfolder
-                                    )
-                                );
-                            resolve(Promise.all(entriesPromises));
-                        });
-                    }
-                });
-            }
+            event.preventDefault();
 
-            async function getFilesDataTransferItems(dataTransferItems) {
-                let files = [];
-                return new Promise((resolve, reject) => {
-                    let entriesPromises = [];
-                    for (let it of dataTransferItems)
-                        entriesPromises.push(
-                            traverseFileTreePromise(it.webkitGetAsEntry(), "", files) // Pass an empty string as initial path
-                        );
-                    Promise.all(entriesPromises).then(entries => {
-                        resolve(files);
-                    });
-                });
-            }
+            var items = event.dataTransfer.items;
 
-            function getFilePaths(files) {
-                let paths = [];
+            getFilesDataTransferItems(items).then(allFiles => {
+                files = allFiles;
                 
-                function traverseFiles(files, currentPath = "") {
-                    let hasFiles = false;
-                    
-                    for (let file of files) {
-                        if (file.file) {
-                            paths.push(currentPath + file.file);
-                            hasFiles = true;
-                        } else if (file.folder && file.subfolder) {
-                            let folderPath = currentPath + file.folder + "/";
-                            let subfolderHasFiles = traverseFiles(file.subfolder, folderPath);
-                            
-                            if (subfolderHasFiles || file.subfolder.length > 0) {
-                                hasFiles = true;
+                displayFileData(files);
+
+                document.getElementById('upload-preview-modal').style.display='block';
+                document.getElementById('upload-modal').style.display='none';
+
+                $('#uploadFileSubmit').on('click', function(e) {
+                    if (a == 0) {
+                        a = 1;
+                        e.preventDefault();
+                        $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i>');
+                        $('.removeFileButton').prop("disabled", true);
+                        $('#uploadFileSubmit').prop("disabled", true);
+                        $('.cancel-btn').prop("disabled", true);
+                        $('.modal-close').prop("disabled", true);
+                        $("#uploadFileSubmit").removeClass("upload-btn");
+                        $('#browseFiles').hide();
+                        $('#clearFiles').hide();
+
+                        console.log(files);
+                        const formData = new FormData();
+                        formData.append("location", "{{ base64_encode($origin) }}");
+                        files.forEach(file => formData.append('files[]', file));
+
+                        fetch('{{ route("adminuser.documents.upload") }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             }
-                            
-                            if (!hasFiles) {
-                                // Push the folder path only if it hasn't been added before
-                                if (!paths.includes(folderPath)) {
-                                    paths.push(folderPath);
-                                }
-                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('upload-preview-modal').style.display = 'none';
+                            showNotification(data.message);
+                        });
                         }
-                    } 
-                    return hasFiles; // Return whether files were found in this folder or not
-                }     
-                traverseFiles(files);
-                return paths;
-            }
-            
-            function handleFiles(files, paths) {
-                const formData = new FormData();
-                formData.append("location", "{{ base64_encode($origin) }}");
-                formData.append("filePath", paths);
-                files.forEach(file => formData.append('files[]', file));
-
-                fetch('{{ route("adminuser.documents.upload") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('upload-modal').style.display = 'none';
-                    showNotification(data.message);
                 });
-            }
+            });
+            
+            function getFilesDataTransferItems(dataTransferItems) {
+                let path = [];
 
-            function handleEntry(entry, currentPath = '') {
-                const fullPath = currentPath + entry.name;
-                if (entry.isFile) {
-                    entry.file(file => {
-                        handleFiles([file], fullPath);
-                    });
-                } else if (entry.isDirectory) {
-                    handleFiles([], fullPath);
-                    const directoryReader = entry.createReader();
-                    directoryReader.readEntries(entries => {
-                        for (const subEntry of entries) {
-                            handleEntry(subEntry, fullPath + '/');
+                function traverseFileTreePromise(item, path = "", folder) {
+                    return new Promise(resolve => {
+                        if (item.isFile) {
+                            item.file(file => {
+                                file.fullPath = path;
+                                folder.push(file);
+                                resolve(file);
+                            });
+                        } else if (item.isDirectory) {
+                            let dirReader = item.createReader();
+                            dirReader.readEntries(entries => {
+                                let entriesPromises = [];
+                                let subfolder = [];
+                                folder.push(subfolder);
+                                for (let entry of entries)
+                                    entriesPromises.push(
+                                        traverseFileTreePromise(entry, path + item.name + "/", subfolder)
+                                    );
+                                resolve(Promise.all(entriesPromises));
+                            });
                         }
                     });
                 }
-            }
 
-            event.preventDefault();
-            const items = event.dataTransfer.items;
 
-            getFilesDataTransferItems(items).then(files => {
-                var paths = getFilePaths(files).join(",");
-                var path = paths.toString();
-                var formData = new FormData();
-
-                formData.append('paths', path);
-                formData.append('location', "{{ base64_encode($origin) }}");
-
-                // Changed route and csrf_token placeholders to their actual values
-                fetch('{{ route("adminuser.documents.multiupload") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
+                return new Promise((resolve, reject) => {
+                    let entriesPromises = [];
+                    for (let i = 0; i < dataTransferItems.length; i++) {
+                        entriesPromises.push(
+                            traverseFileTreePromise(dataTransferItems[i].webkitGetAsEntry(), "", path)
+                        );
+                    }
+                    Promise.all(entriesPromises).then(() => {
+                        resolve(path);
+                    }).catch(error => {
+                        reject(error);
+                    });
                 });
-            });
-
-            for (const item of items) {
-                const entry = item.webkitGetAsEntry();
-                handleEntry(entry);
             }
-        }   
+
+        }
 
         function showNotification(message) {
             document.querySelector('.notificationtext').textContent = message;
@@ -934,6 +882,7 @@
                     $('#browseFiles').hide();
                     $('#clearFiles').hide();
 
+                    console.log(files);
                     const formData = new FormData();
                     formData.append("location", "{{ base64_encode($origin) }}");
                     files.forEach(file => formData.append('files[]', file));
@@ -954,10 +903,11 @@
             });
         }
 
-        function displayFileData() {
+        function displayFileData(files) {
             const tableBody = document.getElementById('upload-preview-list');
             tableBody.innerHTML = '';
-
+            
+            console.log(files);
             files.forEach((file, index) => {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
