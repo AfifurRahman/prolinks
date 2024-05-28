@@ -148,85 +148,89 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 	Route::get('/project/create-new-project', 'App\Http\Controllers\Adminuser\FirstProjectController@create_first_project')->name('create-new-project');
 	Route::post('/project/save-first-project', 'App\Http\Controllers\Adminuser\FirstProjectController@save_first_project')->name('project.save-first-project');
 	Route::group(['middleware' => ['verify_project']], function () {
-		Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-		Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 		Route::post('change-main-project', 'App\Http\Controllers\Adminuser\ProjectController@change_main_project')->name('project.change-main-project');
-		
-		/* Clientuser */
-		Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
-		Route::get('/users/detail/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail')->name('adminuser.access-users.detail');
-		Route::get('/users/detail-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail_group')->name('adminuser.access-users.detail-group');
-		Route::post('/users/edit/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit')->name('adminuser.access-users.edit');
-		Route::post('/users/edit-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_group')->name('adminuser.access-users.edit-group');
-		Route::post('/users/edit_role/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_role')->name('adminuser.access-users.edit-role');
-		Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
-		Route::post('/users/move-group', 'App\Http\Controllers\Adminuser\AccessUsersController@move_group')->name('adminuser.access-users.move-group');
-		Route::get('/users/resend-email/{encodedEmail}', 'App\Http\Controllers\Adminuser\AccessUsersController@resend_email')->name('adminuser.access-users.resend-email');
-		Route::get('users/disable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@disable_user')->name('adminuser.access-users.disable-user');
-		Route::get('users/enable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@enable_user')->name('adminuser.access-users.enable-user');
-		Route::get('users/delete-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@delete_user')->name('adminuser.access-users.delete-user');
 
-		/* group */
-		Route::post('/group/save', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
-		Route::get('group/delete-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@delete_group')->name('adminuser.access-users.delete-group');
-		Route::get('group/disabled-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@disabled_group')->name('adminuser.access-users.disabled-group');
-		Route::get('group/enable-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@enable_group')->name('adminuser.access-users.enable-group');
+		Route::group(['middleware' => ['check_access_user']], function () {
+			/* Home */
+			Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+			Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+			
+			/* Clientuser */
+			Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
+			Route::get('/users/detail/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail')->name('adminuser.access-users.detail');
+			Route::get('/users/detail-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail_group')->name('adminuser.access-users.detail-group');
+			Route::post('/users/edit/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit')->name('adminuser.access-users.edit');
+			Route::post('/users/edit-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_group')->name('adminuser.access-users.edit-group');
+			Route::post('/users/edit_role/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_role')->name('adminuser.access-users.edit-role');
+			Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
+			Route::post('/users/move-group', 'App\Http\Controllers\Adminuser\AccessUsersController@move_group')->name('adminuser.access-users.move-group');
+			Route::get('/users/resend-email/{encodedEmail}', 'App\Http\Controllers\Adminuser\AccessUsersController@resend_email')->name('adminuser.access-users.resend-email');
+			Route::get('users/disable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@disable_user')->name('adminuser.access-users.disable-user');
+			Route::get('users/enable-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@enable_user')->name('adminuser.access-users.enable-user');
+			Route::get('users/delete-user/{encodedEmail}','App\Http\Controllers\Adminuser\AccessUsersController@delete_user')->name('adminuser.access-users.delete-user');
 
-		/* Document */
-		Route::get('documents/sub/{subproject}', 'App\Http\Controllers\Adminuser\DocumentController@Index')->name('adminuser.documents.list');
-		Route::get('documents/{folder}','App\Http\Controllers\Adminuser\DocumentController@OpenFolder')->name('adminuser.documents.openfolder');
-		Route::get('documents/download/{file}','App\Http\Controllers\Adminuser\DocumentController@DownloadFile')->name('adminuser.documents.downloadfile');
-		Route::get('documents/download/zip/{link}','App\Http\Controllers\Adminuser\DocumentController@DownloadZip')->name('adminuser.documents.downloadzip');
-		Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@Search')->name('adminuser.documents.search');
-		Route::get('documents/zip/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
-		Route::get('documents/view/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ViewFile')->name('adminuser.documents.view');
-		Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
-		Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
-		Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');
-		Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@UploadFiles')->name('adminuser.documents.upload');
-		Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');
-		Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
-		Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
-		Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
-		Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
-		Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@MultipleUpload')->name('adminuser.documents.multiupload');
+			/* group */
+			Route::post('/group/save', 'App\Http\Controllers\Adminuser\AccessUsersController@create_group')->name('adminuser.access-users.create-group');
+			Route::get('group/delete-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@delete_group')->name('adminuser.access-users.delete-group');
+			Route::get('group/disabled-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@disabled_group')->name('adminuser.access-users.disabled-group');
+			Route::get('group/enable-group/{group_id}','App\Http\Controllers\Adminuser\AccessUsersController@enable_group')->name('adminuser.access-users.enable-group');
 
-		/* Companies */
-		Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');
-		Route::get('/company/detail/{id}', 'App\Http\Controllers\Adminuser\CompanyController@detail_company')->name('company.detail-company');
-		Route::post('/company/save', 'App\Http\Controllers\Adminuser\CompanyController@save')->name('company.save-company');
-		Route::get('/company/delete/{id}', 'App\Http\Controllers\Adminuser\CompanyController@delete')->name('company.delete-company');
-		Route::get('/company/disable/{id}', 'App\Http\Controllers\Adminuser\CompanyController@disable_company')->name('company.disable-company');
-		Route::post('/company/get-detail-company', 'App\Http\Controllers\Adminuser\CompanyController@get_detail_company')->name('company.get-detail-company');
+			/* Document */
+			Route::get('documents/sub/{subproject}', 'App\Http\Controllers\Adminuser\DocumentController@Index')->name('adminuser.documents.list');
+			Route::get('documents/{folder}','App\Http\Controllers\Adminuser\DocumentController@OpenFolder')->name('adminuser.documents.openfolder');
+			Route::get('documents/download/{file}','App\Http\Controllers\Adminuser\DocumentController@DownloadFile')->name('adminuser.documents.downloadfile');
+			Route::get('documents/download/zip/{link}','App\Http\Controllers\Adminuser\DocumentController@DownloadZip')->name('adminuser.documents.downloadzip');
+			Route::get('documents/search/id','App\Http\Controllers\Adminuser\DocumentController@Search')->name('adminuser.documents.search');
+			Route::get('documents/zip/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
+			Route::get('documents/view/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ViewFile')->name('adminuser.documents.view');
+			Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
+			Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
+			Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');
+			Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@UploadFiles')->name('adminuser.documents.upload');
+			Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');
+			Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
+			Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
+			Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
+			Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
+			Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@MultipleUpload')->name('adminuser.documents.multiupload');
 
-		/* Project */
-		Route::get('/project/list-project', 'App\Http\Controllers\Adminuser\ProjectController@list_project')->name('project.list-project');
-		Route::get('/project/detail-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@detail_project')->name('project.detail-project');
-		Route::post('/project/detail-role-users', 'App\Http\Controllers\Adminuser\ProjectController@detail_role_users')->name('project.detail-role-users');
-		Route::get('/project/create-project', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.create-project');
-		Route::get('/project/edit-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.edit-project');
-		Route::post('/project/save-project', 'App\Http\Controllers\Adminuser\ProjectController@save_project')->name('project.save-project');
-		Route::post('/project/save-subproject', 'App\Http\Controllers\Adminuser\ProjectController@save_subproject')->name('project.save-subproject');
-		Route::get('/project/delete-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_project')->name('project.delete-project');
-		Route::get('/project/delete-sub-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_sub_project')->name('project.delete-sub-project');
-		Route::post('/project/terminate-project', 'App\Http\Controllers\Adminuser\ProjectController@terminate_project')->name('project.terminate-project');
+			/* Companies */
+			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');
+			Route::get('/company/detail/{id}', 'App\Http\Controllers\Adminuser\CompanyController@detail_company')->name('company.detail-company');
+			Route::post('/company/save', 'App\Http\Controllers\Adminuser\CompanyController@save')->name('company.save-company');
+			Route::get('/company/delete/{id}', 'App\Http\Controllers\Adminuser\CompanyController@delete')->name('company.delete-company');
+			Route::get('/company/disable/{id}', 'App\Http\Controllers\Adminuser\CompanyController@disable_company')->name('company.disable-company');
+			Route::post('/company/get-detail-company', 'App\Http\Controllers\Adminuser\CompanyController@get_detail_company')->name('company.get-detail-company');
 
-		/* Q & A */
-		Route::get('/discussion/list', 'App\Http\Controllers\Adminuser\DiscussionController@index')->name('discussion.list-discussion');
-		Route::get('/discussion/detail/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@detail')->name('discussion.detail-discussion');
-		Route::post('/discussion/save', 'App\Http\Controllers\Adminuser\DiscussionController@save_discussion')->name('discussion.save-discussion');
-		Route::post('/discussion/save-comment', 'App\Http\Controllers\Adminuser\DiscussionController@save_comment')->name('comment.save-comment');
-		Route::post('/discussion/change-status-qna-closed', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_closed')->name('discussion.change-status-qna-closed');
-		Route::post('/discussion/change-status-qna-open', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_open')->name('discussion.change-status-qna-open');
-		Route::get('/discussion/delete-comment/{id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_comment')->name('discussion.delete-comment');
-		Route::get('/discussion/delete-discussion/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_discussion')->name('discussion.delete-discussion');
-		Route::post('/discussion/import-questions', 'App\Http\Controllers\Adminuser\DiscussionController@import_questions')->name('discussion.import-questions');
-		Route::get('/discussion/export-questions', 'App\Http\Controllers\Adminuser\DiscussionController@export_questions')->name('discussion.export-questions');
-		
-		/* Setting */
-		Route::get('/setting', 'App\Http\Controllers\Adminuser\SettingController@index')->name('setting');
-		Route::post('/setting/save-setting-email', 'App\Http\Controllers\Adminuser\SettingController@save_setting_email')->name('setting.save-setting-email');
-		Route::get('/all-notification', 'App\Http\Controllers\Adminuser\SettingController@all_notification')->name('notification.list');
-		Route::post('/read-notification', 'App\Http\Controllers\Adminuser\SettingController@read_notification')->name('notification.read');
+			/* Project */
+			Route::get('/project/list-project', 'App\Http\Controllers\Adminuser\ProjectController@list_project')->name('project.list-project');
+			Route::get('/project/detail-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@detail_project')->name('project.detail-project');
+			Route::post('/project/detail-role-users', 'App\Http\Controllers\Adminuser\ProjectController@detail_role_users')->name('project.detail-role-users');
+			Route::get('/project/create-project', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.create-project');
+			Route::get('/project/edit-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.edit-project');
+			Route::post('/project/save-project', 'App\Http\Controllers\Adminuser\ProjectController@save_project')->name('project.save-project');
+			Route::post('/project/save-subproject', 'App\Http\Controllers\Adminuser\ProjectController@save_subproject')->name('project.save-subproject');
+			Route::get('/project/delete-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_project')->name('project.delete-project');
+			Route::get('/project/delete-sub-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_sub_project')->name('project.delete-sub-project');
+			Route::post('/project/terminate-project', 'App\Http\Controllers\Adminuser\ProjectController@terminate_project')->name('project.terminate-project');
+
+			/* Q & A */
+			Route::get('/discussion/list', 'App\Http\Controllers\Adminuser\DiscussionController@index')->name('discussion.list-discussion');
+			Route::get('/discussion/detail/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@detail')->name('discussion.detail-discussion');
+			Route::post('/discussion/save', 'App\Http\Controllers\Adminuser\DiscussionController@save_discussion')->name('discussion.save-discussion');
+			Route::post('/discussion/save-comment', 'App\Http\Controllers\Adminuser\DiscussionController@save_comment')->name('comment.save-comment');
+			Route::post('/discussion/change-status-qna-closed', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_closed')->name('discussion.change-status-qna-closed');
+			Route::post('/discussion/change-status-qna-open', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_open')->name('discussion.change-status-qna-open');
+			Route::get('/discussion/delete-comment/{id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_comment')->name('discussion.delete-comment');
+			Route::get('/discussion/delete-discussion/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_discussion')->name('discussion.delete-discussion');
+			Route::post('/discussion/import-questions', 'App\Http\Controllers\Adminuser\DiscussionController@import_questions')->name('discussion.import-questions');
+			Route::get('/discussion/export-questions', 'App\Http\Controllers\Adminuser\DiscussionController@export_questions')->name('discussion.export-questions');
+			
+			/* Setting */
+			Route::get('/setting', 'App\Http\Controllers\Adminuser\SettingController@index')->name('setting');
+			Route::post('/setting/save-setting-email', 'App\Http\Controllers\Adminuser\SettingController@save_setting_email')->name('setting.save-setting-email');
+			Route::get('/all-notification', 'App\Http\Controllers\Adminuser\SettingController@all_notification')->name('notification.list');
+			Route::post('/read-notification', 'App\Http\Controllers\Adminuser\SettingController@read_notification')->name('notification.read');
+		});
 	});
 });
