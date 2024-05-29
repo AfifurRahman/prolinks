@@ -761,91 +761,39 @@
 
             var items = event.dataTransfer.items;
 
-            getFilesDataTransferItems(items).then(allFiles => {
-                files = allFiles;
-                
-                displayFileData(files);
+            for (var i = 0; i < items.length; i++) {
+                var entry = items[i].webkitGetAsEntry();
+                if (entry) {
+                    traverse(entry);
+                }
+            };
 
-                document.getElementById('upload-preview-modal').style.display='block';
-                document.getElementById('upload-modal').style.display='none';
-
-                $('#uploadFileSubmit').on('click', function(e) {
-                    if (a == 0) {
-                        a = 1;
-                        e.preventDefault();
-                        $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i>');
-                        $('.removeFileButton').prop("disabled", true);
-                        $('#uploadFileSubmit').prop("disabled", true);
-                        $('.cancel-btn').prop("disabled", true);
-                        $('.modal-close').prop("disabled", true);
-                        $("#uploadFileSubmit").removeClass("upload-btn");
-                        $('#browseFiles').hide();
-                        $('#clearFiles').hide();
-
-                        console.log(files);
+            function traverse(entry, path = "") {
+                if (entry.isFile) {
+                    entry.file(function(file) {
                         const formData = new FormData();
+                        formData.append('file', file);
+                        formData.append('filePath', path);
                         formData.append("location", "{{ base64_encode($origin) }}");
-                        files.forEach(file => formData.append('files[]', file));
 
-                        fetch('{{ route("adminuser.documents.upload") }}', {
+                        fetch('{{ route("adminuser.documents.multiupload") }}', {
                             method: 'POST',
                             body: formData,
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             }
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('upload-preview-modal').style.display = 'none';
-                            showNotification(data.message);
+                    });
+                } else if (entry.isDirectory) {
+                    var dirReader = entry.createReader();
+                    dirReader.readEntries(function(entries) {
+                        entries.forEach(function(ent) {
+                            traverse(ent, path + entry.name + "/");
                         });
-                        }
-                });
-            });
-            
-            function getFilesDataTransferItems(dataTransferItems) {
-                let path = [];
-
-                function traverseFileTreePromise(item, path = "", folder) {
-                    return new Promise(resolve => {
-                        if (item.isFile) {
-                            item.file(file => {
-                                file.fullPath = path;
-                                folder.push(file);
-                                resolve(file);
-                            });
-                        } else if (item.isDirectory) {
-                            let dirReader = item.createReader();
-                            dirReader.readEntries(entries => {
-                                let entriesPromises = [];
-                                let subfolder = [];
-                                folder.push(subfolder);
-                                for (let entry of entries)
-                                    entriesPromises.push(
-                                        traverseFileTreePromise(entry, path + item.name + "/", subfolder)
-                                    );
-                                resolve(Promise.all(entriesPromises));
-                            });
-                        }
                     });
                 }
-
-
-                return new Promise((resolve, reject) => {
-                    let entriesPromises = [];
-                    for (let i = 0; i < dataTransferItems.length; i++) {
-                        entriesPromises.push(
-                            traverseFileTreePromise(dataTransferItems[i].webkitGetAsEntry(), "", path)
-                        );
-                    }
-                    Promise.all(entriesPromises).then(() => {
-                        resolve(path);
-                    }).catch(error => {
-                        reject(error);
-                    });
-                });
+                
             }
-
         }
 
         function showNotification(message) {
