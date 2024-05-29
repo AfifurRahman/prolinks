@@ -782,6 +782,8 @@
                 var entry = items[i].webkitGetAsEntry();
                 if (entry) {
                     traverse(entry);
+                    document.getElementById('upload-modal').style.display='none';
+                    showNotification("Folder successfully uploaded");
                 }
             };
 

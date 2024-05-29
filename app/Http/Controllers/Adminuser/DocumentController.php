@@ -663,7 +663,6 @@ class DocumentController extends Controller
 
             $IndexPathPart = "";
 
-
             foreach ($filePathPart as $key => $part) {
                 $PathPart .= '/' . $part;
                
