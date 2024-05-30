@@ -680,12 +680,14 @@
             </table>
 
             <p>Showing <span id="rowCounts">0</span> files and folders.</p>
+            <input id="countFile" type="hidden" value="0">
         </div>
     </div>
     @push('scripts')
     <script>
         let files = [];
-        let files1 = [];
+        let filesPath = [];
+        let filesChecked = [];
         
         let a = 0;
         let easteregg = 0;
@@ -711,7 +713,7 @@
                         checkedValues.push($(this).val()); 
                     });
 
-                    files1 = checkedValues;
+                    filesChecked = checkedValues;
                     if(checked > 0) {
                         $(".headerBar").css("visibility", "collapse");
                         $(".checkToolBar").css("visibility", "visible");
@@ -772,7 +774,7 @@
             window.location.href = "{{ route('adminuser.documents.search') }}?name=" + searchTerm + "&origin=" + "{{ base64_encode($origin) }}";
         }
 
-        // Handle drag and drop file
+        // Handle drag and drop file and folder
         function handleDrop(event) {
             event.preventDefault();
 
@@ -781,37 +783,25 @@
             for (var i = 0; i < items.length; i++) {
                 var entry = items[i].webkitGetAsEntry();
                 if (entry) {
-                    traverse(entry);
-                    document.getElementById('upload-modal').style.display='none';
-                    showNotification("Folder successfully uploaded");
+                    traverseFileFolder(entry);
                 }
-            };
+            }
 
-            function traverse(entry, path = "") {
+            function traverseFileFolder(entry, path = "") {
                 if (entry.isFile) {
                     entry.file(function(file) {
-                        const formData = new FormData();
-                        formData.append('file', file);
-                        formData.append('filePath', path);
-                        formData.append("location", "{{ base64_encode($origin) }}");
-
-                        fetch('{{ route("adminuser.documents.multiupload") }}', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        })
+                        files.push(file);
+                        filesPath.push(path);
+                        displayFileData(files, filesPath);
                     });
                 } else if (entry.isDirectory) {
                     var dirReader = entry.createReader();
                     dirReader.readEntries(function(entries) {
                         entries.forEach(function(ent) {
-                            traverse(ent, path + entry.name + "/");
+                            traverseFileFolder(ent, path + entry.name + "/");
                         });
                     });
-                }
-                
+                } 
             }
         }
 
@@ -829,12 +819,30 @@
         function handleFileSelection(input) {
             for (let i = 0; i < input.files.length; i++) {
                 files.push(input.files[i]);
+                filesPath.push("");
             }
 
-            displayFileData(files);
+            displayFileData(files, filesPath);
+        }
 
-            document.getElementById('upload-preview-modal').style.display='block';
+        function displayFileData(files, filesPath) {
             document.getElementById('upload-modal').style.display='none';
+            document.getElementById('upload-preview-modal').style.display='block';
+
+            const tableBody = document.getElementById('upload-preview-list');
+            tableBody.innerHTML = '';
+            
+            console.log(files);
+            console.log(filesPath);
+            files.forEach((file, index) => {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${file.name}</td>
+                    <td>${convertByte(file.size)}</td>
+                    <td><button onclick="removeFile(${index})" id="removeFileButton" class="removeFileButton"><i class="fa fa-times"></i></button></td>
+                `;
+                tableBody.appendChild(newRow);
+            });
 
             $('#uploadFileSubmit').on('click', function(e) {
                 if (a == 0) {
@@ -849,12 +857,12 @@
                     $('#browseFiles').hide();
                     $('#clearFiles').hide();
 
-                    console.log(files);
                     const formData = new FormData();
                     formData.append("location", "{{ base64_encode($origin) }}");
-                    files.forEach(file => formData.append('files[]', file));
+                    files.forEach(file => formData.append('file[]', file));
+                    filesPath.forEach(path => formData.append('filePath[]', path));
 
-                    fetch('{{ route("adminuser.documents.upload") }}', {
+                    fetch('{{ route("adminuser.documents.multiupload") }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
@@ -870,25 +878,10 @@
             });
         }
 
-        function displayFileData(files) {
-            const tableBody = document.getElementById('upload-preview-list');
-            tableBody.innerHTML = '';
-            
-            console.log(files);
-            files.forEach((file, index) => {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>${file.name}</td>
-                    <td>${convertByte(file.size)}</td>
-                    <td><button onclick="removeFile(${index})" id="removeFileButton" class="removeFileButton"><i class="fa fa-times"></i></button></td>
-                `;
-                tableBody.appendChild(newRow);
-            });
-        }
-
         function removeFile(index) {
             files.splice(index, 1); 
-            displayFileData(files);
+            filesPath.splice(index, 1); 
+            displayFileData(files, filesPath);
         }
 
         function clearFiles() {
@@ -1046,7 +1039,7 @@
         function downloadFiles() {
             var formData = new FormData();
             
-            formData.append('files', files1);
+            formData.append('files', filesChecked);
 
             fetch('{{ route("adminuser.documents.downloadfiles")}}', {
                 method: 'POST',
