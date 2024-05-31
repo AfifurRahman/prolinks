@@ -80,8 +80,6 @@ class DocumentController extends Controller
         try{
             $checkboxStatus = $request->all();
 
-            $testing = "";
-
             foreach ($checkboxStatus as $checkboxId => $checked) {
                 if ($checkboxId != "userid") {
                     if(is_null(Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->value('permission'))) {
@@ -109,8 +107,7 @@ class DocumentController extends Controller
             }
             $desc = Auth::user()->name . " set permission on user " . $request->userid;
             \log::create(request()->all(), "success", $desc);
-
-            return response()->json($testing);
+            
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
