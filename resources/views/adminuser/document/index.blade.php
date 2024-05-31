@@ -448,6 +448,7 @@
                         <th colspan='6'>
                             <span id="selectedCount">0</span>&nbsp;items selected
                             <button class="miniDownload" onclick="downloadFiles()">Download</button>
+                            <button class="miniClear" onclick="deleteFileSelections()">Delete Files</button>
                             <button class="miniClear" onclick="uncheckAll()">Clear selection</button>
                         </th>
                     </tr>
@@ -1052,6 +1053,29 @@
             .then(data => {
                 location.replace("{{ route('adminuser.documents.downloadzip', '') }}" + '/' + data.link);
             });
+        }
+
+        function deleteFileSelections() {
+            filesChecked.forEach(deleteFileSelection);
+
+            function deleteFileSelection(item) {
+                var formData = new FormData();
+
+                formData.append('file', item);
+
+                fetch('{{ route("adminuser.documents.deletefile") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('delete-file-modal').style.display='none';
+                    showNotification(data.message);
+                });
+            }
         }
 
         function renameFolder(folder, index, name) {
