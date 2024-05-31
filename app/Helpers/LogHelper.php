@@ -79,6 +79,12 @@ class LogHelper
             if ($resultID != null) {
                 $link = route('discussion.detail-discussion', $resultID);
             }
+        } elseif ($type == 1) {
+            if ($resultID != null) {
+                $link = route('adminuser.documents.openfolder', base64_encode($resultID));
+            } else {
+                $link = route('adminuser.documents.list', base64_encode(AssignProject::where('subproject_id', $subproject_id)->value('project_id') . '/' . $subproject_id)); 
+            }
         }
         
         if (count($assign_project) > 0) {

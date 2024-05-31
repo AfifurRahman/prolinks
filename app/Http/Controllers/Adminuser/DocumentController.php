@@ -735,7 +735,11 @@ class DocumentController extends Controller
 
             $desc = Auth::user()->name . " uploaded file " . $logFilesName;
             \log::create(request()->all(), "success", $desc);
-            
+
+            $link = UploadFolder::where('directory', $saveLocation)->value('basename');
+
+            \log::push_notification('New File Added', $type=1, $link, $projectID[3]);
+
             return response()->json(['success' => false, 'message' => "Successfully uploaded files and folders."]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
