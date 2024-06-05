@@ -25,6 +25,11 @@ class AuthController extends Controller
             return redirect(route('login'));
         }
 
+		$checkToken = $this->check_valid_token($request->input('email'), $token); 
+		if (!$checkToken) {
+			return response()->json("Invalid Token");
+		}
+
     	$email = $request->input('email');
     	return view('adminuser.auth.create_password', compact('email', 'token'));
     }
@@ -104,5 +109,17 @@ class AuthController extends Controller
 				'status' => 1
 			]);
 		}
+	}
+
+	public function check_valid_token($email, $token)
+    {
+		$check_token = User::where('email', $email)->where('remember_token', $token)->first();
+		
+        $result = false;
+        if (!empty($check_token->id)) {
+            $result = true;
+        }
+
+        return $result;
 	}
 }
