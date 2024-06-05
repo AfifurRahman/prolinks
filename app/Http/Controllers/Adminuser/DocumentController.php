@@ -291,7 +291,7 @@ class DocumentController extends Controller
                 $desc = Auth::user()->name . " created folder " . $request->folderName;
                 \log::create(request()->all(), "success", $desc);
 
-                return response()->json(['success' => true, 'message' => 'Folder successfully created']);
+                return response()->json(['success' => true, 'message' => 'Folder ' . $request->folderName . ' has successfully created']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Same folder name already exist']);
             }
@@ -564,7 +564,7 @@ class DocumentController extends Controller
             $desc = Auth::user()->name . " renamed file " . $old_name . " to " . $new_name;
             \log::create(request()->all(), "success", $desc);
 
-            return response()->json(['success' => true, 'message' =>'Successfully rename the file']);
+            return response()->json(['success' => true, 'message' => 'File has successfully renamed to ' . $new_name]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Failed to rename the file']);
         }
@@ -573,12 +573,13 @@ class DocumentController extends Controller
     public function DeleteFile(Request $request)
     {
         try {
+            $fileName =  UploadFile::where('basename', base64_decode($request->file))->value('name');
             UploadFile::where('basename', base64_decode($request->file))->update(['status' => 0]);
 
             $desc = Auth::user()->name . " deleted file " . base64_decode($request->file);
             \log::create(request()->all(), "success", $desc);
 
-            return response()->json(['success' => true, 'message' => 'File successfully removed']);
+            return response()->json(['success' => true, 'message' => $fileName . ' has successfully removed']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -594,7 +595,7 @@ class DocumentController extends Controller
             $desc = Auth::user()->name . " renamed folder " . $name . " to " . $request->newname;
             \log::create(request()->all(), "success", $desc);
 
-            return response()->json(['success' => true, 'message' => 'Folder successfully renamed']);
+            return response()->json(['success' => true, 'message' => 'Folder has successfully renamed to ' . $request->newname]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
