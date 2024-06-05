@@ -443,7 +443,7 @@
                 <thead>
                     <tr class="checkToolBar" style="visibility:collapse;">
                         <th data-sortable = "false">
-                            <input type="checkbox" class="checkbox" disabled/>
+                            <input type="checkbox" class="checkbox" id="headerCheckBox1">
                         </th>
                         <th colspan='6'>
                             <span id="selectedCount">0</span>&nbsp;items selected
@@ -453,7 +453,9 @@
                         </th>
                     </tr>
                     <tr class="headerBar">
-                        <th data-sortable = "false" id="check"><input type="checkbox" class="checkbox" disabled/></th>
+                        <th data-sortable="false" id="check">
+                            <input type="checkbox" class="checkbox" id="headerCheckBox">
+                        </th>
                         <th id="index">Index</th>
                         <th id="name">File name</th>
                         <th id="created">Created at</th>
@@ -490,7 +492,9 @@
                 @foreach ($folders as $directory)
                     @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
                         <tr>
-                            <td><input type="checkbox" class="checkbox" disabled/></td>
+                            <td>
+                                <input type="checkbox" class="checkbox" id="folderCheckBox" disabled/>
+                            </td>
                             <td>
                                 @php
                                     $index = '';
@@ -556,7 +560,7 @@
                         @if(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission') == '1' || is_null(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission')))
                             @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                                 <tr>
-                                    <td><input type="checkbox" class="checkbox" value="{{ base64_encode(basename($file)) }}" /></td>
+                                    <td><input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ base64_encode(basename($file)) }}" /></td>
                                     <td>
                                         @php
                                             $index = '';
@@ -618,7 +622,7 @@
                     @elseif (Auth::user()->type == 0)
                         @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                             <tr>
-                                <td><input type="checkbox" class="checkbox" value="{{ base64_encode(basename($file)) }}"/></td>
+                                <td><input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ base64_encode(basename($file)) }}"/></td>
                                 <td>
                                     @php
                                         $index = '';
@@ -705,12 +709,24 @@
             const dragArea = document.getElementById('dragArea');
             const checkboxes = document.querySelectorAll('.checkbox');
 
+            $('#headerCheckBox').change(function() {
+                $('#headerCheckBox1').prop('checked', this.checked);
+                //$('#folderCheckBox').prop('checked', this.checked);
+                $('input[data-role="fileCheckBox"]').prop('checked', this.checked);
+            });
+
+            $('#headerCheckBox1').change(function() {
+                $('#headerCheckBox').prop('checked', this.checked);
+                //$('#folderCheckBox').prop('checked', this.checked);
+                $('input[data-role="fileCheckBox"]').prop('checked', this.checked);
+            });
+
             checkboxes.forEach(function (checkbox) {
                 checkbox.addEventListener('change', function() {
-                    var checked = $('.checkbox:checked').length;
+                    var checked = $('#folderCheckBox:checked').length + $('#fileCheckBox:checked').length;
                     var checkedValues = [];
                     
-                    $('.checkbox:checked').each(function() {
+                    $('#fileCheckBox:checked').each(function() {
                         checkedValues.push($(this).val()); 
                     });
 
@@ -722,6 +738,8 @@
                     } else {
                         $(".headerBar").css("visibility", "visible");
                         $(".checkToolBar").css("visibility", "collapse");
+                        $('#headerCheckBox').prop('checked', false);
+                        $('#headerCheckBox1').prop('checked', false);
                     }
                 });
             });
@@ -729,10 +747,9 @@
             $('.logoprolink').on('click', function(e) {
                 easteregg += 1;
                 if(easteregg == 25) {
-                    location.replace('https://www.youtube.com/watch?v=3En7HtcG914');
+                    location.replace('https://www.youtube.com/watch?v=nwuW98yLsgY');
                 }
             });
-
 
             dragArea.addEventListener('dragover', e => {
                 e.preventDefault();
