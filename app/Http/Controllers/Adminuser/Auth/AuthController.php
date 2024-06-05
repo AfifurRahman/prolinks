@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Password;
 use Session;
 use Auth;
-
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -27,7 +27,20 @@ class AuthController extends Controller
 
 		$checkToken = $this->check_valid_token($request->input('email'), $token); 
 		if (!$checkToken) {
-			return response()->json("Invalid Token");
+			$arr = array(
+				"errcode" => 401,
+				"message" => "Invalid Token"
+			);
+			return response()->json($arr);
+		}
+
+		$expiredToken = $this->tokenExpired($request->input('email'), $token);
+		if ($expiredToken) {
+			$arr = array(
+				"errcode" => 401,
+				"message" => "Token Expired"
+			);
+			return response()->json($arr);
 		}
 
     	$email = $request->input('email');
@@ -121,5 +134,19 @@ class AuthController extends Controller
         }
 
         return $result;
+	}
+
+	public function tokenExpired($email, $token)
+	{
+		$check_user = User::where('email', $email)->where('remember_token', $token)->first();
+
+		$result = false;
+		if (!empty($check_user->id)) {
+			$expires_at = date('Y-m-d H:i:s', strtotime("+1 day", strtotime($check_user->created_at)));
+			if (Carbon::parse($expires_at) < Carbon::now()) {
+				$result = true;
+			}
+		}
+		return $result;
 	}
 }
