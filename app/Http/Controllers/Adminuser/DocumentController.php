@@ -80,8 +80,6 @@ class DocumentController extends Controller
         try{
             $checkboxStatus = $request->all();
 
-            $testing = "";
-
             foreach ($checkboxStatus as $checkboxId => $checked) {
                 if ($checkboxId != "userid") {
                     if(is_null(Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->value('permission'))) {
@@ -109,8 +107,7 @@ class DocumentController extends Controller
             }
             $desc = Auth::user()->name . " set permission on user " . $request->userid;
             \log::create(request()->all(), "success", $desc);
-
-            return response()->json($testing);
+            
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -649,17 +646,100 @@ class DocumentController extends Controller
 
     public function MultipleUpload(Request $request) {
         try {
-           
-                $files = $request->file('files');
+            $saveLocation = base64_decode($request->input('location'));
+            $filePaths = $request->input('filePath');
+            $projectID = explode('/', $saveLocation, 5);
+            $files = $request->file('file');
+            $logFilesName = "";
+            
+            foreach ($filePaths as $filePath) {
+                if ($filePath != "") {
+                    $filePathParts = explode('/', $filePath);
 
-                foreach ($files as $file) {
-                    $file->storeAs('app/', $file->getClientOriginalName());
+                    $IndexPathPart = "";
+                    $PathPart = "";
+
+                    $IndexPath = explode('/', $filePath);
+                    array_unshift($IndexPath, '');
+                    array_pop($IndexPath);
+
+                    foreach ($filePathParts as $key => $part) {
+                        $PathPart .= '/' . $part;
+                    
+                        $saveDir = rtrim($saveLocation . $PathPart, '/') ;
+                        $isExist = UploadFolder::where('directory', $saveDir)->value('name');
+        
+                        if ($key > 0) {
+                            $IndexPathPart .= '/' . $IndexPath[$key];
+                        } 
+        
+                        $IndexFullPath = rtrim($saveLocation, '/') . $IndexPathPart;
+        
+                        $maxIndex = max(UploadFile::where('directory', $IndexFullPath)->max('index'), UploadFolder::where('parent', $IndexFullPath)->max('index'));
+                        $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+        
+                        if (is_null($isExist)) {
+                            Storage::makeDirectory($saveDir, 0755, true);
+                            
+                            UploadFolder::create([
+                                'index' => $folderIndex,
+                                'project_id' => $projectID[2],
+                                'subproject_id' => $projectID[3],
+                                'parent' => $IndexFullPath,
+                                'directory' => $saveDir,
+                                'basename' => Str::random(8),
+                                'name' => $part,
+                                'displayname' => $part,
+                                'client_id' => \globals::get_client_id(),
+                                'status' => 1,
+                                'uploaded_by' => Auth::user()->user_id, 
+                            ]);
+                        }
+                    }
                 }
-           
+            }
+
+            foreach($files as $key => $file) {
+                $remainQuota = (DB::table('pricing')->where('id', DB::table('clients')->where('client_id',\globals::get_client_id())->value('pricing_id'))->value('allocation_size')) - (DB::table('upload_files')->where('client_id', \globals::get_client_id())->sum('size'));
+                $fullFilePath = rtrim($saveLocation . '/' . $filePaths[$key], '/');
+
+                if (($remainQuota - $file->getSize()) > 0) {
+                    $savedFile = $file->storeAs($fullFilePath, Str::random(8));
+                    $maxIndex = max(UploadFile::where('directory', $fullFilePath)->max('index'), UploadFolder::where('parent', $fullFilePath)->max('index'));
+                    $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+
+                    UploadFile::create([
+                        'index' => $fileIndex,
+                        'project_id' => $projectID[2],
+                        'subproject_id' => $projectID[3],
+                        'directory' => $fullFilePath,
+                        'basename' => basename($savedFile),
+                        'name' => $file->getClientOriginalName(),
+                        'client_id' => \globals::get_client_id(),
+                        'mime_type' => $file->getClientMimeType(),
+                        'size' => $file->getSize(),
+                        'status' => 1,
+                        'uploaded_by' => Auth::user()->user_id,
+                    ]);
+                   $logFilesName .= $file->getClientOriginalName() . " (". basename($savedFile) ."), ";
+                }
+            }
+
+            $logFilesName = rtrim($logFilesName, ', ');
+
+            $receiver_email = AssignProject::where('subproject_id', $projectID[3])->where('client_id', \globals::get_client_id())->get();
+            $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
+
+            $desc = Auth::user()->name . " uploaded file " . $logFilesName;
+            \log::create(request()->all(), "success", $desc);
+
+            $link = UploadFolder::where('directory', $saveLocation)->value('basename');
+
+            \log::push_notification('New File Added', $type=1, $link, $projectID[3]);
+
+            return response()->json(['success' => false, 'message' => "Successfully uploaded files and folders."]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
-        }
-        
-        
+        } 
     }
 }
