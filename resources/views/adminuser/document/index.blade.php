@@ -690,12 +690,12 @@
     </div>
     @push('scripts')
     <script>
+        let a = 0;
+        let easteregg = 0;
         let files = [];
         let filesPath = [];
         let filesChecked = [];
         
-        let a = 0;
-        let easteregg = 0;
 
         var table = document.querySelector('.tableDocument');
         @if($directorytype == 0)
