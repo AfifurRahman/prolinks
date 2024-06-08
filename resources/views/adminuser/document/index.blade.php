@@ -448,7 +448,9 @@
                         <th colspan='6'>
                             <span id="selectedCount">0</span>&nbsp;items selected
                             <button class="miniDownload" onclick="downloadFiles()">Download</button>
-                            <button class="miniClear" onclick="deleteFileSelections()">Delete Files</button>
+                            @if(Auth::user()->type == \globals::set_role_administrator())
+                                <button class="miniClear" onclick="deleteFileSelections()">Delete Files</button>
+                            @endif
                             <button class="miniClear" onclick="uncheckAll()">Clear selection</button>
                         </th>
                     </tr>
