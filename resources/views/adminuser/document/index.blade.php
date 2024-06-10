@@ -21,336 +21,345 @@
             margin-top: 13px;
         }
     </style>
-    <!--Upload Modal-->
-    <div id="upload-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div class="upload-modal-title">
-                    <h5 class="modal-title-text">Upload files</h5>
-                </div>
-                <button class="modal-close" onclick="document.getElementById('upload-modal').style.display='none'">
-                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-            <div class="modal-upload-box">
-                <div class="drag-area" id="dragArea" ondrop="handleDrop(event)">
-                    <image class="modal-upload-img" style="width:56px;height:56px;" src="{{ url('template/images/icon_menu/modal_upload.png') }}"></image>
-                    <span class="header">Drop your file(s) here</span>
-                    <button class="modal-upload-btn" onclick="document.getElementById('fileInput').click()">Browse</button>
-                    <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" accept=".doc, .pdf, .txt, .docx, .xls, .xlsx, .ppt, .csv, .pptx, image/*, video/*, .zip, .rar, .7z" multiple oninput="handleFileSelection(this)">
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Upload Preview Modal-->
-    <div id="upload-preview-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div class="upload-modal-title">
-                    <h5 class="modal-title-text">Upload files</h5>
-                </div>
-                <button class="modal-close" onclick="document.getElementById('upload-preview-modal').style.display='none'">
-                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="upload-helper">
-                    <button id="browseFiles" class="create-btn" onclick="document.getElementById('fileInput').click()">Browse files</button>
-                    <button id="clearFiles"  class="delete-btn" onclick="clearFiles()"><i class="fa fa-times"></i>&nbsp;Clear all</button>
-                </div>
-                <div class="tableUploadPreview">
-                    <table id="upload-preview-table" class="table">
-                        <thead>
-                            <tr>
-                                <th style="width:200px;">File name</th>
-                                <th style="width:20%;">Size</th>
-                                <th style="width:10%;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="upload-preview-list">
-                            <tr>
-                                <td>Decoy.png</td>
-                                <td>100 KB</td>
-                                <td>Remove</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="form-button">
-                    <button class="cancel-btn" onclick="document.getElementById('upload-preview-modal').style.display='none'">Cancel</button>
-                    <button class="upload-btn" id="uploadFileSubmit">Upload files</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Rename File Modal -->
-    <div id="rename-file-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div class="upload-modal-title">
-                    <h5 class="modal-title-text">Rename file</h5>
-                </div>
-                <button class="modal-close" onclick="document.getElementById('rename-file-modal').style.display='none'">
-                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <div class="rename-modal">
-                    <div class="rename-modal1">
-                        <label class="modal-form-input">Index</label>
-                        <input type="text" id="file-index" class="form-control" disabled/>
+    @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
+        <!--Upload Modal-->
+        <div id="upload-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-topbar">
+                    <div class="upload-modal-title">
+                        <h5 class="modal-title-text">Upload files</h5>
                     </div>
-                    <div class="rename-modal2">
-                        <label class="modal-form-input">File name</label><label style="color:red;">*</label>
-                        <div class="rename-file-input">
-                            <image class="rename-file-icon" />
-                            <input type="text" class="form-control" id="new-file-name" placeholder="Enter file name without extension"/>
-                        </div>
+                    <button class="modal-close" onclick="document.getElementById('upload-modal').style.display='none'">
+                        <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                    </button>
+                </div>
+                <div class="modal-upload-box">
+                    <div class="drag-area" id="dragArea" ondrop="handleDrop(event)">
+                        <image class="modal-upload-img" style="width:56px;height:56px;" src="{{ url('template/images/icon_menu/modal_upload.png') }}"></image>
+                        <span class="header">Drop your file(s) here</span>
+                        <button class="modal-upload-btn" onclick="document.getElementById('fileInput').click()">Browse</button>
+                        <input id="fileInput" type="file" style="visibility:hidden;position:absolute;" accept=".doc, .pdf, .txt, .docx, .xls, .xlsx, .ppt, .csv, .pptx, image/*, video/*, .zip, .rar, .7z" multiple oninput="handleFileSelection(this)">
                     </div>
                 </div>
-                <div class="form-button">
-                    <a class="cancel-btn" onclick="document.getElementById('rename-file-modal').style.display='none'">Cancel</a>
-                    <button class="create-btn" id="renameFileSubmit">Save changes</button>
-                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Add Folder Modal -->
-    <div id="create-folder-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div class="upload-modal-title">
-                    <h5 class="modal-title-text">Create folder</h5>
-                </div>
-                <button class="modal-close" onclick="document.getElementById('create-folder-modal').style.display='none'">
-                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <label>Folder name</label>
-                <input type="text" class="form-control" id="folderName"></input>
-                <div class="form-button">
-                    <a onclick="document.getElementById('create-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
-                    <button class="create-btn" id="createFolderSubmit">Create Folder</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete File Modal -->
-    <div id="delete-file-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div class="upload-modal-title">
-                    <h5 class="modal-delete-file-title">Delete file</h5>
-                </div>
-                <button class="modal-close" onclick="document.getElementById('delete-file-modal').style.display='none'">
-                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-text">Deleting this file will permanently remove it, are you sure you want to continue? You can't undo this action.</p>
-                <div class="form-button">
-                    <a onclick="document.getElementById('delete-file-modal').style.display='none'" class="cancel-btn">Cancel</a>
-                    <button class="delete-btn" id="deleteFileSubmit">Delete</button>
-                </div>
-                
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Folder Modal -->
-    <div id="delete-folder-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div class="upload-modal-title">
-                    <h5 class="modal-delete-file-title">Delete folder</h5>
-                </div>
-                <button class="modal-close" onclick="document.getElementById('delete-folder-modal').style.display='none'">
-                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue? You can't undo this action.</p>
-                <div class="form-button">
-                    <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
-                    <button class="delete-btn" id="deleteFolderSubmit">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Rename Folder Modal -->
-    <div id="rename-folder-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-topbar">
-                <div class="upload-modal-title">
-                    <h5 class="modal-title-text">Rename folder</h5>
-                </div>
-                <button class="modal-close" onclick="document.getElementById('rename-folder-modal').style.display='none'">
-                    <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
-                </button>
-            </div>
-
-            <div class="modal-body">
-                <div class="rename-modal">
-                    <div class="rename-modal1">
-                        <label class="modal-form-input">Index</label>
-                        <input type="text" class="form-control" id="folder-index" disabled/>
+        <!-- Upload Preview Modal-->
+        <div id="upload-preview-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-topbar">
+                    <div class="upload-modal-title">
+                        <h5 class="modal-title-text">Upload files</h5>
                     </div>
-                    <div class="rename-modal2">
-                        <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
-                        <input type="text" class="form-control" id="newFolderName" placeholder="Enter folder name"/>
-                    </div>
-                    <input type="hidden" id="old-name" name="old_name" value="" />
-                </div>
-                <div class="form-button">
-                    <a class="cancel-btn" onclick="document.getElementById('rename-folder-modal').style.display='none'">Cancel</a>
-                    <button class="create-btn" id="renameFolderSubmit">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-     <!-- Permission -->
-    <div id="modal-add-permission" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="width: 100%;">
-                <div class="modal-header">
-                    <div class="custom-modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                        <h4 class="modal-title" id="titleModal">
-                            Permission Settings
-                        </h4>
-                    </div>
+                    <button class="modal-close" onclick="document.getElementById('upload-preview-modal').style.display='none'">
+                        <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                    </button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="permission-user-listx">
-                                <h4>Users</h4>
-                                <table id="permission-user-list-table" >
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if(count($listusers) > 0) 
-                                            @foreach($listusers->unique('group_id') as $group)
-                                                @if(!empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
-                                                    <tr>
-                                                        <td>
-                                                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/group.png') }}" />
-                                                        </td>
-                                                        <td class="permission-user-list-td">
-                                                            {{ DB::table('access_group')->where('group_id', $group->group_id)->value('group_name') }}
-                                                        </td>
-                                                    </tr>
-                                                    @foreach($listusers as $user)
-                                                        @if(!is_null(DB::table('assign_project')->where('project_id', explode('/', $origin)[2])->where('user_id', $user->user_id)->value('email')))
-                                                            @if($user->group_id == $group->group_id)
-                                                                <tr>
-                                                                    <td></td>
-                                                                    <td>
-                                                                        <div style="cursor:pointer;">
-                                                                            <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                                                <p class="permission-user-list-td">{{ $user->name }}</p>
-                                                                                <p class="permission-user-list-td2">
-                                                                                {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
-                                                                                </p>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            @endif
-                                                        @endif
-                                                    @endforeach
-                                                @endif
-                                            @endforeach
-                                            @foreach($listusers->unique('group_id') as $group)
-                                                @if(empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
-                                                    @foreach($listusers as $user)
-                                                        @if(!is_null(DB::table('assign_project')->where('project_id', explode('/', $origin)[2])->where('user_id', $user->user_id)->value('email')))
-                                                            @if(empty($user->group_id))
-                                                                <tr>
-                                                                    <td>
-                                                                        <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
-                                                                        <br>
-                                                                        &nbsp;
-                                                                    </td>
-                                                                    <td style="cursor:pointer;">
-                                                                        <div style="cursor:pointer;">
-                                                                            <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                                                <p class="permission-user-list-td">{{ $user->name }}</p>
-                                                                                <p class="permission-user-list-td2">
-                                                                                {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
-                                                                                </p>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            @endif
-                                                        @endif
-                                                    @endforeach
-                                                @endif
-                                            @endforeach
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="permission-file-listx">
-                                <h4 id="permissionUser">Select a user</h4>
-                                <table id="permission-file-list-table" width="100%" class="table table-hover table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                File Name
-                                            </th>
-                                            <th>
-                                                <input type="checkbox" id="all_checkbox" class="setPermissionBox" style="width:30px; height:16px;"></input>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="fileList">
-                                        @foreach($fileList as $file)
-                                            @if( DB::table('upload_files')->where('basename', $file)->value('status') == 1 )
-                                                <tr>
-                                                    <td>
-                                                        {{DB::table('upload_files')->where('basename', $file)->value('name')}}
-                                                    </td>
-                                                    <td>
-                                                        <input type="checkbox" id="{{$file}}" class="setPermissionBox" value="{{$file}}" style="width:30px; height:16px;"></input>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                    <div class="upload-helper">
+                        <button id="browseFiles" class="create-btn" onclick="document.getElementById('fileInput').click()">Browse files</button>
+                        <button id="clearFiles"  class="delete-btn" onclick="clearFiles()"><i class="fa fa-times"></i>&nbsp;Clear all</button>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="pull-right">
-                                <a class="cancel-btn" data-dismiss="modal">Cancel</a>
-                                <button class="create-btn" id="setPermissionButton" onclick="savePermission()">Save settings</button>
-                            </div>
-                        </div>
+                    <div class="tableUploadPreview">
+                        <table id="upload-preview-table" class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:200px;">File name</th>
+                                    <th style="width:20%;">Size</th>
+                                    <th style="width:10%;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="upload-preview-list">
+                                <tr>
+                                    <td>Decoy.png</td>
+                                    <td>100 KB</td>
+                                    <td>Remove</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <input type="hidden" id="IDuser" value="">
+                    <div class="form-button">
+                        <button class="cancel-btn" onclick="document.getElementById('upload-preview-modal').style.display='none'">Cancel</button>
+                        <button class="upload-btn" id="uploadFileSubmit">Upload files</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Add Folder Modal -->
+        <div id="create-folder-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-topbar">
+                    <div class="upload-modal-title">
+                        <h5 class="modal-title-text">Create folder</h5>
+                    </div>
+                    <button class="modal-close" onclick="document.getElementById('create-folder-modal').style.display='none'">
+                        <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <label>Folder name</label>
+                    <input type="text" class="form-control" id="folderName"></input>
+                    <div class="form-button">
+                        <a onclick="document.getElementById('create-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                        <button class="create-btn" id="createFolderSubmit">Create Folder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+    @if(Auth::user()->type == \globals::set_role_administrator())
+        <!-- Rename File Modal -->
+        <div id="rename-file-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-topbar">
+                    <div class="upload-modal-title">
+                        <h5 class="modal-title-text">Rename file</h5>
+                    </div>
+                    <button class="modal-close" onclick="document.getElementById('rename-file-modal').style.display='none'">
+                        <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="rename-modal">
+                        <div class="rename-modal1">
+                            <label class="modal-form-input">Index</label>
+                            <input type="text" id="file-index" class="form-control" disabled/>
+                        </div>
+                        <div class="rename-modal2">
+                            <label class="modal-form-input">File name</label><label style="color:red;">*</label>
+                            <div class="rename-file-input">
+                                <image class="rename-file-icon" />
+                                <input type="text" class="form-control" id="new-file-name" placeholder="Enter file name without extension"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-button">
+                        <a class="cancel-btn" onclick="document.getElementById('rename-file-modal').style.display='none'">Cancel</a>
+                        <button class="create-btn" id="renameFileSubmit">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete File Modal -->
+        <div id="delete-file-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-topbar">
+                    <div class="upload-modal-title">
+                        <h5 class="modal-delete-file-title">Delete file</h5>
+                    </div>
+                    <button class="modal-close" onclick="document.getElementById('delete-file-modal').style.display='none'">
+                        <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-text">Deleting this file will permanently remove it, are you sure you want to continue? You can't undo this action.</p>
+                    <div class="form-button">
+                        <a onclick="document.getElementById('delete-file-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                        <button class="delete-btn" id="deleteFileSubmit">Delete</button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Folder Modal -->
+        <div id="delete-folder-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-topbar">
+                    <div class="upload-modal-title">
+                        <h5 class="modal-delete-file-title">Delete folder</h5>
+                    </div>
+                    <button class="modal-close" onclick="document.getElementById('delete-folder-modal').style.display='none'">
+                        <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue? You can't undo this action.</p>
+                    <div class="form-button">
+                        <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                        <button class="delete-btn" id="deleteFolderSubmit">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <!-- Rename Folder Modal -->
+        <div id="rename-folder-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-topbar">
+                    <div class="upload-modal-title">
+                        <h5 class="modal-title-text">Rename folder</h5>
+                    </div>
+                    <button class="modal-close" onclick="document.getElementById('rename-folder-modal').style.display='none'">
+                        <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="rename-modal">
+                        <div class="rename-modal1">
+                            <label class="modal-form-input">Index</label>
+                            <input type="text" class="form-control" id="folder-index" disabled/>
+                        </div>
+                        <div class="rename-modal2">
+                            <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
+                            <input type="text" class="form-control" id="newFolderName" placeholder="Enter folder name"/>
+                        </div>
+                        <input type="hidden" id="old-name" name="old_name" value="" />
+                    </div>
+                    <div class="form-button">
+                        <a class="cancel-btn" onclick="document.getElementById('rename-folder-modal').style.display='none'">Cancel</a>
+                        <button class="create-btn" id="renameFolderSubmit">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+         <!-- Permission -->
+        <div id="modal-add-permission" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content" style="width: 100%;">
+                    <div class="modal-header">
+                        <div class="custom-modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h4 class="modal-title" id="titleModal">
+                                Permission Settings
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="permission-user-listx">
+                                    <h4>Users</h4>
+                                    <table id="permission-user-list-table" >
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(count($listusers) > 0) 
+                                                @foreach($listusers->unique('group_id') as $group)
+                                                    @if(!empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
+                                                        <tr>
+                                                            <td>
+                                                                <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/group.png') }}" />
+                                                            </td>
+                                                            <td class="permission-user-list-td">
+                                                                {{ DB::table('access_group')->where('group_id', $group->group_id)->value('group_name') }}
+                                                            </td>
+                                                        </tr>
+                                                        @foreach($listusers as $user)
+                                                            @if(!is_null(DB::table('assign_project')->where('project_id', explode('/', $origin)[2])->where('user_id', $user->user_id)->value('email')))
+                                                                @if($user->group_id == $group->group_id)
+                                                                    <tr>
+                                                                        <td></td>
+                                                                        <td>
+                                                                            <div style="cursor:pointer;">
+                                                                                <a onclick="checkUserPermission('{{ $user->user_id }}')">
+                                                                                    <p class="permission-user-list-td">{{ $user->name }}</p>
+                                                                                    <p class="permission-user-list-td2">
+                                                                                    {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
+                                                                                    </p>
+                                                                                </a>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endif
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                @endforeach
+                                                @foreach($listusers->unique('group_id') as $group)
+                                                    @if(empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
+                                                        @foreach($listusers as $user)
+                                                            @if(!is_null(DB::table('assign_project')->where('project_id', explode('/', $origin)[2])->where('user_id', $user->user_id)->value('email')))
+                                                                @if(empty($user->group_id))
+                                                                    <tr>
+                                                                        <td>
+                                                                            <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
+                                                                            <br>
+                                                                            &nbsp;
+                                                                        </td>
+                                                                        <td style="cursor:pointer;">
+                                                                            <div style="cursor:pointer;">
+                                                                                <a onclick="checkUserPermission('{{ $user->user_id }}')">
+                                                                                    <p class="permission-user-list-td">{{ $user->name }}</p>
+                                                                                    <p class="permission-user-list-td2">
+                                                                                    {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
+                                                                                    </p>
+                                                                                </a>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                @endif
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="permission-file-listx">
+                                    <h4 id="permissionUser">Select a user</h4>
+                                    <table id="permission-file-list-table" width="100%" class="table table-hover table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    File Name
+                                                </th>
+                                                <th>
+                                                    <input type="checkbox" id="all_checkbox" class="setPermissionBox" style="width:30px; height:16px;"></input>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="fileList">
+                                            @foreach($fileList as $file)
+                                                @if( DB::table('upload_files')->where('basename', $file)->value('status') == 1 )
+                                                    <tr>
+                                                        <td>
+                                                            {{DB::table('upload_files')->where('basename', $file)->value('name')}}
+                                                        </td>
+                                                        <td>
+                                                            <input type="checkbox" id="{{$file}}" class="setPermissionBox" value="{{$file}}" style="width:30px; height:16px;"></input>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="pull-right">
+                                    <a class="cancel-btn" data-dismiss="modal">Cancel</a>
+                                    <button class="create-btn" id="setPermissionButton" onclick="savePermission()">Save settings</button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="IDuser" value="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
 
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">
@@ -393,10 +402,6 @@
             </div>
         </div>
     </div>
-
-    <p>
-        
-    </p>
 
     <div class="viewcontainer">
         <div class="box_helper">
@@ -697,8 +702,6 @@
         let files = [];
         let filesPath = [];
         let filesChecked = [];
-        
-
         var table = document.querySelector('.tableDocument');
 
         const fileCounts = document.querySelectorAll('[data-role="fileCheckBox"]');
@@ -708,7 +711,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const dragArea = document.getElementById('dragArea');
             const documentCheckBox = document.querySelectorAll('.checkbox');
-
 
             $('#all_checkbox').click(function() {
                 $('.setPermissionBox').prop('checked', this.checked);
@@ -797,35 +799,37 @@
             window.location.href = "{{ route('adminuser.documents.search') }}?name=" + searchTerm + "&origin=" + "{{ base64_encode($origin) }}";
         }
 
-        function handleDrop(event) {
-            event.preventDefault();
+        @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
+            function handleDrop(event) {
+                event.preventDefault();
 
-            var items = event.dataTransfer.items;
+                var items = event.dataTransfer.items;
 
-            for (var i = 0; i < items.length; i++) {
-                var entry = items[i].webkitGetAsEntry();
-                if (entry) {
-                    traverseFileFolder(entry);
+                for (var i = 0; i < items.length; i++) {
+                    var entry = items[i].webkitGetAsEntry();
+                    if (entry) {
+                        traverseFileFolder(entry);
+                    }
+                }
+
+                function traverseFileFolder(entry, path = "") {
+                    if (entry.isFile) {
+                        entry.file(function(file) {
+                            files.push(file);
+                            filesPath.push(path);
+                            displayFileData(files, filesPath);
+                        });
+                    } else if (entry.isDirectory) {
+                        var dirReader = entry.createReader();
+                        dirReader.readEntries(function(entries) {
+                            entries.forEach(function(ent) {
+                                traverseFileFolder(ent, path + entry.name + "/");
+                            });
+                        });
+                    } 
                 }
             }
-
-            function traverseFileFolder(entry, path = "") {
-                if (entry.isFile) {
-                    entry.file(function(file) {
-                        files.push(file);
-                        filesPath.push(path);
-                        displayFileData(files, filesPath);
-                    });
-                } else if (entry.isDirectory) {
-                    var dirReader = entry.createReader();
-                    dirReader.readEntries(function(entries) {
-                        entries.forEach(function(ent) {
-                            traverseFileFolder(ent, path + entry.name + "/");
-                        });
-                    });
-                } 
-            }
-        }
+        @endif
 
         function showNotification(message) {
             document.querySelector('.notificationtext').textContent = message;
@@ -838,104 +842,184 @@
             }, 1000);
         }
 
-        function handleFileSelection(input) {
-            for (let i = 0; i < input.files.length; i++) {
-                files.push(input.files[i]);
-                filesPath.push("");
+        @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
+            function handleFileSelection(input) {
+                for (let i = 0; i < input.files.length; i++) {
+                    files.push(input.files[i]);
+                    filesPath.push("");
+                }
+                displayFileData(files, filesPath);
             }
+       
 
-            displayFileData(files, filesPath);
-        }
+            function displayFileData(files, filesPath) {
+                document.getElementById('upload-modal').style.display='none';
+                document.getElementById('upload-preview-modal').style.display='block';
 
-        function displayFileData(files, filesPath) {
-            document.getElementById('upload-modal').style.display='none';
-            document.getElementById('upload-preview-modal').style.display='block';
+                const tableBody = document.getElementById('upload-preview-list');
+                tableBody.innerHTML = '';
 
-            const tableBody = document.getElementById('upload-preview-list');
-            tableBody.innerHTML = '';
-            
-            files.forEach((file, index) => {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>${file.name}</td>
-                    <td>${convertByte(file.size)}</td>
-                    <td><button onclick="removeFile(${index})" id="removeFileButton" class="removeFileButton"><i class="fa fa-times"></i></button></td>
-                `;
-                tableBody.appendChild(newRow);
-            });
+                files.forEach((file, index) => {
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${file.name}</td>
+                        <td>${convertByte(file.size)}</td>
+                        <td><button onclick="removeFile(${index})" id="removeFileButton" class="removeFileButton"><i class="fa fa-times"></i></button></td>
+                    `;
+                    tableBody.appendChild(newRow);
+                });
 
-            $('#uploadFileSubmit').on('click', function(e) {
-                if (a == 0) {
-                    a = 1;
-                    e.preventDefault();
-                    $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i>');
-                    $('.removeFileButton').prop("disabled", true);
-                    $('#uploadFileSubmit').prop("disabled", true);
-                    $('.cancel-btn').prop("disabled", true);
-                    $('.modal-close').prop("disabled", true);
-                    $("#uploadFileSubmit").removeClass("upload-btn");
-                    $('#browseFiles').hide();
-                    $('#clearFiles').hide();
+                $('#uploadFileSubmit').on('click', function(e) {
+                    if (a == 0) {
+                        a = 1;
+                        e.preventDefault();
+                        $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i>');
+                        $('.removeFileButton').prop("disabled", true);
+                        $('#uploadFileSubmit').prop("disabled", true);
+                        $('.cancel-btn').prop("disabled", true);
+                        $('.modal-close').prop("disabled", true);
+                        $("#uploadFileSubmit").removeClass("upload-btn");
+                        $('#browseFiles').hide();
+                        $('#clearFiles').hide();
 
-                    const formData = new FormData();
-                    formData.append("location", "{{ base64_encode($origin) }}");
-                    files.forEach(file => formData.append('file[]', file));
-                    filesPath.forEach(path => formData.append('filePath[]', path));
+                        const formData = new FormData();
+                        formData.append("location", "{{ base64_encode($origin) }}");
+                        files.forEach(file => formData.append('file[]', file));
+                        filesPath.forEach(path => formData.append('filePath[]', path));
 
-                    fetch('{{ route("adminuser.documents.multiupload") }}', {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        fetch('{{ route("adminuser.documents.multiupload") }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('upload-preview-modal').style.display = 'none';
+                            showNotification(data.message);
+                        });
                         }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('upload-preview-modal').style.display = 'none';
-                        showNotification(data.message);
-                    });
-                    }
-            });
-        }
-
-        function removeFile(index) {
-            files.splice(index, 1); 
-            filesPath.splice(index, 1); 
-            displayFileData(files, filesPath);
-        }
-
-        function clearFiles() {
-            files = [];
-            displayFileData(files);
-        }
-
-        function convertByte(size) {
-            if (size >= 1073741824) {
-                return (size / 1073741824).toFixed(2) + ' GB';
-            } else if (size >= 1048576) {
-                return (size / 1048576).toFixed(2) + ' MB';
-            } else if (size >= 1024) {
-                return (size / 1024).toFixed(2) + ' KB';
-            } else if (size >= 0) {
-                return size + ' bytes';
+                });
             }
-        }
 
-        function setPermission() {
-            // document.getElementById('permission-modal').style.display='block';
-            document.getElementById('permission-file-list-table').style.display="none";
-            $('#setPermissionButton').prop("disabled", true);
+            function removeFile(index) {
+                files.splice(index, 1); 
+                filesPath.splice(index, 1); 
+                displayFileData(files, filesPath);
+            }
 
-            const permissionCheckBox = document.querySelectorAll('.setPermissionBox');
-           
+            function clearFiles() {
+                files = [];
+                displayFileData(files);
+            }
 
-            permissionCheckBox.forEach(function (CheckBox) {
-                CheckBox.addEventListener('change', function() {
-                    var checkboxStatusArray = [];
+            function convertByte(size) {
+                if (size >= 1073741824) {
+                    return (size / 1073741824).toFixed(2) + ' GB';
+                } else if (size >= 1048576) {
+                    return (size / 1048576).toFixed(2) + ' MB';
+                } else if (size >= 1024) {
+                    return (size / 1024).toFixed(2) + ' KB';
+                } else if (size >= 0) {
+                    return size + ' bytes';
+                }
+            }
 
+            function setPermission() {
+                // document.getElementById('permission-modal').style.display='block';
+                document.getElementById('permission-file-list-table').style.display="none";
+                $('#setPermissionButton').prop("disabled", true);
+
+                const permissionCheckBox = document.querySelectorAll('.setPermissionBox');
+            
+
+                permissionCheckBox.forEach(function (CheckBox) {
+                    CheckBox.addEventListener('change', function() {
+                        var checkboxStatusArray = [];
+
+                        const FileCount = $('.setPermissionBox').length - 1;
+                        var FileChecked = $('.setPermissionBox:checked').length;
+                    
+                        if (FileChecked > FileCount) {
+                            $('#all_checkbox').prop('checked', true); 
+                        } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
+                            $('#all_checkbox').prop('checked', true);
+                        } else { 
+                            $('#all_checkbox').prop('checked', false);
+                        }
+
+                        $("#fileList input[type='checkbox']").each(function() {
+                            var checkboxId = $(this).attr("id");
+                            var isChecked = $(this).prop("checked");
+                            var checkboxStatus = {
+                                id: checkboxId,
+                                checked: isChecked
+                            };
+                            checkboxStatusArray.push(checkboxStatus);
+                        });
+
+                        var formData = new FormData();
+                        
+                        checkboxStatusArray.forEach(function(checkboxStatus) {
+                            formData.append(checkboxStatus.id, checkboxStatus.checked);
+                        });
+                        formData.append('userid', $('#IDuser').val());
+
+                        fetch('{{ route("adminuser.documents.setpermission") }}', {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                        });
+                    })
+                });
+            }
+
+            function savePermission() {
+                // document.getElementById('permission-modal').style.display='none';
+                $("#modal-add-permission").modal('hide');
+                showNotification('Permission settings saved');
+            }
+
+            function checkUserPermission(user,role) {
+                $("#IDuser").attr("value",user);
+                document.getElementById('permission-file-list-table').style.display="block";
+                $('#setPermissionButton').prop("disabled", false);
+
+                var checkboxIds = [];
+                $("#fileList input[type='checkbox']").each(function() {
+                    var checkboxId = $(this).attr("id"); 
+                    checkboxIds.push(checkboxId);
+                });
+
+                checkboxIds.forEach(function(checkboxId) {
+                    $("#" + checkboxId).prop("checked", false);
+                });
+
+                var formData = new FormData();
+                formData.append('userid', user);
+
+                fetch('{{ route("adminuser.documents.checkpermission") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    $('#permissionUser').text(data.username);
+
+                    data.permissionlist.forEach(function(permissionData) {
+                        if (permissionData.permission == 1){
+                            $("#" + permissionData.fileid).prop("checked", true);
+                        }   
+                    });
                     const FileCount = $('.setPermissionBox').length - 1;
                     var FileChecked = $('.setPermissionBox:checked').length;
-                   
+                    
                     if (FileChecked > FileCount) {
                         $('#all_checkbox').prop('checked', true); 
                     } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
@@ -943,136 +1027,60 @@
                     } else { 
                         $('#all_checkbox').prop('checked', false);
                     }
+                });
+            }
 
-                    $("#fileList input[type='checkbox']").each(function() {
-                        var checkboxId = $(this).attr("id");
-                        var isChecked = $(this).prop("checked");
-                        var checkboxStatus = {
-                            id: checkboxId,
-                            checked: isChecked
-                        };
-                        checkboxStatusArray.push(checkboxStatus);
-                    });
+            function createFolder() {
+                document.getElementById('create-folder-modal').style.display='block';
 
+                $('#createFolderSubmit').on('click', function(e) {
+                    e.preventDefault();
                     var formData = new FormData();
-                    
-                    checkboxStatusArray.forEach(function(checkboxStatus) {
-                        formData.append(checkboxStatus.id, checkboxStatus.checked);
-                    });
-                    formData.append('userid', $('#IDuser').val());
 
-                    fetch('{{ route("adminuser.documents.setpermission") }}', {
+                    formData.append('folderName', $('#folderName').val());
+                    formData.append('location', '{{ base64_encode($origin) }}')
+
+                    fetch('{{ route("adminuser.documents.createfolder") }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('create-folder-modal').style.display='none';
+                        showNotification(data.message);
                     });
-                })
-            });
-        }
-
-        function savePermission() {
-            // document.getElementById('permission-modal').style.display='none';
-            $("#modal-add-permission").modal('hide');
-            showNotification('Permission settings saved');
-        }
-
-        function checkUserPermission(user,role) {
-            $("#IDuser").attr("value",user);
-            document.getElementById('permission-file-list-table').style.display="block";
-            $('#setPermissionButton').prop("disabled", false);
-
-            var checkboxIds = [];
-            $("#fileList input[type='checkbox']").each(function() {
-                var checkboxId = $(this).attr("id"); 
-                checkboxIds.push(checkboxId);
-            });
-
-            checkboxIds.forEach(function(checkboxId) {
-                $("#" + checkboxId).prop("checked", false);
-            });
-
-            var formData = new FormData();
-            formData.append('userid', user);
-
-            fetch('{{ route("adminuser.documents.checkpermission") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                $('#permissionUser').text(data.username);
-
-                data.permissionlist.forEach(function(permissionData) {
-                    if (permissionData.permission == 1){
-                        $("#" + permissionData.fileid).prop("checked", true);
-                    }   
                 });
-                const FileCount = $('.setPermissionBox').length - 1;
-                var FileChecked = $('.setPermissionBox:checked').length;
-                
-                if (FileChecked > FileCount) {
-                    $('#all_checkbox').prop('checked', true); 
-                } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
-                    $('#all_checkbox').prop('checked', true);
-                } else { 
-                    $('#all_checkbox').prop('checked', false);
-                }
-            });
-        }
+            }
+        @endif
 
-        function createFolder() {
-            document.getElementById('create-folder-modal').style.display='block';
+        @if(Auth::user()->type == \globals::set_role_administrator())
+            function deleteFile(file) {
+                document.getElementById('delete-file-modal').style.display='block';
 
-            $('#createFolderSubmit').on('click', function(e) {
-                e.preventDefault();
-                var formData = new FormData();
+                $('#deleteFileSubmit').on('click', function(e) {
+                    e.preventDefault();
+                    var formData = new FormData();
 
-                formData.append('folderName', $('#folderName').val());
-                formData.append('location', '{{ base64_encode($origin) }}')
-
-                fetch('{{ route("adminuser.documents.createfolder") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('create-folder-modal').style.display='none';
-                    showNotification(data.message);
+                    formData.append('file', file);
+                    
+                    fetch('{{ route("adminuser.documents.deletefile") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('delete-file-modal').style.display='none';
+                        showNotification(data.message);
+                    });
                 });
-            });
-        }
-
-        function deleteFile(file) {
-            document.getElementById('delete-file-modal').style.display='block';
-
-            $('#deleteFileSubmit').on('click', function(e) {
-                e.preventDefault();
-                var formData = new FormData();
-
-                formData.append('file', file);
-                
-                fetch('{{ route("adminuser.documents.deletefile") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('delete-file-modal').style.display='none';
-                    showNotification(data.message);
-                });
-            });
-        }
+            }
+        @endif
 
         function uncheckAll() {
             $('.checkbox').prop('checked', false);
@@ -1098,116 +1106,118 @@
             });
         }
 
-        function deleteFileSelections() {
-            filesChecked.forEach(deleteFileSelection);
+        @if(Auth::user()->type == \globals::set_role_administrator())
+            function deleteFileSelections() {
+                filesChecked.forEach(deleteFileSelection);
 
-            function deleteFileSelection(item) {
-                var formData = new FormData();
+                function deleteFileSelection(item) {
+                    var formData = new FormData();
 
-                formData.append('file', item);
+                    formData.append('file', item);
 
-                fetch('{{ route("adminuser.documents.deletefile") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('delete-file-modal').style.display='none';
-                    showNotification(data.message);
+                    fetch('{{ route("adminuser.documents.deletefile") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('delete-file-modal').style.display='none';
+                        showNotification(data.message);
+                    });
+                }
+            }
+
+            function renameFolder(folder, index, name) {
+                document.getElementById('rename-folder-modal').style.display='block';
+                $("#folder-index").attr("value", index);
+                $("#newFolderName").attr("value", name);
+
+                $('#renameFolderSubmit').on('click', function(e) {
+                    e.preventDefault();
+                    var formData = new FormData();
+
+                    formData.append('name', folder);
+                    formData.append('newname', $('#newFolderName').val());
+                    formData.append('location', '{{ base64_encode($origin) }}')
+
+                    fetch('{{ route("adminuser.documents.renamefolder") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('rename-folder-modal').style.display='none';
+                        showNotification(data.message);
+                    });
                 });
             }
-        }
 
-        function renameFolder(folder, index, name) {
-            document.getElementById('rename-folder-modal').style.display='block';
-            $("#folder-index").attr("value", index);
-            $("#newFolderName").attr("value", name);
+            function deleteFolder(folder) {
+                document.getElementById('delete-folder-modal').style.display='block';
 
-            $('#renameFolderSubmit').on('click', function(e) {
-                e.preventDefault();
-                var formData = new FormData();
+                $('#deleteFolderSubmit').on('click', function(e) {
+                    e.preventDefault();
+                    var formData = new FormData();
+                    
+                    formData.append('folder', folder);
 
-                formData.append('name', folder);
-                formData.append('newname', $('#newFolderName').val());
-                formData.append('location', '{{ base64_encode($origin) }}')
-
-                fetch('{{ route("adminuser.documents.renamefolder") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('rename-folder-modal').style.display='none';
-                    showNotification(data.message);
+                    fetch('{{ route("adminuser.documents.deletefolder") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('delete-folder-modal').style.display='none';
+                        showNotification(data.message);
+                    });
                 });
-            });
-        }
+            }
 
-        function deleteFolder(folder) {
-            document.getElementById('delete-folder-modal').style.display='block';
+            function renameFile(file, icon, index, name) {
+                document.getElementById('rename-file-modal').style.display = 'block';
+                $(".rename-file-icon").attr("src", icon);
+                $("#file-index").attr("value", index);
+                $("#new-file-name").attr("value", name);
 
-            $('#deleteFolderSubmit').on('click', function(e) {
-                e.preventDefault();
-                var formData = new FormData();
-                
-                formData.append('folder', folder);
 
-                fetch('{{ route("adminuser.documents.deletefolder") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('delete-folder-modal').style.display='none';
-                    showNotification(data.message);
+                $('#renameFileSubmit').on('click', function(e) {
+                    e.preventDefault();
+                    var formData = new FormData();
+
+                    formData.append('old_name', file);
+                    formData.append('new_name', $('#new-file-name').val());
+
+                    fetch('{{ route("adminuser.documents.renamefile") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('rename-file-modal').style.display='none';
+                        showNotification(data.message);
+                    });
                 });
+            }
+
+            $("#permission-file-list-table").dataTable({
+                "bPaginate": false,
+                "bInfo": false,
+                "bSort": false,
+                "bAutoWidth": false,
             });
-        }
-
-        function renameFile(file, icon, index, name) {
-            document.getElementById('rename-file-modal').style.display = 'block';
-            $(".rename-file-icon").attr("src", icon);
-            $("#file-index").attr("value", index);
-            $("#new-file-name").attr("value", name);
-
-
-            $('#renameFileSubmit').on('click', function(e) {
-                e.preventDefault();
-                var formData = new FormData();
-
-                formData.append('old_name', file);
-                formData.append('new_name', $('#new-file-name').val());
-
-                fetch('{{ route("adminuser.documents.renamefile") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('rename-file-modal').style.display='none';
-                    showNotification(data.message);
-                });
-            });
-        }
-
-        $("#permission-file-list-table").dataTable({
-            "bPaginate": false,
-            "bInfo": false,
-            "bSort": false,
-            "bAutoWidth": false,
-        });
+        @endif
     </script>
     @endpush
 @endsection
