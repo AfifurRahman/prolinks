@@ -854,8 +854,6 @@
             const tableBody = document.getElementById('upload-preview-list');
             tableBody.innerHTML = '';
             
-            console.log(files);
-            console.log(filesPath);
             files.forEach((file, index) => {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
