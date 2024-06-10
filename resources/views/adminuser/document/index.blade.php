@@ -448,7 +448,9 @@
                         <th colspan='6'>
                             <span id="selectedCount">0</span>&nbsp;items selected
                             <button class="miniDownload" onclick="downloadFiles()">Download</button>
-                            <button class="miniClear" onclick="deleteFileSelections()">Delete Files</button>
+                            @if(Auth::user()->type == \globals::set_role_administrator())
+                                <button class="miniClear" onclick="deleteFileSelections()">Delete Files</button>
+                            @endif
                             <button class="miniClear" onclick="uncheckAll()">Clear selection</button>
                         </th>
                     </tr>
@@ -688,14 +690,14 @@
             <input id="countFile" type="hidden" value="0">
         </div>
     </div>
-    @push('scripts')
+    @push('scripts')d
     <script>
+        let a = 0;
+        let easteregg = 0;
         let files = [];
         let filesPath = [];
         let filesChecked = [];
         
-        let a = 0;
-        let easteregg = 0;
 
         var table = document.querySelector('.tableDocument');
         @if($directorytype == 0)
@@ -707,7 +709,12 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             const dragArea = document.getElementById('dragArea');
-            const checkboxes = document.querySelectorAll('.checkbox');
+            const documentCheckBox = document.querySelectorAll('.checkbox');
+
+
+            $('#all_checkbox').click(function() {
+                $('.setPermissionBox').prop('checked', this.checked);
+            });
 
             $('#headerCheckBox').change(function() {
                 $('#headerCheckBox1').prop('checked', this.checked);
@@ -721,8 +728,8 @@
                 $('input[data-role="fileCheckBox"]').prop('checked', this.checked);
             });
 
-            checkboxes.forEach(function (checkbox) {
-                checkbox.addEventListener('change', function() {
+            documentCheckBox.forEach(function (CheckBox) {
+                CheckBox.addEventListener('change', function() {
                     var checked = $('#folderCheckBox:checked').length + $('#fileCheckBox:checked').length;
                     var checkedValues = [];
                     
@@ -924,35 +931,49 @@
             document.getElementById('permission-file-list-table').style.display="none";
             $('#setPermissionButton').prop("disabled", true);
 
+            const permissionCheckBox = document.querySelectorAll('.setPermissionBox');
+           
 
-            $('.setPermissionBox').on('click', function(e) {
-                var checkboxStatusArray = [];
+            permissionCheckBox.forEach(function (CheckBox) {
+                CheckBox.addEventListener('change', function() {
+                    var checkboxStatusArray = [];
 
-                $("#fileList input[type='checkbox']").each(function() {
-                    var checkboxId = $(this).attr("id");
-                    var isChecked = $(this).prop("checked");
-                    var checkboxStatus = {
-                        id: checkboxId,
-                        checked: isChecked
-                    };
-                    checkboxStatusArray.push(checkboxStatus);
-                });
+                    const FileCount = $('.setPermissionBox').length - 1;
+                    var FileChecked = $('.setPermissionBox:checked').length;
+                   
+                    if (FileChecked > FileCount) {
+                        $('#all_checkbox').prop('checked', true); 
+                    } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
+                        $('#all_checkbox').prop('checked', true);
+                    } else { 
+                        $('#all_checkbox').prop('checked', false);
+                    }
 
-                var formData = new FormData();
-                
-                
-                checkboxStatusArray.forEach(function(checkboxStatus) {
-                    formData.append(checkboxStatus.id, checkboxStatus.checked);
-                });
-                formData.append('userid', $('#IDuser').val());
+                    $("#fileList input[type='checkbox']").each(function() {
+                        var checkboxId = $(this).attr("id");
+                        var isChecked = $(this).prop("checked");
+                        var checkboxStatus = {
+                            id: checkboxId,
+                            checked: isChecked
+                        };
+                        checkboxStatusArray.push(checkboxStatus);
+                    });
 
-                fetch('{{ route("adminuser.documents.setpermission") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                });
+                    var formData = new FormData();
+                    
+                    checkboxStatusArray.forEach(function(checkboxStatus) {
+                        formData.append(checkboxStatus.id, checkboxStatus.checked);
+                    });
+                    formData.append('userid', $('#IDuser').val());
+
+                    fetch('{{ route("adminuser.documents.setpermission") }}', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                    });
+                })
             });
         }
 
@@ -996,6 +1017,16 @@
                         $("#" + permissionData.fileid).prop("checked", true);
                     }   
                 });
+                const FileCount = $('.setPermissionBox').length - 1;
+                var FileChecked = $('.setPermissionBox:checked').length;
+                
+                if (FileChecked > FileCount) {
+                    $('#all_checkbox').prop('checked', true); 
+                } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
+                    $('#all_checkbox').prop('checked', true);
+                } else { 
+                    $('#all_checkbox').prop('checked', false);
+                }
             });
         }
 
