@@ -123,3 +123,36 @@ iframe {
 .PDFframe {
     height:92vh;
 }  
+
+.pageContent {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.downloadPrompt {
+    width: 380px;
+    height: 180px;
+    padding-top: 25px;
+    background-color: #504c4c;
+    opacity: 0.95;
+    text-align: center;
+    border-radius: 10px;
+    border: 1px #FFFFFF solid;
+    margin-top:250px;
+}
+
+.downloadButton{
+    border:none;
+    border-radius:10px;
+    background:#1570EF;
+    color:#FFFFFF;
+    padding:6px 10px 6px 10px;
+    text-decoration:none;
+}
+
+.promptText{
+    color:white;
+}

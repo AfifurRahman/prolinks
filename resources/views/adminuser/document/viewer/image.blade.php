@@ -36,13 +36,13 @@
             </div>
         </div>
         <div class="closeAction">
-            <a href="{{ route('adminuser.documents.list', base64_encode($link)) }}">
+            <a href="{{ route('adminuser.documents.openfolder', base64_encode($link)) }}">
                 <img class="icon" src="{{ url('template/images/icon_menu/close.png') }}" alt="Close" />
             </a>
         </div>
     </div>
     <div id="displayImage">
-        <div class="main dragscroll" id="mom">
+        <div class="main dragscroll">
             <img id="Image" class="imageViewer" src="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}" alt="PDF Viewer">
         </div>
     </div>

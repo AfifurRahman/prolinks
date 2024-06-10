@@ -495,7 +495,7 @@
                     @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
                         <tr>
                             <td>
-                                <input type="checkbox" class="checkbox" id="folderCheckBox" disabled/>
+                                <input type="checkbox" class="checkbox" id="folderCheckBox" data-role="folderCheckBox" disabled/>
                             </td>
                             <td>
                                 @php
@@ -686,7 +686,7 @@
                 @endforeach
             </table>
 
-            <p>Showing <span id="rowCounts">0</span> files and folders.</p>
+            <p>Showing <span id="tableCounter">0</span>.</p>
             <input id="countFile" type="hidden" value="0">
         </div>
     </div>
@@ -700,12 +700,10 @@
         
 
         var table = document.querySelector('.tableDocument');
-        @if($directorytype == 0)
-            var rowCount = table.rows.length - 3;
-        @else
-            var rowCount = table.rows.length - 2;
-        @endif
-        $('#rowCounts').text(rowCount);
+
+        const fileCounts = document.querySelectorAll('[data-role="fileCheckBox"]');
+        const folderCounts = document.querySelectorAll('[data-role="folderCheckBox"]');
+        $('#tableCounter').text(fileCounts.length + " files and " + folderCounts.length + " folders");
 
         document.addEventListener('DOMContentLoaded', function() {
             const dragArea = document.getElementById('dragArea');
@@ -799,7 +797,6 @@
             window.location.href = "{{ route('adminuser.documents.search') }}?name=" + searchTerm + "&origin=" + "{{ base64_encode($origin) }}";
         }
 
-        // Handle drag and drop file and folder
         function handleDrop(event) {
             event.preventDefault();
 
@@ -857,8 +854,6 @@
             const tableBody = document.getElementById('upload-preview-list');
             tableBody.innerHTML = '';
             
-            console.log(files);
-            console.log(filesPath);
             files.forEach((file, index) => {
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
