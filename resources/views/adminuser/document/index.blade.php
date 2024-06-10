@@ -688,7 +688,7 @@
             <input id="countFile" type="hidden" value="0">
         </div>
     </div>
-    @push('scripts')
+    @push('scripts')d
     <script>
         let a = 0;
         let easteregg = 0;
