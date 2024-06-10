@@ -1,7 +1,6 @@
 @extends('layouts.app_client')
 @php date_default_timezone_set('Asia/Jakarta'); @endphp
 
-
 @section('notification')
     <div class="notificationlayer">
         <div class="notification">
@@ -358,8 +357,6 @@
             </div>
         </div>
     @endif
-
-
 
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">
