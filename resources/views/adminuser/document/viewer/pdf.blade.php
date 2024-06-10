@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="closeAction">
-            <a href="{{ route('adminuser.documents.list', base64_encode($link)) }}">
+            <a href="{{ route('adminuser.documents.openfolder', base64_encode($link)) }}">
                 <img class="icon" src="{{ url('template/images/icon_menu/close.png') }}" alt="Close" />
             </a>
         </div>

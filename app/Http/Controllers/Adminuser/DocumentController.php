@@ -24,25 +24,20 @@ use ZipArchive;
 
 class DocumentController extends Controller
 {
-    public function Index($subproject)  //done check
+    public function Index($subproject)
     {
         try {
             $origin = 'uploads/'.\globals::get_client_id(). '/'. base64_decode($subproject);
+            $directorytype = 1; 
             $permission =  explode('/', base64_decode($subproject), 5);
-           
-
             $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
                 return [
                     'path' => $file,
                     'upload_date' => Storage::lastModified($file) 
                 ];
             });
-
             $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
-
             $folders = Storage::directories($origin);
-            $directorytype = 1; //1 is parent
-
             $path = explode('/', base64_decode($subproject), 5);
             $subProjectPath = $path[1];
 
@@ -68,7 +63,7 @@ class DocumentController extends Controller
             } else {
                 $role = 'Client';
             }
-
+            
             return response()->json(['permissionlist' => $permissionlist, 'username' => $username . ' - ' . $role]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
@@ -340,10 +335,8 @@ class DocumentController extends Controller
     public function ViewFile($file) {
         try {
             $file = base64_decode($file);
-            $path = UploadFile::where('basename', $file)->value('directory');
 
-            $link = array_slice(explode('/', $path), 2);
-            $link = implode('/', $link);
+            $link = UploadFolder::where('directory', UploadFile::where('basename', $file)->value('directory'))->value('basename');
 
             $mimeType = UploadFile::where('basename', $file)->value('mime_type');
 
