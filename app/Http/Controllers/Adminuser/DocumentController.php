@@ -340,7 +340,7 @@ class DocumentController extends Controller
 
             $mimeType = UploadFile::where('basename', $file)->value('mime_type');
 
-            $desc = Auth::user()->name . " viewed file " . $file;
+            $desc = Auth::user()->name . " viewed file " . $file . " (" . UploadFile::where('basename', $file)->value('name') . ")";
             \log::create(request()->all(), "success", $desc);
 
             if (str_starts_with($mimeType, 'image/')) {
