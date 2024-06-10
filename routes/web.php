@@ -226,7 +226,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('/discussion/delete-discussion/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_discussion')->name('discussion.delete-discussion');
 			Route::post('/discussion/import-questions', 'App\Http\Controllers\Adminuser\DiscussionController@import_questions')->name('discussion.import-questions');
 			Route::get('/discussion/export-questions', 'App\Http\Controllers\Adminuser\DiscussionController@export_questions')->name('discussion.export-questions');
-			
+			Route::get('/discussion/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@link_email_discussion')->name('discussion.link-email-discussion');
+
 			/* Setting */
 			Route::get('/setting', 'App\Http\Controllers\Adminuser\SettingController@index')->name('setting');
 			Route::post('/setting/save-setting-email', 'App\Http\Controllers\Adminuser\SettingController@save_setting_email')->name('setting.save-setting-email');

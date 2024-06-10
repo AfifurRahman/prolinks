@@ -66,6 +66,19 @@ class DiscussionController extends Controller
         return view('adminuser.discussion.detail', compact('discussion_id', 'detail', 'file'));
     }
 
+    function link_email_discussion($discussion_id){
+        $session_project = Discussion::where('discussion_id', $discussion_id)->value('subproject_id');
+        $types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', Auth::user()->user_id)->value('role');
+        $client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', Auth::user()->user_id)->value('client_users.client_id');
+        $updated = User::where('user_id', Auth::user()->user_id)->update([
+            'client_id' => $client_id,
+            'session_project' => $session_project,
+            'type' => $types
+        ]);
+
+        return redirect(route('discussion.detail-discussion', $discussion_id));
+    }
+
     function save_discussion(Request $request){
         $results = [];
         try {
@@ -210,32 +223,37 @@ class DiscussionController extends Controller
 
     function send_email_user($project_id, $subproject_id, $client_id, $discussion_id, $request){
         $discussion_creator = User::where('id', Auth::user()->id)->first();
-        $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->get();
+        /* where('deleted', 0) if user not disabled */
+        $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->where('deleted', 0)->get();
         $check_settings = SettingEmailNotification::where('project_id', $project_id)->where('subproject_id', $subproject_id)->where('client_id', $client_id)->where('user_id', Auth::user()->user_id)->first();
         
         if(count($receiver_email) > 0){
             foreach ($receiver_email as $key => $value) {
                 if (!empty($value->RefUser->email) && $value->RefUser->email != Auth::user()->email) {
-                    $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('client_id', $value->client_id)->where('user_id', $value->user_id)->where('clientuser_id', $value->clientuser_id)->value('is_discussion');
-                    if (!empty($check_settings) && $check_settings == 1) {
-                        $set_subject = "";
-                        if(!empty($request->input('subject'))){
-                            $set_subject = $request->input('subject');
-                        }else{
-                            $set_subject = Discussion::where('discussion_id', $discussion_id)->where('client_id', $client_id)->value('subject');
-                        }
+                    /* if user active */
+                    if (!empty($value->RefUser->password_created) && $value->RefUser->password_created == 1) {
+                        $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('client_id', $value->client_id)->where('user_id', $value->user_id)->where('clientuser_id', $value->clientuser_id)->value('is_discussion');
+                        if (!empty($check_settings) && $check_settings == 1) {
+                            $set_subject = "";
+                            if(!empty($request->input('subject'))){
+                                $set_subject = $request->input('subject');
+                            }else{
+                                $set_subject = Discussion::where('discussion_id', $discussion_id)->where('client_id', $client_id)->value('subject');
+                            }
 
-                        $details = [
-                            'discussion_creator' => $discussion_creator->name,
-                            'receiver_name' => !empty($value->RefUser->name) ? $value->RefUser->name : $value->RefUser->email,
-                            'project_name' => $value->RefProject->project_name,
-                            'subject' => $set_subject,
-                            'comment' => $request->input('comment'),
-                            'link' => route('discussion.detail-discussion', $discussion_id)
-                        ];
-        
-                        \Mail::to($value->RefUser->email)->send(new \App\Mail\DiscussionUsers($details));
-                    }                    
+                            $details = [
+                                'discussion_creator' => $discussion_creator->name,
+                                'receiver_name' => !empty($value->RefUser->name) ? $value->RefUser->name : $value->RefUser->email,
+                                'project_name' => $value->RefProject->project_name,
+                                'subject' => $set_subject,
+                                'comment' => $request->input('comment'),
+                                // 'link' => route('discussion.detail-discussion', $discussion_id),
+                                'link' => route('discussion.link-email-discussion', $discussion_id)
+                            ];
+            
+                            \Mail::to($value->RefUser->email)->send(new \App\Mail\DiscussionUsers($details));
+                        }
+                    }                 
                 } 
             }
         }
