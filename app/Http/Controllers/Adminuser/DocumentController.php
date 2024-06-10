@@ -356,7 +356,7 @@ class DocumentController extends Controller
             elseif (str_starts_with($mimeType, 'application/pdf')) {
                 return view('adminuser.document.viewer.pdf', compact('file', 'link'));
             } else {
-                return back();
+                return view('adminuser.document.viewer.error', compact('file', 'link'));
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);

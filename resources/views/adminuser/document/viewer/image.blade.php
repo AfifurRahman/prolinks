@@ -42,7 +42,7 @@
         </div>
     </div>
     <div id="displayImage">
-        <div class="main dragscroll" id="mom">
+        <div class="main dragscroll">
             <img id="Image" class="imageViewer" src="{{ route('adminuser.documents.downloadfile', base64_encode(basename($file))) }}" alt="PDF Viewer">
         </div>
     </div>
