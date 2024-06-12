@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 
@@ -149,6 +150,11 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 	Route::post('/project/save-first-project', 'App\Http\Controllers\Adminuser\FirstProjectController@save_first_project')->name('project.save-first-project');
 	Route::group(['middleware' => ['verify_project']], function () {
 		Route::post('change-main-project', 'App\Http\Controllers\Adminuser\ProjectController@change_main_project')->name('project.change-main-project');
+
+		// Route Check Session
+			Route::get('/check-session', function () {
+				return response()->json(['session_valid' => Auth::check()]);
+			});
 
 		// Route::group(['middleware' => ['check_access_user']], function () {
 			/* Home */

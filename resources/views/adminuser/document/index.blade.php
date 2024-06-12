@@ -725,6 +725,22 @@
                 $('input[data-role="fileCheckBox"]').prop('checked', this.checked);
             });
 
+            setInterval(function() {
+                $.ajax({
+                    url: '{{ url('/check-session') }}',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (!response.session_valid) {
+                            location.reload();
+                        }
+                    },
+                    error: function() {
+                        location.reload();
+                    }
+                });
+            }, 1000);
+
             documentCheckBox.forEach(function (CheckBox) {
                 CheckBox.addEventListener('change', function() {
                     var checked = $('#folderCheckBox:checked').length + $('#fileCheckBox:checked').length;
