@@ -160,13 +160,13 @@
                     @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $all_questions])
                 </div>
                 <div class="tab-pane" id="unanswered">
-                    @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $unanswered])
+                    @include('adminuser.discussion.tabs.unanswered', ['list_questions' => $unanswered])
                 </div>
                 <div class="tab-pane" id="answered">
-                    @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $answered])
+                    @include('adminuser.discussion.tabs.answered', ['list_questions' => $answered])
                 </div>
                 <div class="tab-pane" id="closed">
-                    @include('adminuser.discussion.tabs.list_questions', ['list_questions' => $closed])
+                    @include('adminuser.discussion.tabs.closed', ['list_questions' => $closed])
                 </div>
             </div>
         </div>
@@ -179,9 +179,11 @@
 	@endif
     @include('adminuser.discussion.create_discussion')
     @include('adminuser.discussion.modal_close_questions')
+    @include('adminuser.discussion.modal_close_questions_multiple')
     @include('adminuser.discussion.modal_open_questions')
     @include('adminuser.discussion.modal_import_questions')
     @include('adminuser.discussion.modal_remove_questions')
+    @include('adminuser.discussion.modal_remove_questions_multiple')
 @endsection
 @push('scripts')
 	<script type="text/javascript">
@@ -201,6 +203,9 @@
                 // "bFilter": true,
                 // "dom": 'rtip',
                 // "stripeClasses": false,
+                // "columnDefs": [
+                //     { "orderable": false, "targets": 0 },
+                // ]
             });
 
             $(".tableLinksFiles").dataTable({
@@ -329,6 +334,99 @@
             if (getUrlDelete != 'undefined') {
                 window.location.href = getUrlDelete;
             }
+        }
+
+        $(document).ready(function(){
+            const documentCheckBox = document.querySelectorAll('.checkbox');
+
+            $('#headerCheckBox1').change(function() {
+                $('#headerCheckBox').prop('checked', this.checked);
+                //$('#folderCheckBox').prop('checked', this.checked);
+                $('input[data-role="fileCheckBox"]').prop('checked', this.checked);
+            });
+
+            documentCheckBox.forEach(function (CheckBox) {
+                CheckBox.addEventListener('change', function() {
+                    var checked = $('#folderCheckBox:checked').length + $('#fileCheckBox:checked').length;
+                    var checkedValues = [];
+                    
+                    $('#fileCheckBox:checked').each(function() {
+                        checkedValues.push($(this).val()); 
+                    });
+
+                    filesChecked = checkedValues;
+                    if(checked > 0) {
+                        $(".headerBar").css("visibility", "collapse");
+                        $(".checkToolBar").css("visibility", "visible");
+                        $('#selectedCount').text(checked);
+                    } else {
+                        $(".headerBar").css("visibility", "visible");
+                        $(".checkToolBar").css("visibility", "collapse");
+                        $('#headerCheckBox').prop('checked', false);
+                        $('#headerCheckBox1').prop('checked', false);
+                    }
+                });
+            });
+        });
+
+        function uncheckAll() {
+            $('.checkbox').prop('checked', false);
+            $(".headerBar").css("visibility", "visible");
+            $(".checkToolBar").css("visibility", "collapse");
+        }
+
+        function actCloseQuestionMultiple() {
+            var discussion = []; 
+            $('#fileCheckBox:checked').each(function() {
+                discussion.push($(this).val()); 
+            });
+
+            $.ajax({
+                url: "{{ route('discussion.change-status-qna-closed-multiple') }}",
+                type: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "discussion_id": discussion
+                },
+                dataType: "JSON",
+                beforeSend: function(){
+                    $("#actSubmitCloseQuestions").prop('disabled', true);
+                    $("#actSubmitCloseQuestions").html("loading..");
+                },
+                success: function(response){
+                    location.reload();
+                },
+                error: function(xhr, status, error){
+                    alert(xhr.responseText);
+                }
+            });
+        }
+
+        function actDeleteQnaMultiple() {
+            var discussion = []; 
+            $('#fileCheckBox:checked').each(function() {
+                discussion.push($(this).val()); 
+            });
+
+            $.ajax({
+                url: "{{ route('discussion.delete-discussion-multiple') }}",
+                type: "POST",
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    "discussion_id": discussion
+                },
+                dataType: "JSON",
+                beforeSend: function(){
+                    $("#actSubmitRemoveQuestions").prop('disabled', true);
+                    $("#actSubmitRemoveQuestions").html("loading..");
+                },
+                success: function(response){
+                    location.reload();
+                },
+                error: function(xhr, status, error){
+                    alert(xhr.responseText);
+                }
+            });
         }
     </script>
 @endpush

@@ -314,6 +314,40 @@ class DiscussionController extends Controller
         return back()->with('notification', $notification);
     }
 
+    function delete_discussion_multiple(Request $request) {
+        $notification = "";
+        try {
+            \DB::beginTransaction();
+            
+            $discussion_id = $request->input('discussion_id');
+            if (count($discussion_id) > 0) {
+                foreach ($discussion_id as $key => $value) {
+                    $deleted = Discussion::where('discussion_id', $value)->update([
+                        'deleted' => 1
+                    ]);
+
+                    if($deleted){
+                        $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                        $subject = Discussion::where('discussion_id', $value)->value('subject');
+                        $desc = Auth::user()->name." removed discussion ".$subject." on sub project ".$projectname;
+                        \log::create(request()->all(), "success", $desc);
+                        $notification = "Discussion removed";
+                    }
+                }
+            }
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollback();
+
+            \log::create(request()->all(), "error", $e->getMessage());
+            $notification = "failed to remove discussion";
+        }
+
+        Session::flash('notification', $notification);
+        return response()->json($notification);
+    }
+
     public function import_questions(Request $request) {
         $request->validate([
             'upload_qna' => 'required|mimes:csv,txt'
@@ -486,6 +520,42 @@ class DiscussionController extends Controller
         }
 
         return back()->with('notification', $notification);
+    }
+
+    public function change_status_qna_closed_multiple(Request $request) {
+        $notification = "";
+        try {
+            \DB::beginTransaction();
+
+            $discussion_id = $request->input('discussion_id');
+            if (count($discussion_id) > 0) {
+                foreach ($discussion_id as $key => $value) {
+                    $updated = Discussion::where('discussion_id', $value)->update([
+                        'status' => \globals::set_qna_status_closed(),
+                        'closed_date' => date('Y-m-d H:i:s'),
+                        'closed_by' => Auth::user()->id
+                    ]);
+        
+                    if($updated){
+                        $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                        $qnaname = Discussion::where('discussion_id', $value)->value('subject');
+                        $desc = Auth::user()->name." close discussion ".$qnaname." on sub project ".$projectname;
+                        \log::create(request()->all(), "success", $desc);
+                        $notification = "Question closed";
+                    }
+                }
+            }
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollback();
+
+            \log::create(request()->all(), "error", $e->getMessage());
+            $notification = "failed close discussion!";
+        }
+
+        Session::flash('notification', $notification);
+        return response()->json($notification);
     }
 
     public function change_status_qna_open(Request $request) {
