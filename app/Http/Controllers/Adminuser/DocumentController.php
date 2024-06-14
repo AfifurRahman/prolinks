@@ -54,18 +54,20 @@ class DocumentController extends Controller
     public function CheckPermission(Request $request)
     {
         try {
-            $permissionlist = Permission::where('user_id', $request->userid)->get();
-            $username = ClientUser::where('user_id', $request->userid)->value('name');
-            
-            if ( User::where('user_id', $request->userid)->value('type') == 0 ) {
-                $role = 'Administrator';
-            } else if ( User::where('user_id', $request->userid)->value('type') == 1 ) {
-                $role ='Collaborator';
-            } else {
-                $role = 'Client';
+            if(Auth::user()->type == \globals::set_role_administrator()) { 
+                $permissionlist = Permission::where('user_id', $request->userid)->get();
+                $username = ClientUser::where('user_id', $request->userid)->value('name');
+                
+                if ( User::where('user_id', $request->userid)->value('type') == 0 ) {
+                    $role = 'Administrator';
+                } else if ( User::where('user_id', $request->userid)->value('type') == 1 ) {
+                    $role ='Collaborator';
+                } else {
+                    $role = 'Client';
+                }
+                
+                return response()->json(['permissionlist' => $permissionlist, 'username' => $username . ' - ' . $role]);
             }
-            
-            return response()->json(['permissionlist' => $permissionlist, 'username' => $username . ' - ' . $role]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -73,37 +75,38 @@ class DocumentController extends Controller
 
     public function SetPermission(Request $request)
     {
-        try{
-            $checkboxStatus = $request->all();
+        try {
+            if(Auth::user()->type == \globals::set_role_administrator()) {
+                $checkboxStatus = $request->all();
 
-            foreach ($checkboxStatus as $checkboxId => $checked) {
-                if ($checkboxId != "userid") {
-                    if(is_null(Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->value('permission'))) {
-                        if ($checked == "true"){
-                            Permission::create([
-                                'user_id' => $request->userid,
-                                'fileid' => $checkboxId,
-                                'permission' => '1',
-                            ]);
+                foreach ($checkboxStatus as $checkboxId => $checked) {
+                    if ($checkboxId != "userid") {
+                        if(is_null(Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->value('permission'))) {
+                            if ($checked == "true"){
+                                Permission::create([
+                                    'user_id' => $request->userid,
+                                    'fileid' => $checkboxId,
+                                    'permission' => '1',
+                                ]);
+                            } else {
+                                Permission::create([
+                                    'user_id' => $request->userid,
+                                    'fileid' => $checkboxId,
+                                    'permission' => '0',
+                                ]);
+                            } 
                         } else {
-                            Permission::create([
-                                'user_id' => $request->userid,
-                                'fileid' => $checkboxId,
-                                'permission' => '0',
-                            ]);
-                        } 
-                    } else {
-                        if ($checked == "true"){
-                            Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->update(['permission' => '1']);
-                        } else {
-                            Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->update(['permission' => '0']);
-                        }   
+                            if ($checked == "true"){
+                                Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->update(['permission' => '1']);
+                            } else {
+                                Permission::where('user_id', $request->userid)->where('fileid', $checkboxId)->update(['permission' => '0']);
+                            }   
+                        }
                     }
                 }
+                $desc = Auth::user()->name . " set permission on user " . $request->userid;
+                \log::create(request()->all(), "success", $desc);
             }
-            $desc = Auth::user()->name . " set permission on user " . $request->userid;
-            \log::create(request()->all(), "success", $desc);
-            
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -256,41 +259,46 @@ class DocumentController extends Controller
     public function CreateFolder(Request $request)
     {
         try {
-            $currentPath = base64_decode($request->location);
-            $basename = Str::random(8);
-            $originPath = base64_decode($request->location);
-            $locationParts = explode('/', $originPath, 5);
-            $path = $originPath . '/'. $request->folderName;
+            if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator()) {
+                $currentPath = base64_decode($request->location);
+                $basename = Str::random(8);
+                $originPath = base64_decode($request->location);
+                $locationParts = explode('/', $originPath, 5);
+                $path = $originPath . '/'. $request->folderName;
 
-            $folders = UploadFolder::where('parent', $currentPath)->where('name', $request->folderName)->value('name');
+                $folders = UploadFolder::where('parent', $currentPath)->where('name', $request->folderName)->value('name');
 
-            if (is_null($folders)){
-                Storage::makeDirectory($path, 0755,true);
+                if (is_null($folders)){
+                    Storage::makeDirectory($path, 0755,true);
 
-                $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('parent', $originPath)->max('index'));
-                $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
-        
-                UploadFolder::create([
-                    'index' => $folderIndex,
-                    'project_id' => $locationParts[2],
-                    'subproject_id' => $locationParts[3],
-                    'parent' => $originPath,
-                    'directory' => $path,
-                    'basename' => $basename,
-                    'name' => $request->folderName,
-                    'displayname' => $request->folderName,
-                    'client_id' => \globals::get_client_id(),
-                    'status' => 1,
-                    'uploaded_by' => Auth::user()->user_id, 
-                ]);
-        
-                $desc = Auth::user()->name . " created folder " . $request->folderName;
-                \log::create(request()->all(), "success", $desc);
+                    $maxIndex = max(UploadFile::where('directory', $originPath)->max('index'), UploadFolder::where('parent', $originPath)->max('index'));
+                    $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+            
+                    UploadFolder::create([
+                        'index' => $folderIndex,
+                        'project_id' => $locationParts[2],
+                        'subproject_id' => $locationParts[3],
+                        'parent' => $originPath,
+                        'directory' => $path,
+                        'basename' => $basename,
+                        'name' => $request->folderName,
+                        'displayname' => $request->folderName,
+                        'client_id' => \globals::get_client_id(),
+                        'status' => 1,
+                        'uploaded_by' => Auth::user()->user_id, 
+                    ]);
+            
+                    $desc = Auth::user()->name . " created folder " . $request->folderName;
+                    \log::create(request()->all(), "success", $desc);
 
-                return response()->json(['success' => true, 'message' => 'Folder ' . $request->folderName . ' has successfully created']);
+                    return response()->json(['success' => true, 'message' => 'Folder ' . $request->folderName . ' has successfully created.']);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Same folder name already exist.']);
+                }
             } else {
-                return response()->json(['success' => false, 'message' => 'Same folder name already exist']);
+                return response()->json(['success' => false, 'message' => 'Your role is not allowed to create folder.']);
             }
+            
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -341,7 +349,7 @@ class DocumentController extends Controller
 
             $mimeType = UploadFile::where('basename', $file)->value('mime_type');
 
-            $desc = Auth::user()->name . " viewed file " . $file;
+            $desc = Auth::user()->name . " viewed file " . $file . " (" . UploadFile::where('basename', $file)->value('name') . ")";
             \log::create(request()->all(), "success", $desc);
             $this->logViewFile($file);
 
@@ -450,7 +458,6 @@ class DocumentController extends Controller
 
     public function DownloadZip($link = null) {
         try {
-
             return Storage::disk('local')->download(base64_decode($link), 'files.zip');
         } catch ( \Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
@@ -551,15 +558,19 @@ class DocumentController extends Controller
     public function RenameFile(Request $request)
     {
         try {
-            $old_name = $request->old_name;
-            $new_name = $request->new_name;
-            $extension = pathinfo(UploadFile::where('basename', $old_name)->value('name'), PATHINFO_EXTENSION);
-            UploadFile::where('basename', $old_name)->update(['name' => $new_name . '.' . $extension]);
+            if(Auth::user()->type == \globals::set_role_administrator()) {
+                $old_name = $request->old_name;
+                $new_name = $request->new_name;
+                $extension = pathinfo(UploadFile::where('basename', $old_name)->value('name'), PATHINFO_EXTENSION);
+                UploadFile::where('basename', $old_name)->update(['name' => $new_name . '.' . $extension]);
 
-            $desc = Auth::user()->name . " renamed file " . $old_name . " to " . $new_name;
-            \log::create(request()->all(), "success", $desc);
+                $desc = Auth::user()->name . " renamed file " . $old_name . " to " . $new_name;
+                \log::create(request()->all(), "success", $desc);
 
-            return response()->json(['success' => true, 'message' => 'File has successfully renamed to ' . $new_name]);
+                return response()->json(['success' => true, 'message' => 'File has successfully renamed to ' . $new_name]);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Your role is not allowed to rename file.']);
+            }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Failed to rename the file']);
         }
@@ -568,13 +579,17 @@ class DocumentController extends Controller
     public function DeleteFile(Request $request)
     {
         try {
-            $fileName =  UploadFile::where('basename', base64_decode($request->file))->value('name');
-            UploadFile::where('basename', base64_decode($request->file))->update(['status' => 0]);
+            if(Auth::user()->type == \globals::set_role_administrator()) {
+                $fileName =  UploadFile::where('basename', base64_decode($request->file))->value('name');
+                UploadFile::where('basename', base64_decode($request->file))->update(['status' => 0]);
 
-            $desc = Auth::user()->name . " deleted file " . base64_decode($request->file);
-            \log::create(request()->all(), "success", $desc);
+                $desc = Auth::user()->name . " deleted file " . base64_decode($request->file);
+                \log::create(request()->all(), "success", $desc);
 
-            return response()->json(['success' => true, 'message' => $fileName . ' has successfully removed']);
+                return response()->json(['success' => true, 'message' => $fileName . ' has successfully been removed.']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Your role is not allowed to remove file.']);
+            }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -583,14 +598,18 @@ class DocumentController extends Controller
     public function RenameFolder(Request $request)
     {
         try {
-            $name = $request->name;
-            $location = base64_decode($request->location);
-            UploadFolder::where('parent', $location)->where('name', $name)->update(['displayname' => $request->newname]);
+            if(Auth::user()->type == \globals::set_role_administrator()) {
+                $name = $request->name;
+                $location = base64_decode($request->location);
+                UploadFolder::where('parent', $location)->where('name', $name)->update(['displayname' => $request->newname]);
 
-            $desc = Auth::user()->name . " renamed folder " . $name . " to " . $request->newname;
-            \log::create(request()->all(), "success", $desc);
+                $desc = Auth::user()->name . " renamed folder " . $name . " to " . $request->newname;
+                \log::create(request()->all(), "success", $desc);
 
-            return response()->json(['success' => true, 'message' => 'Folder has successfully renamed to ' . $request->newname]);
+                return response()->json(['success' => true, 'message' => 'Folder has successfully renamed to ' . $request->newname . '.']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Your role is not allowed to rename folder.']);
+            }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -598,13 +617,17 @@ class DocumentController extends Controller
 
     public function DeleteFolder(Request $request) {
         try {
-            $foldername = base64_decode($request->folder);
-            UploadFolder::where('directory', $foldername)->update(['status' => 0]);
+            if(Auth::user()->type == \globals::set_role_administrator()) {
+                $foldername = base64_decode($request->folder);
+                UploadFolder::where('directory', $foldername)->update(['status' => 0]);
 
-            $desc = Auth::user()->name . " deleted folder " . $foldername;
-            \log::create(request()->all(), "success", $desc);
+                $desc = Auth::user()->name . " deleted folder " . $foldername;
+                \log::create(request()->all(), "success", $desc);
 
-            return response()->json(['success' => true, 'message' =>'Successfully removed the folder']);
+                return response()->json(['success' => true, 'message' =>'Successfully removed the folder.']);
+            } else {
+                return response()->json(['success' => false, 'message' =>'Your role is not allowed to remove folder.']);
+            }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
@@ -642,98 +665,102 @@ class DocumentController extends Controller
 
     public function MultipleUpload(Request $request) {
         try {
-            $saveLocation = base64_decode($request->input('location'));
-            $filePaths = $request->input('filePath');
-            $projectID = explode('/', $saveLocation, 5);
-            $files = $request->file('file');
-            $logFilesName = "";
+            if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator()) {
+                $saveLocation = base64_decode($request->input('location'));
+                $filePaths = $request->input('filePath');
+                $projectID = explode('/', $saveLocation, 5);
+                $files = $request->file('file');
+                $logFilesName = "";
+                
+                foreach ($filePaths as $filePath) {
+                    if ($filePath != "") {
+                        $filePathParts = explode('/', $filePath);
+
+                        $IndexPathPart = "";
+                        $PathPart = "";
+
+                        $IndexPath = explode('/', $filePath);
+                        array_unshift($IndexPath, '');
+                        array_pop($IndexPath);
+
+                        foreach ($filePathParts as $key => $part) {
+                            $PathPart .= '/' . $part;
+                        
+                            $saveDir = rtrim($saveLocation . $PathPart, '/') ;
+                            $isExist = UploadFolder::where('directory', $saveDir)->value('name');
             
-            foreach ($filePaths as $filePath) {
-                if ($filePath != "") {
-                    $filePathParts = explode('/', $filePath);
-
-                    $IndexPathPart = "";
-                    $PathPart = "";
-
-                    $IndexPath = explode('/', $filePath);
-                    array_unshift($IndexPath, '');
-                    array_pop($IndexPath);
-
-                    foreach ($filePathParts as $key => $part) {
-                        $PathPart .= '/' . $part;
-                    
-                        $saveDir = rtrim($saveLocation . $PathPart, '/') ;
-                        $isExist = UploadFolder::where('directory', $saveDir)->value('name');
-        
-                        if ($key > 0) {
-                            $IndexPathPart .= '/' . $IndexPath[$key];
-                        } 
-        
-                        $IndexFullPath = rtrim($saveLocation, '/') . $IndexPathPart;
-        
-                        $maxIndex = max(UploadFile::where('directory', $IndexFullPath)->max('index'), UploadFolder::where('parent', $IndexFullPath)->max('index'));
-                        $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
-        
-                        if (is_null($isExist)) {
-                            Storage::makeDirectory($saveDir, 0755, true);
-                            
-                            UploadFolder::create([
-                                'index' => $folderIndex,
-                                'project_id' => $projectID[2],
-                                'subproject_id' => $projectID[3],
-                                'parent' => $IndexFullPath,
-                                'directory' => $saveDir,
-                                'basename' => Str::random(8),
-                                'name' => $part,
-                                'displayname' => $part,
-                                'client_id' => \globals::get_client_id(),
-                                'status' => 1,
-                                'uploaded_by' => Auth::user()->user_id, 
-                            ]);
+                            if ($key > 0) {
+                                $IndexPathPart .= '/' . $IndexPath[$key];
+                            } 
+            
+                            $IndexFullPath = rtrim($saveLocation, '/') . $IndexPathPart;
+            
+                            $maxIndex = max(UploadFile::where('directory', $IndexFullPath)->max('index'), UploadFolder::where('parent', $IndexFullPath)->max('index'));
+                            $folderIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+            
+                            if (is_null($isExist)) {
+                                Storage::makeDirectory($saveDir, 0755, true);
+                                
+                                UploadFolder::create([
+                                    'index' => $folderIndex,
+                                    'project_id' => $projectID[2],
+                                    'subproject_id' => $projectID[3],
+                                    'parent' => $IndexFullPath,
+                                    'directory' => $saveDir,
+                                    'basename' => Str::random(8),
+                                    'name' => $part,
+                                    'displayname' => $part,
+                                    'client_id' => \globals::get_client_id(),
+                                    'status' => 1,
+                                    'uploaded_by' => Auth::user()->user_id, 
+                                ]);
+                            }
                         }
                     }
                 }
-            }
 
-            foreach($files as $key => $file) {
-                $remainQuota = (DB::table('pricing')->where('id', DB::table('clients')->where('client_id',\globals::get_client_id())->value('pricing_id'))->value('allocation_size')) - (DB::table('upload_files')->where('client_id', \globals::get_client_id())->sum('size'));
-                $fullFilePath = rtrim($saveLocation . '/' . $filePaths[$key], '/');
+                foreach($files as $key => $file) {
+                    $remainQuota = (DB::table('pricing')->where('id', DB::table('clients')->where('client_id',\globals::get_client_id())->value('pricing_id'))->value('allocation_size')) - (DB::table('upload_files')->where('client_id', \globals::get_client_id())->sum('size'));
+                    $fullFilePath = rtrim($saveLocation . '/' . $filePaths[$key], '/');
 
-                if (($remainQuota - $file->getSize()) > 0) {
-                    $savedFile = $file->storeAs($fullFilePath, Str::random(8));
-                    $maxIndex = max(UploadFile::where('directory', $fullFilePath)->max('index'), UploadFolder::where('parent', $fullFilePath)->max('index'));
-                    $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
+                    if (($remainQuota - $file->getSize()) > 0) {
+                        $savedFile = $file->storeAs($fullFilePath, Str::random(8));
+                        $maxIndex = max(UploadFile::where('directory', $fullFilePath)->max('index'), UploadFolder::where('parent', $fullFilePath)->max('index'));
+                        $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
 
-                    UploadFile::create([
-                        'index' => $fileIndex,
-                        'project_id' => $projectID[2],
-                        'subproject_id' => $projectID[3],
-                        'directory' => $fullFilePath,
-                        'basename' => basename($savedFile),
-                        'name' => $file->getClientOriginalName(),
-                        'client_id' => \globals::get_client_id(),
-                        'mime_type' => $file->getClientMimeType(),
-                        'size' => $file->getSize(),
-                        'status' => 1,
-                        'uploaded_by' => Auth::user()->user_id,
-                    ]);
-                   $logFilesName .= $file->getClientOriginalName() . " (". basename($savedFile) ."), ";
+                        UploadFile::create([
+                            'index' => $fileIndex,
+                            'project_id' => $projectID[2],
+                            'subproject_id' => $projectID[3],
+                            'directory' => $fullFilePath,
+                            'basename' => basename($savedFile),
+                            'name' => $file->getClientOriginalName(),
+                            'client_id' => \globals::get_client_id(),
+                            'mime_type' => $file->getClientMimeType(),
+                            'size' => $file->getSize(),
+                            'status' => 1,
+                            'uploaded_by' => Auth::user()->user_id,
+                        ]);
+                    $logFilesName .= $file->getClientOriginalName() . " (". basename($savedFile) ."), ";
+                    }
                 }
+
+                $logFilesName = rtrim($logFilesName, ', ');
+
+                $receiver_email = AssignProject::where('subproject_id', $projectID[3])->where('client_id', \globals::get_client_id())->get();
+                $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
+
+                $desc = Auth::user()->name . " uploaded file " . $logFilesName;
+                \log::create(request()->all(), "success", $desc);
+
+                $link = UploadFolder::where('directory', $saveLocation)->value('basename');
+
+                \log::push_notification('New File Added', $type=1, $link, $projectID[3]);
+
+                return response()->json(['success' => true, 'message' => "Successfully uploaded file and folder."]);
+            } else {
+                return response()->json(['success' => false, 'message' => "Your role is not allowed to upload file or folder."]);
             }
-
-            $logFilesName = rtrim($logFilesName, ', ');
-
-            $receiver_email = AssignProject::where('subproject_id', $projectID[3])->where('client_id', \globals::get_client_id())->get();
-            $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
-
-            $desc = Auth::user()->name . " uploaded file " . $logFilesName;
-            \log::create(request()->all(), "success", $desc);
-
-            $link = UploadFolder::where('directory', $saveLocation)->value('basename');
-
-            \log::push_notification('New File Added', $type=1, $link, $projectID[3]);
-
-            return response()->json(['success' => false, 'message' => "Successfully uploaded files and folders."]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         } 
