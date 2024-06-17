@@ -156,7 +156,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 				return response()->json(['session_valid' => Auth::check()]);
 			});
 
-		// Route::group(['middleware' => ['check_access_user']], function () {
+		Route::group(['middleware' => ['check_access_user']], function () {
 			/* Home */
 			Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 			Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -241,6 +241,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('/setting/save-setting-email', 'App\Http\Controllers\Adminuser\SettingController@save_setting_email')->name('setting.save-setting-email');
 			Route::get('/all-notification', 'App\Http\Controllers\Adminuser\SettingController@all_notification')->name('notification.list');
 			Route::post('/read-notification', 'App\Http\Controllers\Adminuser\SettingController@read_notification')->name('notification.read');
-		// });
+		});
 	});
 });
