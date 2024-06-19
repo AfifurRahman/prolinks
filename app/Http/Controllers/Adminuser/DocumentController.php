@@ -364,6 +364,14 @@ class DocumentController extends Controller
         }
     }
 
+    public function WatermarkFile($file) {
+        try {
+            return back();
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    
     public function ServeFile($file)
     {
         try {
