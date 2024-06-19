@@ -222,7 +222,7 @@
             </div>
         </div>
 
-         <!-- Permission -->
+        <!-- Permission -->
         <div id="modal-add-permission" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content" style="width: 100%;">
@@ -333,7 +333,7 @@
                                                             {{DB::table('upload_files')->where('basename', $file)->value('name')}}
                                                         </td>
                                                         <td>
-                                                            <input type="checkbox" id="{{$file}}" class="setPermissionBox" value="{{$file}}" style="width:30px; height:16px;"></input>
+                                                            <input type="checkbox" id="{{$file}}" class="setPermissionBox" value="{{$file}}" onclick="handleChangeBox(this)" style="width:30px; height:16px;"></input>
                                                         </td>
                                                     </tr>
                                                 @endif
@@ -356,6 +356,9 @@
                 </div>
             </div>
         </div>
+
+
+
     @endif
 
     <div class="box_helper">
@@ -697,6 +700,7 @@
         let a = 0;
         let easteregg = 0;
         let files = [];
+        let permission = [];
         let filesPath = [];
         let filesChecked = [];
         var table = document.querySelector('.tableDocument');
@@ -711,6 +715,9 @@
 
             $('#all_checkbox').click(function() {
                 $('.setPermissionBox').prop('checked', this.checked);
+                $('.setPermissionBox').each(function() {
+                    handleChangeBox(this); 
+                });
             });
 
             $('#headerCheckBox').change(function() {
@@ -944,75 +951,9 @@
                 document.getElementById('permission-file-list-table').style.display="none";
                 $('#setPermissionButton').prop("disabled", true);
 
-                const permissionCheckBox = document.querySelectorAll('.setPermissionBox');
-            
-
-                permissionCheckBox.forEach(function (CheckBox) {
-                    CheckBox.addEventListener('change', function() {
-                        var checkboxStatusArray = [];
-
-                        const FileCount = $('.setPermissionBox').length - 1;
-                        var FileChecked = $('.setPermissionBox:checked').length;
-                    
-                        if (FileChecked > FileCount) {
-                            $('#all_checkbox').prop('checked', true); 
-                        } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
-                            $('#all_checkbox').prop('checked', true);
-                        } else { 
-                            $('#all_checkbox').prop('checked', false);
-                        }
-
-                        $("#fileList input[type='checkbox']").each(function() {
-                            var checkboxId = $(this).attr("id");
-                            var isChecked = $(this).prop("checked");
-                            var checkboxStatus = {
-                                id: checkboxId,
-                                checked: isChecked
-                            };
-                            checkboxStatusArray.push(checkboxStatus);
-                        });
-
-                        var formData = new FormData();
-                        
-                        checkboxStatusArray.forEach(function(checkboxStatus) {
-                            formData.append(checkboxStatus.id, checkboxStatus.checked);
-                        });
-                        formData.append('userid', $('#IDuser').val());
-
-                        fetch('{{ route("adminuser.documents.setpermission") }}', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                        });
-                    })
-                });
-            }
-
-            function savePermission() {
-                // document.getElementById('permission-modal').style.display='none';
-                $("#modal-add-permission").modal('hide');
-                showNotification('Permission settings saved');
-            }
-
-            function checkUserPermission(user,role) {
-                $("#IDuser").attr("value",user);
-                document.getElementById('permission-file-list-table').style.display="block";
-                $('#setPermissionButton').prop("disabled", false);
-
-                var checkboxIds = [];
-                $("#fileList input[type='checkbox']").each(function() {
-                    var checkboxId = $(this).attr("id"); 
-                    checkboxIds.push(checkboxId);
-                });
-
-                checkboxIds.forEach(function(checkboxId) {
-                    $("#" + checkboxId).prop("checked", false);
-                });
-
                 var formData = new FormData();
-                formData.append('userid', user);
+                formData.append('projectid', '{{$projectID}}');
+                formData.append('subprojectid', '{{$subprojectID}}')
 
                 fetch('{{ route("adminuser.documents.checkpermission") }}', {
                     method: 'POST',
@@ -1023,24 +964,72 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    $('#permissionUser').text(data.username);
-
-                    data.permissionlist.forEach(function(permissionData) {
-                        if (permissionData.permission == 1){
-                            $("#" + permissionData.fileid).prop("checked", true);
-                        }   
-                    });
-                    const FileCount = $('.setPermissionBox').length - 1;
-                    var FileChecked = $('.setPermissionBox:checked').length;
-                    
-                    if (FileChecked > FileCount) {
-                        $('#all_checkbox').prop('checked', true); 
-                    } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
-                        $('#all_checkbox').prop('checked', true);
-                    } else { 
-                        $('#all_checkbox').prop('checked', false);
-                    }
+                    permission = data.permissionlist;
                 });
+            }
+
+            function savePermission() {
+                fetch('{{ route("adminuser.documents.setpermission") }}', {
+                    method: 'POST',
+                    body: JSON.stringify({ permission: permission }),
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'  
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    $("#modal-add-permission").modal('hide');
+                    showNotification(data.message);
+                })
+            }
+            
+            function handleChangeBox(checkbox) {
+                if (permission[$("#IDuser").val()]) {
+                    for (const obj of permission[$("#IDuser").val()]) {
+                        if (obj.id === checkbox.value) {
+                            obj.permission = checkbox.checked ? '1' : '0';
+                            break; 
+                        }
+                    }
+                }
+                checkAllListener()
+            }
+
+            function checkAllListener() {
+                const FileCount = $('.setPermissionBox').length - 1;
+                var FileChecked = $('.setPermissionBox:checked').length;
+            
+                if (FileChecked > FileCount) {
+                    $('#all_checkbox').prop('checked', true); 
+                } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
+                    $('#all_checkbox').prop('checked', true);
+                } else { 
+                    $('#all_checkbox').prop('checked', false);
+                }
+            }
+
+            function checkUserPermission(user) {
+                $("#IDuser").attr("value",user);
+                document.getElementById('permission-file-list-table').style.display="block";
+                $('#setPermissionButton').prop("disabled", false);
+
+                var checkboxIds = [];
+                $("#fileList input[type='checkbox']").each(function() {
+                    var checkboxId = $(this).attr("id"); 
+                    checkboxIds.push(checkboxId);
+                });
+                checkboxIds.forEach(function(checkboxId) {
+                    $("#" + checkboxId).prop("checked", false);
+                });
+
+                permission[user].forEach(obj => {
+                        if (`${obj.permission}`== 1){
+                        $("#" + `${obj.id}`).prop("checked", true);
+                    }   
+                });
+
+                checkAllListener()
             }
 
             function createFolder() {
