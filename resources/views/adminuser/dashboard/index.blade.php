@@ -159,10 +159,10 @@
 				<div class="card-box">
 					<div class="resume-viewed">
 						<h3>Most viewed documents</h3>
-						@if(true)
+						@if(count($most_viewed_doc) == 0)
 							<div class="card-box1">
 								<center>
-									<img src="http://127.0.0.1:8000/template/images/empty_qna.png" width="300" />
+									<img src="{{ url('template/images/empty_qna.png') }}" width="300" />
 								</center>    
 							</div>
 						@else
@@ -174,26 +174,12 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Control of Quality and Regulatory...xls</td>
-										<td>798</td>
-									</tr>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Facilities Management.doc</td>
-										<td>492</td>
-									</tr>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> External Audits.pdf</td>
-										<td>447</td>
-									</tr>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/ext-img.png') }}"> Employee Training and Developm...img</td>
-										<td>274</td>
-									</tr>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> Internal Quality Audits.docs</td>
-										<td>185</td>
-									</tr>
+									@foreach ($most_viewed_doc as $doc)
+										<tr>
+											<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> {!! Str::limit($doc->document_name, 40) !!}</td>
+											<td align="center">{{ $doc->total }}</td>
+										</tr>
+									@endforeach
 								</tbody>
 							</table>
 						@endif
@@ -204,10 +190,10 @@
 				<div class="card-box">
 					<div class="resume-viewed">
 						<h3>Most active users</h3>
-						@if(true)
+						@if(count($most_active_user) == 0)
 							<div class="card-box1">
 								<center>
-									<img src="http://127.0.0.1:8000/template/images/empty_qna.png" width="300" />
+									<img src="{{ url('template/images/empty_qna.png') }}" width="300" />
 								</center>    
 							</div>
 						@else
@@ -219,26 +205,14 @@
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Yanuar Adhitia Tutkey</td>
-										<td>994</td>
-									</tr>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Aryo Agung Benardi</td>
-										<td>826</td>
-									</tr>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Deny Stefany Febri</td>
-										<td>738</td>
-									</tr>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Christin Purnama</td>
-										<td>600</td>
-									</tr>
-									<tr>
-										<td><img class="icon-img" src="{{ url('template/images/avatar.png') }}"> Rizki Agung Maulana</td>
-										<td>274</td>
-									</tr>
+									@foreach ($most_active_user as $active_user)
+										<tr>
+											<td>
+												{!! \globals::get_user_avatar_small(!empty($active_user->name) ? $active_user->name : $active_user->email_address, !empty($active_user->avatar_color) ? $active_user->avatar_color : '#000') !!} {!! Str::limit( $active_user->name, 40) !!}
+											</td>
+											<td align="center">{{ $active_user->total }}</td>
+										</tr>
+									@endforeach
 								</tbody>
 							</table>
 						@endif

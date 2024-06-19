@@ -18,6 +18,7 @@ use App\Models\UploadFile;
 use App\Models\UploadFolder;
 use App\Models\AssignProject;
 use App\Models\Permission;
+use App\Models\LogViewDocument;
 use App\Models\SettingEmailNotification;
 use Auth;
 use ZipArchive;
@@ -350,6 +351,7 @@ class DocumentController extends Controller
 
             $desc = Auth::user()->name . " viewed file " . $file . " (" . UploadFile::where('basename', $file)->value('name') . ")";
             \log::create(request()->all(), "success", $desc);
+            $this->logViewFile($file);
 
             if (str_starts_with($mimeType, 'image/')) {
                 return view('adminuser.document.viewer.image', compact('file', 'link'));
@@ -770,5 +772,21 @@ class DocumentController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         } 
+    }
+
+    public function logViewFile($file_id) {
+        $getDoc = UploadFile::where('basename', $file_id)->first();
+
+        if (!empty($getDoc->id)) {
+            $logDoc = new LogViewDocument;
+            $logDoc->client_id = $getDoc->client_id;
+            $logDoc->user_id = Auth::user()->user_id;
+            $logDoc->project_id = $getDoc->project_id;
+            $logDoc->subproject_id = $getDoc->subproject_id;
+            $logDoc->document_id = $file_id;
+            $logDoc->document_name = $getDoc->name;
+            $logDoc->created_by = Auth::user()->id;
+            $logDoc->save();
+        }
     }
 }

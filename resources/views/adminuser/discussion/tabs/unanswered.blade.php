@@ -1,20 +1,6 @@
 <table class="tableGlobal">
     <thead>
-        <tr class="checkToolBar" style="visibility:collapse;">
-            <th data-sortable = "false">
-                <input type="checkbox" class="checkbox" id="headerCheckBox1" style="width:30px; height:16px;">
-            </th>
-            <th colspan="6">
-                <span id="selectedCount">0</span>&nbsp;items selected
-                <a href="#modal-confirm-status-close-multiple" data-toggle="modal" class="btn btn-warning" style="border-radius:10px;">Close questions</a>
-                <a href="#modal-remove-questions-multiple" data-toggle="modal" class="btn btn-danger" style="border-radius:10px;">Remove questions</a>
-                <a href="javascript:void(0);" onclick="uncheckAll()" class="btn btn-default" style="border-radius:10px;"><i class="fa fa-times"></i> Clear selection</a>
-            </th>
-        </tr>
-        <tr class="headerBar">
-            <th data-sortable="false" id="check">
-                <input type="checkbox" class="checkbox" id="headerCheckBox" style="width:30px; height:16px;">
-            </th>
+        <tr>
             <th>ID</th>
             <th>Subject</th>
             <th>Submitter</th>
@@ -26,13 +12,6 @@
     <tbody>
         @foreach($list_questions as $key => $qna)
             <tr>
-                <td width="50">
-                    @if ($qna->user_id == Auth::user()->user_id)
-                        <input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ $qna->discussion_id }}" style="width:30px; height:16px;" />
-                    @else
-                        <input type="checkbox" style="width:30px; height:16px;" disabled>
-                    @endif
-                </td>
                 <td width="50">{{ $qna->id }}</td>
                 <td width="400">
                     @if($qna->priority == \globals::set_qna_priority_high())

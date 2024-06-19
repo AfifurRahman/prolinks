@@ -39,7 +39,7 @@ class DiscussionController extends Controller
             $answered = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->where('deleted', 0)->get();
             $closed = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_closed())->where('deleted', 0)->get();
             $file = UploadFile::select('upload_files.id', 'upload_files.name')->where('upload_files.client_id', \globals::get_client_id())->get();
-        }else{
+        }else{ 
             $all_questions = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('deleted', 0)->get();
             $unanswered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_unanswered())->where('deleted', 0)->get();
             $answered = Discussion::orderBy('id', 'DESC')->where('subproject_id', Auth::user()->session_project)->where('client_id', \globals::get_client_id())->where('status', \globals::set_qna_status_answered())->where('deleted', 0)->get();
@@ -64,6 +64,19 @@ class DiscussionController extends Controller
         }
 
         return view('adminuser.discussion.detail', compact('discussion_id', 'detail', 'file'));
+    }
+
+    function link_email_discussion($discussion_id){
+        $session_project = Discussion::where('discussion_id', $discussion_id)->value('subproject_id');
+        $types = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', Auth::user()->user_id)->value('role');
+        $client_id = AssignProject::join('client_users', 'client_users.id', 'assign_project.clientuser_id')->where('assign_project.subproject_id', $session_project)->where('assign_project.user_id', Auth::user()->user_id)->value('client_users.client_id');
+        $updated = User::where('user_id', Auth::user()->user_id)->update([
+            'client_id' => $client_id,
+            'session_project' => $session_project,
+            'type' => $types
+        ]);
+
+        return redirect(route('discussion.detail-discussion', $discussion_id));
     }
 
     function save_discussion(Request $request){
@@ -210,32 +223,37 @@ class DiscussionController extends Controller
 
     function send_email_user($project_id, $subproject_id, $client_id, $discussion_id, $request){
         $discussion_creator = User::where('id', Auth::user()->id)->first();
-        $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->get();
+        /* where('deleted', 0) if user not disabled */
+        $receiver_email = AssignProject::where('subproject_id', $subproject_id)->where('client_id', $client_id)->where('deleted', 0)->get();
         $check_settings = SettingEmailNotification::where('project_id', $project_id)->where('subproject_id', $subproject_id)->where('client_id', $client_id)->where('user_id', Auth::user()->user_id)->first();
         
         if(count($receiver_email) > 0){
             foreach ($receiver_email as $key => $value) {
                 if (!empty($value->RefUser->email) && $value->RefUser->email != Auth::user()->email) {
-                    $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('client_id', $value->client_id)->where('user_id', $value->user_id)->where('clientuser_id', $value->clientuser_id)->value('is_discussion');
-                    if (!empty($check_settings) && $check_settings == 1) {
-                        $set_subject = "";
-                        if(!empty($request->input('subject'))){
-                            $set_subject = $request->input('subject');
-                        }else{
-                            $set_subject = Discussion::where('discussion_id', $discussion_id)->where('client_id', $client_id)->value('subject');
-                        }
+                    /* if user active */
+                    if (!empty($value->RefUser->password_created) && $value->RefUser->password_created == 1) {
+                        $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('client_id', $value->client_id)->where('user_id', $value->user_id)->where('clientuser_id', $value->clientuser_id)->value('is_discussion');
+                        if (!empty($check_settings) && $check_settings == 1) {
+                            $set_subject = "";
+                            if(!empty($request->input('subject'))){
+                                $set_subject = $request->input('subject');
+                            }else{
+                                $set_subject = Discussion::where('discussion_id', $discussion_id)->where('client_id', $client_id)->value('subject');
+                            }
 
-                        $details = [
-                            'discussion_creator' => $discussion_creator->name,
-                            'receiver_name' => !empty($value->RefUser->name) ? $value->RefUser->name : $value->RefUser->email,
-                            'project_name' => $value->RefProject->project_name,
-                            'subject' => $set_subject,
-                            'comment' => $request->input('comment'),
-                            'link' => route('discussion.detail-discussion', $discussion_id)
-                        ];
-        
-                        \Mail::to($value->RefUser->email)->send(new \App\Mail\DiscussionUsers($details));
-                    }                    
+                            $details = [
+                                'discussion_creator' => $discussion_creator->name,
+                                'receiver_name' => !empty($value->RefUser->name) ? $value->RefUser->name : $value->RefUser->email,
+                                'project_name' => $value->RefProject->project_name,
+                                'subject' => $set_subject,
+                                'comment' => $request->input('comment'),
+                                // 'link' => route('discussion.detail-discussion', $discussion_id),
+                                'link' => route('discussion.link-email-discussion', $discussion_id)
+                            ];
+            
+                            \Mail::to($value->RefUser->email)->send(new \App\Mail\DiscussionUsers($details));
+                        }
+                    }                 
                 } 
             }
         }
@@ -294,6 +312,40 @@ class DiscussionController extends Controller
         }
 
         return back()->with('notification', $notification);
+    }
+
+    function delete_discussion_multiple(Request $request) {
+        $notification = "";
+        try {
+            \DB::beginTransaction();
+            
+            $discussion_id = $request->input('discussion_id');
+            if (count($discussion_id) > 0) {
+                foreach ($discussion_id as $key => $value) {
+                    $deleted = Discussion::where('discussion_id', $value)->update([
+                        'deleted' => 1
+                    ]);
+
+                    if($deleted){
+                        $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                        $subject = Discussion::where('discussion_id', $value)->value('subject');
+                        $desc = Auth::user()->name." removed discussion ".$subject." on sub project ".$projectname;
+                        \log::create(request()->all(), "success", $desc);
+                        $notification = "Discussion removed";
+                    }
+                }
+            }
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollback();
+
+            \log::create(request()->all(), "error", $e->getMessage());
+            $notification = "failed to remove discussion";
+        }
+
+        Session::flash('notification', $notification);
+        return response()->json($notification);
     }
 
     public function import_questions(Request $request) {
@@ -468,6 +520,42 @@ class DiscussionController extends Controller
         }
 
         return back()->with('notification', $notification);
+    }
+
+    public function change_status_qna_closed_multiple(Request $request) {
+        $notification = "";
+        try {
+            \DB::beginTransaction();
+
+            $discussion_id = $request->input('discussion_id');
+            if (count($discussion_id) > 0) {
+                foreach ($discussion_id as $key => $value) {
+                    $updated = Discussion::where('discussion_id', $value)->update([
+                        'status' => \globals::set_qna_status_closed(),
+                        'closed_date' => date('Y-m-d H:i:s'),
+                        'closed_by' => Auth::user()->id
+                    ]);
+        
+                    if($updated){
+                        $projectname = SubProject::where('subproject_id', Auth::user()->session_project)->value('subproject_name');
+                        $qnaname = Discussion::where('discussion_id', $value)->value('subject');
+                        $desc = Auth::user()->name." close discussion ".$qnaname." on sub project ".$projectname;
+                        \log::create(request()->all(), "success", $desc);
+                        $notification = "Question closed";
+                    }
+                }
+            }
+
+            \DB::commit();
+        } catch (\Exception $e) {
+            \DB::rollback();
+
+            \log::create(request()->all(), "error", $e->getMessage());
+            $notification = "failed close discussion!";
+        }
+
+        Session::flash('notification', $notification);
+        return response()->json($notification);
     }
 
     public function change_status_qna_open(Request $request) {

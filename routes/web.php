@@ -156,7 +156,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 				return response()->json(['session_valid' => Auth::check()]);
 			});
 
-		// Route::group(['middleware' => ['check_access_user']], function () {
+		Route::group(['middleware' => ['check_access_user']], function () {
 			/* Home */
 			Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 			Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -232,12 +232,15 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('/discussion/delete-discussion/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_discussion')->name('discussion.delete-discussion');
 			Route::post('/discussion/import-questions', 'App\Http\Controllers\Adminuser\DiscussionController@import_questions')->name('discussion.import-questions');
 			Route::get('/discussion/export-questions', 'App\Http\Controllers\Adminuser\DiscussionController@export_questions')->name('discussion.export-questions');
+			Route::get('/discussion/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@link_email_discussion')->name('discussion.link-email-discussion');
+			Route::post('/discussion/change-status-qna-closed-multiple', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_closed_multiple')->name('discussion.change-status-qna-closed-multiple');
+			Route::post('/discussion/delete-discussion-multiple', 'App\Http\Controllers\Adminuser\DiscussionController@delete_discussion_multiple')->name('discussion.delete-discussion-multiple');
 			
 			/* Setting */
 			Route::get('/setting', 'App\Http\Controllers\Adminuser\SettingController@index')->name('setting');
 			Route::post('/setting/save-setting-email', 'App\Http\Controllers\Adminuser\SettingController@save_setting_email')->name('setting.save-setting-email');
 			Route::get('/all-notification', 'App\Http\Controllers\Adminuser\SettingController@all_notification')->name('notification.list');
 			Route::post('/read-notification', 'App\Http\Controllers\Adminuser\SettingController@read_notification')->name('notification.read');
-		// });
+		});
 	});
 });
