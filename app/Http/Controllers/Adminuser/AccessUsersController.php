@@ -501,7 +501,8 @@ class AccessUsersController extends Controller
                 $users = User::where('email', $email)->firstOrFail();
                 $token = Password::getRepository()->create($users);
                 User::where('email', $email)->update([
-                    'remember_token' => $token
+                    'remember_token' => $token,
+                    'created_at' => date('Y-m-d H:i:s')
                 ]);
             }
 
@@ -515,7 +516,7 @@ class AccessUsersController extends Controller
             \Mail::to($users->email)->send(new \App\Mail\CreateAdminClientPassword($details));
 
             $desc = Auth::user()->name." resend email invitation to ".$email;
-			\log::create(request()->all(), "success", $desc);
+			\log::create(request()->all(), $details, $desc);
             $notification = "Email sent";
         } catch(\Exception $e) {
             \log::create(request()->all(), "error", $e->getMessage());
