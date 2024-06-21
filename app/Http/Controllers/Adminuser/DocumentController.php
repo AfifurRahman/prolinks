@@ -365,8 +365,16 @@ class DocumentController extends Controller
     public function ViewFile($file) {
         try {
             $file = base64_decode($file);
+            
+            if (substr_count(UploadFile::where('basename', $file)->value('directory'), '/') <= 3 ) {
+                $path = explode('/', UploadFile::where('basename', $file)->value('directory'), 5);
+                $projectID = $path[2];
+                $subprojectID = $path[3];
 
-            $link = UploadFolder::where('directory', UploadFile::where('basename', $file)->value('directory'))->value('basename');
+                $link = route('adminuser.documents.list', base64_encode($projectID . '/' . $subprojectID));
+            } else {
+                $link = route('adminuser.documents.openfolder', base64_encode(UploadFolder::where('directory', UploadFile::where('basename', $file)->value('directory'))->value('basename')));
+            }
 
             $mimeType = UploadFile::where('basename', $file)->value('mime_type');
 
