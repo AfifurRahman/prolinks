@@ -477,9 +477,8 @@
                         @if($directorytype == 0)
                             <tr>
                                 <td></td>
-                                <td><pan style="display:none">0</span></td>
-                                <td>
-                                    <span style="display:none">AAAAAA</span>
+                                <td data-sort="0"></td>
+                                <td data-sort="0">
                                     @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
                                         <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
                                             <image class="up-arrow" src="{{ url('template/images/icon_menu/arrow.png') }}" />
@@ -492,8 +491,8 @@
                                         </a>
                                     @endif
                                 </td>
-                                <td></td>
-                                <td></td>
+                                <td data-sort="0"></td>
+                                <td data-sort="0"></td>
                                 <td></td>
                                 <td></td>
                             </tr>
@@ -505,7 +504,7 @@
                                     <td>
                                         <input type="checkbox" class="checkbox" id="folderCheckBox" data-role="folderCheckBox" disabled/>
                                     </td>
-                                    <td>
+                                    <td data-sort="{{DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('index')}}">
                                         @php
                                             $index = '';
                                             $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
@@ -573,7 +572,7 @@
                                     @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                                         <tr>
                                             <td><input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ base64_encode(basename($file)) }}" /></td>
-                                            <td>
+                                            <td data-sort="{{DB::table('upload_files')->where('basename', basename($file))->value('index')}}">
                                                 @php
                                                     $index = '';
                                                     $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
@@ -635,7 +634,7 @@
                                 @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                                     <tr>
                                         <td><input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ base64_encode(basename($file)) }}"/></td>
-                                        <td>
+                                        <td data-sort="{{DB::table('upload_files')->where('basename', basename($file))->value('index')}}">
                                             @php
                                                 $index = '';
                                                 $originPath = implode('/', array_slice(explode('/', $origin), 0, 4));
