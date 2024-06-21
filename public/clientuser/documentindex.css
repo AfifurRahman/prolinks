@@ -328,7 +328,7 @@ h3 {
     background-color: rgba(22, 131, 255, 0.1);
 }
 
-.tableContainer.highlight{
+#tableDragArea.highlight{
     border-color: #1683ff;
     background-color: rgba(22, 131, 255, 0.1);
 }
