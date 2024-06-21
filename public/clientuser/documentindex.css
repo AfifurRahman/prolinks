@@ -328,6 +328,11 @@ h3 {
     background-color: rgba(22, 131, 255, 0.1);
 }
 
+.tableContainer.highlight{
+    border-color: #1683ff;
+    background-color: rgba(22, 131, 255, 0.1);
+}
+
 .notificationlayer {
     position: absolute;
     width:100%;

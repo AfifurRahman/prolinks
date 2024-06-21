@@ -384,8 +384,7 @@ class DocumentController extends Controller
 
             if (str_starts_with($mimeType, 'image/')) {
                 return view('adminuser.document.viewer.image', compact('file', 'link'));
-            }
-            elseif (str_starts_with($mimeType, 'application/pdf')) {
+            } elseif (str_starts_with($mimeType, 'application/pdf')) {
                 return view('adminuser.document.viewer.pdf', compact('file', 'link'));
             } else {
                 return view('adminuser.document.viewer.error', compact('file', 'link'));
