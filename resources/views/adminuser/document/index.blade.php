@@ -531,7 +531,9 @@
                                     <td> 
                                         {{ \Carbon\Carbon::parse(DB::table('upload_folders')->where('directory', $directory)->value('created_at'))->format('d M Y, H:i') }}
                                     </td>
-                                    <td> {{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}</td>
+                                    <td> 
+                                        {{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}
+                                    </td>
                                     <td>Directory</td>
                                     <td>
                                         <div class="dropdown">
@@ -594,7 +596,9 @@
                                             <td>
                                                 {{ \Carbon\Carbon::parse(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))->format('d M Y, H:i') }}
                                             </td>
-                                            <td>{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name')  }}</td>
+                                            <td>
+                                                {{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name') }}
+                                            </td>
                                             <td>
                                                 {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                             </td>
@@ -709,7 +713,6 @@
         let permission = [];
         let filesPath = [];
         let filesChecked = [];
-        var table = document.querySelector('.tableDocument');
 
         const fileCounts = document.querySelectorAll('[data-role="fileCheckBox"]');
         const folderCounts = document.querySelectorAll('[data-role="folderCheckBox"]');
@@ -780,8 +783,8 @@
 
             $('.logoprolink').on('click', function(e) {
                 easteregg += 1;
-                if(easteregg == 25) {
-                    location.replace('https://www.youtube.com/watch?v=nwuW98yLsgY');
+                if(easteregg == 12) {
+                    location.replace('https://www.youtube.com/watch?v=6-8E4Nirh9s');
                 }
             });
 

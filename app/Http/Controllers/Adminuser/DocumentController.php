@@ -20,11 +20,39 @@ use App\Models\AssignProject;
 use App\Models\Permission;
 use App\Models\LogViewDocument;
 use App\Models\SettingEmailNotification;
+use App\Services\PDFWatermarkService;
 use Auth;
 use ZipArchive;
 
 class DocumentController extends Controller
 {
+    protected $pdfWatermarkService;
+
+    public function __construct(PDFWatermarkService $pdfWatermarkService)
+    {
+        $this->pdfWatermarkService = $pdfWatermarkService;
+    }
+    
+    public function downloadWatermarked(Request $request)
+    {
+        $request->validate([
+            'pdf' => 'required|mimes:pdf',
+            'watermark' => 'required|string'
+        ]);
+
+        $pdf = $request->file('pdf');
+        $watermarkText = $request->input('watermark');
+
+        $outputPath = storage_path('app/public/watermarked.pdf');
+        $this->pdfWatermarkService->addWatermark($pdf->getPathname(), $outputPath, $watermarkText);
+
+        return response()->download($outputPath);
+    }
+
+    public function WaterUpload() {
+        return view('adminuser.document.test');
+    }
+
     public function Index($subproject)
     {
         try {
