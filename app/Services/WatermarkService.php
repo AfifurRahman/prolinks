@@ -10,12 +10,9 @@ use App\Models\UploadFile;
 use TCPDF;
 use Auth;
 
-class PDFWatermarkService extends Fpdi
+class WatermarkService extends Fpdi
 {
     protected $extgstates = array();
-
-    // Set alpha method for transparency
-
 
     protected function AddExtGState($parms)
     {
@@ -66,7 +63,7 @@ class PDFWatermarkService extends Fpdi
         parent::_putresources();
     }
 
-    public function addWatermark($fileID)
+    public function addPDFWatermark($fileID)
     {
         $pdf = new FPDI();
 
@@ -109,5 +106,44 @@ class PDFWatermarkService extends Fpdi
         }
 
         $pdf->Output($outputPath, 'F');
+    }
+
+    public function addIMGWatermark($fileID) {
+        $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
+        $outputPath = Storage::path('temp/'. Auth::user()->user_id . '/temp');
+        $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
+        
+        if (str_starts_with($fileMimeType, 'image/jpeg')) {
+            $image = imagecreatefromjpeg($filePath);
+        }
+
+        $projectName = Project::where('project_id', UploadFile::where('basename', $fileID)->value('project_id'))->value('project_name'); 
+        $userName = Auth::user()->name;
+        $companyName = Client::where('client_id', Auth::user()->client_id)->value('client_name');
+        $timestamp = date('F j, Y H:i', strtotime('now'));
+
+        $watermarkText = <<<EOT
+                        Project $projectName
+                        $userName
+                        $companyName
+                        $timestamp WIB
+                        EOT;
+
+        $fontSize = 50;
+        $angle = 36;
+        $textColor = imagecolorallocatealpha($image, 255, 0, 0, 50);
+        $fontPath = storage_path('app/fonts/arial.ttf');
+        $imageWidth = imagesx($image);
+        $imageHeight = imagesy($image);
+        $textBox = imagettfbbox($fontSize, $angle, $fontPath, $watermarkText);
+        $textWidth = $textBox[2] - $textBox[0];
+        $textHeight = $textBox[7] - $textBox[1];
+
+        $x = ($imageWidth - $textWidth) / 2.5;
+        $y = ($imageHeight / 1.5);
+
+        imagettftext($image, $fontSize, $angle, $x, $y, $textColor, $fontPath, $watermarkText);
+
+        imagejpeg($image, $outputPath);
     }
 }

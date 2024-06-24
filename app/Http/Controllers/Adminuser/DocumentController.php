@@ -20,17 +20,17 @@ use App\Models\AssignProject;
 use App\Models\Permission;
 use App\Models\LogViewDocument;
 use App\Models\SettingEmailNotification;
-use App\Services\PDFWatermarkService;
+use App\Services\WatermarkService;
 use Auth;
 use ZipArchive;
 
 class DocumentController extends Controller
 {
-    protected $pdfWatermarkService;
+    protected $WatermarkService;
 
-    public function __construct(PDFWatermarkService $pdfWatermarkService)
+    public function __construct(WatermarkService $WatermarkService)
     {
-        $this->pdfWatermarkService = $pdfWatermarkService;
+        $this->WatermarkService = $WatermarkService;
     }
 
     public function Index($subproject)
@@ -420,11 +420,16 @@ class DocumentController extends Controller
             $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
 
             if (str_starts_with($fileMimeType, 'application/pdf')) {
-                $this->pdfWatermarkService->addWatermark($fileID);
+                $this->WatermarkService->addPDFWatermark($fileID);
 
                 $filePath = 'temp/'. Auth::user()->user_id;
                 $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
-            } 
+            }  elseif (str_starts_with($fileMimeType, 'image/')) {
+                $this->WatermarkService->addIMGWatermark($fileID);
+
+                $filePath = 'temp/'. Auth::user()->user_id;
+                $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
+            }   
 
             if (Storage::disk('local')->exists($filePath)) {
                 $fileContent = Storage::disk('local')->get($fileDirectory);
@@ -478,7 +483,11 @@ class DocumentController extends Controller
             $fileIndex .= DB::table('upload_files')->where('basename', $fileID)->value('index');
 
             if (str_starts_with($fileMimeType, 'application/pdf')) {
-                $this->pdfWatermarkService->addWatermark($fileID);
+                $this->WatermarkService->addPDFWatermark($fileID);
+
+                return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+            } elseif (str_starts_with($fileMimeType, 'image/')) {
+                $this->WatermarkService->addIMGWatermark($fileID);
 
                 return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             } else {
@@ -638,7 +647,6 @@ class DocumentController extends Controller
                     $zip->addFile(Storage::path($file), $fixedPath);
                 }
             }
-
 
             $zip->close();
             
