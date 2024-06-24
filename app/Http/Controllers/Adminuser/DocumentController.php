@@ -32,26 +32,6 @@ class DocumentController extends Controller
     {
         $this->pdfWatermarkService = $pdfWatermarkService;
     }
-    
-    public function downloadWatermarked(Request $request)
-    {
-        $request->validate([
-            'pdf' => 'required|mimes:pdf',
-            'watermark' => 'required|string'
-        ]);
-
-        $pdf = $request->file('pdf');
-        $watermarkText = $request->input('watermark');
-
-        $outputPath = storage_path('app/public/watermarked.pdf');
-        $this->pdfWatermarkService->addWatermark($pdf->getPathname(), $outputPath, $watermarkText);
-
-        return response()->download($outputPath);
-    }
-
-    public function WaterUpload() {
-        return view('adminuser.document.test');
-    }
 
     public function Index($subproject)
     {
@@ -422,25 +402,35 @@ class DocumentController extends Controller
         }
     }
 
-    public function WatermarkFile($file) {
+    public function WatermarkFile($file) 
+    {
         try {
             return back();
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
-    
+
     public function ServeFile($file)
     {
         try {
-            $file = base64_decode($file);
-            $path = UploadFile::where('basename', $file)->value('directory');
+            $fileID = base64_decode($file);
+            $filePath = UploadFile::where('basename', $fileID)->value('directory');
+            $fileDirectory = $filePath . '/' . $fileID;
+            $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
 
-            if (Storage::disk('local')->exists($path)) {
-                $fileContents = Storage::disk('local')->get($path . '/' . $file);
-                $mimeType = Storage::disk('local')->mimeType($path . '/' . $file);
+            if (str_starts_with($fileMimeType, 'application/pdf')) {
+                $this->pdfWatermarkService->addWatermark($fileID);
 
-                return response($fileContents, 200)
+                $filePath = 'temp/'. Auth::user()->user_id;
+                $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
+            } 
+
+            if (Storage::disk('local')->exists($filePath)) {
+                $fileContent = Storage::disk('local')->get($fileDirectory);
+                $mimeType = Storage::disk('local')->mimeType($fileDirectory);
+
+                return response($fileContent, 200)
                     ->header('Content-Type', $mimeType);
             } else {
                 abort(404);
@@ -449,34 +439,84 @@ class DocumentController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+    
+//    public function ServeFile($file)
+//    {
+//        try {
+//            $file = base64_decode($file);
+//            $path = UploadFile::where('basename', $file)->value('directory');
+//
+//            if (Storage::disk('local')->exists($path)) {
+//                $fileContents = Storage::disk('local')->get($path . '/' . $file);
+//                $mimeType = Storage::disk('local')->mimeType($path . '/' . $file);
+//
+//                return response($fileContents, 200)
+//                    ->header('Content-Type', $mimeType);
+//            } else {
+//                abort(404);
+//            }
+//        } catch (\Exception $e) {
+//            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+//        }
+//    }
 
-    public function DownloadFile($file)
+    public function DownloadFile($file) 
     {
         try {
-            $file = base64_decode($file);
-            $directory = UploadFile::where('basename', $file)->value('directory');
-            $fullPath = $directory . '/' . $file;
+            $fileID = base64_decode($file);
+            $fileDirectory = UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID;
+            $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
 
-            $index = '';
-            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 0, 4));
+            $fileIndex = '';
+            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $fileID)->value('directory')), 0, 4));
 
-            foreach(array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 4) as $path) {
+            foreach(array_slice(explode('/', UploadFile::where('basename', $fileID)->value('directory')), 4) as $path) {
                 $originPath .= '/' . $path;
-                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                $fileIndex .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
             }
 
-            $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+            $fileIndex .= DB::table('upload_files')->where('basename', $fileID)->value('index');
 
-            $desc = Auth::user()->name . " downloaded file " . $file;
-            \log::create(request()->all(), "success", $desc);
+            if (str_starts_with($fileMimeType, 'application/pdf')) {
+                $this->pdfWatermarkService->addWatermark($fileID);
 
-            return Storage::disk('local')->download($fullPath, $index . ' - ' . UploadFile::where('basename', $file)->value('name'));
+                return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+            } else {
+                return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+            }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    public function DownloadFiles(Request $request) {
+//    public function DownloadFile($file)
+//    {
+//        try {
+//            $file = base64_decode($file);
+//            $directory = UploadFile::where('basename', $file)->value('directory');
+//            $fullPath = $directory . '/' . $file;
+//
+//            $index = '';
+//            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 0, 4));
+//
+//          foreach(array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 4) as $path) {
+//                $originPath .= '/' . $path;
+//                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+//            }
+//
+//            $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
+//
+//            $desc = Auth::user()->name . " downloaded file " . $file;
+//            \log::create(request()->all(), "success", $desc);
+//
+//            return Storage::disk('local')->download($fullPath, $index . ' - ' . UploadFile::where('basename', $file)->value('name'));
+//        } catch (\Exception $e) {
+//            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+//        }
+//    }
+
+    public function DownloadFiles(Request $request) 
+    {
         try {
             $files = $request->input('files');
             $files = explode(',', $files);
@@ -507,7 +547,7 @@ class DocumentController extends Controller
 
             $zip->close();
             
-            $destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip';
+            $destinationPath =  'temp/'. Auth::user()->user_id . '/temp';
 
             Storage::put($destinationPath, file_get_contents($tempZipFile));
 
@@ -520,7 +560,8 @@ class DocumentController extends Controller
         }
     }
 
-    public function DownloadZip($link = null) {
+    public function DownloadZip($link = null) 
+    {
         try {
             return Storage::disk('local')->download(base64_decode($link), 'files.zip');
         } catch ( \Exception $e) {
@@ -586,17 +627,11 @@ class DocumentController extends Controller
                             }
 
                             $index .= DB::table('upload_folders')->where('directory', $OriginFullPath)->value('index');
-
     
                             $Path = $index . ' - ' . $paths;
-
-                            
                             $log .= $OriginFullPath;
-
                             $FullPath .= $Path . '/';
                         }
-                        
-
                         $fixedPath =  $FullPath . $basenameFile;
                     }  
                     
@@ -679,7 +714,8 @@ class DocumentController extends Controller
         }
     }
 
-    public function DeleteFolder(Request $request) {
+    public function DeleteFolder(Request $request) 
+    {
         try {
             if(Auth::user()->type == \globals::set_role_administrator()) {
                 $foldername = base64_decode($request->folder);
@@ -697,7 +733,8 @@ class DocumentController extends Controller
         }
     }
 
-    public function Search(Request $request) {
+    public function Search(Request $request) 
+    {
         $origin = base64_decode($request->query('origin'));
         $directorytype = 1;
         $directory = $origin;
@@ -727,7 +764,8 @@ class DocumentController extends Controller
         return view('adminuser.document.search', compact('folders', 'files', 'origin', 'directorytype', 'search'));
     }
 
-    public function MultipleUpload(Request $request) {
+    public function MultipleUpload(Request $request) 
+    {
         try {
             if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator()) {
                 $saveLocation = base64_decode($request->input('location'));
@@ -830,7 +868,8 @@ class DocumentController extends Controller
         } 
     }
 
-    public function logViewFile($file_id) {
+    public function logViewFile($file_id) 
+    {
         $getDoc = UploadFile::where('basename', $file_id)->first();
 
         if (!empty($getDoc->id)) {

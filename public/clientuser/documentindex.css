@@ -330,6 +330,7 @@ h3 {
 
 #tableDragArea.highlight{
     border-color: #1683ff;
+    border-radius:7px;
     background-color: rgba(22, 131, 255, 0.1);
 }
 

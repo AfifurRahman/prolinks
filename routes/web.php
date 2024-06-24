@@ -200,9 +200,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
 			Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
 			Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@MultipleUpload')->name('adminuser.documents.multiupload');
-			Route::post('watermark/download', 'App\Http\Controllers\Adminuser\DocumentController@downloadWatermarked')->name('adminuser.documents.watermarkdownload');
-			Route::get('watermarktest/','App\Http\Controllers\Adminuser\DocumentController@WaterUpload')->name('adminuser.documents.watermarkupload');
-
 
 			/* Companies */
 			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');

@@ -12,7 +12,7 @@
         </div>
         <div>
             <label for="watermark">Watermark Text:</label>
-            <input type="text" name="watermark" required>
+            <textarea name="watermark" rows="4" required></textarea>
         </div>
         <div>
             <button type="submit">Add Watermark</button>
