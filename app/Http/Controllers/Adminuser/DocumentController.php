@@ -297,7 +297,7 @@ class DocumentController extends Controller
                 $fixedname = str_replace($forbiddenchar, ' ', $foldername);
                 $path = $originPath . '/'. $fixedname;
 
-                $folders = UploadFolder::where('parent', $currentPath)->where('displayname', $foldername)->value('name');
+                $folders = UploadFolder::where('parent', $currentPath)->where('name', $foldername)->value('name');
 
                 if (is_null($folders)){
                     Storage::makeDirectory($path, 0755,true);
