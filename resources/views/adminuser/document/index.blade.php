@@ -444,7 +444,9 @@
         </div>
         
         <div class="tableContainer" >
+        @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
             <div id="tableDragArea" ondrop="handleDrop(event)">
+        @endif
                 <table class="tableDocument">
                     <thead>
                         <tr class="checkToolBar" style="visibility:collapse;">
@@ -699,8 +701,9 @@
                         @endforeach
                     </tbody>
                 </table>
+            @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
             </div>
-
+            @endif
             <p>Showing <span id="tableCounter">0</span>.</p>
             <input id="countFile" type="hidden" value="0">
         </div>
