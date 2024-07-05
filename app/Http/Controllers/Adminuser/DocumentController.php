@@ -428,10 +428,10 @@ class DocumentController extends Controller
                 $filePath = 'temp/'. Auth::user()->user_id;
                 $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
             }  elseif (str_starts_with($fileMimeType, 'image/')) {
-                $this->WatermarkService->addIMGWatermark($fileID);
+               // $this->WatermarkService->addIMGWatermark($fileID);
 
-                $filePath = 'temp/'. Auth::user()->user_id;
-                $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
+               // $filePath = 'temp/'. Auth::user()->user_id;
+               // $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
             }   
 
             if (Storage::disk('local')->exists($filePath)) {
@@ -490,9 +490,10 @@ class DocumentController extends Controller
 
                 return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             } elseif (str_starts_with($fileMimeType, 'image/')) {
-                $this->WatermarkService->addIMGWatermark($fileID);
+                //$this->WatermarkService->addIMGWatermark($fileID);
 
-                return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+                //return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+                return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             } else {
                 return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             }
