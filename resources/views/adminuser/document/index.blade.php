@@ -708,7 +708,8 @@
             <input id="countFile" type="hidden" value="0">
         </div>
     </div>
-    @push('scripts')d
+
+    @push('scripts')
     <script>
         let a = 0;
         let easteregg = 0;
@@ -791,6 +792,7 @@
                 }
             });
 
+            @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
             dragArea.addEventListener('dragover', e => {
                 e.preventDefault();
                 dragArea.classList.add('highlight');
@@ -818,6 +820,7 @@
                 e.preventDefault();
                 tableDragArea.classList.remove('highlight');
             });
+            @endif
 
             document.getElementById('searchInput').addEventListener('keypress', function(event) {
                 if (event.key === "Enter") {
