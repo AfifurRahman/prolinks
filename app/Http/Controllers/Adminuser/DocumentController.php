@@ -291,9 +291,12 @@ class DocumentController extends Controller
                 $basename = Str::random(8);
                 $originPath = base64_decode($request->location);
                 $locationParts = explode('/', $originPath, 5);
-                $path = $originPath . '/'. $request->folderName;
+                $foldername = $request->folderName;
+                $forbiddenchar = ['\\', '/', '*', '?', '"', '<', '>', '|'];
+                $fixedname = str_replace($forbiddenchar, ' ', $foldername);
+                $path = $originPath . '/'. $fixedname;
 
-                $folders = UploadFolder::where('parent', $currentPath)->where('name', $request->folderName)->value('name');
+                $folders = UploadFolder::where('parent', $currentPath)->where('displayname', $foldername)->value('name');
 
                 if (is_null($folders)){
                     Storage::makeDirectory($path, 0755,true);
@@ -308,8 +311,8 @@ class DocumentController extends Controller
                         'parent' => $originPath,
                         'directory' => $path,
                         'basename' => $basename,
-                        'name' => $request->folderName,
-                        'displayname' => $request->folderName,
+                        'name' => $fixedname,
+                        'displayname' => $foldername,
                         'client_id' => \globals::get_client_id(),
                         'status' => 1,
                         'uploaded_by' => Auth::user()->user_id, 
