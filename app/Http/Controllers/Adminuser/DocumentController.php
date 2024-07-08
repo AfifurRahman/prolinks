@@ -503,32 +503,6 @@ class DocumentController extends Controller
         }
     }
 
-//    public function DownloadFile($file)
-//    {
-//        try {
-//            $file = base64_decode($file);
-//            $directory = UploadFile::where('basename', $file)->value('directory');
-//            $fullPath = $directory . '/' . $file;
-//
-//            $index = '';
-//            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 0, 4));
-//
-//          foreach(array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 4) as $path) {
-//                $originPath .= '/' . $path;
-//                $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
-//            }
-//
-//            $index .= DB::table('upload_files')->where('basename', basename($file))->value('index');
-//
-//            $desc = Auth::user()->name . " downloaded file " . $file;
-//            \log::create(request()->all(), "success", $desc);
-//
-//            return Storage::disk('local')->download($fullPath, $index . ' - ' . UploadFile::where('basename', $file)->value('name'));
-//        } catch (\Exception $e) {
-//            return response()->json(['success' => false, 'message' => $e->getMessage()]);
-//        }
-//    }
-
     public function DownloadFiles(Request $request) 
     {
         try {
@@ -737,17 +711,25 @@ class DocumentController extends Controller
         }
     }
 
-    public function DeleteFile(Request $request)
-    {
+    public function Delete(Request $request) {
         try {
             if(Auth::user()->type == \globals::set_role_administrator()) {
-                $fileName =  UploadFile::where('basename', base64_decode($request->file))->value('name');
-                UploadFile::where('basename', base64_decode($request->file))->update(['status' => 0]);
+                $item = base64_decode($request->input('item'));
 
-                $desc = Auth::user()->name . " deleted file " . base64_decode($request->file);
-                \log::create(request()->all(), "success", $desc);
+                if (UploadFile::where('basename', $item)->exists()) {
+                    UploadFile::where('basename', $item)->update(['status' => 0]);
+                    $itemname = UploadFile::where('basename', $item)->value('name');                   
+                } elseif (UploadFolder::where('basename', $item)->exists()) {
+                    UploadFolder::where('basename', $item)->update(['status' => 0]);
+                    $FolderLocation = UploadFolder::where('basename', $item)->value('directory');
+                    $itemname = UploadFolder::where('basename', $item)->value('name');
 
-                return response()->json(['success' => true, 'message' => $fileName . ' has successfully been removed.']);
+                    UploadFolder::where('parent', 'like', '%'. $FolderLocation .'%')->update(['status' => 0]);
+                    UploadFile::where('directory', 'like', '%'. $FolderLocation .'%')->update(['status' => 0]);
+                }
+                $log = Auth::user()->name . ' deleted ' . $itemname;
+
+                return response()->json(['success' => true, 'message' => 'Successfully removed ' . $itemname . '.']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Your role is not allowed to remove file.']);
             }
@@ -773,25 +755,6 @@ class DocumentController extends Controller
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
-        }
-    }
-
-    public function DeleteFolder(Request $request) 
-    {
-        try {
-            if(Auth::user()->type == \globals::set_role_administrator()) {
-                $foldername = base64_decode($request->folder);
-                UploadFolder::where('directory', $foldername)->update(['status' => 0]);
-
-                $desc = Auth::user()->name . " deleted folder " . $foldername;
-                \log::create(request()->all(), "success", $desc);
-
-                return response()->json(['success' => true, 'message' =>'Successfully removed the folder.']);
-            } else {
-                return response()->json(['success' => false, 'message' =>'Your role is not allowed to remove folder.']);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
         }
     }
 

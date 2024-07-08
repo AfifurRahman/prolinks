@@ -454,12 +454,12 @@
                                 <input type="checkbox" class="checkbox" id="headerCheckBox1">
                             </th>
                             <th colspan='6'>
-                                <span id="selectedCount">0</span>&nbsp;items selected
-                                <button class="miniDownload" onclick="downloadFiles()">Download</button>
+                                <span class="selectedCount">0</span>&nbsp;items selected
+                                <button class="miniDownload" onclick="downloadFiles()">Download&nbsp;<span class="selectedCount">0</span>&nbsp;items</button>
                                 @if(Auth::user()->type == \globals::set_role_administrator())
-                                    <button class="miniClear" onclick="deleteFileSelections()">Delete Files</button>
+                                    <button class="miniClear" onclick="deleteSelections()">Delete&nbsp;<span class="selectedCount">0</span>&nbsp;items</button>
                                 @endif
-                                <button class="miniClear" onclick="uncheckAll()">Clear selection</button>
+                                <button class="miniClear" onclick="uncheckAll()">Clear Item Selection</button>
                             </th>
                         </tr>
                         <tr class="headerBar">
@@ -470,7 +470,7 @@
                             <th id="name">File name</th>
                             <th id="created">Created at</th>
                             <th id="uploaded">Uploaded by</th>
-                            <th data-sortable="false" id="size">Size / type</th>
+                            <th data-sortable="false" id="size">Size</th>
                             <th data-sortable="false" id="navigationdot">&nbsp;</th>
                         </tr>
                     </thead>
@@ -536,7 +536,7 @@
                                     <td> 
                                         {{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}
                                     </td>
-                                    <td>Directory</td>
+                                    <td>{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('directory', 'like', '%'. $directory .'%')->sum('size')) }}</td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="button_ico dropdown-toggle" data-toggle="dropdown">
@@ -779,7 +779,7 @@
                     if(checked > 0) {
                         $(".headerBar").css("visibility", "collapse");
                         $(".checkToolBar").css("visibility", "visible");
-                        $('#selectedCount').text(checked);
+                        $('.selectedCount').text(checked);
                     } else {
                         $(".headerBar").css("visibility", "visible");
                         $(".checkToolBar").css("visibility", "collapse");
@@ -1100,9 +1100,9 @@
                     e.preventDefault();
                     var formData = new FormData();
 
-                    formData.append('file', file);
+                    formData.append('item', file);
                     
-                    fetch('{{ route("adminuser.documents.deletefile") }}', {
+                    fetch('{{ route("adminuser.documents.delete") }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
@@ -1145,15 +1145,15 @@
         }
 
         @if(Auth::user()->type == \globals::set_role_administrator())
-            function deleteFileSelections() {
-                filesChecked.forEach(deleteFileSelection);
+            function deleteSelections() {
+                filesChecked.forEach(deleteSelection);
 
-                function deleteFileSelection(item) {
+                function deleteSelection(item) {
                     var formData = new FormData();
 
-                    formData.append('file', item);
+                    formData.append('item', item);
 
-                    fetch('{{ route("adminuser.documents.deletefile") }}', {
+                    fetch('{{ route("adminuser.documents.delete") }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
@@ -1203,9 +1203,9 @@
                     e.preventDefault();
                     var formData = new FormData();
                     
-                    formData.append('folder', folder);
+                    formData.append('item', folder);
 
-                    fetch('{{ route("adminuser.documents.deletefolder") }}', {
+                    fetch('{{ route("adminuser.documents.delete") }}', {
                         method: 'POST',
                         body: formData,
                         headers: {

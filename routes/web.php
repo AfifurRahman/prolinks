@@ -190,9 +190,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('documents/zip/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
 			Route::get('documents/view/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ViewFile')->name('adminuser.documents.view');
 			Route::get('documents/serve/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ServeFile')->name('adminuser.documents.serve');
-			Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@DeleteFolder')->name('adminuser.documents.deletefolder');
+			Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@Delete')->name('adminuser.documents.delete');
 			Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
-			Route::post('documents/delete/file','App\Http\Controllers\Adminuser\DocumentController@DeleteFile')->name('adminuser.documents.deletefile');
 			Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@UploadFiles')->name('adminuser.documents.upload');
 			Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');
 			Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
