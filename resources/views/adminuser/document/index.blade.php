@@ -540,7 +540,7 @@
                                         &nbsp;{{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}
                                     </td>
                                     <td>Directory</td>
-                                    <td data-sort="{{ DB::table('upload_files')->where('directory', 'like', '%'. $directory .'%')->sum('size') }}">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('directory', 'like', '%'. $directory .'%')->sum('size')) }}</td>
+                                    <td data-sort="{{ DB::table('upload_files')->where('directory', 'like', '%'. $directory .'%')->where('status', '1')->sum('size') }}">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('directory', 'like', '%'. $directory .'%')->where('status','1')->sum('size')) }}</td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="button_ico dropdown-toggle" data-toggle="dropdown">
