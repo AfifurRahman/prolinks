@@ -470,8 +470,8 @@
                             <th id="name">File name</th>
                             <th id="created">Created at</th>
                             <th id="uploaded">Uploaded by</th>
-                            <th data-sortable = "false" id="size">Size / type</th>
-                            <th data-sortable = "false" id="navigationdot">&nbsp;</th>
+                            <th data-sortable="false" id="size">Size / type</th>
+                            <th data-sortable="false" id="navigationdot">&nbsp;</th>
                         </tr>
                     </thead>
 
@@ -504,7 +504,7 @@
                             @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
                                 <tr>
                                     <td>
-                                        <input type="checkbox" class="checkbox" id="folderCheckBox" data-role="folderCheckBox" disabled/>
+                                        <input type="checkbox" class="checkbox" id="folderCheckBox" data-role="folderCheckBox" value="{{ base64_encode(DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('basename')) }}">
                                     </td>
                                     <td data-sort="{{DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('index')}}">
                                         @php
@@ -546,7 +546,7 @@
                                                 <li>
                                                     <a href="{{ route('adminuser.documents.downloadfolder', base64_encode($directory)) }}">
                                                         <img class="dropdown-icon" src="{{ url('template/images/icon_menu/download.png') }}">
-                                                        Download
+                                                        Download 
                                                     </a>    
                                                 </li>
                                                 @if(Auth::user()->type == \globals::set_role_administrator())
@@ -736,13 +736,13 @@
 
             $('#headerCheckBox').change(function() {
                 $('#headerCheckBox1').prop('checked', this.checked);
-                //$('#folderCheckBox').prop('checked', this.checked);
+                $('input[data-role="folderCheckBox"]').prop('checked', this.checked);
                 $('input[data-role="fileCheckBox"]').prop('checked', this.checked);
             });
 
             $('#headerCheckBox1').change(function() {
                 $('#headerCheckBox').prop('checked', this.checked);
-                //$('#folderCheckBox').prop('checked', this.checked);
+                $('input[data-role="folderCheckBox"]').prop('checked', this.checked);
                 $('input[data-role="fileCheckBox"]').prop('checked', this.checked);
             });
 
@@ -768,6 +768,10 @@
                     var checkedValues = [];
                     
                     $('#fileCheckBox:checked').each(function() {
+                        checkedValues.push($(this).val()); 
+                    });
+
+                    $('#folderCheckBox:checked').each(function() {
                         checkedValues.push($(this).val()); 
                     });
 
@@ -1134,7 +1138,9 @@
             })
             .then(response => response.json())
             .then(data => {
-                location.replace("{{ route('adminuser.documents.downloadzip', '') }}" + '/' + data.link);
+                if(data.success) {
+                    location.replace("{{ route('adminuser.documents.downloadzip', '') }}" + '/' + data.link);
+                }
             });
         }
 

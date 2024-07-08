@@ -532,37 +532,86 @@ class DocumentController extends Controller
     public function DownloadFiles(Request $request) 
     {
         try {
-            $files = $request->input('files');
-            $files = explode(',', $files);
+            $SelectedItems = $request->input('files');
+            $SelectedItems = explode(',', $SelectedItems);
 
             $tempZipFile = tempnam(sys_get_temp_dir(), 'folder_zip');
             $zip = new ZipArchive();
             $zip->open($tempZipFile, ZipArchive::CREATE);
             $arr = [];
-            foreach($files as $file) {
-                $index = '';
-                $filename = base64_decode($file);
-                $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $filename)->value('directory')), 0, 4));
 
-                foreach(array_slice(explode('/', UploadFile::where('basename', $filename)->value('directory')), 4) as $path) {
-                    $originPath .= '/' . $path;
-                    $index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+            $foldername = $SelectedItems;
+            foreach($SelectedItems as $item) {
+                if (UploadFile::where('basename', base64_decode($item))->exists()) {
+                    if (UploadFile::where('basename', base64_decode($item))->value('status') == '1') {
+                        $index = '';
+                        $filename = base64_decode($item);
+                        $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $filename)->value('directory')), 0, 4));
+
+                        foreach(array_slice(explode('/', UploadFile::where('basename', $filename)->value('directory')), 4) as $path) {
+                            $originPath .= '/' . $path;
+                            $index .= UploadFolder::where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                        }
+
+                        $index .= UploadFile::where('basename', basename($filename))->value('index');
+
+                        $directory = UploadFile::where('basename', $filename)->value('directory');
+
+                        $fullPath = $directory . '/' . $filename;
+                        $originalName = UploadFile::where('basename', $filename)->value('name');
+
+                        $zip->addFile(Storage::path($fullPath), $index . ' - ' .$originalName);
+                    }
+                } elseif (UploadFolder::where('basename', base64_decode($item))->exists()) {
+                    $folderbasename = base64_decode($item);
+                    $foldername = UploadFolder::where('basename', $folderbasename)->value('displayname');
+                    $folderpath = UploadFolder::where('basename', $folderbasename)->value('parent');
+                    $folderdir = UploadFolder::where('basename', $folderbasename)->value('directory');
+                    $files = Storage::allFiles($folderdir);
+                    $FilePath = '';
+
+                    foreach ($files as $file) {
+                        if (UploadFile::where('basename', basename($file))->value('status') == '1') {
+                            $index = '';
+                            $StoredPath = "";
+                            $filename = basename($file);
+        
+                            $FilePath = UploadFile::where('basename', basename($file))->value('directory');
+
+                            $originPath = implode('/', array_slice(explode('/', $FilePath), 0, 4));
+                            foreach(array_slice(explode('/', $FilePath), 4) as $path) {
+                                $originPath .= '/' . $path;
+                                $index .= UploadFolder::where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                            }
+                            $index .= UploadFile::where('basename', $filename)->value('index');
+                            $filename = $index . ' - ' . UploadFile::where('basename', $filename)->value('name');
+
+                            $OriginFullPath = $folderpath;
+                            $LocatedPath = substr($FilePath, strlen($folderpath) + 1);
+                           
+                            foreach(explode('/', $LocatedPath) as $path) {
+                                $index = '';
+                                $OriginFullPath .= '/' . $path;
+
+                                $originPath = implode('/', array_slice((explode('/', $folderpath)), 0, 4));
+                                $test = '';
+                                foreach(array_slice(explode('/', $OriginFullPath), 4) as $pathindex) {
+                                    $originPath .= '/' . $pathindex;
+                                    $index .= UploadFolder::where('directory', $originPath)->where('name', $pathindex)->value('index') . '.';
+                                }
+                                $index = rtrim($index, '.');
+                                $FixedName = $index . ' - ' . $path;
+                                $StoredPath .= $FixedName . '/';
+                            }
+    
+                            $zip->addFile(Storage::path($file), $StoredPath . $filename);
+                        }
+                    }
                 }
-
-                $index .= DB::table('upload_files')->where('basename', basename($filename))->value('index');
-
-                $directory = UploadFile::where('basename', $filename)->value('directory');
-
-                $fullPath = $directory . '/' . $filename;
-                $originalName = UploadFile::where('basename', $filename)->value('name');
-
-                $zip->addFile(Storage::path($fullPath), $index . ' - ' .$originalName);
             }
 
             $zip->close();
-            
             $destinationPath =  'temp/'. Auth::user()->user_id . '/temp';
-
             Storage::put($destinationPath, file_get_contents($tempZipFile));
 
             $desc = Auth::user()->name . " downloaded files";
