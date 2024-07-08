@@ -467,7 +467,7 @@
                                 <input type="checkbox" class="checkbox" id="headerCheckBox">
                             </th>
                             <th id="index">Index</th>
-                            <th id="name">File name</th>
+                            <th id="name">Name</th>
                             <th id="created">Created at</th>
                             <th id="uploaded">Uploaded by</th>
                             <th id="type">Type</th>
@@ -607,8 +607,8 @@
                                                 {{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name') }}
                                             </td>
                                             <td>{{ DB::table('upload_files')->where('basename',basename($file))->value('mime_type') }}</td>
-                                            <td data-sort="{{ Storage::size($file) }}">
-                                                {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
+                                            <td data-sort="{{ DB::table('upload_files')->where('basename',basename($file))->value('size') }}">
+                                                {{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('basename',basename($file))->value('size')) }}
                                             </td>
                                             <td>
                                                 <div class="dropdown">
@@ -673,8 +673,8 @@
                                             &nbsp;{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name') }}
                                         </td>
                                         <td>{{ DB::table('upload_files')->where('basename',basename($file))->value('mime_type') }}</td>
-                                        <td data-sort="{{ Storage::size($file) }}">
-                                            {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
+                                        <td data-sort="{{ DB::table('upload_files')->where('basename',basename($file))->value('size') }}">
+                                        {{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('basename',basename($file))->value('size')) }}
                                         </td>
                                         <td>
                                             <div class="dropdown">
@@ -951,7 +951,7 @@
                         files.forEach(file => formData.append('file[]', file));
                         filesPath.forEach(path => formData.append('filePath[]', path));
 
-                        fetch('{{ route("adminuser.documents.multiupload") }}', {
+                        fetch('{{ route("adminuser.documents.upload") }}', {
                             method: 'POST',
                             body: formData,
                             headers: {

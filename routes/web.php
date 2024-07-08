@@ -192,13 +192,12 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('documents/serve/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ServeFile')->name('adminuser.documents.serve');
 			Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@Delete')->name('adminuser.documents.delete');
 			Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
-			Route::post('documents/upload', 'App\Http\Controllers\Adminuser\DocumentController@UploadFiles')->name('adminuser.documents.upload');
 			Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');
 			Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
 			Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
 			Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
 			Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
-			Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@MultipleUpload')->name('adminuser.documents.multiupload');
+			Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@Upload')->name('adminuser.documents.upload');
 
 			/* Companies */
 			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');

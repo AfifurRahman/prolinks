@@ -140,151 +140,6 @@ class DocumentController extends Controller
         }
     }
 
-    // old function, deprecated
-    public function UploadFiles(Request $request)
-    {   
-        try {
-            if ($request->hasFile('files')) {
-                $uploadAttempt = 0;
-                $maxAttempt = 100;
-
-                do {
-                    try {
-                        $files = $request->file('files');
-                        $pathFile = "";
-                        $pathLoop = "";
-                        $paths = explode('/', $request->filePath);
-
-                        for ($i = 0; $i < count($paths) - 1; $i++) {
-                            $pathFile .= $paths[$i] . '/';
-                        }
-
-                        $paths = explode('/', $pathFile);
-                        array_unshift($paths, '');
-                        array_pop($paths);
-
-                        foreach ($paths as $index => $pathf) {
-                            if ($index > 0 ) {
-                                $pathLoop .= $folderList[$pathf] . '/';
-                            } else {
-                                $pathLoop .= $pathf . '/';
-                            }
-                            
-                            $directories = Storage::directories(base64_decode($request->location) . $pathLoop);
-
-                            foreach ($directories as $dir) {
-                                $baseName = UploadFolder::where('basename', basename($dir))->value('name');
-                                $originalName = basename($dir);
-                                
-                                $folderList[$baseName] = $originalName;
-                            }
-
-                            if ($index > 0) {
-                                $paths[$index] = $folderList[$pathf];
-                            }
-                        }
-                        break;
-                    } catch (\Exception $e) {
-                        $uploadAttempt++;
-
-                        if ($uploadAttempt >= $maxAttempt) {
-                            break;
-                        }
-
-                        usleep(250);
-                    }
-                } while ($uploadAttempt <= $maxAttempt);
-                
-                $pf = implode("/", $paths);
-
-                $response = [];
-                foreach ($files as $file) {
-                        $remainQuota = (DB::table('pricing')->where('id', DB::table('clients')->where('client_id',\globals::get_client_id())->value('pricing_id'))->value('allocation_size')) - (DB::table('upload_files')->where('client_id', \globals::get_client_id())->sum('size'));
-
-                        if (($remainQuota - $file->getSize()) > 0) {
-                            $locationParts = explode('/', base64_decode($request->location), 5);
-
-                            $path = base64_decode($request->location) .$pf;
-    
-                            $filePath = $file->storeAs($path, Str::random(8));
-    
-                            $maxIndex = max(UploadFile::where('directory', $path)->max('index'), UploadFolder::where('parent', $path)->max('index'));
-                            $fileIndex = $maxIndex == null ? 1 : $maxIndex + 1;
-    
-                            UploadFile::create([
-                                'index' => $fileIndex,
-                                'project_id' => $locationParts[2],
-                                'subproject_id' => $locationParts[3],
-                                'directory' => $path,
-                                'basename' => basename($filePath),
-                                'name' => $file->getClientOriginalName(),
-                                'client_id' => \globals::get_client_id(),
-                                'mime_type' => $file->getClientMimeType(),
-                                'size' => $file->getSize(),
-                                'status' => 1,
-                                'uploaded_by' => Auth::user()->user_id,
-                            ]);
-
-                            $receiver_email = AssignProject::where('subproject_id', $locationParts[3])->where('client_id', \globals::get_client_id())->get();
-                            $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
-
-                            $desc = Auth::user()->name . " uploaded file " . $file->getClientOriginalName();
-                            \log::create(request()->all(), "success", $desc);
-            
-                            // \log::push_notification('New File Added', $type=1, basename($filePath), $locationParts[3]);
-
-                            $link = array_slice(explode('/', $path), 2);
-                            $link = implode('/', $link);
-                            
-
-                            // if(count($receiver_admin) > 0) {
-                            //     foreach ($receiver_admin as $key => $value) {
-                            //         if($value->email != Auth::user()->email) {
-                            //             $details = [
-                            //                 'receiver' => $value->name,
-                            //                 'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
-                            //                 'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
-                            //                 'file_name' => $file->getClientOriginalName() ,
-                            //                 'file_size' => GlobalHelper::formatBytes($file->getSize()),
-                            //                 'url' => route('adminuser.documents.list', base64_encode($link)),
-                            //             ];
-                            //             \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
-                            //         }
-                            //     }
-                            // }
-
-                            if(count($receiver_email) > 0) {
-                                foreach ($receiver_email as $key => $value) {
-                                    if($value->email != Auth::user()->email) {
-                                        if(User::where('user_id', $value->user_id)->value('status') == '1') {
-                                            $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('client_id', $value->client_id)->where('user_id', $value->user_id)->where('clientuser_id', $value->clientuser_id)->value('is_upload_file');
-                                            if (!empty($check_settings) && $check_settings == 1) {
-                                                $details = [
-                                                    'receiver' => User::where('user_id',$value->user_id)->value('name'),
-                                                    'project_name' => Project::where('project_id', $locationParts[2])->value('project_name'),
-                                                    'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
-                                                    'file_name' => $file->getClientOriginalName() ,
-                                                    'file_size' => GlobalHelper::formatBytes($file->getSize()),
-                                                    'url' => route('adminuser.documents.list', base64_encode($link)),
-                                                ];
-                                                \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                        } else {
-                            return response()->json(['success' => false, 'message' => 'You dont have sufficient quota']);
-                        }
-                }
-            } 
-            return response()->json(['success' => true, 'message' => 'Files successfully uploaded ']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
-        }
-    }
-
     public function CreateFolder(Request $request)
     {
         try {
@@ -449,26 +304,6 @@ class DocumentController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
-    
-//    public function ServeFile($file)
-//    {
-//        try {
-//            $file = base64_decode($file);
-//            $path = UploadFile::where('basename', $file)->value('directory');
-//
-//            if (Storage::disk('local')->exists($path)) {
-//                $fileContents = Storage::disk('local')->get($path . '/' . $file);
-//                $mimeType = Storage::disk('local')->mimeType($path . '/' . $file);
-//
-//                return response($fileContents, 200)
-//                    ->header('Content-Type', $mimeType);
-//            } else {
-//                abort(404);
-//            }
-//        } catch (\Exception $e) {
-//            return response()->json(['success' => false, 'message' => $e->getMessage()]);
-//        }
-//    }
 
     public function DownloadFile($file) 
     {
@@ -790,7 +625,7 @@ class DocumentController extends Controller
         return view('adminuser.document.search', compact('folders', 'files', 'origin', 'directorytype', 'search'));
     }
 
-    public function MultipleUpload(Request $request) 
+    public function Upload(Request $request) 
     {
         try {
             if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator()) {
