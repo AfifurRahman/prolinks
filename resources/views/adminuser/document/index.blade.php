@@ -470,7 +470,8 @@
                             <th id="name">File name</th>
                             <th id="created">Created at</th>
                             <th id="uploaded">Uploaded by</th>
-                            <th data-sortable="false" id="size">Size</th>
+                            <th id="type">Type</th>
+                            <th id="size">Size</th>
                             <th data-sortable="false" id="navigationdot">&nbsp;</th>
                         </tr>
                     </thead>
@@ -495,8 +496,9 @@
                                 </td>
                                 <td data-sort="0"></td>
                                 <td data-sort="0"></td>
-                                <td></td>
-                                <td></td>
+                                <td data-sort="0"></td>
+                                <td data-sort="0"></td>
+                                <td data-sort="0"></td>
                             </tr>
                         @endif
                         
@@ -534,9 +536,11 @@
                                         {{ \Carbon\Carbon::parse(DB::table('upload_folders')->where('directory', $directory)->value('created_at'))->format('d M Y, H:i') }}
                                     </td>
                                     <td> 
-                                        {{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}
+                                        {!! \globals::get_user_avatar_small(DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name'), DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('avatar_color')) !!}
+                                        &nbsp;{{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}
                                     </td>
-                                    <td>{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('directory', 'like', '%'. $directory .'%')->sum('size')) }}</td>
+                                    <td>Directory</td>
+                                    <td data-sort="{{ DB::table('upload_files')->where('directory', 'like', '%'. $directory .'%')->sum('size') }}">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('directory', 'like', '%'. $directory .'%')->sum('size')) }}</td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="button_ico dropdown-toggle" data-toggle="dropdown">
@@ -599,9 +603,11 @@
                                                 {{ \Carbon\Carbon::parse(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))->format('d M Y, H:i') }}
                                             </td>
                                             <td>
+                                                {!! \globals::get_user_avatar_small(DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name'), DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('avatar_color')) !!}
                                                 {{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name') }}
                                             </td>
-                                            <td>
+                                            <td>{{ DB::table('upload_files')->where('basename',basename($file))->value('mime_type') }}</td>
+                                            <td data-sort="{{ Storage::size($file) }}">
                                                 {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                             </td>
                                             <td>
@@ -662,8 +668,12 @@
                                         <td>
                                             {{ \Carbon\Carbon::parse(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))->format('d M Y, H:i') }}
                                         </td>
-                                        <td>{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name')  }}</td>
                                         <td>
+                                            {!! \globals::get_user_avatar_small(DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name'), DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('avatar_color')) !!}
+                                            &nbsp;{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name') }}
+                                        </td>
+                                        <td>{{ DB::table('upload_files')->where('basename',basename($file))->value('mime_type') }}</td>
+                                        <td data-sort="{{ Storage::size($file) }}">
                                             {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                         </td>
                                         <td>

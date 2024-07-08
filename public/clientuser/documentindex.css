@@ -28,7 +28,7 @@
 }
 
 #name {
-    width:42%;
+    width:40%;
 }
 
 #uploaded {
@@ -36,11 +36,15 @@
 }
 
 #created {
-    width:18%;
+    width:14%;
 }
 
 #size {
-    width:15%;
+    width:10%;
+}
+
+#type {
+    width:11%;
 }
 
 #navigationdot{
