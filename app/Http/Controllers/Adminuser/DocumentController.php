@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Adminuser;
 use App\Http\Controllers\Controller;
 use App\Helpers\GlobalHelper;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\Artisan; 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -940,5 +941,12 @@ class DocumentController extends Controller
             $logDoc->created_by = Auth::user()->id;
             $logDoc->save();
         }
+    }
+
+    public function clear_view_cache()
+    {
+        Artisan::call('view:clear');
+
+        return back();
     }
 }
