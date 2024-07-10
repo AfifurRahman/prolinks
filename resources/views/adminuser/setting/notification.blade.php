@@ -2,7 +2,11 @@
 
 @section('content')
     <div class="card-box" style="width: 50%; margin: 0 auto; margin-top: 10px;">
-        <h4>Notifications</h4> <hr>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h4>Notifications</h4>
+            <a href="{{ route('notification.readall') }}">Read all</a>
+        </div>
+        <hr>
         <div class="user-list notify-list">
             @if (count($notification))
                 @foreach ($notification as $notify)

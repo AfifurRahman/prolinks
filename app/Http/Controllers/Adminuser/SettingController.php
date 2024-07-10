@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Adminuser;
 
 use App\Http\Controllers\Controller;
 use App\Models\SettingEmailNotification;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Session;
 use Auth;
@@ -67,5 +68,11 @@ class SettingController extends Controller
     function read_notification(Request $request){
         $id = $request->input('id');
         \log::read_notification($id);
+    }
+
+    function read_all() {
+        Notification::where('user_id', Auth::user()->user_id)->where('is_read', '0')->update(['is_read' => '1']);
+
+        return redirect()->route('notification.list');
     }
 }

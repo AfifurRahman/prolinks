@@ -21,6 +21,7 @@
         }
     </style>
 
+
     @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
         <!--Upload Modal-->
         <div id="upload-modal" class="modal">
@@ -405,7 +406,7 @@
 
     <div class="viewcontainer">
         <div class="box_helper">
-            <div style="margin-left:5px">
+            <div style="margin-left:5px;display:flex;">
                 @if($directorytype == 0)
                     @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
                         <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
@@ -429,8 +430,48 @@
                         </a>
                     @endif
                 @endif
-         
-                <!--
+                
+                <!-- Dropdown copy paste -->
+                @if (DB::table('action_document')->where('project_id', $projectID)->where('subproject_id', $subprojectID)->where('user_id', Auth::user()->user_id)->value('status') == "1" ) 
+                    <div class="dropdown" id="documentAction" style="visibility:visible;">
+                        <button class="clipboard dropdown-toggle" data-toggle="dropdown">
+                            1 file in clipboard
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-top pull-left">
+                            <li>
+                                <a href="">
+                                    <img class="dropdown-icon" src="">
+                                    Paste here
+                                </a>
+                                <a href="">
+                                    <img class="dropdown-icon" src="">
+                                    Clear clipboard
+                                </a>    
+                            </li>
+                        </ul>
+                    </div>
+                @else 
+                    <div class="dropdown" id="documentAction" style="visibility:collapse;">
+                        <button class="clipboard dropdown-toggle" data-toggle="dropdown">
+                            1 file in clipboard
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-top pull-left">
+                            <li>
+                                <a href="">
+                                    <img class="dropdown-icon" src="">
+                                    Paste here
+                                </a>
+                                <a href="">
+                                    <img class="dropdown-icon" src="">
+                                    Clear clipboard
+                                </a>    
+                            </li>
+                        </ul>
+                    </div>
+                @endif
+                
+                
+                 <!--
                 <button class="filter_button">
                     <image class="filter_icon" src="{{ url('template/images/icon_menu/filter.png') }}"></image>
                     Filter
@@ -561,6 +602,18 @@
                                                         </a>
                                                     </li>
                                                     <li>
+                                                        <a onclick="copyItem('{{ DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('basename') }}')">
+                                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                                            Copy
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a onclick="">
+                                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                                            Cut
+                                                        </a>
+                                                    </li>
+                                                    <li>
                                                         <a style="color:red;" onclick="deleteFolder('{{ base64_encode($directory) }}')">
                                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                                             Delete
@@ -630,6 +683,18 @@
                                                                 </a>
                                                             </li>
                                                             <li>
+                                                                <a onclick="">
+                                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                                                    Copy
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a onclick="">
+                                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                                                    Cut
+                                                                </a>
+                                                            </li>
+                                                            <li>
                                                                 <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
                                                                     <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                                                     Delete
@@ -693,6 +758,18 @@
                                                             <a onclick="renameFile('{{ basename($file) }}', '{{ url('template/images/icon_menu/' . pathinfo(DB::table('upload_files')->where('basename', basename($file))->value('name'), PATHINFO_EXTENSION) . '.png') }}', '{{$index}}', '{{ str_replace('.' . pathinfo(DB::table('upload_files')->where('basename',basename($file))->value('name'), PATHINFO_EXTENSION), '', DB::table('upload_files')->where('basename',basename($file))->value('name')) }}')">
                                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/edit.png') }}">
                                                                 Rename
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a onclick="">
+                                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
+                                                                Copy
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a onclick="">
+                                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
+                                                                Cut
                                                             </a>
                                                         </li>
                                                         <li>
@@ -904,6 +981,14 @@
             setTimeout(function() {
                 location.reload();
             }, 1000);
+        }
+
+        function flashNotification(message) {
+            document.querySelector('.notificationtext').textContent = message;
+            document.querySelector('.notificationlayer').style.display = 'block';
+            setTimeout(() => {
+                $('.notificationlayer').fadeOut();
+            }, 2000);
         }
 
         @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
@@ -1256,6 +1341,26 @@
                         document.getElementById('rename-file-modal').style.display='none';
                         showNotification(data.message);
                     });
+                });
+            }
+
+            function copyItem($item) {
+                var formData = new FormData();
+                formData.append('items', $item);
+
+                fetch('{{ route("adminuser.documents.copy") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        $("#documentAction").css("visibility", "visible");
+                        flashNotification('Copied to clipboard');
+                    }
                 });
             }
 

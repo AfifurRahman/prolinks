@@ -198,6 +198,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
 			Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
 			Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@Upload')->name('adminuser.documents.upload');
+			Route::post('documents/action/copy', 'App\Http\Controllers\Adminuser\DocumentController@Copy')->name('adminuser.documents.copy');
+			Route::post('documents/action/paste', 'App\Http\Controllers\Adminuser\DocumentController@Paste')->name('adminuser.documents.paste');
+			Route::get('documents/action/test', 'App\Http\Controllers\Adminuser\DocumentController@ActionTest')->name('adminuser.document.test');
 
 			/* Companies */
 			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');
@@ -239,6 +242,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('/setting/save-setting-email', 'App\Http\Controllers\Adminuser\SettingController@save_setting_email')->name('setting.save-setting-email');
 			Route::get('/all-notification', 'App\Http\Controllers\Adminuser\SettingController@all_notification')->name('notification.list');
 			Route::post('/read-notification', 'App\Http\Controllers\Adminuser\SettingController@read_notification')->name('notification.read');
+			Route::get('/read-all', 'App\Http\Controllers\Adminuser\SettingController@read_all')->name('notification.readall');
 			Route::get('/clear-view-cache', 'App\Http\Controllers\Adminuser\DocumentController@clear_view_cache')->name('clear-view-cache');
 		});
 	});

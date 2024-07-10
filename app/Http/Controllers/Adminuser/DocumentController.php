@@ -18,6 +18,7 @@ use App\Models\ClientUser;
 use App\Models\UploadFile;
 use App\Models\UploadFolder;
 use App\Models\AssignProject;
+use App\Models\DocumentAction;
 use App\Models\Permission;
 use App\Models\LogViewDocument;
 use App\Models\SettingEmailNotification;
@@ -761,6 +762,58 @@ class DocumentController extends Controller
         } 
     }
 
+    public function ActionTest() {
+        DocumentAction::create([
+            'project_id' => '123',
+            'subproject_id' => '456',
+            'user_id' => Auth::user()->user_id,
+            'status' => 1,
+            'action_type' => 1,
+            'items_basename' => '12345',
+        ]);
+    }
+
+    public function Copy(Request $request) 
+    {
+        try {
+            $ItemBasename = $request->input('items');
+            if (UploadFile::where('basename', $ItemBasename)->exists()) {
+                $ProjectID = UploadFile::where('basename', $ItemBasename)->value('project_id');
+                $SubProjectID = UploadFile::where('basename', $ItemBasename)->value('subproject_id');
+            } else {
+                $ProjectID = UploadFolder::where('basename', $ItemBasename)->value('project_id');
+                $SubProjectID = UploadFolder::where('basename', $ItemBasename)->value('subproject_id');
+            }
+            
+            if ( DocumentAction::where('project_id', $ProjectID)->where('subproject_id', $SubProjectID)->where('user_id', Auth::user()->user_id)->exists() )  {
+                DocumentAction::where('project_id', $ProjectID)->where('subproject_id', $SubProjectID)->where('user_id', Auth::user()->user_id)->update([
+                    'status' => 1,
+                    'action_type' => 1,
+                    'items_basename' => $ItemBasename,
+                ]);
+            } else {
+                DocumentAction::create([
+                    'project_id' => $ProjectID,
+                    'subproject_id' => $SubProjectID,
+                    'user_id' => Auth::user()->user_id,
+                    'status' => 1,
+                    'action_type' => 1,
+                    'items_basename' => $ItemBasename,
+                ]);
+            };
+           
+            return response()->json(['status' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+        
+    }
+
+    public function Paste(Request $request)
+    {
+
+    }
+
     public function logViewFile($file_id) 
     {
         $getDoc = UploadFile::where('basename', $file_id)->first();
@@ -784,4 +837,6 @@ class DocumentController extends Controller
 
         return back();
     }
+
+    
 }
