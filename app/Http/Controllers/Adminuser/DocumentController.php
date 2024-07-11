@@ -773,6 +773,11 @@ class DocumentController extends Controller
         ]);
     }
 
+    public function Cut(Request $request)
+    {
+
+    }
+
     public function Copy(Request $request) 
     {
         try {
@@ -785,8 +790,10 @@ class DocumentController extends Controller
                 $SubProjectID = UploadFolder::where('basename', $ItemBasename)->value('subproject_id');
             }
             
-            if ( DocumentAction::where('project_id', $ProjectID)->where('subproject_id', $SubProjectID)->where('user_id', Auth::user()->user_id)->exists() )  {
-                DocumentAction::where('project_id', $ProjectID)->where('subproject_id', $SubProjectID)->where('user_id', Auth::user()->user_id)->update([
+            if ( DocumentAction::where('user_id', Auth::user()->user_id)->exists() )  {
+                DocumentAction::where('user_id', Auth::user()->user_id)->update([
+                    'project_id' => $ProjectID,
+                    'subproject_id' => $SubProjectID,
                     'status' => 1,
                     'action_type' => 1,
                     'items_basename' => $ItemBasename,
@@ -811,7 +818,63 @@ class DocumentController extends Controller
 
     public function Paste(Request $request)
     {
+        try {
+            if(DocumentAction::where('user_id', Auth::user()->user_id)->value('status') == '1') {
+                $ItemBasename = DocumentAction::where('user_id', Auth::user()->user_id)->value('items_basename');
+                $PasteLocation = $request->input('location');
+                $PasteBasename = Str::random(8);
+                
+                if (UploadFile::where('basename', $ItemBasename)->exists()) {
+                    $ProjectID = UploadFile::where('basename', $ItemBasename)->value('project_id');
+                    $SubProjectID = UploadFile::where('basename', $ItemBasename)->value('subproject_id');
+                    $ItemDirectory = UploadFile::where('basename', $ItemBasename)->value('directory');
+                    $ItemName = UploadFile::where('basename', $ItemBasename)->value('name');
+                    $ItemMime = UploadFile::where('basename', $ItemBasename)->value('mime_type');
+                    $ItemSize = UploadFile::where('basename', $ItemBasename)->value('size');
+    
+                    Storage::copy($ItemDirectory . '/' . $ItemBasename, $PasteLocation . '/' . $PasteBasename);
+    
+                    $Index = max(UploadFile::where('directory', $PasteLocation)->max('index'), UploadFolder::where('parent', $PasteLocation)->max('index'));
+                    $Index = $Index == null ? 1 : $Index + 1;
+    
+                    UploadFile::create([
+                        'index' => $Index,
+                        'project_id' => $ProjectID,
+                        'subproject_id' => $SubProjectID,
+                        'directory' => $PasteLocation,
+                        'basename' => $PasteBasename,
+                        'name' => $ItemName,
+                        'client_id' => \globals::get_client_id(),
+                        'mime_type' => $ItemMime,
+                        'size' => $ItemSize,
+                        'status' => 1,
+                        'uploaded_by' => Auth::user()->user_id,
+                    ]);
+    
+                    DocumentAction::where('user_id', Auth::user()->user_id)->update(['status' => '0']);
+                } else {
+                    $ProjectID = UploadFolder::where('basename', $ItemBasename)->value('project_id');
+                    $SubProjectID = UploadFolder::where('basename', $ItemBasename)->value('subproject_id');
+                    $ItemDirectory = UploadFolder::where('basename', $ItemBasename)->value('directory');
+                    $ItemName = UploadFolder::where('basename', $ItemBasename)->value('displayname');
+                }
+    
+                return response()->json(['status' => true]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
+    }
 
+    public function ClearClipboard()
+    {
+        try {
+            DocumentAction::where('user_id', Auth::user()->user_id)->update(['status' => '0']);
+
+            return response()->json(['status' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
 
     public function logViewFile($file_id) 

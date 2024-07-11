@@ -110,7 +110,20 @@
     justify-content: space-between;
 }
 
-.filter_button{
+#documentAction {
+    margin-left:18px;
+}
+.clipboard{
+    padding:7px 15px 6px 17px;
+    background: #FFFFFF; 
+    color:#1570EF;
+    font-weight:bold;
+    font-size: 14px;
+    border:1px solid #EDF0F2;
+    border-radius:10px;
+}
+
+.{
     padding:7px 15px 6px 17px;
     background: #FFFFFF; 
     color:#546474;

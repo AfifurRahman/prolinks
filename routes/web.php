@@ -200,6 +200,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@Upload')->name('adminuser.documents.upload');
 			Route::post('documents/action/copy', 'App\Http\Controllers\Adminuser\DocumentController@Copy')->name('adminuser.documents.copy');
 			Route::post('documents/action/paste', 'App\Http\Controllers\Adminuser\DocumentController@Paste')->name('adminuser.documents.paste');
+			Route::post('documents/action/clear', 'App\Http\Controllers\Adminuser\DocumentController@ClearClipboard')->name('adminuser.documents.clear');
 			Route::get('documents/action/test', 'App\Http\Controllers\Adminuser\DocumentController@ActionTest')->name('adminuser.document.test');
 
 			/* Companies */
