@@ -775,7 +775,39 @@ class DocumentController extends Controller
 
     public function Cut(Request $request)
     {
-
+        try {
+            $ItemBasename = $request->input('items');
+            if (UploadFile::where('basename', $ItemBasename)->exists()) {
+                $ProjectID = UploadFile::where('basename', $ItemBasename)->value('project_id');
+                $SubProjectID = UploadFile::where('basename', $ItemBasename)->value('subproject_id');
+            } else {
+                $ProjectID = UploadFolder::where('basename', $ItemBasename)->value('project_id');
+                $SubProjectID = UploadFolder::where('basename', $ItemBasename)->value('subproject_id');
+            }
+            
+            if ( DocumentAction::where('user_id', Auth::user()->user_id)->exists() )  {
+                DocumentAction::where('user_id', Auth::user()->user_id)->update([
+                    'project_id' => $ProjectID,
+                    'subproject_id' => $SubProjectID,
+                    'status' => 1,
+                    'action_type' => 2,
+                    'items_basename' => $ItemBasename,
+                ]);
+            } else {
+                DocumentAction::create([
+                    'project_id' => $ProjectID,
+                    'subproject_id' => $SubProjectID,
+                    'user_id' => Auth::user()->user_id,
+                    'status' => 1,
+                    'action_type' => 2,
+                    'items_basename' => $ItemBasename,
+                ]);
+            };
+        
+            return response()->json(['status' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => false, 'message' => $e->getMessage()]);
+        }
     }
 
     public function Copy(Request $request) 
@@ -819,11 +851,11 @@ class DocumentController extends Controller
     public function Paste(Request $request)
     {
         try {
-            if(DocumentAction::where('user_id', Auth::user()->user_id)->value('status') == '1') {
-                $ItemBasename = DocumentAction::where('user_id', Auth::user()->user_id)->value('items_basename');
-                $PasteLocation = $request->input('location');
-                $PasteBasename = Str::random(8);
-                
+            $ItemBasename = DocumentAction::where('user_id', Auth::user()->user_id)->value('items_basename');
+            $PasteLocation = $request->input('location');
+            $PasteBasename = Str::random(8);
+
+            if((DocumentAction::where('user_id', Auth::user()->user_id)->value('status') == '1') && (DocumentAction::where('user_id', Auth::user()->user_id)->value('action_type') == '1')) {
                 if (UploadFile::where('basename', $ItemBasename)->exists()) {
                     $ProjectID = UploadFile::where('basename', $ItemBasename)->value('project_id');
                     $SubProjectID = UploadFile::where('basename', $ItemBasename)->value('subproject_id');
@@ -858,9 +890,32 @@ class DocumentController extends Controller
                     $ItemDirectory = UploadFolder::where('basename', $ItemBasename)->value('directory');
                     $ItemName = UploadFolder::where('basename', $ItemBasename)->value('displayname');
                 }
+            } elseif ((DocumentAction::where('user_id', Auth::user()->user_id)->value('status') == '1') && (DocumentAction::where('user_id', Auth::user()->user_id)->value('action_type') == '2')) {
+                if (UploadFile::where('basename', $ItemBasename)->exists()) {
+                    $ProjectID = UploadFile::where('basename', $ItemBasename)->value('project_id');
+                    $SubProjectID = UploadFile::where('basename', $ItemBasename)->value('subproject_id');
+                    $ItemDirectory = UploadFile::where('basename', $ItemBasename)->value('directory');
     
-                return response()->json(['status' => true]);
+                    Storage::move($ItemDirectory . '/' . $ItemBasename, $PasteLocation . '/' . $ItemBasename);
+    
+                    $Index = max(UploadFile::where('directory', $PasteLocation)->max('index'), UploadFolder::where('parent', $PasteLocation)->max('index'));
+                    $Index = $Index == null ? 1 : $Index + 1;
+
+                    UploadFile::where('basename', $ItemBasename)->update([
+                        'index' => $Index,
+                        'directory' => $PasteLocation,
+                    ]);
+    
+                    DocumentAction::where('user_id', Auth::user()->user_id)->update(['status' => '0']);
+                } else {
+                    $ProjectID = UploadFolder::where('basename', $ItemBasename)->value('project_id');
+                    $SubProjectID = UploadFolder::where('basename', $ItemBasename)->value('subproject_id');
+                    $ItemDirectory = UploadFolder::where('basename', $ItemBasename)->value('directory');
+                    $ItemName = UploadFolder::where('basename', $ItemBasename)->value('displayname');
+                }
             }
+
+            return response()->json(['status' => true]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
         }

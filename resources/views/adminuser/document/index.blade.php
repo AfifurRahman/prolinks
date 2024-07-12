@@ -691,17 +691,17 @@
                                                                 </a>
                                                             </li>
                                                             <li>
-                                                                <a onclick="copyItem('basename($file)')">
+                                                                <a onclick="copyItem('{{ basename($file) }}')">
                                                                     <img class="dropdown-icon" src="{{ url('template/images/icon_menu/copy.png') }}">
                                                                     Copy
                                                                 </a>
                                                             </li>
-                                                <!--            <li>
-                                                                <a onclick="">
+                                                            <li>
+                                                                <a onclick="cutItem('{{ basename($file) }}')">
                                                                     <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
                                                                     Cut
                                                                 </a>
-                                                            </li> -->
+                                                            </li>
                                                             <li>
                                                                 <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
                                                                     <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
@@ -774,12 +774,12 @@
                                                                 Copy
                                                             </a>
                                                         </li>
-                                        <!--               <li>
-                                                            <a onclick="">
+                                                        <li>
+                                                            <a onclick="cutItem('{{ basename($file) }}')">
                                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
                                                                 Cut
                                                             </a>
-                                                        </li> -->
+                                                        </li>
                                                         <li>
                                                             <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
                                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
@@ -1368,6 +1368,26 @@
                     if (data.status) {
                         $("#documentAction").css("visibility", "visible");
                         flashNotification('Copied to clipboard');
+                    }
+                });
+            }
+
+            function cutItem($item) {
+                var formData = new FormData();
+                formData.append('items', $item);
+
+                fetch('{{ route("adminuser.documents.cut") }}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        $("#documentAction").css("visibility", "visible");
+                        flashNotification('Cut to clipboard');
                     }
                 });
             }

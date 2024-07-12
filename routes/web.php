@@ -199,6 +199,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
 			Route::post('documents/uploadmultiple', 'App\Http\Controllers\Adminuser\DocumentController@Upload')->name('adminuser.documents.upload');
 			Route::post('documents/action/copy', 'App\Http\Controllers\Adminuser\DocumentController@Copy')->name('adminuser.documents.copy');
+			Route::post('documents/action/cut', 'App\Http\Controllers\Adminuser\DocumentController@Cut')->name('adminuser.documents.cut');
 			Route::post('documents/action/paste', 'App\Http\Controllers\Adminuser\DocumentController@Paste')->name('adminuser.documents.paste');
 			Route::post('documents/action/clear', 'App\Http\Controllers\Adminuser\DocumentController@ClearClipboard')->name('adminuser.documents.clear');
 			Route::get('documents/action/test', 'App\Http\Controllers\Adminuser\DocumentController@ActionTest')->name('adminuser.document.test');
