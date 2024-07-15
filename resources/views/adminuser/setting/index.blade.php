@@ -90,8 +90,13 @@
     </div>
 	<div class="tab-content">
         <div class="tab-pane {{ !empty(request()->input('tab')) && request()->input('tab') == "watermark_setting" ? "active":"" }}" style="width:100%;">
-		<!--	<h2>Watermark soon will be ready, sensei!</h2>
-			<img class="dropdown-icon" src="{{ url('template/images/icon_menu/iochimari.jpg') }}">  -->
+		    <h2>Watermark soon will be ready, sensei!</h2>
+			<img class="dropdown-icon" src="{{ url('template/images/icon_menu/iochimari.jpg') }}">
+        </div>
+    </div>
+    <div class="tab-content">
+        <div class="tab-pane {{ !empty(request()->input('tab')) && request()->input('tab') == "account_setting" ? "active":"" }}" style="width:100%;">
+            @include('adminuser.setting.tab.setting_account')
         </div>
     </div>
 	

@@ -87,8 +87,18 @@
                                         </span>
                                     @enderror
                                 </div>
+
+                                {!! NoCaptcha::display() !!}
+                                {!! NoCaptcha::renderJs() !!}
+                                
+                                @error('g-recaptcha-response')
+                                    <span class="text-danger" role="alert">
+                                        <strong>Please check the captcha box to proceed</strong>
+                                    </span>
+                                @enderror
+
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <button type="submit" class="btn btn-primary" style="width: 100%;margin-top:18px;">
                                         Sign in
                                     </button>
                                     <hr>

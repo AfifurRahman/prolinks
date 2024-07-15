@@ -41,6 +41,12 @@ class LoginController extends Controller
 
     protected function attemptLogin(Request $request)
     {
+        $request->validate([
+            'email' => 'required',
+            'password' => 'required',
+            'g-recaptcha-response' => 'required|captcha'
+        ]);
+        
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
             $user = Auth::user();

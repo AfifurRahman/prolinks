@@ -202,7 +202,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/action/cut', 'App\Http\Controllers\Adminuser\DocumentController@Cut')->name('adminuser.documents.cut');
 			Route::post('documents/action/paste', 'App\Http\Controllers\Adminuser\DocumentController@Paste')->name('adminuser.documents.paste');
 			Route::post('documents/action/clear', 'App\Http\Controllers\Adminuser\DocumentController@ClearClipboard')->name('adminuser.documents.clear');
-			Route::get('documents/action/test', 'App\Http\Controllers\Adminuser\DocumentController@ActionTest')->name('adminuser.document.test');
 
 			/* Companies */
 			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');
