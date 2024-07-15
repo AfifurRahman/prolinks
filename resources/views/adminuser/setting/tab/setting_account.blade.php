@@ -52,7 +52,10 @@
             <p>Two-factor authentication</p>
         </th>
         <td>
-            <p>{{ is_null(Auth::user()->two_factor_secret) ? "Disabled" : "Enabled" }}</p>
+            <p>{{ is_null(Auth::user()->two_factor_confirmed_at) ? "Disabled" : "Enabled at ". \Carbon\Carbon::parse(Auth::user()->two_factor_confirmed_at)->format('d M Y, H:i:s') . " GMT+7" }}</p>
+            @if(is_null(Auth::user()->two_factor_confirmed_at))
+                <a href="?tab=2fa_setup">Set up Two-Factor Authentication</a>
+            @endif
         </td>
     </tr>
 </table>

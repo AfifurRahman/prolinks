@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use PragmaRX\Google2FA\Google2FA;
+use Illuminate\Support\Str; 
 
 class User extends Authenticatable
 {
@@ -24,6 +26,8 @@ class User extends Authenticatable
         'email',
         'password',
         'last_signed',
+        'two_factor_secret',
+        'two_factor_confirmed_at'
     ];
 
     /**
@@ -34,6 +38,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
     ];
 
     /**
@@ -54,5 +59,33 @@ class User extends Authenticatable
     public function RefClientUser()
     {
         return $this->hasMany('App\Models\ClientUser', 'user_id' , 'user_id');
+    }
+
+    public function generateTwoFactorSecret()
+    {
+        $google2fa = new Google2FA();
+        return $google2fa->generateSecretKey();
+    }
+
+    public function twoFactorQrCodeUrl()
+    {
+        $google2fa = new Google2FA();
+        $company = 'Prolinks'; // Change this to your company name
+        $email = $this->email; // Or any unique identifier for the user
+        $secret = decrypt($this->two_factor_secret);
+
+        return $google2fa->getQRCodeUrl(
+            $company,
+            $email,
+            $secret
+        );
+    }
+
+    // Generate recovery codes
+    public function generateRecoveryCodes()
+    {
+        return collect(range(1, 8))->map(function () {
+            return Str::random(8); // Generate a random string for each recovery code
+        })->all();
     }
 }

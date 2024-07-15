@@ -161,6 +161,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 			Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 			
+			/* 2FA Controller*/
+			Route::get('/setting/enable-2fa', 'App\Http\Controllers\TwoFactorAuthController@show')->name('adminuser.enable.2fa');
+			Route::post('/2fa-enabled', 'App\Http\Controllers\TwoFactorAuthController@store')->name('adminuser.store.2fa');
+
 			/* Clientuser */
 			Route::get('/users/list', 'App\Http\Controllers\Adminuser\AccessUsersController@index')->name('adminuser.access-users.list');
 			Route::get('/users/detail/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail')->name('adminuser.access-users.detail');

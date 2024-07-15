@@ -99,6 +99,11 @@
             @include('adminuser.setting.tab.setting_account')
         </div>
     </div>
+    <div class="tab-content">
+        <div class="tab-pane {{ !empty(request()->input('tab')) && request()->input('tab') == "2fa_setup" ? "active":"" }}" style="width:100%;">
+            @include('adminuser.setting.tab.enable_2fa')
+        </div>
+    </div>
 	
 @stop
 
