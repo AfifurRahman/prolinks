@@ -93,6 +93,16 @@ class GlobalHelper
         return $result;
     }
 
+    public static function get_user_avatar_big($name, $color=null)
+    {
+        $getFirstChar = substr($name, 0,1);
+        $htmlAvatar = "<div class='user-avatar' style='background-color:".$color.";height:100px;width:100px;font-size:60px;'>";
+        $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
+        $htmlAvatar .= "</div>";
+
+        return $htmlAvatar;
+    }
+
     public static function get_user_avatar($name, $color=null)
     {
         $getFirstChar = substr($name, 0,1);
