@@ -144,6 +144,9 @@ Route::group(['middleware' => 'auth_backend', 'prefix' => 'backend'], function (
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('/two-step-auth', 'App\Http\Controllers\TwoFactorAuthController@login')->name('auth.2fack');
+
+
 Auth::routes(['verify' => true]);
 Route::group(['middleware' => ['auth', 'verified']], function () {
 	Route::get('/project/create-new-project', 'App\Http\Controllers\Adminuser\FirstProjectController@create_first_project')->name('create-new-project');

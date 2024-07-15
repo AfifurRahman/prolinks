@@ -4,9 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Writer;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -49,7 +46,7 @@ class LoginController extends Controller
             'password' => 'required',
             'g-recaptcha-response' => 'required|captcha'
         ]);
-
+        
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
             $user = Auth::user();

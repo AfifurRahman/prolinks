@@ -76,4 +76,7 @@ class TwoFactorAuthController extends Controller
         return redirect()->intended('/setting?tab=account_setting');
     }
 
+    public function login() {
+        return view('auth.2fa_verify');
+    }
 }
