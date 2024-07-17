@@ -859,7 +859,7 @@ class DocumentController extends Controller
                 if (UploadFile::where('basename', $ItemBasename)->exists()) {
                     $ProjectID = UploadFile::where('basename', $ItemBasename)->value('project_id');
                     $SubProjectID = UploadFile::where('basename', $ItemBasename)->value('subproject_id');
-                    $ItemDirectory = UploadFile::where('basename', $ItemBasename)->value('directory');
+                    $ItemDirectory = UploadFile::where('basename', $ItemBasename)->value('directory');   
                     $ItemName = UploadFile::where('basename', $ItemBasename)->value('name');
                     $ItemMime = UploadFile::where('basename', $ItemBasename)->value('mime_type');
                     $ItemSize = UploadFile::where('basename', $ItemBasename)->value('size');
@@ -884,6 +884,7 @@ class DocumentController extends Controller
                     ]);
     
                     DocumentAction::where('user_id', Auth::user()->user_id)->update(['status' => '0']);
+                    $desc = Auth::user()->name . " copied file " . $ItemName . ' (' . $ItemBasename .')';
                 } else {
                     $ProjectID = UploadFolder::where('basename', $ItemBasename)->value('project_id');
                     $SubProjectID = UploadFolder::where('basename', $ItemBasename)->value('subproject_id');
@@ -894,6 +895,7 @@ class DocumentController extends Controller
                 if (UploadFile::where('basename', $ItemBasename)->exists()) {
                     $ProjectID = UploadFile::where('basename', $ItemBasename)->value('project_id');
                     $SubProjectID = UploadFile::where('basename', $ItemBasename)->value('subproject_id');
+                    $ItemName = UploadFile::where('basename', $ItemBasename)->value('name');
                     $ItemDirectory = UploadFile::where('basename', $ItemBasename)->value('directory');
     
                     Storage::move($ItemDirectory . '/' . $ItemBasename, $PasteLocation . '/' . $ItemBasename);
@@ -907,6 +909,7 @@ class DocumentController extends Controller
                     ]);
     
                     DocumentAction::where('user_id', Auth::user()->user_id)->update(['status' => '0']);
+                    $desc = Auth::user()->name . " moved file " . $ItemName . ' (' . $ItemBasename .')';
                 } else {
                     $ProjectID = UploadFolder::where('basename', $ItemBasename)->value('project_id');
                     $SubProjectID = UploadFolder::where('basename', $ItemBasename)->value('subproject_id');
@@ -915,6 +918,7 @@ class DocumentController extends Controller
                 }
             }
 
+            \log::create(request()->all(), "success", $desc);
             return response()->json(['status' => true]);
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => $e->getMessage()]);
