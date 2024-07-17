@@ -55,7 +55,7 @@
 		<h3 style="color:black;font-size:28px;">Settings</h3>
 	</div><div style="clear:both;"></div>
     <ul class="nav nav-tabs tabs-bordered">
-		<li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "account_setting" ? "active":"" }}">
+		<li class="{{ ((!empty(request()->input('tab')) && request()->input('tab') == "account_setting") || (!empty(request()->input('tab')) && request()->input('tab') == "edit_account")) ? "active":"" }}">
             <a href="?tab=account_setting" aria-expanded="false">
                 <span class="visible-xs"><i class="fa fa-home"></i></span>
                 <span class="hidden-xs">Account Settings</span>
@@ -83,27 +83,27 @@
             </a>
         </li>
     </ul>
+
     <div class="tab-content">
-        <div class="tab-pane {{ !empty(request()->input('tab')) && request()->input('tab') == "email_setting" ? "active":"" }}" style="width:100%;">
-            @include('adminuser.setting.tab.setting_email')
+        <div class="tab-pane active" style="width:100%;">
+            @if(!empty(request()->input('tab')) && request()->input('tab') == "email_setting" )
+                @include('adminuser.setting.tab.setting_email')
+            @elseif(!empty(request()->input('tab')) && request()->input('tab') == "watermark_setting")
+                <h2>Watermark soon will be ready, sensei!</h2>
+                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/iochimari.jpg') }}">
+            @elseif(!empty(request()->input('tab')) && request()->input('tab') == "account_setting")
+                @include('adminuser.setting.tab.setting_account')
+            @elseif(!empty(request()->input('tab')) && request()->input('tab') == "2fa_setup")
+                @include('adminuser.setting.tab.enable_2fa')
+            @elseif(!empty(request()->input('tab')) && request()->input('tab') == "edit_account")
+                @include('adminuser.setting.tab.edit_account')
+            @elseif(!empty(request()->input('tab')) && request()->input('tab') == "security_setting")
+                @include('adminuser.setting.tab.setting_security')
+            @endif
         </div>
     </div>
-	<div class="tab-content">
-        <div class="tab-pane {{ !empty(request()->input('tab')) && request()->input('tab') == "watermark_setting" ? "active":"" }}" style="width:100%;">
-		    <h2>Watermark soon will be ready, sensei!</h2>
-			<img class="dropdown-icon" src="{{ url('template/images/icon_menu/iochimari.jpg') }}">
-        </div>
-    </div>
-    <div class="tab-content">
-        <div class="tab-pane {{ !empty(request()->input('tab')) && request()->input('tab') == "account_setting" ? "active":"" }}" style="width:100%;">
-            @include('adminuser.setting.tab.setting_account')
-        </div>
-    </div>
-    <div class="tab-content">
-        <div class="tab-pane {{ !empty(request()->input('tab')) && request()->input('tab') == "2fa_setup" ? "active":"" }}" style="width:100%;">
-            @include('adminuser.setting.tab.enable_2fa')
-        </div>
-    </div>
+	
+  
 	
 @stop
 
