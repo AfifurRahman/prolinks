@@ -159,40 +159,51 @@
                                     </div>
                                     <div class="box-info">
                                         <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClientUser->company) ? $comment->RefClient->company : '' }}</span></p>
-                                        <p class="inbox-item-text">{!! nl2br($comment->content) !!}</p>
-                                        <div class="box-file">
-                                            @foreach($comment->RefDiscussionLinkFile as $link_file)
-                                                @if(!empty($link_file->RefFile->id))
-                                                    <div style="margin-bottom:5px;">
+                                        <div id="{{ $comment->id }}">
+                                            <p class="inbox-item-text">{!! nl2br($comment->content) !!}</p>
+                                            <div class="box-file">
+                                                @foreach($comment->RefDiscussionLinkFile as $link_file)
+                                                    @if(!empty($link_file->RefFile->id))
+                                                        <div style="margin-bottom:5px;">
+                                                            @php
+                                                                $origin1 = $link_file->RefFile->directory;
+                                                                $files1 = $link_file->RefFile->directory."/".$link_file->RefFile->basename;
+                                                            @endphp 
+                                                            <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($files1))) }}" class="btn btn-default radius-button">
+                                                                <i class="fa fa-paperclip"></i> {{ $link_file->file_name }} <i class="fa fa-download"></i>
+                                                            </a>
+                                                        </div>
+                                                    @endif                                
+                                                @endforeach
+
+                                                @foreach($comment->RefDiscussionAttachFile as $attach_file)
+                                                    <div>
                                                         @php
-                                                            $origin1 = $link_file->RefFile->directory;
-                                                            $files1 = $link_file->RefFile->directory."/".$link_file->RefFile->basename;
-                                                        @endphp 
-                                                        <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($files1))) }}" class="btn btn-default radius-button">
-                                                            <i class="fa fa-paperclip"></i> {{ $link_file->file_name }} <i class="fa fa-download"></i>
+                                                            $subproject = $attach_file->project_id."/".$attach_file->subproject_id;
+                                                            $origin = 'uploads/'.$attach_file->client_id. '/'.$subproject.'/discussion';
+                                                            $files = $attach_file->file_url."/".$attach_file->basename;
+                                                        @endphp
+                                                        <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($files)) ) }}" class="btn btn-default radius-button">
+                                                        <i class="fa fa-file"></i> {{ $attach_file->file_name }} <i class="fa fa-download"></i>
                                                         </a>
                                                     </div>
-                                                @endif                                
-                                            @endforeach
-
-                                            @foreach($comment->RefDiscussionAttachFile as $attach_file)
-                                                <div>
-                                                    @php
-                                                        $subproject = $attach_file->project_id."/".$attach_file->subproject_id;
-                                                        $origin = 'uploads/'.$attach_file->client_id. '/'.$subproject.'/discussion';
-                                                        $files = $attach_file->file_url."/".$attach_file->basename;
-                                                    @endphp
-                                                    <a href="{{ route('adminuser.documents.downloadfile', base64_encode(basename($files)) ) }}" class="btn btn-default radius-button">
-                                                    <i class="fa fa-file"></i> {{ $attach_file->file_name }} <i class="fa fa-download"></i>
-                                                    </a>
-                                                </div>
-                                            @endforeach
+                                                @endforeach
+                                            </div>
+                                            <div class="box-time">
+                                                <span>{{ date('d M Y H:i', strtotime($comment->created_at)) }}</span>  
+                                                @if(Auth::user()->id == $comment->created_by)
+                                                    <a class="toolbox-btn" onclick="editComment('{{ $comment->id }}')" style="cursor:pointer;">· Edit</a>
+                                                    <a class="toolbox-btn" href="{{ route('discussion.delete-comment', base64_encode($comment->id)) }}" onclick="return confirm('are you sure delete this comment ?')">· Delete</a>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div class="box-time">
-                                            <span>{{ date('d M Y H:i', strtotime($comment->created_at)) }}</span>  
-                                            @if(Auth::user()->id == $comment->created_by)
-                                                · <a href="{{ route('discussion.delete-comment', base64_encode($comment->id)) }}" onclick="return confirm('are you sure delete this comment ?')">Delete</a>
-                                            @endif
+                                        <div class="input-group"  id="toolbox-{{ $comment->id }}" style="visibility:collapse;">
+                                            <input type="text" id="comment-edit-{{ $comment->id }}" style="width:100%;height:43px;" value="{!! nl2br($comment->content) !!}" ></input>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-lg btn-primary" onclick="submitEdit('{{ $comment->id }}')">Submit</button>
+                                                <button class="btn btn-lg btn-cancel" style="background:red;color:white;" onclick="cancelEdit('{{ $comment->id }}')">X</a>
+                                            </span>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -201,7 +212,7 @@
                     @endforeach
 
                     @if($detail->status == \globals::set_qna_status_unanswered() || $detail->status == \globals::set_qna_status_answered())
-                        <div class="inbox-item">
+                        <div class="inbox-item" id="comment_toolbox">
                             <div class="box-info">
                                 <form id="fileForm" enctype="multipart/form-data">
                                     @csrf
@@ -281,6 +292,44 @@
         };
 
         hideNotification();
+
+        function editComment(id) {
+            $('#comment_toolbox').css("visibility", "collapse");
+            $('#' + id).css("visibility", "collapse");
+            $('#' + id).css("position", "absolute");
+            $('#toolbox-' + id).css("visibility", "visible");
+            $('.toolbox-btn').css("visibility", "collapse");
+        }
+
+        function cancelEdit(id) {
+            $('#comment_toolbox').css("visibility", "visible");
+            $('#' + id).css("visibility", "visible");
+            $('#' + id).css("position", "relative");
+            $('#toolbox-' + id).css("visibility", "collapse");
+            $('.toolbox-btn').css("visibility", "visible");
+        }
+
+        function submitEdit(id) {
+            var content = $("#comment-edit-" + id).val();
+            var formData = new FormData();
+
+            formData.append('id', id);
+            formData.append('content', content);
+            
+            fetch('{{ route("comment.edit-comment") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    location.reload();
+                }
+            });
+        }
 
         function getLinkDoc() {
             $("#modal-link-file").modal('hide');

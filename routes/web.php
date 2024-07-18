@@ -235,6 +235,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('/discussion/detail/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@detail')->name('discussion.detail-discussion');
 			Route::post('/discussion/save', 'App\Http\Controllers\Adminuser\DiscussionController@save_discussion')->name('discussion.save-discussion');
 			Route::post('/discussion/save-comment', 'App\Http\Controllers\Adminuser\DiscussionController@save_comment')->name('comment.save-comment');
+			Route::post('/discussion/edit-comment', 'App\Http\Controllers\Adminuser\DiscussionController@edit_comment')->name('comment.edit-comment');
 			Route::post('/discussion/change-status-qna-closed', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_closed')->name('discussion.change-status-qna-closed');
 			Route::post('/discussion/change-status-qna-open', 'App\Http\Controllers\Adminuser\DiscussionController@change_status_qna_open')->name('discussion.change-status-qna-open');
 			Route::get('/discussion/delete-comment/{id}', 'App\Http\Controllers\Adminuser\DiscussionController@delete_comment')->name('discussion.delete-comment');

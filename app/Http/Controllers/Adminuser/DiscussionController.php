@@ -167,6 +167,21 @@ class DiscussionController extends Controller
         // return redirect(route('discussion.detail-discussion', $discussion_id))->with('notification', $notification);
     }
 
+    function edit_comment(Request $request) {
+        try {
+            $commentID = $request->input('id');
+            $commentContent = $request->input('content');
+
+            if(DiscussionComment::where('id', $commentID)->value('user_id') == Auth::user()->user_id) {
+                DiscussionComment::where('id', $commentID)->update(['content' => $commentContent]);
+            }
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
     function save_comment(Request $request) {
         $notification = "";
         try {
