@@ -170,11 +170,15 @@ class DiscussionController extends Controller
     function edit_comment(Request $request) {
         try {
             $commentID = $request->input('id');
+            $commentOld = DiscussionComment::where('id', $commentID)->value('content');
             $commentContent = $request->input('content');
 
             if(DiscussionComment::where('id', $commentID)->value('user_id') == Auth::user()->user_id) {
                 DiscussionComment::where('id', $commentID)->update(['content' => $commentContent]);
             }
+
+            $desc = Auth::user()->name." edited discussion id ". $commentID . " ( Old Comment: '" . $commentOld . "' | New Comment : '" . $commentContent . "')";
+            \log::create(request()->all(), "success", $desc);
 
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
