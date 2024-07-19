@@ -158,7 +158,7 @@
                                         <!-- <img src="{{ url('template/images/avatar.png') }}" class="img-circle" alt=""> -->
                                     </div>
                                     <div class="box-info">
-                                        <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->RefClientUser->company) ? $comment->RefClient->company : '' }}</span></p>
+                                        <p class="inbox-item-author">{{ $comment->fullname }} · <span class="profile-company-name">{{ !empty($comment->client_id) ? DB::table('clients')->where('client_id', $comment->client_id)->value('client_name') : '' }}</span></p>
                                         <div id="{{ $comment->id }}">
                                             <p class="inbox-item-text">{!! nl2br($comment->content) !!}</p>
                                             <div class="box-file">
@@ -190,7 +190,7 @@
                                                 @endforeach
                                             </div>
                                             <div class="box-time">
-                                                <span>{{ date('d M Y H:i', strtotime($comment->created_at)) }}</span>  
+                                                <span> {{ $comment->created_at == $comment->updated_at ? "Posted at " . date('d M Y H:i', strtotime($comment->created_at)) : "Edited at " . date('d M Y H:i', strtotime($comment->updated_at)) }}</span>
                                                 @if(Auth::user()->id == $comment->created_by)
                                                     <a class="toolbox-btn" onclick="editComment('{{ $comment->id }}')" style="cursor:pointer;">· Edit</a>
                                                     <a class="toolbox-btn" href="{{ route('discussion.delete-comment', base64_encode($comment->id)) }}" onclick="return confirm('are you sure delete this comment ?')">· Delete</a>
