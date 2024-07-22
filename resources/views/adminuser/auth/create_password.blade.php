@@ -8,6 +8,7 @@
         <title>Prolinks | Create Password</title>
         <link rel="icon" type="image/x-icon" href="{{ url('template/images/favicon.png') }}">
         <link href="{{ url('template/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ url('template/css/icons.css') }}" rel="stylesheet" type="text/css" />
         <style type="text/css">
             body {
                 width: 100%;
@@ -89,7 +90,10 @@
                             </div>
                             <div class="form-group">
                                 <label for="password">{{ __('Password') }}</label>
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="your password">
+                                <div class="input-group">
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="your password">
+                                    <span class="input-group-addon" style="background: transparent;" onclick="showPswd()"><i id="icon-eye-slash" class="fa fa-eye-slash"></i><i id="icon-eye" class="fa fa-eye" style="display: none;"></i></span>
+                                </div>
                                 <div class="password-requirements" id="password-requirements">
                                     <p style="font-weight:600;">Password must contain the following requirements:</p>
                                     <ul>
@@ -108,7 +112,10 @@
                             </div>
                             <div class="form-group">
                                 <label for="password">Confirm Password</label>
-                                <input id="confirm_password" type="password" class="form-control @error('confirm_password') is-invalid @enderror" name="confirm_password" required autocomplete="current-password" disabled>
+                                <div class="input-group">
+                                    <input id="confirm_password" type="password" class="form-control @error('confirm_password') is-invalid @enderror" name="confirm_password" required autocomplete="current-password" disabled>
+                                    <span class="input-group-addon" style="background: transparent;" onclick="showCPswd()"><i id="icon-eye-slash" class="fa fa-eye-slash"></i><i id="icon-eye" class="fa fa-eye" style="display: none;"></i></span>
+                                </div>
                                 <div class="confirm-password-msg" id="confirm-password-msg">
                                     <p>Please make sure your password match</p>
                                 </div>
@@ -208,6 +215,32 @@
             } else {
                 document.getElementById("confirm-password-msg").style.display = "block";
                 submitButton.disabled = true;
+            }
+        }
+
+        function showPswd() {
+            var pswd = document.getElementById("password");
+            if (pswd.type === "password") {
+            pswd.type = "text";
+            $("#icon-eye-slash").css("display", "none");
+            $("#icon-eye").css("display", "block");
+            } else {
+            pswd.type = "password";
+            $("#icon-eye-slash").css("display", "block");
+            $("#icon-eye").css("display", "none");
+            }
+        }
+
+        function showCPswd() {
+            var pswd = document.getElementById("confirm_password");
+            if (pswd.type === "password") {
+            pswd.type = "text";
+            $("#icon-eye-slash").css("display", "none");
+            $("#icon-eye").css("display", "block");
+            } else {
+            pswd.type = "password";
+            $("#icon-eye-slash").css("display", "block");
+            $("#icon-eye").css("display", "none");
             }
         }
     </script>
