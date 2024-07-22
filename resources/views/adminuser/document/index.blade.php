@@ -581,7 +581,7 @@
                                             @endif
                                         </a>
                                     </td>
-                                    <td> 
+                                    <td data-sort="{{ DB::table('upload_folders')->where('directory', $directory)->value('created_at') }}"> 
                                         {{ \Carbon\Carbon::parse(DB::table('upload_folders')->where('directory', $directory)->value('created_at'))->format('d M Y, H:i') }}
                                     </td>
                                     <td> 
@@ -660,7 +660,7 @@
                                                     {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                                                 </a>
                                             </td>
-                                            <td>
+                                            <td data-sort="{{ DB::table('upload_files')->where('basename', basename($file))->value('created_at') }}">
                                                 {{ \Carbon\Carbon::parse(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))->format('d M Y, H:i') }}
                                             </td>
                                             <td>
@@ -738,7 +738,7 @@
                                                 {{ DB::table('upload_files')->where('basename',basename($file))->value('name') }}
                                             </a>
                                         </td>
-                                        <td>
+                                        <td data-sort="{{ DB::table('upload_files')->where('basename', basename($file))->value('created_at') }}">
                                             {{ \Carbon\Carbon::parse(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))->format('d M Y, H:i') }}
                                         </td>
                                         <td>
