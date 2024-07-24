@@ -302,7 +302,20 @@ class DocumentController extends Controller
                 abort(404);
             }
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            $fileID = base64_decode($file);
+            $filePath = UploadFile::where('basename', $fileID)->value('directory');
+            $fileDirectory = $filePath . '/' . $fileID;
+
+            if (Storage::disk('local')->exists($filePath)) {
+                $fileContent = Storage::disk('local')->get($fileDirectory);
+                $mimeType = Storage::disk('local')->mimeType($fileDirectory);
+
+                return response($fileContent, 200)
+                    ->header('Content-Type', $mimeType);
+            } else {
+                abort(404);
+            }
+            //return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
@@ -336,7 +349,8 @@ class DocumentController extends Controller
                 return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             }
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+            //return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
