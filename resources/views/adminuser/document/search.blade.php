@@ -58,11 +58,13 @@
         <table class="tableDocument">
             <thead>
                 <tr>
-                    <th id="check"><input type="checkbox" class="checkbox" disabled/></th>
+                    <th id="check"><input type="checkbox" class="checkbox" id="headerCheckBox" disabled/></th>
                     <th id="index">Index</th>
-                    <th id="name">File name</th>
+                    <th id="name">Name</th>
                     <th id="created">Created at</th>
-                    <th id="size">Size / type</th>
+                    <th id="uploaded">Uploaded by</th>
+                    <th id="type">Type</th>
+                    <th id="size">Size</th>
                     <th id="navigationdot">&nbsp;</th>
                 </tr>
             </thead>
@@ -70,7 +72,9 @@
             @foreach ($folders as $directory)
                     @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
                         <tr>
-                            <td><input type="checkbox" class="checkbox" disabled/></td>
+                            <td>
+                                <input type="checkbox" class="checkbox" disabled/>
+                            </td>
                             <td>
                                 @php
                                     $index = '';
@@ -95,7 +99,9 @@
                                     @endif
                                 </a>
                             </td>
-                            <td>{{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($directory))->format('d M Y, H:i') }}</td>
+                            <td data-sort="{{ DB::table('upload_folders')->where('directory', $directory)->value('created_at') }}"> 
+                                {{ \Carbon\Carbon::parse(DB::table('upload_folders')->where('directory', $directory)->value('created_at'))->format('d M Y, H:i') }}
+                            </td>
                             <td> {{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}</td>
                             <td>Directory</td>
                             <td>
@@ -136,7 +142,6 @@
                         @if(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission') == '1' || is_null(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission')))
                             @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                                 <tr>
-                                    <td><input type="checkbox" class="checkbox" value="{{ base64_encode(basename($file)) }}" /></td>
                                     <td>
                                         @php
                                             $index = '';
@@ -160,6 +165,7 @@
                                         {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
                                     </td>
                                     <td>{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name')  }}</td>
+                                    <td>{{ DB::table('upload_files')->where('basename',basename($file))->value('mime_type') }}</td>
                                     <td>
                                         {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                     </td>
@@ -198,7 +204,9 @@
                     @elseif (Auth::user()->type == 0)
                         @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
                             <tr>
-                                <td><input type="checkbox" class="checkbox" value="{{ base64_encode(basename($file)) }}"/></td>
+                                <td>
+                                    <input type="checkbox" class="checkbox" disabled/>
+                                </td>
                                 <td>
                                     @php
                                         $index = '';
@@ -222,6 +230,7 @@
                                     {{ \Carbon\Carbon::createFromTimestamp(Storage::lastModified($file))->format('d M Y, H:i') }}
                                 </td>
                                 <td>{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name')  }}</td>
+                                <td>{{ DB::table('upload_files')->where('basename',basename($file))->value('mime_type') }}</td>
                                 <td>
                                     {{ App\Helpers\GlobalHelper::formatBytes(Storage::size($file)) }}
                                 </td>

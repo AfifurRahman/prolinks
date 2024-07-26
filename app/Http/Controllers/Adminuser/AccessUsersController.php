@@ -310,6 +310,29 @@ class AccessUsersController extends Controller
         return back()->with('notification', $notification);  
     }
 
+    public function selfedit (Request $request) {
+        try {
+            \DB::beginTransaction();
+
+            ClientUser::where('user_id', Auth::user()->user_id)->update([
+                'name' => $request->input('name'),
+                'job_title' => $request->input('job_title'),
+            ]);
+
+            User::where('user_id', Auth::user()->user_id)->update([
+                'phone' => $request->input('phone'),
+                'name' => $request->input('name'),
+                'title' => $request->input('job_title'),
+            ]);
+
+            \DB::commit();
+
+            return redirect()->route('setting', 'tab=account_setting');
+        } catch (\Exception $e) {
+
+        }
+    }
+
     public function edit_role (Request $request, $user_id) {
         try {
             \DB::beginTransaction();

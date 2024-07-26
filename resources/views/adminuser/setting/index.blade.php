@@ -61,14 +61,14 @@
                 <span class="hidden-xs">Account Settings</span>
             </a>
         </li>
-
+<!--
 		<li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "watermark_setting" ? "active":"" }}">
             <a href="?tab=watermark_setting" aria-expanded="false">
                 <span class="visible-xs"><i class="fa fa-home"></i></span>
                 <span class="hidden-xs">Watermarks</span>
             </a>
         </li>
-
+    -->
         <li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "email_setting" ? "active":"" }}">
             <a href="?tab=email_setting" aria-expanded="false">
                 <span class="visible-xs"><i class="fa fa-home"></i></span>

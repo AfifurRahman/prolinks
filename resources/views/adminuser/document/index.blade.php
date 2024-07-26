@@ -101,7 +101,10 @@
 
                 <div class="modal-body">
                     <label>Folder name</label>
-                    <input type="text" class="form-control" id="folderName"></input>
+                    <div class="create-folder-input">
+                        <image class="create-folder-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
+                        <input type="text" class="form-control" id="folderName"></input>
+                    </div>
                     <div class="form-button">
                         <a onclick="document.getElementById('create-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
                         <button class="create-btn" id="createFolderSubmit">Create Folder</button>
@@ -211,7 +214,10 @@
                         </div>
                         <div class="rename-modal2">
                             <label class="modal-form-input">Folder name</label><label style="color:red;">*</label>
-                            <input type="text" class="form-control" id="newFolderName" placeholder="Enter folder name"/>
+                            <div class="rename-folder-input">
+                                <image class="rename-folder-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
+                                <input type="text" class="form-control" id="newFolderName" placeholder="Enter folder name"/>
+                            </div>
                         </div>
                         <input type="hidden" id="old-name" name="old_name" value="" />
                     </div>
@@ -627,6 +633,12 @@
                                                             Delete
                                                         </a>
                                                     </li>
+                                                    <li>
+                                                        <a onclick="">
+                                                            <img class="dropdown-icon" src="{{ url('template/images/icon_menu/info.png') }}">
+                                                            Properties
+                                                        </a>
+                                                    </li>
                                                 @endif
                                             </ul>
                                         </div>
@@ -708,6 +720,12 @@
                                                                     Delete
                                                                 </a>
                                                             </li>
+                                                            <li>
+                                                                <a onclick="">
+                                                                    <img class="dropdown-icon" src="{{ url('template/images/icon_menu/info.png') }}">
+                                                                    Properties
+                                                                </a>
+                                                            </li>
                                                         @endif
                                                     </ul>
                                                 </div>
@@ -784,6 +802,12 @@
                                                             <a style="color:red;" onclick="deleteFile('{{ base64_encode(basename($file)) }}')">
                                                                 <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                                                 Delete
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a onclick="">
+                                                                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/info.png') }}">
+                                                                Properties
                                                             </a>
                                                         </li>
                                                     @endif
