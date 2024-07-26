@@ -103,7 +103,7 @@
                     <label>Folder name</label>
                     <div class="create-folder-input">
                         <image class="create-folder-icon" src="{{ url('template/images/icon_menu/foldericon.png') }}" />
-                        <input type="text" class="form-control" id="folderName"></input>
+                        <input type="text" class="form-control" id="folderName" value="New folder"></input>
                     </div>
                     <div class="form-button">
                         <a onclick="document.getElementById('create-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
@@ -371,9 +371,9 @@
     <div class="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">
             @if (empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
-                {{DB::table('upload_folders')->where('directory', $origin)->value('displayname')}}
+                Content of Folder "{{DB::table('upload_folders')->where('directory', $origin)->value('displayname')}}"
             @else
-                {{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}
+                Content of Project {{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}
             @endif
         </h2>
         <div class="button_helper">
@@ -417,13 +417,13 @@
                     @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
                         <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
                             <h4 style="color:#337ab7;">
-                                <i class="fa fa-arrow-left"></i> Back
+                                <i class="fa fa-arrow-left"></i>&nbsp; Back to {{ DB::table('upload_folders')->where('name', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('displayname') }}
                             </h4>
                         </a>
                     @else
                         <a class="fol-fil" href="{{ route('adminuser.documents.list', base64_encode(DB::table('upload_folders')->where('directory', $origin)->value('project_id'). '/'. DB::table('upload_folders')->where('directory', $origin)->value('subproject_id'))) }}">
                             <h4 style="color:#337ab7;">
-                                <i class="fa fa-arrow-left"></i> Back
+                                <i class="fa fa-arrow-left"></i>&nbsp; Back to Project {{DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('subproject_name')}}
                             </h4>
                         </a>
                     @endif
@@ -431,7 +431,7 @@
                     @if(Auth::user()->type == \globals::set_role_administrator())
                         <a href="{{ route('project.list-project') }}">
                             <h4 style="color:#337ab7;">
-                                <i class="fa fa-arrow-left"></i> Back
+                                <i class="fa fa-arrow-left"></i>&nbsp; Back to project list
                             </h4>
                         </a>
                     @endif
@@ -532,7 +532,7 @@
                     </thead>
 
                     <tbody>
-                        @if($directorytype == 0)
+                    <!--    @if($directorytype == 0)
                             <tr>
                                 <td></td>
                                 <td data-sort="0"></td>
@@ -556,7 +556,7 @@
                                 <td data-sort="0"></td>
                             </tr>
                         @endif
-                        
+    -->
                         @foreach ($folders as $directory)
                             @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
                                 <tr>
