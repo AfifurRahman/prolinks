@@ -139,8 +139,8 @@ class WatermarkService extends Fpdi
             $pdf->useTemplate($templateId);
 
             $pdf->SetFont('Helvetica', 'B', 24);
-            $pdf->SetAlpha(0.4);
-            $pdf->SetTextColor(255, 0, 0);
+            $pdf->SetAlpha(0.35);
+            $pdf->SetTextColor(208, 213, 221);
             $pdf->SetXY(10, $size['height'] / 2 - $size['height'] / 7);
 
             $pdf->MultiLineRotatedText($size['width'] /2 , $size['height'] / 2, $watermarkText, 0, 10);
