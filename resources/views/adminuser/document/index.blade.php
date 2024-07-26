@@ -373,7 +373,7 @@
             @if (empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
                 Content of Folder "{{DB::table('upload_folders')->where('directory', $origin)->value('displayname')}}"
             @else
-                Content of Project {{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}
+                Content of Project "{{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}""
             @endif
         </h2>
         <div class="button_helper">
