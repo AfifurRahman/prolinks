@@ -81,7 +81,7 @@
                 @endif
 
                 <li>
-                    <a href="{{ route('setting', 'tab=email_setting') }}" class="waves-effect {{ $active_setting }}"><img src="{{ url('template/images/icon_menu/settings.png') }}" width="20" height="20"><span class="{{ $active_setting }}"> Settings </span></a>
+                    <a href="{{ route('setting', 'tab=account_setting') }}" class="waves-effect {{ $active_setting }}"><img src="{{ url('template/images/icon_menu/settings.png') }}" width="20" height="20"><span class="{{ $active_setting }}"> Settings </span></a>
                 </li>
             </ul>
         </div>

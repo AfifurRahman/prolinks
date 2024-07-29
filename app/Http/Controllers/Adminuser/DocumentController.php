@@ -21,6 +21,7 @@ use App\Models\UploadFolder;
 use App\Models\AssignProject;
 use App\Models\DocumentAction;
 use App\Models\Permission;
+use App\Models\Watermark;
 use App\Models\LogViewDocument;
 use App\Models\SettingEmailNotification;
 use App\Services\WatermarkService;
@@ -253,7 +254,7 @@ class DocumentController extends Controller
             \log::create(request()->all(), "success", $desc);
             $this->logViewFile($file);
 
-            if (str_starts_with($mimeType, 'image/')) {
+            if (($mimeType == 'image/jpeg') || ($mimeType == 'image/png' ) || ($mimeType == 'image/bmp') || ($mimeType == 'image/gif')) {
                 return view('adminuser.document.viewer.image', compact('file', 'link'));
             } elseif (str_starts_with($mimeType, 'application/pdf')) {
                 return view('adminuser.document.viewer.pdf', compact('file', 'link'));
@@ -265,7 +266,16 @@ class DocumentController extends Controller
         }
     }
 
-    public function createWatermark($fileID)
+    public function SaveWatermarkSettings(Request $request)
+    {
+        try {
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function CreateWatermark($fileID)
     {
         $watermarkpath = public_path(Auth::user()->user_id . ".png");
         $watermarktype = 1; // 1 is center, 2 is tile
@@ -333,17 +343,17 @@ class DocumentController extends Controller
             $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
 
             if (str_starts_with($fileMimeType, 'application/pdf')) {
-                $this->createWatermark($fileID);
+                $this->CreateWatermark($fileID);
                 $this->WatermarkService->addPDFWatermark($fileID);
 
                 $filePath = 'temp/'. Auth::user()->user_id;
                 $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
-            }  elseif (str_starts_with($fileMimeType, 'image/')) {
-                //$this->createWatermark($fileID);
-               // $this->WatermarkService->addIMGWatermark($fileID);
+            }  elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
+                $this->CreateWatermark($fileID);
+                $this->WatermarkService->addIMGWatermark($fileID);
 
-               // $filePath = 'temp/'. Auth::user()->user_id;
-               // $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
+                $filePath = 'temp/'. Auth::user()->user_id;
+                $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
             }   
 
             if (Storage::disk('local')->exists($filePath)) {
@@ -391,16 +401,16 @@ class DocumentController extends Controller
             $fileIndex .= DB::table('upload_files')->where('basename', $fileID)->value('index');
 
             if (str_starts_with($fileMimeType, 'application/pdf')) {
-                $this->createWatermark($fileID);
+                $this->CreateWatermark($fileID);
                 $this->WatermarkService->addPDFWatermark($fileID);
 
                 return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
-            } elseif (str_starts_with($fileMimeType, 'image/')) {
-                // $this->createWatermark($fileID);
-                //$this->WatermarkService->addIMGWatermark($fileID);
+            } elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
+                $this->CreateWatermark($fileID);
+                $this->WatermarkService->addIMGWatermark($fileID);
 
-                //return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
-                return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+                return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+                //return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             } else {
                 return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             }

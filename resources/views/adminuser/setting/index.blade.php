@@ -61,14 +61,12 @@
                 <span class="hidden-xs">Account Settings</span>
             </a>
         </li>
-<!--
 		<li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "watermark_setting" ? "active":"" }}">
             <a href="?tab=watermark_setting" aria-expanded="false">
                 <span class="visible-xs"><i class="fa fa-home"></i></span>
                 <span class="hidden-xs">Watermarks</span>
             </a>
         </li>
-    -->
         <li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "email_setting" ? "active":"" }}">
             <a href="?tab=email_setting" aria-expanded="false">
                 <span class="visible-xs"><i class="fa fa-home"></i></span>
@@ -89,8 +87,7 @@
             @if(!empty(request()->input('tab')) && request()->input('tab') == "email_setting" )
                 @include('adminuser.setting.tab.setting_email')
             @elseif(!empty(request()->input('tab')) && request()->input('tab') == "watermark_setting")
-                <h2>Watermark soon will be ready, sensei!</h2>
-                <img class="dropdown-icon" src="{{ url('template/images/icon_menu/iochimari.jpg') }}">
+                @include('adminuser.setting.tab.setting_watermark')
             @elseif(!empty(request()->input('tab')) && request()->input('tab') == "account_setting")
                 @include('adminuser.setting.tab.setting_account')
             @elseif(!empty(request()->input('tab')) && request()->input('tab') == "2fa_setup")

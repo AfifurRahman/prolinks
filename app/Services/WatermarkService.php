@@ -7,6 +7,7 @@ use setasign\Fpdi\Tcpdf\Fpdi;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\UploadFile;
+use Intervention\Image\ImageManagerStatic as Image;
 use TCPDF;
 use Auth;
 
@@ -150,59 +151,54 @@ class WatermarkService extends Fpdi
         unlink($watermarkPath);
     }
 
-    public function addIMGWatermark($fileID)
+    public function addIMGWatermark($fileID) 
     {
-        $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
-        $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
-        $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
+        try {
+            $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
+            $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
+            $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
+            $watermarkPath = public_path(Auth::user()->user_id . ".png");
 
-        if (str_starts_with($fileMimeType, 'image/jpeg')) {
-            $image = imagecreatefromjpeg($filePath);
+            $image1 = Image::make($filePath);
+            $image2 = Image::make($watermarkPath);
+
+            $wmwidth = 0;
+            $widthscale = 0;
+            $wmheight = 0;
+            $heightscale = 0;
+
+            while ($wmwidth < ($image1->width() - ($image1->width() * 0.1))) {
+                $wmwidth += $image2->width() * 0.001;
+                $widthscale += 1;
+            }
+
+            while ($wmheight < ($image1->height() - ($image1->height() * 0.1))) {
+                $wmheight += $image2->height() * 0.001;
+                $heightscale += 1;
+            }
+
+            if ($widthscale < $heightscale) {
+                $scale = $widthscale;
+            } else {
+                $scale = $heightscale;
+            }
+
+            $wmwidth = $image2->width() * (0.001 * $scale);
+            $wmheight = $image2->height() * (0.001 * $scale);
+
+            $image2->resize($wmwidth, $wmheight);
+
+            $mergedImage = Image::canvas($image1->width(), $image1->height());
+            $mergedImage->insert($image1, 'center');
+            $mergedImage->insert($image2, 'center');
+            $mergedImage->save($outputPath);
+
+            unlink($watermarkPath);
+        } catch (\Exception $e) {
+            $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
+            $watermarkPath = public_path(Auth::user()->user_id . ".png");
+
+            unlink($watermarkPath);
         }
-
-        $projectName = Project::where('project_id', UploadFile::where('basename', $fileID)->value('project_id'))->value('project_name');
-        $userName = Auth::user()->name;
-        $companyName = Client::where('client_id', Auth::user()->client_id)->value('client_name');
-        $timestamp = date('F j, Y H:i', strtotime('now'));
-
-        $watermarkText = <<<EOT
-        Project $projectName
-        $userName
-        $companyName
-        $timestamp WIB
-        EOT;
-
-        
-        $fontSizeX = imagesx($image) / 20;
-        $fontSizeY = imagesy($image) / 14;
-
-        if ($fontSizeX < $fontSizeY) {
-            $fontSize = $fontSizeX;
-        } else {
-            $fontSize = $fontSizeY;
-        }
-        $angle = 0;
-        $textColor = imagecolorallocatealpha($image, 255, 0, 0, 50);
-        $fontPath = storage_path('app/fonts/arial.ttf');
-        $imageWidth = imagesx($image);
-        $imageHeight = imagesy($image);
-
-        $textBox = imagettfbbox($fontSize, $angle, $fontPath, $watermarkText);
-        $textHeight = $textBox[7] - $textBox[1];
-
-
-        $lines = explode("\n", $watermarkText);
-
-        foreach ($lines as $i => $line) {
-            $textSize = imagettfbbox($fontSize, $angle, $fontPath, $line);
-            $textWidth = $textSize[2] - $textSize[0]; 
-
-            $centeredX = ($imageWidth/2) - ($textWidth / 2);
-            $centeredY = ($imageHeight/2) + (($fontSize + ($fontSize /2)) * ($i - 1));
-
-            imagettftext($image, $fontSize, $angle, $centeredX, $centeredY, $textColor, $fontPath, $line);
-        }
-
-        imagejpeg($image, $outputPath);
     }
 }

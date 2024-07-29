@@ -14,6 +14,7 @@
             <a href="">Change password</a>
         </td>
     </tr>
+    <!--
     <tr>
         <th width="200">
             <p>2-step verification</p>
@@ -24,4 +25,5 @@
             <label for="email-upload-file" data-on-label="On" data-off-label="Off"></label>
         </td>
     </tr>
+-->
 </table>
