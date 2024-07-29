@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Adminuser;
 use App\Http\Controllers\Controller;
 use App\Helpers\GlobalHelper;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Artisan; 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +24,7 @@ use App\Models\Permission;
 use App\Models\LogViewDocument;
 use App\Models\SettingEmailNotification;
 use App\Services\WatermarkService;
+
 use Auth;
 use ZipArchive;
 
@@ -263,13 +265,63 @@ class DocumentController extends Controller
         }
     }
 
-    public function WatermarkFile($file) 
+    public function createWatermark($fileID)
     {
-        try {
-            return back();
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        $watermarkpath = public_path(Auth::user()->user_id . ".png");
+        $watermarktype = 1; // 1 is center, 2 is tile
+        $projectname = Project::where('project_id', UploadFile::where('basename', $fileID)->value('project_id'))->value('project_name');
+        $username = Auth::user()->name;
+        $companyname = Client::where('client_id', Auth::user()->client_id)->value('client_name');
+        $timestamp = date('F j, Y H:i', strtotime('now'));
+        $text = "Project " . $projectname . "\n" . $username . "\n" . $companyname . "\n" . $timestamp;
+
+        $lines = explode("\n", $text);
+        $lineheight = 88;
+
+        $textlength = 0;
+        foreach ($lines as $line) {
+            if (strlen($line) > $textlength) {
+                $textlength = strlen($line);
+            }
         }
+
+        $width = ($textlength * 60) + 80;
+        $height = 352;
+
+        $x = $width / 2;
+        $y = 40;
+
+        $img = Image::canvas($width, $height);
+
+        foreach ($lines as $line) {
+            $img->text($line, $x, $y, function($font) {
+                $font->file(public_path('fonts/Helvetica-Bold.ttf'));
+                $font->size(80);
+                $font->color([208, 213, 221, 0.35]);
+                $font->align('center');
+                $font->valign('middle');
+            });
+
+            $y += $lineheight;
+        }
+
+        $img->save($watermarkpath);
+        $image = imagecreatefrompng($watermarkpath);
+
+        $width = imagesx($image);
+        $height = imagesy($image);
+       
+        $rotatedImage = imagecreatetruecolor($width, $height);
+        imagesavealpha($rotatedImage, true);
+        $transparent = imagecolorallocatealpha($rotatedImage, 255, 255, 255, 127);
+        imagefill($rotatedImage, 0, 0, $transparent);
+        $rotatedImage = imagerotate($image, 36, $transparent);
+
+
+        imagepng($rotatedImage, $watermarkpath);
+
+        imagedestroy($image);
+        imagedestroy($rotatedImage);
     }
 
     public function ServeFile($file)
@@ -281,11 +333,13 @@ class DocumentController extends Controller
             $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
 
             if (str_starts_with($fileMimeType, 'application/pdf')) {
+                $this->createWatermark($fileID);
                 $this->WatermarkService->addPDFWatermark($fileID);
 
                 $filePath = 'temp/'. Auth::user()->user_id;
                 $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
             }  elseif (str_starts_with($fileMimeType, 'image/')) {
+                //$this->createWatermark($fileID);
                // $this->WatermarkService->addIMGWatermark($fileID);
 
                // $filePath = 'temp/'. Auth::user()->user_id;
@@ -337,10 +391,12 @@ class DocumentController extends Controller
             $fileIndex .= DB::table('upload_files')->where('basename', $fileID)->value('index');
 
             if (str_starts_with($fileMimeType, 'application/pdf')) {
+                $this->createWatermark($fileID);
                 $this->WatermarkService->addPDFWatermark($fileID);
 
                 return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             } elseif (str_starts_with($fileMimeType, 'image/')) {
+                // $this->createWatermark($fileID);
                 //$this->WatermarkService->addIMGWatermark($fileID);
 
                 //return response()->download(Storage::path('temp/'. Auth::user()->user_id . '/temp'), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));

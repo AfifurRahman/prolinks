@@ -8,7 +8,7 @@
     <tr>
         <th width="350">
             <p>Password</p>
-            <p>Last changed by user</p>
+            <p>Last changed {{ \Carbon\Carbon::parse(Auth::user()->updated_at)->format('d M Y, H:i') }}</p>
         </th>
         <td>
             <a href="">Change password</a>

@@ -111,40 +111,34 @@ class WatermarkService extends Fpdi
         parent::_putresources();
     }
 
-    public function addPDFWatermark($fileID)
+    public function addPDFWatermark($fileID) 
     {
         $pdf = new WatermarkService();
-
         $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
         $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
-        $projectName = Project::where('project_id', UploadFile::where('basename', $fileID)->value('project_id'))->value('project_name');
-        $userName = Auth::user()->name;
-        $companyName = Client::where('client_id', Auth::user()->client_id)->value('client_name');
-        $timestamp = date('F j, Y H:i', strtotime('now'));
-
-        $watermarkText = <<<EOT
-        Project $projectName 
-        $userName 
-        $companyName 
-        $timestamp WIB
-        EOT;
-
         $pageCount = $pdf->setSourceFile($filePath);
+        $watermarkPath = public_path(Auth::user()->user_id . ".png");
 
+        
         for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
             $templateId = $pdf->importPage($pageNo);
             $size = $pdf->getTemplateSize($templateId);
 
-            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+            list($watermarkWidth, $watermarkHeight) = getimagesize($watermarkPath);
+
+            $watermarkWidth = $watermarkWidth / 10;
+            $watermarkHeight = $watermarkHeight / 10;
+
+
+            $pageWidth = $size['width'];
+            $pageHeight = $size['height'];
+            $x = ($pageWidth - $watermarkWidth) /2;
+            $y = ($pageHeight - $watermarkHeight) / 2;
+
+            $pdf->AddPage($size['orientation'], [$pageWidth, $pageHeight]);
             $pdf->useTemplate($templateId);
 
-            $pdf->SetFont('Helvetica', 'B', 24);
-            $pdf->SetAlpha(0.35);
-            $pdf->SetTextColor(208, 213, 221);
-            $pdf->SetXY(10, $size['height'] / 2 - $size['height'] / 7);
-
-            $pdf->MultiLineRotatedText($size['width'] /2 , $size['height'] / 2, $watermarkText, 0, 10);
-            $pdf->SetXY(0, 0);
+            $pdf->Image($watermarkPath, $x, $y, $watermarkWidth , $watermarkHeight, 'PNG', '', 'T');
         }
 
         $outputDir = dirname($outputPath);
@@ -153,6 +147,7 @@ class WatermarkService extends Fpdi
         }
 
         $pdf->Output($outputPath, 'F');
+        unlink($watermarkPath);
     }
 
     public function addIMGWatermark($fileID)
