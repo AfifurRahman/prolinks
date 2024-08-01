@@ -210,6 +210,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/action/cut', 'App\Http\Controllers\Adminuser\DocumentController@Cut')->name('adminuser.documents.cut');
 			Route::post('documents/action/paste', 'App\Http\Controllers\Adminuser\DocumentController@Paste')->name('adminuser.documents.paste');
 			Route::post('documents/action/clear', 'App\Http\Controllers\Adminuser\DocumentController@ClearClipboard')->name('adminuser.documents.clear');
+			Route::post('documents/watermark/save_settings', 'App\Http\Controllers\Adminuser\DocumentController@SaveWatermarkSettings')->name('adminuser.watermark.save_settings');
 
 			/* Companies */
 			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');
