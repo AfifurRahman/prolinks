@@ -26,15 +26,15 @@
     <tbody>
         @foreach($list_questions as $key => $qna)
             <tr>
-                <td width="50">
+                <td width="3%">
                     @if ($qna->user_id == Auth::user()->user_id)
                         <input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ $qna->discussion_id }}" style="width:30px; height:16px;" />
                     @else
                         <input type="checkbox" style="width:30px; height:16px;" disabled>
                     @endif
                 </td>
-                <td width="50">{{ $qna->id }}</td>
-                <td width="400">
+                <td width="5%">{{ $qna->id }}</td>
+                <td width="51%">
                     @if($qna->priority == \globals::set_qna_priority_high())
                         <img src="{{ url('template/images/priority_high.png') }}" width="24" height="24" />
                     @elseif($qna->priority == \globals::set_qna_priority_medium())
@@ -44,10 +44,10 @@
                     @endif
                     <a href="{{ route('discussion.detail-discussion', $qna->discussion_id) }}">{{ $qna->subject }}</a>
                 </td>
-                <td width="150">{!! !empty($qna->RefUser->name) ? $qna->RefUser->name : '' !!}</td>
-                <td width="100">{!! \globals::label_qna_status($qna->status) !!}</td>
-                <td width="150">{!! date('d M Y H:i', strtotime($qna->created_at)) !!}</td>
-                <td>
+                <td width="13%">{!! !empty($qna->RefUser->name) ? $qna->RefUser->name : '' !!}</td>
+                <td width="10%">{!! \globals::label_qna_status($qna->status) !!}</td>
+                <td width="13%">{!! date('d M Y H:i', strtotime($qna->created_at)) !!}</td>
+                <td width="5%">
                     <div class="dropdown">
                         <button class="button_ico dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-ellipsis-v"></i>
