@@ -158,7 +158,7 @@
 			<div class="col-md-12">
 				<div class="card-box">
 					<div class="resume-viewed">
-						<h3>Unique visits per day</h3>
+						<h3>Unique visits per day<br><br></h3>
 						<div id="container"></div>
 					</div>
 				</div>
@@ -244,13 +244,13 @@
 
         hideNotification();
         
-		var userData = [10, 10, 10, 10, 10, 10, 12];
+		var userData = [{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(6)->toDateString())->where("url", url("/login"))->where("response", '"success"')->count() }}, {{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(5)->toDateString())->where("url", url("/login"))->where("response", '"success"')->count() }}, {{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(4)->toDateString())->where("url", url("/login"))->where("response", '"success"')->count() }}, {{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(3)->toDateString())->where("url", url("/login"))->where("response", '"success"')->count() }}, {{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(2)->toDateString())->where("url", url("/login"))->where("response", '"success"')->count() }}, {{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(1)->toDateString())->where("url", url("/login"))->where("response", '"success"')->count() }}, {{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::today())->where("url", url("/login"))->where("response", '"success"')->count() }}];
 		    Highcharts.chart('container', {
 		        title: {
-		            text: 'Users'
+		            text: ''
 		        },
 		        xAxis: {
-		            categories: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+		            categories: ['{{ \Carbon\Carbon::now()->subDays(6)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(5)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(4)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(3)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(2)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(1)->dayName }}', '{{ \Carbon\Carbon::now()->dayName }}']
 		        },
 		        yAxis: {
 		            title: {
