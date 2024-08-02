@@ -244,13 +244,13 @@
 
         hideNotification();
         
-		var userData = [{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(6)->toDateString())->where("url", url("/login"))->where("response", '"success"')->distinct('user_id')->count('user_id') }}, 
-						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(5)->toDateString())->where("url", url("/login"))->where("response", '"success"')->distinct('user_id')->count('user_id') }}, 
-						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(4)->toDateString())->where("url", url("/login"))->where("response", '"success"')->distinct('user_id')->count('user_id') }}, 
-						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(3)->toDateString())->where("url", url("/login"))->where("response", '"success"')->distinct('user_id')->count('user_id') }}, 
-						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(2)->toDateString())->where("url", url("/login"))->where("response", '"success"')->distinct('user_id')->count('user_id') }}, 
-						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(1)->toDateString())->where("url", url("/login"))->where("response", '"success"')->distinct('user_id')->count('user_id') }}, 
-						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::today())->where("url", url("/login"))->where("response", '"success"')->distinct('user_id')->count('user_id') }}];
+		var userData = [{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(6)->toDateString())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}, 
+						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(5)->toDateString())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}, 
+						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(4)->toDateString())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}, 
+						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(3)->toDateString())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}, 
+						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(2)->toDateString())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}, 
+						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(1)->toDateString())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}, 
+						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::today())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}];
 		    Highcharts.chart('container', {
 		        title: {
 		            text: ''
