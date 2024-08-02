@@ -95,6 +95,9 @@
 	        font-size:14px;
 	    }
 	</style>
+	<div class="title-tab">
+		<h3 style="margin-bottom:32px;">Activities</h3>
+	</div>
 	<div class="filter-activities">
 		<form class="form-inline" role="form">
 			<div class="form-group">
