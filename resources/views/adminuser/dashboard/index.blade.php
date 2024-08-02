@@ -189,7 +189,7 @@
 								<tbody>
 									@foreach ($most_viewed_doc as $doc)
 										<tr>
-											<td><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> {!! Str::limit($doc->document_name, 40) !!}</td>
+											<td><a href="{{ route('adminuser.documents.view', base64_encode($doc->document_id)) }}"><img class="icon-img" src="{{ url('template/images/ext-file.png') }}"> {!! Str::limit($doc->document_name, 40) !!}</a></td>
 											<td align="center">{{ $doc->total }}</td>
 										</tr>
 									@endforeach
