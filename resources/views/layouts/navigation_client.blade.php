@@ -1,6 +1,6 @@
-<div class="left side-menu" style="background: #F1F5F9; padding: 10px; position:fixed;">
+<div class="left side-menu" style="background: #F1F5F9; padding: 6px; position:fixed;">
     <div class="sidebar-inner slimscrollleft">
-        <div id="sidebar-menu">
+        <div id="sidebar-menu" >
             <form id="app-change-project" action="{{ route('project.change-main-project') }}" method="POST">
                 @csrf
                 <div class="project-group" style="margin-top:10px;">
@@ -53,35 +53,35 @@
                     $active_setting = "active text-active";
                 }
             @endphp
-            <ul style="margin-top:14px">
+            <ul style="margin-top:10px">
                 <li class="menu-title">MAIN MENU</li>
                 @if(Auth::user()->type == \globals::set_role_administrator())
                     <li>
-                        <a href="/" class="waves-effect {{ $active_dashboard }}"><img src="{{ url('template/images/icon_menu/dashboard.png') }}" width="20" height="20"><span class="{{ $active_dashboard }}"> Activities </span></a>
+                        <a href="/" class="waves-effect {{ $active_dashboard }}"><img src="{{ url('template/images/icon_menu/dashboard.png') }}" width="20" height="20"><span class="{{ $active_dashboard }}" style="font-size:13px;">&nbsp; Activities </span></a>
                     </li>
                     <li>
-                        <a href="{{ route('adminuser.access-users.list', 'tab=user') }}" class="waves-effect {{ $active_users }}"><img src="{{ url('template/images/icon_menu/group.png') }}" width="20" height="20"><span class="{{ $active_users }}"> Access Users </span></a>
+                        <a href="{{ route('adminuser.access-users.list', 'tab=user') }}" class="waves-effect {{ $active_users }}"><img src="{{ url('template/images/icon_menu/group.png') }}" width="20" height="20"><span class="{{ $active_users }}" style="font-size:13px;">&nbsp; Users </span></a>
                     </li>
                     <li>
-                        <a href="{{ route('project.list-project') }}" class="waves-effect {{ $active_project }}"><img src="{{ url('template/images/icon_menu/briefcase.png') }}" width="20" height="20"><span class="{{ $active_project }}"> Project </span></a>
+                        <a href="{{ route('project.list-project') }}" class="waves-effect {{ $active_project }}"><img src="{{ url('template/images/icon_menu/briefcase.png') }}" width="20" height="20"><span class="{{ $active_project }}" style="font-size:13px;">&nbsp; Projects </span></a>
                     </li>
                     <li>
-                        <a href="{{ route('discussion.list-discussion') }}" class="waves-effect {{ $active_discussion }}"><img src="{{ url('template/images/icon_menu/question.png') }}" width="20" height="20"><span class="{{ $active_discussion }}"> Q & A </span></a>
+                        <a href="{{ route('discussion.list-discussion') }}" class="waves-effect {{ $active_discussion }}"><img src="{{ url('template/images/icon_menu/question.png') }}" width="20" height="20"><span class="{{ $active_discussion }}" style="font-size:13px;">&nbsp; Questions and answers </span></a>
                     </li>
                 @elseif(Auth::user()->type == \globals::set_role_collaborator() || Auth::user()->type == \globals::set_role_client())
                     <li>
                         @php
                             $subProject = App\Models\SubProject::where('subproject_id', Auth::user()->session_project)->first();
                         @endphp
-                        <a href="{{ route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)) }}" class="waves-effect {{ $active_project }}"><img src="{{ url('template/images/icon_menu/folder.png') }}" width="20" height="20"><span class="{{ $active_project }}"> Documents </span></a>
+                        <a href="{{ route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)) }}" class="waves-effect {{ $active_project }}"><img src="{{ url('template/images/icon_menu/folder.png') }}" width="20" height="20"><span class="{{ $active_project }}" style="font-size:13px;"> Documents </span></a>
                     </li>
                     <li>
-                        <a href="{{ route('discussion.list-discussion') }}" class="waves-effect {{ $active_discussion }}"><img src="{{ url('template/images/icon_menu/question.png') }}" width="20" height="20"><span class="{{ $active_discussion }}"> Q & A </span></a>
+                        <a href="{{ route('discussion.list-discussion') }}" class="waves-effect {{ $active_discussion }}"><img src="{{ url('template/images/icon_menu/question.png') }}" width="20" height="20"><span class="{{ $active_discussion }}" style="font-size:13px;word-break: break-word;"> &nbsp;Questions and answers </span></a>
                     </li>
                 @endif
 
                 <li>
-                    <a href="{{ route('setting', 'tab=account_setting') }}" class="waves-effect {{ $active_setting }}"><img src="{{ url('template/images/icon_menu/settings.png') }}" width="20" height="20"><span class="{{ $active_setting }}"> Settings </span></a>
+                    <a href="{{ route('setting', 'tab=account_setting') }}" class="waves-effect {{ $active_setting }}"><img src="{{ url('template/images/icon_menu/settings.png') }}" width="20" height="20"><span class="{{ $active_setting }}" style="font-size:13px;"> &nbsp;Settings </span></a>
                 </li>
             </ul>
         </div>

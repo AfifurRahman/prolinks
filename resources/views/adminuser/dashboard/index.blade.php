@@ -155,6 +155,16 @@
 	        </div>
 		</div>
 		<div class="row">
+			<div class="col-md-12">
+				<div class="card-box">
+					<div class="resume-viewed">
+						<h3>Unique visits per day</h3>
+						<div id="container"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
 			<div class="col-md-6">
 				<div class="card-box">
 					<div class="resume-viewed">
@@ -219,17 +229,7 @@
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="card-box">
-					<div class="resume-viewed">
-						<h3>Unique visits per day</h3>
-						<div id="container"></div>
-					</div>
-				</div>
-			</div>
-		</div>
+		</div>	
 	</div>
 @endsection
 
@@ -244,7 +244,7 @@
 
         hideNotification();
         
-		var userData = [100, 90, 100, 80, 200, 50, 60];
+		var userData = [10, 10, 10, 10, 10, 10, 12];
 		    Highcharts.chart('container', {
 		        title: {
 		            text: 'Users'

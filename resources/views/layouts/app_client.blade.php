@@ -144,6 +144,18 @@
             filter: sepia(100%) hue-rotate(190deg) saturate(500%);
         }
 
+        .navbar.navbar-default {
+            border: 0px;
+            background:#fefefe;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+
+        .navbar.navbar-default .navbar-collapse {
+            border: 0;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
         
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
@@ -159,6 +171,7 @@
                     <img src="{{ url('template/images/logo_fav.png') }}" width="90%">
                 </div>
             </div>
+            
             <div class="navbar navbar-default" role="navigation">
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
@@ -251,6 +264,7 @@
                     </ul>
                 </div>
             </div>
+            
         </div>
         
         @include('layouts.navigation_client')
