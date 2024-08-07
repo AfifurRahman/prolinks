@@ -25,10 +25,10 @@
 
     <div id="box_helper">
         <div>
-            <button id="filter_button">
+            <!--<button id="filter_button">
                 <image id="filtericon" src="{{ url('template/images/icon_menu/filter.png') }}"></image>
                 Filter
-            </button>
+            </button> -->
         </div>
         <div class="switch-box">
             <div class="switch-user {{ !empty(request()->input('tab')) && request()->input('tab') == "user" ? "active-box":"" }}">
@@ -68,7 +68,7 @@
                                 <td>
                                     {!! \globals::get_user_avatar_small($owner->name, $owner->avatar_color) !!}
                                     <!-- {{ $owner->email }} -->
-                                    {{ $owner->name }}
+                                    &nbsp;{{ $owner->name }}
                                 </td>
                                 <td>
                                     <span class="you_status">All</span>
@@ -111,10 +111,10 @@
                                     <a href="{{ route('adminuser.access-users.detail', $user->user_id) }}">
                                         @if(!empty($user->RefUser->name) && $user->RefUser->name != "null")
                                             {!! \globals::get_user_avatar_small(!empty($user->name) ? $user->name : $user->email_address, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
-                                            {{ !empty($user->name) ? $user->name : $user->email_address }}
+                                            &nbsp;{{ !empty($user->name) ? $user->name : $user->email_address }}
                                         @else
                                             {!! \globals::get_user_avatar_small($user->email_address, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
-                                            {{ $user->email_address }}
+                                            &nbsp;{{ $user->email_address }}
                                         @endif
                                     </a>
                                 </td>

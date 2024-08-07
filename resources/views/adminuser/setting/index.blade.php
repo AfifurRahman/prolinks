@@ -67,17 +67,16 @@
                 <span class="hidden-xs">Watermarks</span>
             </a>
         </li>
-        <li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "email_setting" ? "active":"" }}">
-            <a href="?tab=email_setting" aria-expanded="false">
-                <span class="visible-xs"><i class="fa fa-home"></i></span>
-                <span class="hidden-xs">Notification</span>
-            </a>
-        </li>
-
-		<li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "security_setting" ? "active":"" }}">
+		<!-- <li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "security_setting" ? "active":"" }}">
             <a href="?tab=security_setting" aria-expanded="false">
                 <span class="visible-xs"><i class="fa fa-home"></i></span>
                 <span class="hidden-xs">Security</span>
+            </a>
+        </li> -->
+        <li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "email_setting" ? "active":"" }}">
+            <a href="?tab=email_setting" aria-expanded="false">
+                <span class="visible-xs"><i class="fa fa-home"></i></span>
+                <span class="hidden-xs">Preferences</span>
             </a>
         </li>
     </ul>
