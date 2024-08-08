@@ -1081,7 +1081,7 @@
                                             setTimeout(function() {
                                                 document.getElementById('upload-preview-modal').style.display = 'none';
                                                 showNotification("Successfully uploaded the files");
-                                            }, 2000);
+                                            }, 8000);
                                         }
                                     }
                                 }
