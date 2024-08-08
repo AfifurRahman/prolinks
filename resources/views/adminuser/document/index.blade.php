@@ -1084,11 +1084,16 @@
                             xhr.open('POST', '{{ route("adminuser.documents.upload") }}');
                             xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
                             xhr.send(formData);
+
+                            if (files.length >= index + 1) {
+                                setTimeout(function() {
+                                    document.getElementById('upload-preview-modal').style.display = 'none';
+                                    showNotification("Successfully uploaded the files");
+                                }, 2000);
+                            }
                         });
-                        setTimeout(function() {
-                            document.getElementById('upload-preview-modal').style.display = 'none';
-                            showNotification("Successfully uploaded the files");
-                        }, 1500);
+                        
+                      
                     }
                 });
             }
