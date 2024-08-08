@@ -1077,11 +1077,11 @@
                                     document.getElementById(index).querySelector('.uploadPercentage').textContent = percentComplete + "%";
                                     if (percentComplete >= 100) {
                                         document.getElementById(index).querySelector('i').className = 'fas fa-solid fa-check';
-                                        if (files.length >= index + 1) {
+                                        if (index + 1 >= files.length) {
                                             setTimeout(function() {
                                                 document.getElementById('upload-preview-modal').style.display = 'none';
                                                 showNotification("Successfully uploaded the files");
-                                            }, 4500);
+                                            }, 2500);
                                         }
                                     }
                                 }
