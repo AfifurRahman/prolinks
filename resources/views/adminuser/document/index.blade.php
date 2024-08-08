@@ -1045,7 +1045,7 @@
                     newRow.innerHTML = `
                         <td>${file.name}</td>
                         <td>${convertByte(file.size)}</td>
-                        <td><button onclick="removeFile(${index})" id="removeFileButton" class="removeFileButton"><i class="fa fa-times"></i></button></td>
+                        <td><button onclick="removeFile(${index})" id="${index}" class="removeFileButton"><i class="fa fa-times"></i></button></td>
                     `;
                     tableBody.appendChild(newRow);
                 });
@@ -1054,7 +1054,7 @@
                     if (a == 0) {
                         a = 1;
                         e.preventDefault();
-                        $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i>');
+                        $('.removeFileButton').html('<i class="fas fa-circle-notch fa-spin"></i><br><span class="uploadPercentage">0%</span>');
                         $('.removeFileButton').prop("disabled", true);
                         $('#uploadFileSubmit').prop("disabled", true);
                         $('.cancel-btn').prop("disabled", true);
@@ -1063,24 +1063,33 @@
                         $('#browseFiles').hide();
                         $('#clearFiles').hide();
 
-                        const formData = new FormData();
-                        formData.append("location", "{{ base64_encode($origin) }}");
-                        files.forEach(file => formData.append('file[]', file));
-                        filesPath.forEach(path => formData.append('filePath[]', path));
+                        files.forEach((file, index) => {
+                            const formData = new FormData();
+                            formData.append("location", "{{ base64_encode($origin) }}");
+                            formData.append('file[]', file);
+                            formData.append('filePath[]', filesPath[index]);
 
-                        fetch('{{ route("adminuser.documents.upload") }}', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('upload-preview-modal').style.display = 'none';
-                            showNotification(data.message);
+                            const xhr = new XMLHttpRequest();
+
+                            xhr.upload.addEventListener('progress', (e) => {
+                                if (e.lengthComputable) {
+                                    const percentComplete = Math.round((e.loaded / e.total) * 100);
+                                    document.getElementById(index).querySelector('.uploadPercentage').textContent = percentComplete + "%";
+                                    if (percentComplete >= 100) {
+                                        document.getElementById(index).querySelector('i').className = 'fas fa-solid fa-check';
+                                    }
+                                }
+                            });
+
+                            xhr.open('POST', '{{ route("adminuser.documents.upload") }}');
+                            xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+                            xhr.send(formData);
                         });
-                        }
+                        setTimeout(function() {
+                            document.getElementById('upload-preview-modal').style.display = 'none';
+                            showNotification("Successfully uploaded the files");
+                        }, 1500);
+                    }
                 });
             }
 
