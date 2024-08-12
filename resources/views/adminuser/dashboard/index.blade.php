@@ -259,7 +259,7 @@
 		            text: ''
 		        },
 		        xAxis: {
-		            categories: ['{{ \Carbon\Carbon::now()->subDays(6)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(5)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(4)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(3)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(2)->dayName }}', '{{ \Carbon\Carbon::now()->subDays(1)->dayName }}', '{{ \Carbon\Carbon::now()->dayName }}']
+		            categories: ['{{ \Carbon\Carbon::now()->subDays(6)->dayName }}<br>{{ \Carbon\Carbon::now()->subDays(6)->format('d/m') }}', '{{ \Carbon\Carbon::now()->subDays(5)->dayName }}<br>{{ \Carbon\Carbon::now()->subDays(5)->format('d/m') }}', '{{ \Carbon\Carbon::now()->subDays(4)->dayName }}<br>{{ \Carbon\Carbon::now()->subDays(4)->format('d/m') }}', '{{ \Carbon\Carbon::now()->subDays(3)->dayName }}<br>{{ \Carbon\Carbon::now()->subDays(3)->format('d/m') }}', '{{ \Carbon\Carbon::now()->subDays(2)->dayName }}<br>{{ \Carbon\Carbon::now()->subDays(2)->format('d/m') }}', '{{ \Carbon\Carbon::now()->subDays(1)->dayName }}<br>{{ \Carbon\Carbon::now()->subDays(1)->format('d/m') }}', '(Today)<br>{{ \Carbon\Carbon::now()->dayName }}<br>{{ \Carbon\Carbon::now()->format('d/m') }}']
 		        },
 		        yAxis: {
 		            title: {
