@@ -61,7 +61,7 @@
                         @endif
                         <div style="margin-left:-8px;">
                             <img src="{{ url('template/images/logo2.png') }}" width="100%"><br>
-                            <p style="margin-left:8px;padding:0;font-size:12px;font-weight:700;">M&A Data Management</p>
+                            <p style="margin-left:8px;padding:0;font-size:16px;font-weight:700;letter-spacing:0.45px;">M&A Data Management</p>
                         </div>
                         <h3>Welcome Back !</h3><br>
                         <div class="card-body">
