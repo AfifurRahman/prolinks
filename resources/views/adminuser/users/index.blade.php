@@ -30,17 +30,22 @@
                 Filter
             </button> -->
         </div>
-        <div class="switch-box">
-            <div class="switch-user {{ !empty(request()->input('tab')) && request()->input('tab') == "user" ? "active-box":"" }}">
-                <a href="?tab=user"><img src="{{ url('template/images/icon_menu/user.png') }}"> User</a>
+        <div style="display:flex;">
+
+            <div class="switch-box">
+                <div class="switch-user {{ !empty(request()->input('tab')) && request()->input('tab') == "user" ? "active-box":"" }}">
+                    <a href="?tab=user"><img src="{{ url('template/images/icon_menu/user.png') }}"> User</a>
+                </div>
+                <div class="switch-group {{ !empty(request()->input('tab')) && request()->input('tab') == "group" ? "active-box":"" }}">
+                    <a href="?tab=group"><img src="{{ url('template/images/icon_menu/group.png') }}"> Group</a>
+                </div>
             </div>
-            <div class="switch-group {{ !empty(request()->input('tab')) && request()->input('tab') == "group" ? "active-box":"" }}">
-                <a href="?tab=group"><img src="{{ url('template/images/icon_menu/group.png') }}"> Group</a>
+
+            <div id="searchbox">
+                <image id="searchicon" src="{{ url('template/images/icon_menu/search.png') }}"></image>
+                <input type="text" id="search_bar" placeholder="Search users...">
             </div>
-        </div>
-        <div id="searchbox">
-            <image id="searchicon" src="{{ url('template/images/icon_menu/search.png') }}"></image>
-            <input type="text" id="search_bar" placeholder="Search users...">
+            
         </div>
     </div>
     

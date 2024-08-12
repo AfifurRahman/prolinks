@@ -136,10 +136,11 @@ table thead th:first-child {
 }
 
 #searchbox{
-    width:22%;
+    width:240px;
     padding:8px 10px 5px 12px;
     border:1px solid #CED5DD;
     border-radius: 8px;
+    margin-left:18px;
 }
 
 #searchicon{
@@ -400,9 +401,9 @@ table thead th:first-child {
     border: solid 1px #D0D5DD;
     border-radius: 6px;
     width: 175px;
+    height:40px;
     display: flex;
     padding: 3px;
-    margin-left: 50%;
 }
 
 .switch-box img {
