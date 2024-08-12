@@ -99,7 +99,7 @@
             <div class="card-box widget-box-one">
                 <i class="mdi mdi-account-multiple widget-one-icon"></i>
                 <div class="wigdet-one-content">
-                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="Statistics">Total Users</p>
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow">Total Users</p>
                     <h2>{{ number_format(DB::table('users')->count()) }}</h2>
                 </div>
             </div>
@@ -109,7 +109,7 @@
             <div class="card-box widget-box-one">
                 <i class="mdi mdi-layers widget-one-icon"></i>
                 <div class="wigdet-one-content">
-                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="User Today">Total Documents</p>
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow">Total Documents</p>
                     <h2>{{ number_format(DB::table('upload_files')->count()) }}</h2>
                 </div>
             </div>
@@ -119,7 +119,7 @@
             <div class="card-box widget-box-one">
                 <i class="mdi mdi-download widget-one-icon"></i>
                 <div class="wigdet-one-content">
-                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="User This Month">Total Download Documents</p>
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow">Total Download Documents</p>
                     <h2>{{ number_format(DB::table('log_activity')->where('url', 'like', '%documents/download%')->count() + DB::table('log_activity')->where('url', 'like', '%documents/select%')->count()) }}</h2>
                 </div>
             </div>
@@ -129,7 +129,7 @@
             <div class="card-box widget-box-one">
                 <i class="mdi mdi-account-multiple widget-one-icon"></i>
                 <div class="wigdet-one-content">
-                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="Request Per Minute">Total User Active</p>
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow">Total User Active</p>
                     <h2>{{ number_format(DB::table('users')->where('status', '1')->count()) }}</h2>
                 </div>
             </div>
@@ -139,7 +139,7 @@
             <div class="card-box widget-box-one">
                 <i class="mdi mdi-layers widget-one-icon"></i>
                 <div class="wigdet-one-content">
-                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="Total Users">Total Discussion</p>
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow">Total Discussion</p>
                     <h2>{{ number_format(DB::table('discussions')->count()) }}</h2>
                 </div>
             </div>
@@ -149,7 +149,7 @@
             <div class="card-box widget-box-one">
                 <i class="mdi mdi-av-timer widget-one-icon"></i>
                 <div class="wigdet-one-content">
-                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow" title="New Downloads">Total Quota Usage</p>
+                    <p class="m-0 text-uppercase font-600 font-secondary text-overflow">Total Quota Usage</p>
                     <h2>{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->sum('size')) }}</h2>
                 </div>
             </div>
