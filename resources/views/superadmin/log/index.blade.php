@@ -95,7 +95,7 @@
                             <td style="min-width: 100px;">{{ $logs->created_at }}</td>
                             <td style="min-width: 200px;"><div style="word-break: break-word;">{{ $logs->url }}</div></td>
                             <td style="min-width: 300px;"><div style="word-break: break-word;">{{ $logs->description }}</div></td>
-                            <td style="min-width: 300px;"><div style="word-break: break-word;">{{ $logs->request }}</div></td>
+                            <td style="min-width: 300px;"><div style="word-break: break-word;">{!! Str::limit($logs->request, 100) !!} @if(strlen($logs->request) > 100) <a href="#modal-request-header" data-toggle="modal" data-header="{{ json_encode($logs->request) }}" onclick="getRequestHeader(this)">Detail</a> @endif</div></td>
                             <td style="min-width: 100px;">{{ $logs->response }}</td>
                             <td style="min-width: 80px;">{{ $logs->method }}</td>
                             <td style="min-width: 300px;"><div style="word-break: break-word;">{!! Str::limit($logs->header, 100) !!} <a href="#modal-detail-header" data-toggle="modal" data-header="{{ json_encode($logs->header) }}" onclick="getDetailHeader(this)">Detail</a></div></td>
@@ -116,7 +116,21 @@
                     <h4 class="modal-title" id="titleModal">Detail Header</h4>
                 </div>
                 <div class="modal-body">
-                    <div id="result_header"></div>
+                    <div id="result_header" style="word-wrap: break-word;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-request-header" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="titleModal">Request Header</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="request_header" style="word-wrap: break-word;"></div>
                 </div>
             </div>
         </div>
@@ -131,6 +145,10 @@
 
         function getDetailHeader(element) {
             $("#result_header").text($(element).data('header'));
+        }
+
+        function getRequestHeader(element) {
+            $("#request_header").text($(element).data('header'));
         }
     </script>
 @endpush
