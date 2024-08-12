@@ -435,35 +435,41 @@ class DocumentController extends Controller
     {
         try {
             $fileID = base64_decode($file);
-            $fileDirectory = UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID;
-            $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
 
-            $fileIndex = '';
-            $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $fileID)->value('directory')), 0, 4));
-
-            foreach(array_slice(explode('/', UploadFile::where('basename', $fileID)->value('directory')), 4) as $path) {
-                $originPath .= '/' . $path;
-                $fileIndex .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
-            }
-
-            $fileIndex .= DB::table('upload_files')->where('basename', $fileID)->value('index');
-
-            if (Watermark::where('client_id', Auth::user()->client_id)->value('display_download') == "1") {
-                if (str_starts_with($fileMimeType, 'application/pdf')) {
-                    $this->CreateWatermark($fileID);
-                    $this->WatermarkService->addPDFWatermark($fileID);
+            if (((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $fileID)->value('permission') == "1") || (Auth::user()->type == "0")) && ((UploadFile::where('basename', $fileID)->value('status') == "1") && (UploadFile::where('basename', $fileID)->value('client_id') == Auth::user()->client_id))) {
+                $fileDirectory = UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID;
+                $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
     
-                    $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
+                $fileIndex = '';
+                $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $fileID)->value('directory')), 0, 4));
     
-                } elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
-                    $this->CreateWatermark($fileID);
-                    $this->WatermarkService->addIMGWatermark($fileID);
+                foreach(array_slice(explode('/', UploadFile::where('basename', $fileID)->value('directory')), 4) as $path) {
+                    $originPath .= '/' . $path;
+                    $fileIndex .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                }
     
-                    $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
-                } 
-            }
+                $fileIndex .= DB::table('upload_files')->where('basename', $fileID)->value('index');
+    
+                if (Watermark::where('client_id', Auth::user()->client_id)->value('display_download') == "1") {
+                    if (str_starts_with($fileMimeType, 'application/pdf')) {
+                        $this->CreateWatermark($fileID);
+                        $this->WatermarkService->addPDFWatermark($fileID);
+        
+                        $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
+        
+                    } elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
+                        $this->CreateWatermark($fileID);
+                        $this->WatermarkService->addIMGWatermark($fileID);
+        
+                        $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
+                    } 
+                }
+                $desc = Auth::user()->name . " downloaded " . UploadFile::where('basename', $fileID)->value('name') . " (" . $fileID . ")";
+                \log::create(request()->all(), "success", $desc);
 
-            return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+                return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+            } 
+
         } catch (\Exception $e) {
             return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
             //return response()->json(['success' => false, 'message' => $e->getMessage()]);
