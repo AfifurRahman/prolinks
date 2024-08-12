@@ -436,7 +436,7 @@ class DocumentController extends Controller
         try {
             $fileID = base64_decode($file);
 
-            if ((((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $fileID)->value('permission') == "1") || is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $fileID)->get())) || (Auth::user()->type == "0")) && (UploadFile::where('basename', $fileID)->value('status') == "1")) {
+           
                 $fileDirectory = UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID;
                 $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
     
@@ -468,7 +468,7 @@ class DocumentController extends Controller
                 \log::create(request()->all(), "success", $desc);
 
                 return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
-            } 
+            
 
         } catch (\Exception $e) {
             return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
