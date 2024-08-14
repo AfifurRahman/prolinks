@@ -337,21 +337,14 @@ class AccessUsersController extends Controller
         try {
             \DB::beginTransaction();
         
-        
             $request->validate([
                 'image' => 'required|mimes:jpg,jpeg|max:2048',
             ]);
-        
-            // Retrieve the uploaded image
+         
             $image = $request->file('image');
-        
-            // Define a file name with extension
-            $fileName = Auth::user()->user_id . '.' . $image->getClientOriginalExtension();
-        
-            // Store the image
+            $fileName = Auth::user()->user_id;
             $image->storeAs('/', $fileName, 'avatar');
-        
-            // Update the user's avatar image path
+
             User::where('user_id', Auth::user()->user_id)->update(['avatar_image' => $fileName]);
         
             \DB::commit();
