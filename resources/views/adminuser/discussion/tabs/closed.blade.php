@@ -23,7 +23,7 @@
                     @endif
                     <a href="{{ route('discussion.detail-discussion', $qna->discussion_id) }}">{{ $qna->subject }}</a>
                 </td>
-                <td width="150">{!! !empty($qna->RefUser->name) ? $qna->RefUser->name : '' !!}</td>
+                <td width="150">{!! \globals::get_user_avatar_small($qna->RefUser->user_id, $qna->RefUser->avatar_color) !!} &nbsp; {!! !empty($qna->RefUser->name) ? $qna->RefUser->name : '' !!}</td>
                 <td width="100">{!! \globals::label_qna_status($qna->status) !!}</td>
                 <td width="150">{!! date('d M Y H:i', strtotime($qna->created_at)) !!}</td>
                 <td>
