@@ -11,6 +11,7 @@ use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\Project;
 use App\Models\Client;
 use App\Models\AssignProject;
+use Illuminate\Support\Facades\Storage;
 
 class GlobalHelper
 {
@@ -95,32 +96,57 @@ class GlobalHelper
 
     public static function get_user_avatar_big($name, $color=null)
     {
-        $getFirstChar = substr($name, 0,1);
-        $htmlAvatar = "<div class='user-avatar' style='background-color:".$color.";height:100px;width:100px;font-size:60px;'>";
-        $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
-        $htmlAvatar .= "</div>";
+        if(!is_null(Auth::user()->avatar_image)) {
+            $htmlAvatar = "<div class='user-avatar' style='height:100px;width:100px;'>";
+            $htmlAvatar .= "<img class='user-avatar' style='height:100px;width:100px;' src='" . url('avatar/'. Auth::user()->avatar_image) . "'>";
+            $htmlAvatar .= "</div>";
 
-        return $htmlAvatar;
+            return $htmlAvatar;
+        } else {
+            $getFirstChar = substr($name, 0,1);
+            $htmlAvatar = "<div class='user-avatar' style='background-color:".$color.";height:100px;width:100px;font-size:60px;'>";
+            $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
+            $htmlAvatar .= "</div>";
+
+            return $htmlAvatar;
+        }
     }
 
     public static function get_user_avatar($name, $color=null)
     {
-        $getFirstChar = substr($name, 0,1);
-        $htmlAvatar = "<div class='user-avatar' style='background-color:".$color."'>";
-        $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
-        $htmlAvatar .= "</div>";
+        if(Storage::exists('avatar/' . Auth::user()->user_id . ".jpg")) {
+            $htmlAvatar = "<div class='user-avatar'>";
+            $htmlAvatar .= "<img class='user-avatar' src='" . url('avatar/'. Auth::user()->avatar_image) . "'>";
+            $htmlAvatar .= "</div>";
 
-        return $htmlAvatar;
+            return $htmlAvatar;
+        } else {
+            $getFirstChar = substr($name, 0,1);
+            $htmlAvatar = "<div class='user-avatar' style='background-color:".$color."'>";
+            $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
+            $htmlAvatar .= "</div>";
+    
+            return $htmlAvatar;
+        }
+       
     }
 
     public static function get_user_avatar_small($name, $color=null)
     {
-        $getFirstChar = substr($name, 0,1);
-        $htmlAvatar = "<div class='user-avatar-small' style='background-color:".$color."'>";
-        $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
-        $htmlAvatar .= "</div>";
-
-        return $htmlAvatar;
+        if(Storage::exists('avatar/' . Auth::user()->user_id . ".jpg")) {
+            $htmlAvatar = "<div class='user-avatar-small'>";
+            $htmlAvatar .= "<img class='user-avatar-small' src='" . url('avatar/'. Auth::user()->avatar_image) . "'>";
+            $htmlAvatar .= "</div>";
+    
+            return $htmlAvatar;
+        } else {
+            $getFirstChar = substr($name, 0,1);
+            $htmlAvatar = "<div class='user-avatar-small' style='background-color:".$color."'>";
+            $htmlAvatar .= "".!empty($getFirstChar) ? strtoupper($getFirstChar) : '-'."";
+            $htmlAvatar .= "</div>";
+    
+            return $htmlAvatar;
+        }
     }
 
     public static function set_status_active()
