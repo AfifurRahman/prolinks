@@ -114,7 +114,7 @@ class GlobalHelper
 
     public static function get_user_avatar($name, $color=null)
     {
-        if(Storage::exists('avatar/' . Auth::user()->user_id . ".jpg")) {
+        if(!is_null(Auth::user()->avatar_image)) {
             $htmlAvatar = "<div class='user-avatar'>";
             $htmlAvatar .= "<img class='user-avatar' src='" . url('avatar/'. Auth::user()->avatar_image) . "'>";
             $htmlAvatar .= "</div>";
@@ -133,7 +133,7 @@ class GlobalHelper
 
     public static function get_user_avatar_small($name, $color=null)
     {
-        if(Storage::exists('avatar/' . Auth::user()->user_id . ".jpg")) {
+        if(!is_null(Auth::user()->avatar_image)) {
             $htmlAvatar = "<div class='user-avatar-small'>";
             $htmlAvatar .= "<img class='user-avatar-small' src='" . url('avatar/'. Auth::user()->avatar_image) . "'>";
             $htmlAvatar .= "</div>";
