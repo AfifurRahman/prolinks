@@ -176,11 +176,6 @@ table thead th:first-child {
     height:24px;
 }
 
-#table {
-    /* overflow:auto; */
-    /* overflow: inherit; */
-}
-
 #creategroup-ico {
     height:22px;
     width:22px;
