@@ -3,9 +3,14 @@
         border: none !important;
     }
 </style>
-{!! \globals::get_user_avatar_big(Auth::user()->user_id, Auth::user()->avatar_color) !!}
-<a href="">Change profile photo</p>
-<h3>Edit Account Details</h3>
+<form action="{{ route('adminuser.access-users.upload_picture') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    {!! \globals::get_user_avatar_big(Auth::user()->user_id, Auth::user()->avatar_color) !!}
+    <label for="image" onmouseover="" style="cursor: pointer;margin-top:2px;">Change profile picture</label>
+    <input type="file" style="visibility:hidden;" name="image" id="image" onchange="form.submit()">
+</form>
+
+<h3 style="margin-top:-16px;">Edit Account Details</h3>
 <form action="{{ route('adminuser.access-users.selfedit') }}" method="POST">
     @csrf
     <table class="table borderless">

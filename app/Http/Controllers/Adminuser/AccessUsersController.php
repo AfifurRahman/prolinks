@@ -329,7 +329,36 @@ class AccessUsersController extends Controller
 
             return redirect()->route('setting', 'tab=account_setting');
         } catch (\Exception $e) {
+            return back();
+        }
+    }
 
+    public function upload_picture (Request $request) {
+        try {
+            \DB::beginTransaction();
+        
+        
+            $request->validate([
+                'image' => 'required|mimes:jpg,jpeg|max:2048',
+            ]);
+        
+            // Retrieve the uploaded image
+            $image = $request->file('image');
+        
+            // Define a file name with extension
+            $fileName = Auth::user()->user_id . '.' . $image->getClientOriginalExtension();
+        
+            // Store the image
+            $image->storeAs('/', $fileName, 'avatar');
+        
+            // Update the user's avatar image path
+            User::where('user_id', Auth::user()->user_id)->update(['avatar_image' => $fileName]);
+        
+            \DB::commit();
+        
+            return back();
+        } catch (\Exception $e) {
+            return back();
         }
     }
 

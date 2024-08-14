@@ -174,6 +174,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('/users/detail-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@detail_group')->name('adminuser.access-users.detail-group');
 			Route::post('/users/edit/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit')->name('adminuser.access-users.edit');
 			Route::post('/users/selfedit', 'App\Http\Controllers\Adminuser\AccessUsersController@selfedit')->name('adminuser.access-users.selfedit');
+			Route::post('/users/uploadpicture', 'App\Http\Controllers\Adminuser\AccessUsersController@upload_picture')->name('adminuser.access-users.upload_picture');
 			Route::post('/users/edit-group/{group_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_group')->name('adminuser.access-users.edit-group');
 			Route::post('/users/edit_role/{user_id}', 'App\Http\Controllers\Adminuser\AccessUsersController@edit_role')->name('adminuser.access-users.edit-role');
 			Route::post('/users/invite', 'App\Http\Controllers\Adminuser\AccessUsersController@create_user')->name('adminuser.access-users.create');
