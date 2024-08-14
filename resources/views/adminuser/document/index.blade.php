@@ -235,7 +235,7 @@
                                         {{ \Carbon\Carbon::parse(DB::table('upload_folders')->where('directory', $directory)->value('created_at'))->format('d M Y, H:i') }}
                                     </td>
                                     <td> 
-                                        {!! \globals::get_user_avatar_small(DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name'), DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('avatar_color')) !!}
+                                        {!! \globals::get_user_avatar_small(DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'), DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('avatar_color')) !!}
                                         &nbsp;{{ DB::table('users')->where('user_id',DB::table('upload_folders')->where('directory', $directory)->value('uploaded_by'))->value('name') }}
                                     </td>
                                     <td>Directory</td>
@@ -320,7 +320,7 @@
                                                 {{ \Carbon\Carbon::parse(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))->format('d M Y, H:i') }}
                                             </td>
                                             <td>
-                                                {!! \globals::get_user_avatar_small(DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name'), DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('avatar_color')) !!}
+                                                {!! \globals::get_user_avatar_small(DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'), DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('avatar_color')) !!}
                                                 {{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name') }}
                                             </td>
                                             <td>{{ DB::table('upload_files')->where('basename',basename($file))->value('mime_type') }}</td>
@@ -404,7 +404,7 @@
                                             {{ \Carbon\Carbon::parse(DB::table('upload_files')->where('basename', basename($file))->value('created_at'))->format('d M Y, H:i') }}
                                         </td>
                                         <td>
-                                            {!! \globals::get_user_avatar_small(DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name'), DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('avatar_color')) !!}
+                                        {!! \globals::get_user_avatar_small(DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'), DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('avatar_color')) !!}
                                             &nbsp;{{ DB::table('users')->where('user_id', DB::table('upload_files')->where('basename', basename($file))->value('uploaded_by'))->value('name') }}
                                         </td>
                                         <td>{{ DB::table('upload_files')->where('basename',basename($file))->value('mime_type') }}</td>
