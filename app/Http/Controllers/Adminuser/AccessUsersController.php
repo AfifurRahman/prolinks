@@ -333,6 +333,20 @@ class AccessUsersController extends Controller
         }
     }
 
+    public function remove_picture () {
+        try {
+            \DB::beginTransaction();
+
+            User::where('user_id', Auth::user()->user_id)->update(['avatar_image' => null]);
+        
+            \DB::commit();
+        
+            return back();
+        } catch (\Exception $e) {
+            return back();
+        }
+    }
+
     public function upload_picture (Request $request) {
         try {
             \DB::beginTransaction();

@@ -6,11 +6,15 @@
 <form action="{{ route('adminuser.access-users.upload_picture') }}" method="POST" enctype="multipart/form-data">
     @csrf
     {!! \globals::get_user_avatar_big(Auth::user()->user_id, Auth::user()->avatar_color) !!}
-    <label for="image" onmouseover="" style="cursor: pointer;margin-top:2px;">Change profile picture</label>
-    <input type="file" style="visibility:hidden;" name="image" id="image" onchange="form.submit()">
+    <label for="image" style="cursor: pointer;margin-top:2px;font-size:12px;margin-top:4px;margin-bottom:-8px;">Change profile picture</label>
+    <input type="file" style="display:none;" name="image" id="image" onchange="form.submit()">
+    <br>
+    <a href="{{ route('adminuser.access-users.remove_picture') }}" style="font-size:11.4px;color:red;">Remove profile picture</a>
 </form>
 
-<h3 style="margin-top:-16px;">Edit Account Details</h3>
+
+
+<h3 style="margin-top:12px;">Edit Account Details</h3>
 <form action="{{ route('adminuser.access-users.selfedit') }}" method="POST">
     @csrf
     <table class="table borderless">
