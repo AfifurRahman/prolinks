@@ -61,12 +61,14 @@
                 <span class="hidden-xs">Account Settings</span>
             </a>
         </li>
-		<li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "watermark_setting" ? "active":"" }}">
-            <a href="?tab=watermark_setting" aria-expanded="false">
-                <span class="visible-xs"><i class="fa fa-home"></i></span>
-                <span class="hidden-xs">Watermarks</span>
-            </a>
-        </li>
+        @if(Auth::user()->type == \globals::set_role_administrator())
+            <li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "watermark_setting" ? "active":"" }}">
+                <a href="?tab=watermark_setting" aria-expanded="false">
+                    <span class="visible-xs"><i class="fa fa-home"></i></span>
+                    <span class="hidden-xs">Watermarks</span>
+                </a>
+            </li>
+        @endif
 		<!-- <li class="{{ !empty(request()->input('tab')) && request()->input('tab') == "security_setting" ? "active":"" }}">
             <a href="?tab=security_setting" aria-expanded="false">
                 <span class="visible-xs"><i class="fa fa-home"></i></span>
@@ -85,7 +87,7 @@
         <div class="tab-pane active" style="width:100%;">
             @if(!empty(request()->input('tab')) && request()->input('tab') == "email_setting" )
                 @include('adminuser.setting.tab.setting_email')
-            @elseif(!empty(request()->input('tab')) && request()->input('tab') == "watermark_setting")
+            @elseif(!empty(request()->input('tab')) && request()->input('tab') == "watermark_setting" && Auth::user()->type == \globals::set_role_administrator())
                 @include('adminuser.setting.tab.setting_watermark')
             @elseif(!empty(request()->input('tab')) && request()->input('tab') == "account_setting")
                 @include('adminuser.setting.tab.setting_account')
