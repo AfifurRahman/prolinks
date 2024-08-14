@@ -71,7 +71,7 @@
                                     <input type="checkbox" id="checkbox" disabled />
                                 </td>
                                 <td>
-                                    {!! \globals::get_user_avatar_small($owner->name, $owner->avatar_color) !!}
+                                    {!! \globals::get_user_avatar_small($owner->user_id, $owner->avatar_color) !!}
                                     <!-- {{ $owner->email }} -->
                                     &nbsp;{{ $owner->name }}
                                 </td>
@@ -115,7 +115,7 @@
                                 <td>
                                     <a href="{{ route('adminuser.access-users.detail', $user->user_id) }}">
                                         @if(!empty($user->RefUser->name) && $user->RefUser->name != "null")
-                                            {!! \globals::get_user_avatar_small(!empty($user->name) ? $user->name : $user->email_address, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
+                                            {!! \globals::get_user_avatar_small(!empty($user->user_id) ? $user->user_id : $user->email_address, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}
                                             &nbsp;{{ !empty($user->name) ? $user->name : $user->email_address }}
                                         @else
                                             {!! \globals::get_user_avatar_small($user->email_address, !empty($user->RefUser->avatar_color) ? $user->RefUser->avatar_color : '#000') !!}

@@ -3,7 +3,7 @@
         border: none !important;
     }
 </style>
-{!! \globals::get_user_avatar_big(Auth::user()->name, Auth::user()->avatar_color) !!}
+{!! \globals::get_user_avatar_big(Auth::user()->user_id, Auth::user()->avatar_color) !!}
 <h3>Account details<a href="?tab=edit_account" style="margin-left:6px;"><img style="width:28px;"src="{{ url('template/images/icon_menu/edit_profile.png') }}"></a></h3>
     
 <table class="table borderless">

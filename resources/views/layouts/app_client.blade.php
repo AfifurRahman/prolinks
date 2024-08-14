@@ -235,7 +235,7 @@
                         </li>
                         <li class="dropdown user-box">
                             <a href="" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown" aria-expanded="true" style="display:flex;">
-                                {!! \globals::get_user_avatar(Auth::user()->name, Auth::user()->avatar_color) !!}
+                                {!! \globals::get_user_avatar(Auth::user()->user_id, Auth::user()->avatar_color) !!}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right user-list notify-list">
                                 <li style="background-color:#f3f3f3;">

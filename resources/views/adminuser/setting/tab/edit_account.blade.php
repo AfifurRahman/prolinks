@@ -3,7 +3,7 @@
         border: none !important;
     }
 </style>
-{!! \globals::get_user_avatar_big(Auth::user()->name, Auth::user()->avatar_color) !!}
+{!! \globals::get_user_avatar_big(Auth::user()->user_id, Auth::user()->avatar_color) !!}
 <a href="">Change profile photo</p>
 <h3>Edit Account Details</h3>
 <form action="{{ route('adminuser.access-users.selfedit') }}" method="POST">

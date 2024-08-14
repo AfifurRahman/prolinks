@@ -94,11 +94,13 @@ class GlobalHelper
         return $result;
     }
 
-    public static function get_user_avatar_big($name, $color=null)
+    public static function get_user_avatar_big($id, $color=null)
     {
-        if(!is_null(Auth::user()->avatar_image)) {
+        $name = User::where('user_id', $id)->value('name');
+
+        if(!is_null(User::where('user_id', $id)->value('avatar_image'))) {
             $htmlAvatar = "<div class='user-avatar' style='height:100px;width:100px;'>";
-            $htmlAvatar .= "<img class='user-avatar' style='height:100px;width:100px;' src='" . url('avatar/'. Auth::user()->avatar_image) . "'>";
+            $htmlAvatar .= "<img class='user-avatar' style='height:100px;width:100px;' src='" . url('avatar/'. User::where('user_id', $id)->value('avatar_image')) . "'>";
             $htmlAvatar .= "</div>";
 
             return $htmlAvatar;
@@ -112,11 +114,13 @@ class GlobalHelper
         }
     }
 
-    public static function get_user_avatar($name, $color=null)
+    public static function get_user_avatar($id, $color=null)
     {
-        if(!is_null(Auth::user()->avatar_image)) {
+        $name = User::where('user_id', $id)->value('name');
+
+        if(!is_null(User::where('user_id', $id)->value('avatar_image'))) {
             $htmlAvatar = "<div class='user-avatar'>";
-            $htmlAvatar .= "<img class='user-avatar' src='" . url('avatar/'. Auth::user()->avatar_image) . "'>";
+            $htmlAvatar .= "<img class='user-avatar' src='" . url('avatar/'. User::where('user_id', $id)->value('avatar_image')) . "'>";
             $htmlAvatar .= "</div>";
 
             return $htmlAvatar;
@@ -131,11 +135,13 @@ class GlobalHelper
        
     }
 
-    public static function get_user_avatar_small($name, $color=null)
+    public static function get_user_avatar_small($id, $color=null)
     {
-        if(!is_null(Auth::user()->avatar_image)) {
+        $name = User::where('user_id', $id)->value('name');
+
+        if(!is_null(User::where('user_id', $id)->value('avatar_image'))) {
             $htmlAvatar = "<div class='user-avatar-small'>";
-            $htmlAvatar .= "<img class='user-avatar-small' src='" . url('avatar/'. Auth::user()->avatar_image) . "'>";
+            $htmlAvatar .= "<img class='user-avatar-small' src='" . url('avatar/'. User::where('user_id', $id)->value('avatar_image')) . "'>";
             $htmlAvatar .= "</div>";
     
             return $htmlAvatar;
