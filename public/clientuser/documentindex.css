@@ -18,7 +18,6 @@ body {
 .permission-users-list {
     background-color: #F1F5F9;
     width:40%;
-
     border-right: 1.5px solid #D0D5DD;
 }
 
@@ -238,9 +237,6 @@ body {
     width: 35%;
 }
 
-.permission-modal-content {
-
-}
 .modal-content-permission {
     background-color: #fefefe;
     margin: 3% auto;
