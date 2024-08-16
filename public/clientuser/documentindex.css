@@ -15,6 +15,13 @@ body {
     overflow:auto;
 }
 
+.permission-users-list {
+    background-color: #F1F5F9;
+    width:40%;
+
+    border-right: 1.5px solid #D0D5DD;
+}
+
 .checkbox {
     width:16px;
     height:16px;
@@ -231,6 +238,17 @@ body {
     width: 35%;
 }
 
+.permission-modal-content {
+
+}
+.modal-content-permission {
+    background-color: #fefefe;
+    margin: 3% auto;
+    border: 1px solid #888;
+    border-radius:8px;
+    width: 50%;
+}
+
 .modal-content-large {
     background-color: #fefefe;
     margin: 3% auto;
@@ -424,6 +442,19 @@ h3 {
     display: flex;
     justify-content: flex-end;
     margin-top:28px;
+    margin-bottom:-10px;
+}
+
+.group-icon {
+    height:20px;
+    width:20px;
+    margin-right:4px;
+}
+
+.permission-form-button{
+    width:100%;
+    display: flex;
+    justify-content: flex-end;
     margin-bottom:-10px;
 }
 

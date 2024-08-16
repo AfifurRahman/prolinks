@@ -124,7 +124,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/document.png') }}">
 	            	<div class="info-widget">
-		            	<h3>{{ $total_documents }}</h3>
+		            	<h3>{{ number_format($total_documents) }}</h3>
 		            	<p>Total documents</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>
@@ -133,7 +133,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/users.png') }}">
 	            	<div class="info-widget">
-		            	<h3>{{ $total_users }}</h3>
+		            	<h3>{{ number_format($total_users) }}</h3>
 		            	<p>Total users</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>
@@ -142,7 +142,7 @@
 	            <div class="card-box widget-prolinks-custom">
 	                <img src="{{ url('template/images/activities/questions.png') }}">
 	            	<div class="info-widget">
-		            	<h3>{{ $total_qna }}</h3> 
+		            	<h3>{{ number_format($total_qna) }}</h3> 
 		            	<p>Total questions</p>
 		            </div> <div style="clear: both;"></div>
 	            </div>
@@ -221,7 +221,7 @@
 									@foreach ($most_active_user as $active_user)
 										<tr>
 											<td>
-												{!! \globals::get_user_avatar_small(!empty($active_user->name) ? $active_user->name : $active_user->email_address, !empty($active_user->avatar_color) ? $active_user->avatar_color : '#000') !!} {!! Str::limit( $active_user->name, 40) !!}
+												{!! \globals::get_user_avatar_small($active_user->user_id, !empty($active_user->avatar_color) ? $active_user->avatar_color : '#000') !!} {!! Str::limit( $active_user->name, 40) !!}
 											</td>
 											<td align="center">{{ $active_user->total }}</td>
 										</tr>
@@ -255,6 +255,11 @@
 						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::now()->subDays(1)->toDateString())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}, 
 						{{ DB::table("log_activity")->whereDate("created_at", \Carbon\Carbon::today())->where("url", url("/login"))->where("response", '"success"')->where("client_id", Auth::user()->client_id)->distinct('user_id')->count('user_id') }}];
 		    Highcharts.chart('container', {
+				chart: {
+					zooming: {
+						type: 'x'
+					}
+				},
 		        title: {
 		            text: ''
 		        },
@@ -263,38 +268,44 @@
 		        },
 		        yAxis: {
 		            title: {
-		                text: 'Number of Users'
+		                text: ''
 		            }
 		        },
 		        legend: {
-		            layout: 'vertical',
-		            align: 'right',
-		            verticalAlign: 'middle'
+		            enabled : false
 		        },
 		        plotOptions: {
-		            series: {
-		                allowPointSelect: true
-		            }
-		        },
+					area: {
+						marker: {
+							radius: 4,
+							symbol: 'url({{ url("template/images/Ellipse.png") }})',
+						},
+						lineWidth: 2,
+						color: {
+							linearGradient: {
+								x1: 0,
+								y1: 0,
+								x2: 0,
+								y2: 1
+							},
+							stops: [
+								[0.7, 'rgba(46, 155, 250, 0.5)'],
+								[1, 'rgba(178, 221, 255, 0)']
+							]
+						},
+						states: {
+							hover: {
+								lineWidth: 1
+							}
+						},
+						threshold: null
+					}
+				},
 		        series: [{
-		        	type: 'areaspline',
+		        	type: 'area',
 		            name: 'Users',
-		            data: userData
+		            data: userData,
 		        }],
-		        responsive: {
-		            rules: [{
-		                condition: {
-		                    maxWidth: 500
-		                },
-		                chartOptions: {
-		                    legend: {
-		                        layout: 'horizontal',
-		                        align: 'center',
-		                        verticalAlign: 'bottom'
-		                    }
-		                }
-		            }]
-		        }
 		    });
 	</script>
 @endpush

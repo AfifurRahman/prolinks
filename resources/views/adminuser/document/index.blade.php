@@ -34,7 +34,7 @@
         @include('adminuser.document.modal.rename_file')
         @include('adminuser.document.modal.delete_file')
         @include('adminuser.document.modal.delete_folder')
-        @include('adminuser.document.modal.permission')
+        @include('adminuser.document.modal.old_permission')
     @endif
 
     <div class="box_helper">
@@ -757,7 +757,7 @@
             }
 
             function setPermission() {
-                // document.getElementById('permission-modal').style.display='block';
+                //document.getElementById('set-permission-modal').style.display='block';
                 document.getElementById('permission-file-list-table').style.display="none";
                 $('#setPermissionButton').prop("disabled", true);
 
@@ -789,7 +789,8 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    $("#modal-add-permission").modal('hide');
+                    // $("#modal-add-permission").modal('hide');
+                    $("#set-permission-modal").modal('hide');
                     showNotification(data.message);
                 })
             }

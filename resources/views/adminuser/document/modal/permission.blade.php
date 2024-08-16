@@ -1,133 +1,86 @@
-<div id="modal-add-permission" class="modal fade" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="width: 100%;">
-            <div class="modal-header">
-                <div class="custom-modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h4 class="modal-title" id="titleModal">
-                        Permission Settings
-                    </h4>
+<style>
+    .highlighted {
+        background-color: white;
+    }
+</style>
+
+<div id="set-permission-modal" class="modal">
+    <div class="modal-content-permission">
+        <div class="modal-topbar">
+            <div class="upload-modal-title">
+                <h5 class="modal-delete-file-title">Permission Settings</h5>
+            </div>
+            <button class="modal-close" onclick="document.getElementById('set-permission-modal').style.display='none'">
+                <image class="modal-close-ico" src="{{ url('template/images/icon_menu/close.png') }}"></image>
+            </button>
+        </div>
+        <div class="permission-modal-content">
+           <div class="permission-body">
+                <div class="permission-users-list">
+                    <p>Users</p>
+                    <div class="user-list">
+                        <table>
+                            <tbody>
+                                <tr >
+                                    <td><button data-toggle="collapse" data-target=".group1"><i class="fa fa-caret-down" style="font-size:16px"></i></a></button>
+                                    <td class="group" style="cursor:pointer" onclick="setGroup(this)"><image class="group-icon" src="{{ url('template/images/icon_menu/group.png') }}">PT Tumbuh Makmur</td>
+                                </tr>
+                                <tr class="collapse in group1" style="cursor:pointer" onclick="setUser(this)" aria-expanded="true">
+                                    <td></td>
+                                    <td>
+                                        Geraldine Abel
+                                        <br>Client
+                                    </td>
+                                </tr>
+                                <tr class="group">
+                                    <td><button data-toggle="collapse" data-target=".group2"><i class="fa fa-caret-down" style="font-size:16px"></i></button></td>
+                                    <td class="group" style="cursor:pointer" onclick="setGroup(this)"><img class="group-icon" src="{{ url('template/images/icon_menu/group.png') }}">PT Tumbuh Owi</td>
+                                </tr>
+                                <tr class="collapse in group2" style="cursor:pointer" onclick="setUser(this)" aria-expanded="true">
+                                    <td></td>
+                                    <td>
+                                        Geraldine Anya
+                                        <br>Administrator
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="permission-files-list">
+                
                 </div>
             </div>
             <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="permission-user-listx">
-                            <h4>Users</h4>
-                            <table id="permission-user-list-table" >
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if(count($listusers) > 0) 
-                                        @foreach($listusers->unique('group_id') as $group)
-                                            @if(!empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
-                                                <tr>
-                                                    <td>
-                                                        <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/group.png') }}" />
-                                                    </td>
-                                                    <td class="permission-user-list-td">
-                                                        {{ DB::table('access_group')->where('group_id', $group->group_id)->value('group_name') }}
-                                                    </td>
-                                                </tr>
-                                                @foreach($listusers as $user)
-                                                    @if(!is_null(DB::table('assign_project')->where('project_id', explode('/', $origin)[2])->where('user_id', $user->user_id)->value('email')))
-                                                        @if($user->group_id == $group->group_id)
-                                                            <tr>
-                                                                <td></td>
-                                                                <td>
-                                                                    <div style="cursor:pointer;">
-                                                                        <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                                            <p class="permission-user-list-td">{{ $user->name }}</p>
-                                                                            <p class="permission-user-list-td2">
-                                                                            {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
-                                                                            </p>
-                                                                        </a>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        @endif
-                                                    @endif
-                                                @endforeach
-                                            @endif
-                                        @endforeach
-                                        @foreach($listusers->unique('group_id') as $group)
-                                            @if(empty(DB::table('access_group')->where('group_id', $group->group_id)->value('group_name')))
-                                                @foreach($listusers as $user)
-                                                    @if(!is_null(DB::table('assign_project')->where('project_id', explode('/', $origin)[2])->where('user_id', $user->user_id)->value('email')))
-                                                        @if(empty($user->group_id))
-                                                            <tr>
-                                                                <td>
-                                                                    <image class="fol-fil-icon" src="{{ url('template/images/icon_menu/user.png') }}" />
-                                                                    <br>
-                                                                    &nbsp;
-                                                                </td>
-                                                                <td style="cursor:pointer;">
-                                                                    <div style="cursor:pointer;">
-                                                                        <a onclick="checkUserPermission('{{ $user->user_id }}')">
-                                                                            <p class="permission-user-list-td">{{ $user->name }}</p>
-                                                                            <p class="permission-user-list-td2">
-                                                                            {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
-                                                                            </p>
-                                                                        </a>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        @endif
-                                                    @endif
-                                                @endforeach
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="col-md-8">
-                        <div class="permission-file-listx">
-                            <h4 id="permissionUser">Select a user</h4>
-                            <table id="permission-file-list-table" width="100%" class="table table-hover table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            File Name
-                                        </th>
-                                        <th>
-                                            <input type="checkbox" id="all_checkbox" class="setPermissionBox" style="width:30px; height:16px;"></input>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="fileList">
-                                    @foreach($fileList as $file)
-                                        @if( DB::table('upload_files')->where('basename', $file)->value('status') == 1 )
-                                            <tr>
-                                                <td>
-                                                    {{DB::table('upload_files')->where('basename', $file)->value('name')}}
-                                                </td>
-                                                <td>
-                                                    <input type="checkbox" id="{{$file}}" class="setPermissionBox" value="{{$file}}" onclick="handleChangeBox(this)" style="width:30px; height:16px;"></input>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="permission-form-button">
+                    <a onclick="document.getElementById('set-permission-modal').style.display='none'" class="cancel-btn">Cancel</a>
+                    <button class="create-btn" id="setPermissionButton" onclick="savePermission()">Save settings</button>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="pull-right">
-                            <a class="cancel-btn" data-dismiss="modal">Cancel</a>
-                            <button class="create-btn" id="setPermissionButton" onclick="savePermission()">Save settings</button>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" id="IDuser" value="">
             </div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    function setUser(rowElement) {
+        const allRows = document.querySelectorAll('.collapse');
+        allRows.forEach(row => row.classList.remove('highlighted'));
+
+        const allGroup = document.querySelectorAll('.group');
+        allGroup.forEach(group => group.classList.remove('highlighted'));
+        
+        rowElement.classList.add('highlighted');
+    }
+
+    function setGroup(rowElement) {
+        const allRows = document.querySelectorAll('.collapse');
+        allRows.forEach(row => row.classList.remove('highlighted'));
+
+        const allGroup = document.querySelectorAll('.group');
+        allGroup.forEach(group => group.classList.remove('highlighted'));
+        
+        rowElement.classList.add('highlighted');
+    }
+</script>
+@endpush
