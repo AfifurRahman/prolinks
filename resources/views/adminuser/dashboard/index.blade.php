@@ -278,7 +278,7 @@
 					area: {
 						marker: {
 							radius: 4,
-							symbol: 'url({{ url("template/images/Ellipse.png") }})',
+							symbol: 'url({{ url("template/images/ellipse.png") }})',
 						},
 						lineWidth: 2,
 						color: {
