@@ -17,8 +17,18 @@ body {
 
 .permission-users-list {
     background-color: #F1F5F9;
-    width:40%;
+    width:35%;
+    max-width: 35%;
     border-right: 1.5px solid #D0D5DD;
+    overflow: auto;
+    padding:24px;
+    padding-top:18px;
+}
+
+.permission-files-list {
+    width:65%;
+    max-width: 65%;
+    overflow:auto;
 }
 
 .checkbox {
@@ -444,7 +454,13 @@ h3 {
 .group-icon {
     height:20px;
     width:20px;
-    margin-right:4px;
+    margin-right:2px;
+}
+
+.user-icon {
+    height:20px;
+    width:20px;
+    margin-right:8px;
 }
 
 .permission-form-button{

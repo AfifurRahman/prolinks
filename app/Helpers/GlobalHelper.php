@@ -154,6 +154,7 @@ class GlobalHelper
             return $htmlAvatar;
         }
     }
+    
 
     public static function set_status_active()
     {

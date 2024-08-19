@@ -109,6 +109,63 @@ class DocumentController extends Controller
         }
     }
 
+    public static function generateFileTree($directory)
+    {
+        try {
+            $html = '<ul>';
+
+            // Get all files and directories within the given directory
+            $files = scandir($directory);
+    
+            foreach ($files as $file) {
+                if ($file !== '.' && $file !== '..') {
+                    $filePath = $directory . '/' . $file;
+        
+                    if (is_dir($filePath)) {
+                        $index = '';
+                        $originPath = implode('/', array_slice(explode('/', $directory), 1, 4));
+                        
+                        foreach(array_slice(explode('/', $filePath), 5) as $path) {
+                            $originPath .= '/' . $path;
+                            $index .= UploadFolder::where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                        }
+    
+                        $html .= '<li>';
+                        $html .= '<div class="items"><div><span class="folder"><span style="font-size:10px;">▼</span>&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '</span></div><div><input type="checkbox" disabled></input></div></div>';
+                        $html .= '<ul class="nested">';
+                        $html .= self::generateFileTree($filePath); // Recursively generate the tree
+                        $html .= '</ul>';
+                        $html .= '</li>';
+                    } else {
+                        if(UploadFile::where('basename', $file)->value('status') == '1') {
+                            $fileExtension = pathinfo(UploadFile::where("basename", $file)->value("name"), PATHINFO_EXTENSION);
+                            $fileName = UploadFile::where('basename', $file)->value('name');
+    
+                            $index = '';
+                            $originPath = implode('/', array_slice(explode('/', $directory), 1, 4));
+                            
+                            $deb = implode('/', array_slice(explode('/', $filePath), 5));
+
+                            foreach(array_slice(explode('/', $filePath), 5) as $item) {
+                                $originPath .= '/' . $item;
+                                $index .= is_null(UploadFolder::where('directory', $originPath)->where('name', $item)->value('index')) ? "" : UploadFolder::where('directory', $originPath)->where('name', $item)->value('index') . '.';
+                            }
+
+                            $index .= UploadFile::where('basename', $file)->value('index');
+                        
+                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox"></input></div></div></li>';
+                        }  
+                    }
+                }
+            }
+            $html .= '</ul>';
+            return $html;
+        } catch (\Exception $e) {
+
+        }
+      
+    }
+
     public function SetPermission(Request $request)
     {
         try {
