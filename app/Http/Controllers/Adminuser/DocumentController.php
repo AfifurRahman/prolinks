@@ -115,7 +115,29 @@ class DocumentController extends Controller
             $html = '<ul>';
 
             // Get all files and directories within the given directory
-            $files = scandir($directory);
+            $items = scandir($directory);
+
+            $files = [];
+
+            foreach ($items as $item) {
+                if ($item !== '.' && $item !== '..') {
+                    // Prepend folders to the array
+                    if (is_dir($directory . '/' . $item)) {
+                        $files[] = $item;
+                    }
+                }
+            }
+
+            // Append files to the array
+            foreach ($items as $item) {
+                if ($item !== '.' && $item !== '..') {
+                    // Append files to the array
+                    if (!is_dir($directory . '/' . $item)) {
+                        $files[] = $item;
+                    }
+                }
+            }
+
     
             foreach ($files as $file) {
                 if ($file !== '.' && $file !== '..') {
@@ -131,9 +153,9 @@ class DocumentController extends Controller
                         }
     
                         $html .= '<li>';
-                        $html .= '<div class="items"><div><span class="folder"><span style="font-size:10px;">▼</span>&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '</span></div><div><input type="checkbox" disabled></input></div></div>';
-                        $html .= '<ul class="nested">';
-                        $html .= self::generateFileTree($filePath); // Recursively generate the tree
+                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory',$originPath)->value('basename') .'\')" style="cursor:pointer;font-size:10px;">▼</a>&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '</span></div><div><input type="checkbox" disabled></input></div></div>';
+                        $html .= '<ul class="nested" id="' . UploadFolder::where('directory',$originPath)->value('basename') .'">';
+                        //$html .= self::generateFileTree($filePath);
                         $html .= '</ul>';
                         $html .= '</li>';
                     } else {
@@ -159,11 +181,123 @@ class DocumentController extends Controller
                 }
             }
             $html .= '</ul>';
+
             return $html;
         } catch (\Exception $e) {
 
         }
-      
+    }
+
+    public function ExpandFolder(Request $request) {
+        try {
+            $directory = storage_path('app/'.UploadFolder::where('basename', $request->input('folderID'))->value('directory'));
+
+            $html = '<ul>';
+
+            $items = scandir($directory);
+
+            $files = [];
+
+            foreach ($items as $item) {
+                if ($item !== '.' && $item !== '..') {
+                    // Prepend folders to the array
+                    if (is_dir($directory . '/' . $item)) {
+                        $files[] = $item;
+                    }
+                }
+            }
+
+            // Append files to the array
+            foreach ($items as $item) {
+                if ($item !== '.' && $item !== '..') {
+                    // Append files to the array
+                    if (!is_dir($directory . '/' . $item)) {
+                        $files[] = $item;
+                    }
+                }
+            }
+
+            $itemsCount = 0;
+    
+            foreach ($files as $file) {
+                if ($file !== '.' && $file !== '..') {
+                    $filePath = $directory . '/' . $file;
+                   
+        
+                    if (is_dir($filePath)) {
+                        $itemsCount++;
+                        $index = '';
+                        $originPath = implode('/', array_slice(explode('/', $directory), 1, 4));
+                        
+                        foreach(array_slice(explode('/', $filePath), 5) as $path) {
+                            $originPath .= '/' . $path;
+                            $index .= UploadFolder::where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                        }
+    
+                        $html .= '<li>';
+                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory',$originPath)->value('basename') .'\')" style="cursor:pointer;font-size:10px;">▼</a>&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '</span></div><div><input type="checkbox" disabled></input></div></div>';
+                        $html .= '<ul class="nested" id="' . UploadFolder::where('directory',$originPath)->value('basename') .'">';
+                        //$html .= self::generateFileTree($filePath);
+                        $html .= '</ul>';
+                        $html .= '</li>';
+                       
+                    } else {
+                        if(UploadFile::where('basename', $file)->value('status') == '1') {
+                            $itemsCount++;
+                            $fileExtension = pathinfo(UploadFile::where("basename", $file)->value("name"), PATHINFO_EXTENSION);
+                            $fileName = UploadFile::where('basename', $file)->value('name');
+    
+                            $index = '';
+                            $originPath = implode('/', array_slice(explode('/', $directory), 1, 4));
+                            
+                            $deb = implode('/', array_slice(explode('/', $filePath), 5));
+
+                            foreach(array_slice(explode('/', $filePath), 5) as $item) {
+                                $originPath .= '/' . $item;
+                                $index .= is_null(UploadFolder::where('directory', $originPath)->where('name', $item)->value('index')) ? "" : UploadFolder::where('directory', $originPath)->where('name', $item)->value('index') . '.';
+                            }
+
+                            $index .= UploadFile::where('basename', $file)->value('index');
+                        
+                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox"></input></div></div></li>';
+                        }
+                    }
+                }
+            }
+
+            if ($itemsCount == 0) {
+                $html .= '<div class="items"><div><li><span class="file">This folder is empty</span></div><div></div></div></li>';
+            }
+
+            $html .= '</ul>';
+
+            return response($html);
+
+        } catch (\Exception $e) {
+
+        }
+    }
+
+    public function CheckUserPermission(Request $request) {
+        try {
+            $userID = $request->input('userID');
+            $avatarColor = User::where('user_id', $userID)->value('avatar_color');
+            $html = \globals::get_user_avatar_small($userID, $avatarColor);
+
+            if(is_null(User::where('user_id', $userID)->value('name')) || User::where('user_id', $userID)->value('name') == "null") {
+                $html .= User::where('user_id', $userID)->value('email');
+            } else {
+                $html .= User::where('user_id', $userID)->value('name');
+            }
+
+            $html .= '&nbsp;-&nbsp;' ;
+
+            $html .= User::where('user_id', $userID)->value('type') == 0 ? 'Administrator' : (User::where('user_id', $userID)->value('type') == 1 ? 'Collaborator' : 'Client');
+            return response($html);
+
+        } catch (\Exception $e) {
+
+        }
     }
 
     public function SetPermission(Request $request)
@@ -200,6 +334,8 @@ class DocumentController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+
+
 
     public function CreateFolder(Request $request)
     {

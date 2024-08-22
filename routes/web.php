@@ -213,6 +213,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/action/paste', 'App\Http\Controllers\Adminuser\DocumentController@Paste')->name('adminuser.documents.paste');
 			Route::post('documents/action/clear', 'App\Http\Controllers\Adminuser\DocumentController@ClearClipboard')->name('adminuser.documents.clear');
 			Route::post('documents/watermark/save_settings', 'App\Http\Controllers\Adminuser\DocumentController@SaveWatermarkSettings')->name('adminuser.watermark.save_settings');
+			Route::post('documents/expand/folder', 'App\Http\Controllers\Adminuser\DocumentController@ExpandFolder')->name('adminuser.folder.expand');
+			Route::post('documents/permission/checkuser', 'App\Http\Controllers\Adminuser\DocumentController@CheckUserPermission')->name('adminuser.permission.checkuser');
 
 			/* Companies */
 			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');

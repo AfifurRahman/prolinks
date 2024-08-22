@@ -105,10 +105,10 @@
                                         @foreach($listusers as $user)
                                                 @if($user->group_id == $group->group_id)
                                                     @if(!$user->role == 0)
-                                                        <tr class="collapse in group{{$key}}" style="cursor:pointer" onclick="setUser(this)" aria-expanded="true">
+                                                        <tr class="collapse in group{{$key}}" style="cursor:pointer" onclick="setUser(this)" data-value="{{$user->user_id}}" aria-expanded="true">
                                                             <td></td>
                                                             <td>
-                                                                <span class="user-name">{{ is_null($user->name) ? $user->email_address : $user->name }}</span>
+                                                                <span class="user-name">{{ is_null(DB::table('users')->where('user_id',$user->user_id)->value('name'))  || DB::table('users')->where('user_id',$user->user_id)->value('name') == "null" ? DB::table('users')->where('user_id',$user->user_id)->value('email') : DB::table('users')->where('user_id',$user->user_id)->value('name') }}</span>
                                                                 <br>  {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
                                                             </td>
                                                         </tr>
@@ -122,9 +122,9 @@
                                         @foreach($listusers as $user)
                                                 @if(empty($user->group_id))
                                                     @if(!$user->role == 0)
-                                                        <tr class="ungrouped-users" style="cursor:pointer" onclick="setUser(this)" aria-expanded="true">
+                                                        <tr class="ungrouped-users" style="cursor:pointer" onclick="setUser(this)" data-value="{{$user->user_id}}" aria-expanded="true">
                                                             <td class="table-icon" style="vertical-align:top;"><image class="users-icon" src="{{ url('template/images/icon_menu/user.png') }}"></td>
-                                                            <td><span class="user-name">{{ is_null($user->name) ? "Unnamed User" : $user->name }}</span>
+                                                            <td><span class="user-name">{{ is_null(DB::table('users')->where('user_id',$user->user_id)->value('name')) || DB::table('users')->where('user_id',$user->user_id)->value('name') == "null"  ? DB::table('users')->where('user_id',$user->user_id)->value('email') : DB::table('users')->where('user_id',$user->user_id)->value('name') }}</span>
                                                             <br>  {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
                                                             </td>
                                                         </tr>
@@ -138,7 +138,7 @@
                     </div>
                 </div>
                 <div class="permission-files-list">
-                    <p>Files</p>
+                    <p id="display-user-name">Files</p>
                     {!! \App\Http\Controllers\Adminuser\DocumentController::generateFileTree(storage_path('app/'.$origin)) !!}
                 </div>
             </div>
@@ -158,7 +158,22 @@
         document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
         
         element.classList.add('highlighted');
-    }
+
+        var formData = new FormData();
+        formData.append('userID', element.getAttribute('data-value'));
+        
+        fetch('{{ route("adminuser.permission.checkuser") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('display-user-name').innerHTML = html;
+            });
+     }
 
     function setGroup(element) {
         document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
@@ -173,5 +188,23 @@
 
         element.classList.add('highlighted');
     }
+
+    function expandFolder(folderID) {
+        var formData = new FormData();
+            formData.append('folderID', folderID);
+            
+            fetch('{{ route("adminuser.folder.expand") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById(folderID).innerHTML = html;
+            });
+     }
+
 </script>
 @endpush
