@@ -175,7 +175,7 @@ class DocumentController extends Controller
 
                             $index .= UploadFile::where('basename', $file)->value('index');
                         
-                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox"></input></div></div></li>';
+                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '//' . $originPath . '</span></div><div><input type="checkbox"></input></div></div></li>';
                         }  
                     }
                 }
@@ -292,7 +292,7 @@ class DocumentController extends Controller
 
             $html .= '&nbsp;-&nbsp;' ;
 
-            $html .= User::where('user_id', $userID)->value('type') == 0 ? 'Administrator' : (User::where('user_id', $userID)->value('type') == 1 ? 'Collaborator' : 'Client');
+            $html .= ClientUser::where('user_id', $userID)->value('role') == 0 ? 'Administrator' : (ClientUser::where('user_id', $userID)->value('role') == 1 ? 'Collaborator' : 'Client');
             return response($html);
 
         } catch (\Exception $e) {
