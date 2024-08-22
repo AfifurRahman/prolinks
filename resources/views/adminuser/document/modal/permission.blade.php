@@ -105,7 +105,7 @@
                                         @foreach($listusers as $user)
                                                 @if(empty($user->group_id))
                                                     <tr class="ungrouped-users" style="cursor:pointer" onclick="setUser(this)" aria-expanded="true">
-                                                        <td class="table-icon" style="vertical-align:top;"><image class="user-icon" src="{{ url('template/images/icon_menu/user.png') }}"></td>
+                                                        <td class="table-icon" style="vertical-align:top;"><image class="users-icon" src="{{ url('template/images/icon_menu/user.png') }}"></td>
                                                         <td><span class="user-name">{{ is_null($user->name) ? "Unnamed User" : $user->name }}</span>
                                                         <br>  {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
                                                         </td>
