@@ -38,7 +38,7 @@
     @endif
 
     <div class="box_helper">
-        <h2 id="title" style="color:black;font-size:28px;">
+        <h2 id="title" class="project-title">
             @if (empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
                 Content of Folder "{{DB::table('upload_folders')->where('directory', $origin)->value('displayname')}}"
             @else
