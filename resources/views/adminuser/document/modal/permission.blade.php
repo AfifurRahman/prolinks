@@ -62,6 +62,22 @@
         line-height:0px;
     }
 
+    .users-icon {
+        height:20px;
+        width:20px;
+        margin-right:8px;
+    }
+
+    .permission-users-list {
+        background-color: #F1F5F9;
+        width:35%;
+        max-width: 35%;
+        border-right: 1.5px solid #D0D5DD;
+        overflow: auto;
+        padding:24px;
+        padding-top:18px;
+    }
+
 </style>
 
 <div id="set-permission-modal" class="modal">
