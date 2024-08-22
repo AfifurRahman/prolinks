@@ -292,7 +292,7 @@ class DocumentController extends Controller
 
             $html .= '&nbsp;-&nbsp;' ;
 
-            $html .= ClientUser::where('user_id', $userID)->value('role') == 0 ? 'Administrator' : (ClientUser::where('user_id', $userID)->value('type') == 1 ? 'Collaborator' : 'Client');
+            $html .= ClientUser::where('user_id', $userID)->value('role') == 0 ? 'Administrator' : (ClientUser::where('user_id', $userID)->value('role') == 1 ? 'Collaborator' : 'Client');
             return response($html);
 
         } catch (\Exception $e) {
