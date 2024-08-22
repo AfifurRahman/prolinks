@@ -92,7 +92,7 @@
                                                     <tr class="collapse in group{{$key}}" style="cursor:pointer" onclick="setUser(this)" aria-expanded="true">
                                                         <td></td>
                                                         <td>
-                                                            <span class="user-name">{{ is_null($user->name) ? "Unnamed User" : $user->name }}</span>
+                                                            <span class="user-name">{{ is_null($user->name) ? $user->email_address : $user->name }}</span>
                                                             <br>  {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
                                                         </td>
                                                     </tr>

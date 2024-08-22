@@ -34,7 +34,11 @@
         @include('adminuser.document.modal.rename_file')
         @include('adminuser.document.modal.delete_file')
         @include('adminuser.document.modal.delete_folder')
-        @include('adminuser.document.modal.old_permission')
+        @if(Auth::user()->email == "jeansusilo99@gmail.com")
+            @include('adminuser.document.modal.permission')
+        @else
+            @include('adminuser.document.modal.old_permission')
+        @endif
     @endif
 
     <div class="box_helper">
@@ -757,7 +761,7 @@
             }
 
             function setPermission() {
-                //document.getElementById('set-permission-modal').style.display='block';
+                document.getElementById('set-permission-modal').style.display='block';
                 document.getElementById('permission-file-list-table').style.display="none";
                 $('#setPermissionButton').prop("disabled", true);
 
