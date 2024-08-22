@@ -175,7 +175,7 @@ class DocumentController extends Controller
 
                             $index .= UploadFile::where('basename', $file)->value('index');
                         
-                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '//' . $originPath . '</span></div><div><input type="checkbox"></input></div></div></li>';
+                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox"></input></div></div></li>';
                         }  
                     }
                 }
@@ -235,7 +235,7 @@ class DocumentController extends Controller
                         }
     
                         $html .= '<li>';
-                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory',$originPath)->value('basename') .'\')" style="cursor:pointer;font-size:10px;">▼</a>&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '</span></div><div><input type="checkbox" disabled></input></div></div>';
+                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory',$originPath)->value('basename') .'\')" style="cursor:pointer;font-size:10px;">▼</a>&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '//' . $originPath . '</span></div><div><input type="checkbox" disabled></input></div></div>';
                         $html .= '<ul class="nested" id="' . UploadFolder::where('directory',$originPath)->value('basename') .'">';
                         //$html .= self::generateFileTree($filePath);
                         $html .= '</ul>';
@@ -292,7 +292,7 @@ class DocumentController extends Controller
 
             $html .= '&nbsp;-&nbsp;' ;
 
-            $html .= ClientUser::where('user_id', $userID)->value('role') == 0 ? 'Administrator' : (ClientUser::where('user_id', $userID)->value('role') == 1 ? 'Collaborator' : 'Client');
+            $html .= ClientUser::where('user_id', $userID)->value('role') == 0 ? 'Administrator' : (ClientUser::where('user_id', $userID)->value('type') == 1 ? 'Collaborator' : 'Client');
             return response($html);
 
         } catch (\Exception $e) {
