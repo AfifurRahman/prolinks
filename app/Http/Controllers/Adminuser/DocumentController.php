@@ -287,9 +287,9 @@ class DocumentController extends Controller
             $html = \globals::get_user_avatar_small($userID, $avatarColor);
 
             if(is_null(User::where('user_id', $userID)->value('name')) || User::where('user_id', $userID)->value('name') == "null") {
-                $html .= User::where('user_id', $userID)->value('email');
+                $html .= '<span class="banner-user-name">'.  User::where('user_id', $userID)->value('email') . '</span>';
             } else {
-                $html .= User::where('user_id', $userID)->value('name');
+                $html .= '<span class="banner-user-name">'. User::where('user_id', $userID)->value('name') . '</span>';
             }
 
             $html .= '&nbsp;-&nbsp;' ;

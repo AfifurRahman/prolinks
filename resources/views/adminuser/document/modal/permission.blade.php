@@ -62,6 +62,13 @@
         line-height:0px;
     }
 
+    .banner-user-name {
+        margin-left:8px;
+        font-size:18px;
+        font-weight:500;
+        color: #1D2939;
+    }
+
     .users-icon {
         height:20px;
         width:20px;
@@ -77,6 +84,10 @@
         padding:24px;
         padding-top:18px;
     }
+
+    .display-user-name {
+        margin:24px;
+    }       
 </style>
 
 <div id="set-permission-modal" class="modal">
@@ -108,7 +119,7 @@
                                                         <tr class="collapse in group{{$key}}" style="cursor:pointer" onclick="setUser(this)" data-value="{{$user->user_id}}" aria-expanded="true">
                                                             <td></td>
                                                             <td>
-                                                                <span class="user-name">{{ is_null(DB::table('users')->where('user_id',$user->user_id)->value('name'))  || DB::table('users')->where('user_id',$user->user_id)->value('name') == "null" ? DB::table('users')->where('user_id',$user->user_id)->value('email') : DB::table('users')->where('user_id',$user->user_id)->value('name') }}</span>
+                                                                <span class="user-name">{{ is_null(DB::table('users')->where('user_id',$user->user_id)->value('name')) || DB::table('users')->where('user_id',$user->user_id)->value('name') == "null" ? DB::table('users')->where('user_id',$user->user_id)->value('email') : DB::table('users')->where('user_id',$user->user_id)->value('name') }}</span>
                                                                 <br>  {{ $user->role == 0 ? 'Administrator' : ($user->role == 1 ? 'Collaborator' : 'Client') }}
                                                             </td>
                                                         </tr>
@@ -138,7 +149,7 @@
                     </div>
                 </div>
                 <div class="permission-files-list">
-                    <p id="display-user-name">Files</p>
+                    <p class="display-user-name" id="display-user-name">Files</p>
                     {!! \App\Http\Controllers\Adminuser\DocumentController::generateFileTree(storage_path('app/'.$origin)) !!}
                 </div>
             </div>
