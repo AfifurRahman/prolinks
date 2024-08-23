@@ -154,7 +154,7 @@ class DocumentController extends Controller
                         }
     
                         $html .= '<li>';
-                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'\')" style="cursor:pointer;font-size:10px;"><i class="fa fa-caret-down" style="font-size:16px"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '</span></div><div><input type="checkbox" disabled></input></div></div>';
+                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'\')" style="cursor:pointer;font-size:10px;"><i class="fa fa-caret-down" style="font-size:16px"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('displayname') . '</span></div><div><input type="checkbox" disabled></input></div></div>';
                         $html .= '<ul class="nested" id="' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'">';
                         //$html .= self::generateFileTree($filePath);
                         $html .= '</ul>';
@@ -237,7 +237,7 @@ class DocumentController extends Controller
                         }
     
                         $html .= '<li>';
-                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'\')" style="cursor:pointer;font-size:10px;"><i class="fa fa-caret-down" style="font-size:16px"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '</span></div><div><input type="checkbox" disabled></input></div></div>';
+                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'\')" style="cursor:pointer;font-size:10px;"><i class="fa fa-caret-down" style="font-size:16px"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('displayname') . '</span></div><div><input type="checkbox" disabled></input></div></div>';
                         $html .= '<ul class="nested" id="' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'">';
                         //$html .= self::generateFileTree($filePath);
                         $html .= '</ul>';
