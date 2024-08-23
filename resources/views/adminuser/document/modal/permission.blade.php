@@ -137,6 +137,7 @@
         overflow: auto;
         padding:24px;
         padding-top:18px;
+        height:70vh;
     }
 
     
@@ -144,6 +145,7 @@
         width:65%;
         max-width: 65%;
         overflow:auto;
+        height:70vh;
     }
 
     .display-user-name {
