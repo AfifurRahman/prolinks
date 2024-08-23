@@ -44,7 +44,7 @@
         max-width:100%;
         padding-left:12px;
         padding-right:36px;
-        height:52px;
+        min-height:52px;
         border-bottom: 1.5px solid #D0D5DD;
         align-items: center;
         color:#1D2939;
