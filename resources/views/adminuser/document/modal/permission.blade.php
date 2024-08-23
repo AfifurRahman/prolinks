@@ -1,4 +1,5 @@
 <style>
+
     .highlighted {
         background-color: white;
         color: #1570EF;
@@ -6,17 +7,70 @@
     
     li {
         list-style-type:none;
+        padding-left:8px;
+    }
+
+    ul {
+        padding-left: 8px;
+        list-style-type: none;
+        margin-bottom:0px;
     }
 
     .permission-body{
         display:flex;
     }
 
+    .user-list-table td:first-child,
+    .user-list-table th:first-child {
+    border-radius: 5px 0 0 5px;
+    }
+
+    .user-list-table td:last-child,
+    .user-list-table th:last-child {
+    border-radius: 0 5px 5px 0;
+    }
+
+    .modal-content-permission {
+        background-color: #fefefe;
+        margin: 3% auto;
+        border: 1px solid #888;
+        border-radius:8px;
+        width: 50%;
+    }
+
     .items{
         display:flex;
         justify-content:space-between;
-        margin-left:-20px;
         max-width:100%;
+        padding-left:12px;
+        padding-right:36px;
+        height:52px;
+        border-bottom: 1.5px solid #D0D5DD;
+        align-items: center;
+        color:#1D2939;
+    }
+
+    .items input{
+        width:16px;
+        height:16px;
+    }
+
+    .files-list-table-header{
+        display:flex;
+        justify-content:space-between;
+        background:#F9FAFB;
+        height:52px;
+        align-items: center;
+        max-width:100%;
+        padding-left:8px;
+        padding-right:36px;
+        border-bottom: 1.5px solid #D0D5DD;
+        margin-top:-10px;
+    }
+
+    .files-list-table-header input{
+        width:16px;
+        height:16px;
     }
 
     .expand-btn {
@@ -37,11 +91,11 @@
     }
 
     .user-list-table td{
-        padding-top:10px;
-        padding-bottom:8px;
-        border-radius:5px;
+        padding-top:12px;
+        padding-bottom:10px;
         margin:0px;
     }
+    
 
     .table-icon {
         width:8%;
@@ -85,9 +139,22 @@
         padding-top:18px;
     }
 
+    
+    .permission-files-list {
+        width:65%;
+        max-width: 65%;
+        overflow:auto;
+    }
+
     .display-user-name {
         margin:24px;
-    }       
+    }   
+    
+    .files-list-title{
+        font-size:14px;
+        font-weight:500;
+        color:#000000;
+    }
 </style>
 
 <div id="set-permission-modal" class="modal">
@@ -150,7 +217,15 @@
                 </div>
                 <div class="permission-files-list">
                     <p class="display-user-name" id="display-user-name">Files</p>
-                    {!! \App\Http\Controllers\Adminuser\DocumentController::generateFileTree(storage_path('app/'.$origin)) !!}
+                    <div class="files-list-table">
+                        <ul>
+                        <li><div class="files-list-table-header">
+                                <span class="files-list-title">File name</span>
+                                <input type="checkbox"></input>
+                        </div></li>
+</ul>
+                        {!! \App\Http\Controllers\Adminuser\DocumentController::generateFileTree(storage_path('app/'.$origin)) !!}
+                    </div>
                 </div>
             </div>
             <div class="modal-body">
