@@ -143,6 +143,7 @@
 
     
     .permission-files-list {
+        visibility:collapse;
         width:65%;
         overflow:auto;
         height:70vh;
@@ -244,7 +245,6 @@
 <script>
     function setUser(element) {
         document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
-        
         element.classList.add('highlighted');
 
         var formData = new FormData();
@@ -260,6 +260,7 @@
             .then(response => response.text())
             .then(html => {
                 document.getElementById('display-user-name').innerHTML = html;
+                $(".permission-files-list").css("visibility", "visible");
             });
      }
 
@@ -273,8 +274,8 @@
 
         const groupRow = element.closest('tr');
         groupRow.classList.add('highlighted');
-
         element.classList.add('highlighted');
+        $(".permission-files-list").css("visibility", "visible");
     }
 
     function expandFolder(folderID) {
