@@ -48,7 +48,7 @@
         border-bottom: 1.5px solid #D0D5DD;
         align-items: center;
         color:#1D2939;
-        white-space: normal:
+        overflow-wrap: break-word;
     }
 
     .items input{
