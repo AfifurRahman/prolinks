@@ -143,7 +143,6 @@
     
     .permission-files-list {
         width:65%;
-        max-width: 65%;
         overflow:auto;
         height:70vh;
     }
