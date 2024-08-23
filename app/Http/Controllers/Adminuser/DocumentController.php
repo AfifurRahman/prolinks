@@ -146,10 +146,11 @@ class DocumentController extends Controller
                     if (is_dir($filePath)) {
                         $index = '';
                         $originPath = implode('/',array_slice(explode('/',substr($directory, strpos($directory, 'app/') + strlen('app/'))), 0,4));
-                        
-                        foreach(array_slice(explode('/', $filePath), 5) as $path) {
-                            $originPath .= '/' . $path;
-                            $index .= UploadFolder::where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                        $indexPathLoop = implode('/',array_slice(explode('/',substr($directory, strpos($directory, 'app/') + strlen('app/'))), 0,4));
+
+                        foreach(explode('/',ltrim(implode('/',explode('/', substr($filePath, strpos($filePath, $originPath) + strlen($originPath)))),'/')) as $path) {
+                            $indexPathLoop .= '/' . $path;
+                            $index .= UploadFolder::where('directory', $indexPathLoop)->where('name', $path)->value('index') . '.';
                         }
     
                         $html .= '<li>';
@@ -228,14 +229,15 @@ class DocumentController extends Controller
                         $itemsCount++;
                         $index = '';
                         $originPath = implode('/',array_slice(explode('/',substr($directory, strpos($directory, 'app/') + strlen('app/'))), 0,4));
-                        
-                        foreach(array_slice(explode('/', $filePath), 5) as $path) {
-                            $originPath .= '/' . $path;
-                            $index .= UploadFolder::where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                        $indexPathLoop = implode('/',array_slice(explode('/',substr($directory, strpos($directory, 'app/') + strlen('app/'))), 0,4));
+
+                        foreach(explode('/',ltrim(implode('/',explode('/', substr($filePath, strpos($filePath, $originPath) + strlen($originPath)))),'/')) as $path) {
+                            $indexPathLoop .= '/' . $path;
+                            $index .= UploadFolder::where('directory', $indexPathLoop)->where('name', $path)->value('index') . '.';
                         }
     
                         $html .= '<li>';
-                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'\')" style="cursor:pointer;font-size:10px;">▼</a>&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $originPath . '</span></div><div><input type="checkbox" disabled></input></div></div>';
+                        $html .= '<div class="items"><div><span class="folder"><a onclick="expandFolder(\'' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'\')" style="cursor:pointer;font-size:10px;">▼</a>&nbsp;<img class="fol-fil-icon" src="' . url('template/images/icon_menu/foldericon.png') . '" />' . rtrim($index, ".") . '&nbsp;'. $file . '</span></div><div><input type="checkbox" disabled></input></div></div>';
                         $html .= '<ul class="nested" id="' . UploadFolder::where('directory', substr($directory, strpos($directory, 'app/') + strlen('app/')) . '/' . $file )->value('basename') .'">';
                         //$html .= self::generateFileTree($filePath);
                         $html .= '</ul>';
