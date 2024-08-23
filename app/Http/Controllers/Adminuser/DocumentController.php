@@ -166,14 +166,14 @@ class DocumentController extends Controller
     
                             $index = '';
                             $originPath = implode('/',array_slice(explode('/',substr($directory, strpos($directory, 'app/') + strlen('app/'))), 0,4));
-                            
-                            $deb = implode('/', array_slice(explode('/', $filePath), 5));
+                            $indexPathLoop = implode('/',array_slice(explode('/',substr($directory, strpos($directory, 'app/') + strlen('app/'))), 0,4));
+                            $pathLoop = explode('/',ltrim(implode('/',explode('/', substr($filePath, strpos($filePath, $originPath) + strlen($originPath)))),'/'));
 
-                            foreach(array_slice(explode('/', $filePath), 5) as $item) {
-                                $originPath .= '/' . $item;
-                                $index .= is_null(UploadFolder::where('directory', $originPath)->where('name', $item)->value('index')) ? "" : UploadFolder::where('directory', $originPath)->where('name', $item)->value('index') . '.';
+                            foreach(array_slice($pathLoop, 0, count($pathLoop) -1) as $path) {
+                                $indexPathLoop .= '/' . $path;
+                                $index .= UploadFolder::where('directory', $indexPathLoop)->where('name', $path)->value('index') . '.';
                             }
-
+                            
                             $index .= UploadFile::where('basename', $file)->value('index');
                         
                             $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox"></input></div></div></li>';
@@ -251,14 +251,14 @@ class DocumentController extends Controller
     
                             $index = '';
                             $originPath = implode('/',array_slice(explode('/',substr($directory, strpos($directory, 'app/') + strlen('app/'))), 0,4));
-                            
-                            $deb = implode('/', array_slice(explode('/', $filePath), 5));
+                            $indexPathLoop = implode('/',array_slice(explode('/',substr($directory, strpos($directory, 'app/') + strlen('app/'))), 0,4));
+                            $pathLoop = explode('/',ltrim(implode('/',explode('/', substr($filePath, strpos($filePath, $originPath) + strlen($originPath)))),'/'));
 
-                            foreach(array_slice(explode('/', $filePath), 5) as $item) {
-                                $originPath .= '/' . $item;
-                                $index .= is_null(UploadFolder::where('directory', $originPath)->where('name', $item)->value('index')) ? "" : UploadFolder::where('directory', $originPath)->where('name', $item)->value('index') . '.';
+                            foreach(array_slice($pathLoop, 0, count($pathLoop) -1) as $path) {
+                                $indexPathLoop .= '/' . $path;
+                                $index .= UploadFolder::where('directory', $indexPathLoop)->where('name', $path)->value('index') . '.';
                             }
-
+                           
                             $index .= UploadFile::where('basename', $file)->value('index');
                         
                             $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox"></input></div></div></li>';
