@@ -289,7 +289,7 @@
                 document.getElementById('display-user-name').innerHTML = data.ProfileData;
                 $(".files-list-table input[type='checkbox']").each(function() {
                     var checkboxId = $(this).attr("id"); 
-                    $("#" + checkboxId).prop("checked", false);
+                    $("#" + checkboxId).prop("checked", true);
                 });
 
                 NewData = data.Permission;
@@ -304,9 +304,7 @@
                 
                 if (PermissionData[CurrentUser] && PermissionData[CurrentUser].length > 0) {
                     PermissionData[CurrentUser].forEach(fileID => {
-                        if (`${fileID.permission}`== 1) {
-                            $("#" + `${fileID.id}`).prop("checked", true);
-                        }
+                        $("#" + `${fileID.id}`).prop("checked", `${fileID.permission}`== 1 ? true : false);
                     })
                 }
                 
