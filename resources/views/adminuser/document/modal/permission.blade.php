@@ -250,9 +250,9 @@
 @push('scripts')
 <script>
     var PermissionData = {};
-    var NewData;
-    var CurrentUser;
-    var Index;
+    var NewData = [];
+    var CurrentUser = '';
+    var Index = 0;
 
     function setPermission() {
         document.getElementById('set-permission-modal').style.display='block';
