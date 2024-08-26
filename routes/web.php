@@ -202,8 +202,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('documents/serve/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ServeFile')->name('adminuser.documents.serve');
 			Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@Delete')->name('adminuser.documents.delete');
 			Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
-			Route::post('documents/check/permission', 'App\Http\Controllers\Adminuser\DocumentController@CheckPermission')->name('adminuser.documents.checkpermission');
-			Route::post('documents/set/permission', 'App\Http\Controllers\Adminuser\DocumentController@SetPermission')->name('adminuser.documents.setpermission');
 			Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
 			Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');
 			Route::post('documents/rename/file', 'App\Http\Controllers\Adminuser\DocumentController@RenameFile')->name('adminuser.documents.renamefile');
@@ -215,6 +213,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/watermark/save_settings', 'App\Http\Controllers\Adminuser\DocumentController@SaveWatermarkSettings')->name('adminuser.watermark.save_settings');
 			Route::post('documents/expand/folder', 'App\Http\Controllers\Adminuser\DocumentController@ExpandFolder')->name('adminuser.folder.expand');
 			Route::post('documents/permission/checkuser', 'App\Http\Controllers\Adminuser\DocumentController@CheckUserPermission')->name('adminuser.permission.checkuser');
+			Route::post('documents/permission/save', 'App\Http\Controllers\Adminuser\DocumentController@SavePermission')->name('adminuser.permission.save');
+			
 
 			/* Companies */
 			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');

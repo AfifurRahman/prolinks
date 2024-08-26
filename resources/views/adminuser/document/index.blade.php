@@ -34,11 +34,7 @@
         @include('adminuser.document.modal.rename_file')
         @include('adminuser.document.modal.delete_file')
         @include('adminuser.document.modal.delete_folder')
-        @if(Auth::user()->email == "jeansusilo99@gmail.com")
-            @include('adminuser.document.modal.permission')
-        @else
-            @include('adminuser.document.modal.old_permission')
-        @endif
+        @include('adminuser.document.modal.permission')
     @endif
 
     <div class="box_helper">
@@ -758,93 +754,6 @@
                 } else if (size >= 0) {
                     return size + ' bytes';
                 }
-            }
-
-            function setPermission() {
-                document.getElementById('set-permission-modal').style.display='block';
-                document.getElementById('permission-file-list-table').style.display="none";
-                $('#setPermissionButton').prop("disabled", true);
-
-                var formData = new FormData();
-                formData.append('projectid', '{{$projectID}}');
-                formData.append('subprojectid', '{{$subprojectID}}')
-
-                fetch('{{ route("adminuser.documents.checkpermission") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    permission = data.permissionlist;
-                });
-            }
-
-            function savePermission() {
-                fetch('{{ route("adminuser.documents.setpermission") }}', {
-                    method: 'POST',
-                    body: JSON.stringify({ permission: permission }),
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'  
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // $("#modal-add-permission").modal('hide');
-                    $("#set-permission-modal").modal('hide');
-                    showNotification(data.message);
-                })
-            }
-            
-            function handleChangeBox(checkbox) {
-                if (permission[$("#IDuser").val()]) {
-                    for (const obj of permission[$("#IDuser").val()]) {
-                        if (obj.id === checkbox.value) {
-                            obj.permission = checkbox.checked ? '1' : '0';
-                            break; 
-                        }
-                    }
-                }
-                checkAllListener()
-            }
-
-            function checkAllListener() {
-                const FileCount = $('.setPermissionBox').length - 1;
-                var FileChecked = $('.setPermissionBox:checked').length;
-            
-                if (FileChecked > FileCount) {
-                    $('#all_checkbox').prop('checked', true); 
-                } else if (FileChecked == FileCount && !($('#all_checkbox').prop('checked'))) {
-                    $('#all_checkbox').prop('checked', true);
-                } else { 
-                    $('#all_checkbox').prop('checked', false);
-                }
-            }
-
-            function checkUserPermission(user) {
-                $("#IDuser").attr("value",user);
-                document.getElementById('permission-file-list-table').style.display="block";
-                $('#setPermissionButton').prop("disabled", false);
-
-                var checkboxIds = [];
-                $("#fileList input[type='checkbox']").each(function() {
-                    var checkboxId = $(this).attr("id"); 
-                    checkboxIds.push(checkboxId);
-                });
-                checkboxIds.forEach(function(checkboxId) {
-                    $("#" + checkboxId).prop("checked", false);
-                });
-
-                permission[user].forEach(obj => {
-                        if (`${obj.permission}`== 1){
-                        $("#" + `${obj.id}`).prop("checked", true);
-                    }   
-                });
-
-                checkAllListener()
             }
 
             function createFolder() {

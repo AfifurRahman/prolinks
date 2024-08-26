@@ -57,55 +57,17 @@ class DocumentController extends Controller
             $projectID = $path[0];
             $subprojectID = $path[1];
 
-            $fileList = UploadFile::where('subproject_id', $subProjectPath)->distinct()->pluck('basename');
-            $listusers = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
+            $listusers = ClientUser::orderBy('group_id', 'ASC')
+            ->where('client_id', \globals::get_client_id())
+            ->where('user_id', '!=', Auth::user()->user_id)
+            ->whereHas('assignProjects', function ($query) use ($subprojectID) {
+                $query->where('subproject_id', $subprojectID);
+            })
+            ->get();
 
-            return view('adminuser.document.index', compact('files','folders','origin','directorytype','listusers','fileList', 'projectID', 'subprojectID'));
+            return view('adminuser.document.index', compact('files','folders','origin','directorytype','listusers', 'projectID', 'subprojectID'));
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
-        }
-    }
-
-    public function CheckPermission(Request $request)
-    {
-        try {
-            if(Auth::user()->type == \globals::set_role_administrator()) { 
-                $permissionTable = [];
-                $files = [];
-
-                foreach(UploadFile::where('subproject_id', $request->subprojectid)->get('basename') as $file) {
-                    $files[] = $file->basename;
-                }
-
-                $users = AssignProject::where('client_id', \globals::get_client_id())
-                ->where('project_id', $request->projectid)
-                ->where('user_id', '!=', Auth::user()->user_id)
-                ->get();
-
-                foreach($users as $user) {
-                    $permission = [];
-
-                    foreach($files as $file) {
-                        if (!is_null(Permission::where('fileid', $file)->where('user_id', $user->user_id)->value('permission'))) {
-                            $permission[] = [
-                                'id' => $file,
-                                'permission' => Permission::where('fileid', $file)->where('user_id', $user->user_id)->value('permission'),
-                            ];
-                        } else {
-                             $permission[] = [
-                                'id' => $file,
-                                'permission' => '1',
-                            ];
-                        }
-                    }
-
-                    $permissionTable[$user->user_id] = $permission;
-                }
-                
-                return response()->json(['permissionlist' => $permissionTable]);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
@@ -176,7 +138,7 @@ class DocumentController extends Controller
                             
                             $index .= UploadFile::where('basename', $file)->value('index');
                         
-                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox"></input></div></div></li>';
+                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox" id="'. $file .'" onchange="setFile(this)"></input></div></div></li>';
                         }  
                     }
                 }
@@ -261,7 +223,7 @@ class DocumentController extends Controller
                            
                             $index .= UploadFile::where('basename', $file)->value('index');
                         
-                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox"></input></div></div></li>';
+                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox" id="'. $file .'" onchange="setFile(this)"></input></div></div></li>';
                         }
                     }
                 }
@@ -295,10 +257,23 @@ class DocumentController extends Controller
             $html .= '&nbsp;-&nbsp;' ;
 
             $html .= ClientUser::where('user_id', $userID)->value('role') == 0 ? 'Administrator' : (ClientUser::where('user_id', $userID)->value('role') == 1 ? 'Collaborator' : 'Client');
-            return response($html);
+    
+            $permissionData = Permission::where('user_id', $userID)->get();
+            $permission = [];
+
+            foreach($permissionData as $data) {
+                $permission[$userID][] = [
+                    'id' => $data->fileid,
+                    'permission' => $data->permission,
+                ];
+            }
+
+            return response()->json(['ProfileData' => $html, 'Permission' => $permission]);
 
         } catch (\Exception $e) {
+            $html = $e->getMessage();
 
+            return response($html);
         }
     }
 
@@ -311,42 +286,28 @@ class DocumentController extends Controller
         }
     }
 
-    public function SetPermission(Request $request)
-    {
+    public function SavePermission(Request $request) {
         try {
-            if(Auth::user()->type == \globals::set_role_administrator()) {
-                $data = $request->input('permission');
+            $PermissionData = json_decode($request->input('PermissionData'), true);
+            
+            foreach ($PermissionData as $userId => $permissions) {
+                foreach ($permissions as $permission) {
+                    $fileId = $permission['id'];
+                    $perm = $permission['permission'];
 
-                foreach ($data as $userId => $permissions) {
-                    foreach ($permissions as $permissionData) {
-                        $fileId = $permissionData['id'];
-                        $permissionValue = $permissionData['permission'];
-                        
-                        if(is_null(Permission::where('user_id', $userId)->where('fileid', $fileId)->value('permission'))) {
-                            Permission::create([
-                                'user_id' => $userId,
-                                'fileid' => $fileId,
-                                'permission' => $permissionValue,
-                            ]);
-                        } else {
-                            Permission::where('user_id', $userId)
-                                ->where('fileid', $fileId)
-                                ->update(['permission' => $permissionValue]);
-                        }
-                    }
+                    // Update or create permission for the given user and file
+                    Permission::updateOrCreate(
+                        ['user_id' => $userId, 'fileid' => $fileId],
+                        ['permission' => $perm]
+                    );
                 }
-
-                $desc = Auth::user()->name . " set permission on user " . $request->userid;
-                \log::create(request()->all(), "success", $desc);
-
-                return response()->json(['success' => true, 'message' => "Successfully updated the permission"]);
             }
+
+            return response()->json(['success' => true, 'message' => "Successfully updated the permission"]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            return response()->json(['success' => true, 'message' => $e->getMessage()]);
         }
     }
-
-
 
     public function CreateFolder(Request $request)
     {

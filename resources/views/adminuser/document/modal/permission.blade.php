@@ -38,6 +38,10 @@
         width: 50%;
     }
 
+    .items:hover{
+        background:#F1F5F9;
+    }
+
     .items{
         display:flex;
         justify-content:space-between;
@@ -222,11 +226,13 @@
                     <p class="display-user-name" id="display-user-name">Files</p>
                     <div class="files-list-table">
                         <ul>
-                        <li><div class="files-list-table-header">
+                        <li>
+                            <div class="files-list-table-header">
                                 <span class="files-list-title">File name</span>
                                 <input type="checkbox"></input>
-                        </div></li>
-</ul>
+                            </div>
+                        </li>
+                        </ul>
                         {!! \App\Http\Controllers\Adminuser\DocumentController::generateFileTree(storage_path('app/'.$origin)) !!}
                     </div>
                 </div>
@@ -243,12 +249,31 @@
 
 @push('scripts')
 <script>
+    var PermissionData = {};
+    var NewData;
+    var CurrentUser;
+
+    function setPermission() {
+        document.getElementById('set-permission-modal').style.display='block';
+    }
+
+    function setFile(element) {
+        const index = PermissionData[CurrentUser].findIndex(item => item.id === element.id);
+
+        if (index !== -1) {
+            PermissionData[CurrentUser][index].permission = element.checked ? '1' : '0';
+        } else {
+            PermissionData[CurrentUser].push({ id: element.id, permission: element.checked ? '1' : '0' });
+        }
+    }
+
     function setUser(element) {
+        CurrentUser = element.getAttribute('data-value');
         document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
         element.classList.add('highlighted');
 
         var formData = new FormData();
-        formData.append('userID', element.getAttribute('data-value'));
+        formData.append('userID', CurrentUser);
         
         fetch('{{ route("adminuser.permission.checkuser") }}', {
             method: 'POST',
@@ -257,11 +282,35 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             })
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('display-user-name').innerHTML = html;
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('display-user-name').innerHTML = data.ProfileData;
+                $(".files-list-table input[type='checkbox']").each(function() {
+                    var checkboxId = $(this).attr("id"); 
+                    $("#" + checkboxId).prop("checked", false);
+                });
+
+                NewData = data.Permission;
+
+                for (let user_id in NewData) {
+                    if (NewData.hasOwnProperty(user_id)) {
+                        if (!PermissionData[user_id]) {
+                            PermissionData[user_id] = NewData[user_id];
+                        }
+                    }
+                }
+                
+                if (PermissionData[CurrentUser] && PermissionData[CurrentUser].length > 0) {
+                    PermissionData[CurrentUser].forEach(fileID => {
+                        if (`${fileID.permission}`== 1) {
+                            $("#" + `${fileID.id}`).prop("checked", true);
+                        }
+                    })
+                }
+                
                 $(".permission-files-list").css("visibility", "visible");
-            });
+            }
+        );
      }
 
     function setGroup(element) {
@@ -278,21 +327,47 @@
         $(".permission-files-list").css("visibility", "visible");
     }
 
+    function savePermission() {
+        var formData = new FormData();
+        formData.append('PermissionData',  JSON.stringify(PermissionData));
+
+        fetch('{{ route("adminuser.permission.save") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('set-permission-modal').style.display='none';
+            showNotification(data.message);
+        });
+    }
+
     function expandFolder(folderID) {
         var formData = new FormData();
-            formData.append('folderID', folderID);
-            
-            fetch('{{ route("adminuser.folder.expand") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-            })
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById(folderID).innerHTML = html;
-            });
+        formData.append('folderID', folderID);
+        
+        fetch('{{ route("adminuser.folder.expand") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById(folderID).innerHTML = html;
+
+            if (PermissionData[CurrentUser] && PermissionData[CurrentUser].length > 0) {
+                PermissionData[CurrentUser].forEach(fileID => {
+                    if (`${fileID.permission}`== 1) {
+                        $("#" + `${fileID.id}`).prop("checked", true);
+                    }
+                });
+            }
+        });
      }
 
 </script>

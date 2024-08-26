@@ -36,4 +36,9 @@ class ClientUser extends Model
     {
         return $this->hasOne('App\Models\User', 'id' , 'created_by');
     }
+
+    public function assignProjects()
+    {
+        return $this->hasMany(AssignProject::class, 'user_id', 'user_id');
+    }
 }
