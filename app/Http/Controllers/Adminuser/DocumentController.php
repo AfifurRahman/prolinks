@@ -259,7 +259,7 @@ class DocumentController extends Controller
             $html .= ClientUser::where('user_id', $userID)->value('role') == 0 ? 'Administrator' : (ClientUser::where('user_id', $userID)->value('role') == 1 ? 'Collaborator' : 'Client');
     
             $permissionData = Permission::where('user_id', $userID)->get();
-            $permission = [];
+            $permission[$userID] = [];
 
             foreach($permissionData as $data) {
                 $permission[$userID][] = [
