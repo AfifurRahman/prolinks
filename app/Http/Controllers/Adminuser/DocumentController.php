@@ -138,7 +138,7 @@ class DocumentController extends Controller
                             
                             $index .= UploadFile::where('basename', $file)->value('index');
                         
-                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'. $fileName . '</span></div><div><input type="checkbox" id="'. $file .'" onchange="setFile(this)"></input></div></div></li>';
+                            $html .= '<div class="items"><div><li><span class="file"><img class="file-icon" src="' . url('template/images/icon_menu/' . $fileExtension . '.png') . '" />' . $index.'&nbsp;'.  wordwrap($fileName, 40, "\n", true) . '</span></div><div><input type="checkbox" id="'. $file .'" onchange="setFile(this)"></input></div></div></li>';
                         }  
                     }
                 }
