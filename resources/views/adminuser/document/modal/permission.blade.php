@@ -252,13 +252,14 @@
     var PermissionData = {};
     var NewData;
     var CurrentUser;
+    var Index;
 
     function setPermission() {
         document.getElementById('set-permission-modal').style.display='block';
     }
 
     function setFile(element) {
-        const index = PermissionData[CurrentUser].findIndex(item => item.id === element.id);
+        index = PermissionData[CurrentUser].findIndex(item => item.id === element.id);
 
         if (index !== -1) {
             PermissionData[CurrentUser][index].permission = element.checked ? '1' : '0';
