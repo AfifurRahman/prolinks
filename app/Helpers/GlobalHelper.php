@@ -250,7 +250,7 @@ class GlobalHelper
 
     public static function get_project_sidebar()
     {
-        $assignProject = AssignProject::where('user_id', Auth::user()->user_id)->orderBy('client_id', 'DESC')->pluck('project_id')->toArray();
+        $assignProject = AssignProject::where('user_id', Auth::user()->user_id)->orderBy('client_id', 'ASC')->pluck('project_id')->toArray();
         $models = Project::where('project_status', 1)->whereIn('project_id', $assignProject)->get();
         return $models;
     }
