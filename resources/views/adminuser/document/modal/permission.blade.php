@@ -370,10 +370,8 @@
 
             if (PermissionData[CurrentUser] && PermissionData[CurrentUser].length > 0) {
                 PermissionData[CurrentUser].forEach(fileID => {
-                    if (`${fileID.permission}`== 1) {
-                        $("#" + `${fileID.id}`).prop("checked", true);
-                    }
-                });
+                    $("#" + `${fileID.id}`).prop("checked", `${fileID.permission}`== 1 ? true : false);
+                })
             }
         });
      }
