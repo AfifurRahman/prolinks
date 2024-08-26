@@ -229,7 +229,7 @@
                         <li>
                             <div class="files-list-table-header">
                                 <span class="files-list-title">File name</span>
-                                <input type="checkbox"></input>
+                                <input type="checkbox" class="files-checkbox-all-header" onchange="checkAll(this)"></input>
                             </div>
                         </li>
                         </ul>
@@ -271,6 +271,7 @@
     function setUser(element) {
         CurrentUser = element.getAttribute('data-value');
         document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
+        $(".files-checkbox-all-header").prop("checked", false);
         element.classList.add('highlighted');
 
         var formData = new FormData();
@@ -343,6 +344,14 @@
         .then(data => {
             document.getElementById('set-permission-modal').style.display='none';
             showNotification(data.message);
+        });
+    }
+
+    function checkAll(element) {
+        $(".files-list-table input[type='checkbox']").each(function() {
+            var checkboxId = $(this).attr("id"); 
+            $("#" + checkboxId).prop("checked", element.checked);
+            $("#" + checkboxId).trigger("change");
         });
     }
 
