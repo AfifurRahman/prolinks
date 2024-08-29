@@ -572,13 +572,13 @@ class DocumentController extends Controller
                             $this->WatermarkService->addPDFWatermark($file);
             
                             $filePath = 'temp/'. Auth::user()->user_id;
-                            $fileDirectory = 'temp/'. Auth::user()->user_id;
+                            $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
                         }  elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
                             $this->CreateWatermark($file);
                             $this->WatermarkService->addIMGWatermark($file);
             
                             $filePath = 'temp/'. Auth::user()->user_id;
-                            $fileDirectory = 'temp/'. Auth::user()->user_id;
+                            $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
                         }   
                     }
 
@@ -622,12 +622,12 @@ class DocumentController extends Controller
                             $this->CreateWatermark($file);
                             $this->WatermarkService->addPDFWatermark($file);
             
-                            $fileDirectory = 'temp/'. Auth::user()->user_id;
+                            $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
                         } elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
                             $this->CreateWatermark($file);
                             $this->WatermarkService->addIMGWatermark($file);
             
-                            $fileDirectory = 'temp/'. Auth::user()->user_id;
+                            $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
                         } 
                     }
                     

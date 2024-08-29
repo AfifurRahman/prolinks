@@ -116,7 +116,7 @@ class WatermarkService extends Fpdi
     {
         $pdf = new WatermarkService();
         $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
-        $outputPath = Storage::path('temp/' . Auth::user()->user_id);
+        $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
         $pageCount = $pdf->setSourceFile($filePath);
         $watermarkPath = public_path(Auth::user()->user_id . ".png");
 
@@ -155,7 +155,7 @@ class WatermarkService extends Fpdi
     public function addIMGWatermark($fileID) 
     {
         $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
-        $outputPath = Storage::path('temp/' . Auth::user()->user_id);
+        $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
         $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
         $watermarkPath = public_path(Auth::user()->user_id . ".png");
 
