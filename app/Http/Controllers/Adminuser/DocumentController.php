@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\SubProject;
 use App\Models\ClientUser;
 use App\Models\UploadFile;
 use App\Models\UploadFolder;
@@ -41,32 +42,37 @@ class DocumentController extends Controller
     public function Index($subproject)
     {
         try {
-            $origin = 'uploads/'.\globals::get_client_id(). '/'. base64_decode($subproject);
-            $directorytype = 1; 
-            $permission =  explode('/', base64_decode($subproject), 5);
-            $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
-                return [
-                    'path' => $file,
-                    'upload_date' => Storage::lastModified($file) 
-                ];
-            });
-            $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
-            $folders = Storage::directories($origin);
             $path = explode('/', base64_decode($subproject), 5);
-            $subProjectPath = $path[1];
             $projectID = $path[0];
             $subprojectID = $path[1];
 
-            $listusers = ClientUser::orderBy('group_id', 'ASC')
-            ->where('client_id', \globals::get_client_id())
-            ->where('user_id', '!=', Auth::user()->user_id)
-            ->whereHas('assignProjects', function ($query) use ($subprojectID) {
-                $query->where('subproject_id', $subprojectID);
-            })
-            ->get();
-
-            return view('adminuser.document.index', compact('files','folders','origin','directorytype','listusers', 'projectID', 'subprojectID'));
-        } catch (\Exception $e) {
+            if((ClientUser::where('client_id', SubProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->value('client_id'))->where('user_id', Auth::user()->user_id)->value('role') == '0') || (AssignProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->where('user_id', Auth::user()->user_id)->value('deleted')) == '0') {
+                $origin = 'uploads/'.\globals::get_client_id(). '/'. base64_decode($subproject);
+                $directorytype = 1; 
+    
+    
+                $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
+                    return [
+                        'path' => $file,
+                        'upload_date' => Storage::lastModified($file) 
+                    ];
+                });
+    
+                $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
+                $folders = Storage::directories($origin);
+                
+    
+                $listusers = ClientUser::orderBy('group_id', 'ASC')
+                ->where('client_id', \globals::get_client_id())
+                ->where('user_id', '!=', Auth::user()->user_id)
+                ->whereHas('assignProjects', function ($query) use ($subprojectID) {
+                    $query->where('subproject_id', $subprojectID);
+                })
+                ->get();
+    
+                return view('adminuser.document.index', compact('files','folders','origin','projectID','subprojectID','listusers'));    
+            }
+            } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
@@ -361,71 +367,71 @@ class DocumentController extends Controller
         
     }
 
-    public function OpenFolder($folder = null) //done
+    public function OpenFolder($folder = null)
     {
         try {
             $origin = UploadFolder::where('basename', base64_decode($folder))->value('directory');
 
-            $directory = $origin;
-
-            if (substr_count($origin, '/') > 1) {
-                $directorytype = 0; //0 is child
-            } else {
-                $directorytype = 1;
-            }
-           
-            $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
-                return [
-                    'path' => $file,
-                    'upload_date' => Storage::lastModified($file) 
-                ];
-            });
-
-            $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
-
-            $folders = Storage::directories($directory);
-
-            $path = explode('/', $directory, 5);
-            $subProjectPath = $path[3];
+            $path = explode('/', $origin, 5);
             $projectID = $path[2];
             $subprojectID = $path[3];
 
-            $fileList = UploadFile::where('subproject_id', $subProjectPath)->distinct()->pluck('basename');
-            $listusers = ClientUser::orderBy('group_id', 'ASC')->where('client_id', \globals::get_client_id())->where('user_id', '!=', Auth::user()->user_id)->get();
-
-            return view('adminuser.document.index', compact('files', 'folders', 'origin', 'directorytype', 'listusers', 'fileList', 'projectID', 'subprojectID'));
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Operation failed']);
+            if((ClientUser::where('client_id', SubProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->value('client_id'))->where('user_id', Auth::user()->user_id)->value('role') == '0') || AssignProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->where('user_id', Auth::user()->user_id)->value('deleted') == '0' ) {
+                $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
+                    return [
+                        'path' => $file,
+                        'upload_date' => Storage::lastModified($file) 
+                    ];
+                });
+    
+                $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
+                $folders = Storage::directories($origin);
+    
+                $listusers = ClientUser::orderBy('group_id', 'ASC')
+                ->where('client_id', \globals::get_client_id())
+                ->where('user_id', '!=', Auth::user()->user_id)
+                ->whereHas('assignProjects', function ($query) use ($subprojectID) {
+                    $query->where('subproject_id', $subprojectID);
+                })
+                ->get();
+        
+                return view('adminuser.document.index', compact('files','folders','origin','projectID','subprojectID','listusers'));    
+            }
+            } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
     public function ViewFile($file) {
         try {
             $file = base64_decode($file);
-            
-            if (substr_count(UploadFile::where('basename', $file)->value('directory'), '/') <= 3 ) {
-                $path = explode('/', UploadFile::where('basename', $file)->value('directory'), 5);
-                $projectID = $path[2];
-                $subprojectID = $path[3];
+            $projectID = UploadFile::where('basename', $file)->value('project_id');
+            $subprojectID = UploadFile::where('basename', $file)->value('subproject_id');
 
-                $link = route('adminuser.documents.list', base64_encode($projectID . '/' . $subprojectID));
-            } else {
-                $link = route('adminuser.documents.openfolder', base64_encode(UploadFolder::where('directory', UploadFile::where('basename', $file)->value('directory'))->value('basename')));
+            if((ClientUser::where('client_id', SubProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->value('client_id'))->where('user_id', Auth::user()->user_id)->value('role') == '0') || (AssignProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->where('user_id', Auth::user()->user_id)->value('deleted') == '0')) {
+                if(((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $file)->value('permission') == '1') || (is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $file)->value('permission'))))) {
+                    if (substr_count(UploadFile::where('basename', $file)->value('directory'), '/') <= 3 ) {
+                        $link = route('adminuser.documents.list', base64_encode($projectID . '/' . $subprojectID));
+                    } else {
+                        $link = route('adminuser.documents.openfolder', base64_encode(UploadFolder::where('directory', UploadFile::where('basename', $file)->value('directory'))->value('basename')));
+                    }
+    
+                    $mimeType = UploadFile::where('basename', $file)->value('mime_type');
+    
+                    $desc = Auth::user()->name . " viewed file " . $file . " (" . UploadFile::where('basename', $file)->value('name') . ")";
+                    \log::create(request()->all(), "success", $desc);
+                    $this->logViewFile($file);
+    
+                    if (($mimeType == 'image/jpeg') || ($mimeType == 'image/png' ) || ($mimeType == 'image/bmp') || ($mimeType == 'image/gif')) {
+                        return view('adminuser.document.viewer.image', compact('file', 'link'));
+                    } elseif (str_starts_with($mimeType, 'application/pdf')) {
+                        return view('adminuser.document.viewer.pdf', compact('file', 'link'));
+                    } else {
+                        return view('adminuser.document.viewer.error', compact('file', 'link'));
+                    }
+                }
             }
-
-            $mimeType = UploadFile::where('basename', $file)->value('mime_type');
-
-            $desc = Auth::user()->name . " viewed file " . $file . " (" . UploadFile::where('basename', $file)->value('name') . ")";
-            \log::create(request()->all(), "success", $desc);
-            $this->logViewFile($file);
-
-            if (($mimeType == 'image/jpeg') || ($mimeType == 'image/png' ) || ($mimeType == 'image/bmp') || ($mimeType == 'image/gif')) {
-                return view('adminuser.document.viewer.image', compact('file', 'link'));
-            } elseif (str_starts_with($mimeType, 'application/pdf')) {
-                return view('adminuser.document.viewer.pdf', compact('file', 'link'));
-            } else {
-                return view('adminuser.document.viewer.error', compact('file', 'link'));
-            }
+         
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
@@ -472,15 +478,16 @@ class DocumentController extends Controller
 
     public function CreateWatermark($fileID)
     {
+        $fileClientID = UploadFile::where('basename', $fileID)->value('client_id');
+
         $watermarkpath = public_path(Auth::user()->user_id . ".png");
+        $watermarktype =Watermark::where('client_id', $fileClientID)->value('position');
 
-        $watermarktype =Watermark::where('client_id', Auth::user()->client_id)->value('position');
-
-        $projectname = Watermark::where('client_id', Auth::user()->client_id)->value('details_projectname') == "1" ? "Project " . Project::where('project_id', UploadFile::where('basename', $fileID)->value('project_id'))->value('project_name') . "\n" : "";
-        $username = Watermark::where('client_id', Auth::user()->client_id)->value('details_fullname') == "1" ? Auth::user()->name . "\n" : "";
-        $email = Watermark::where('client_id', Auth::user()->client_id)->value('details_email') == "1" ? Auth::user()->email . "\n" : "";
-        $companyname = Watermark::where('client_id', Auth::user()->client_id)->value('details_companyname') == "1" ? Client::where('client_id', Auth::user()->client_id)->value('client_name') . "\n" : "";
-        $timestamp = Watermark::where('client_id', Auth::user()->client_id)->value('details_timestamp') == "1" ? date('F j, Y H:i', strtotime('now')) : "";
+        $projectname = Watermark::where('client_id', $fileClientID)->value('details_projectname') == "1" ? "Project " . Project::where('project_id', UploadFile::where('basename', $fileID)->value('project_id'))->value('project_name') . "\n" : "";
+        $username = Watermark::where('client_id', $fileClientID)->value('details_fullname') == "1" ? Auth::user()->name . "\n" : "";
+        $email = Watermark::where('client_id', $fileClientID)->value('details_email') == "1" ? Auth::user()->email . "\n" : "";
+        $companyname = Watermark::where('client_id', $fileClientID)->value('details_companyname') == "1" ? Client::where('client_id', $fileClientID)->value('client_name') . "\n" : "";
+        $timestamp = Watermark::where('client_id', $fileClientID)->value('details_timestamp') == "1" ? date('F j, Y H:i', strtotime('now')) : "";
 
         $text = $projectname . $username . $email . $companyname . $timestamp;
 
@@ -495,16 +502,16 @@ class DocumentController extends Controller
         }
 
         $width = ($textlength * 60) + 80;
-        $height = Watermark::where('client_id', Auth::user()->client_id)->sum(\DB::raw('details_projectname + details_fullname + details_email + details_companyname + details_timestamp')) * $lineheight;
-        $opacity = Watermark::where('client_id', Auth::user()->client_id)->value('opacity') / 100;
+        $height = Watermark::where('client_id', $fileClientID)->sum(\DB::raw('details_projectname + details_fullname + details_email + details_companyname + details_timestamp')) * $lineheight;
+        $opacity = Watermark::where('client_id', $fileClientID)->value('opacity') / 100;
 
-        if (Watermark::where('client_id', Auth::user()->client_id)->value('color') == "gray") {
+        if (Watermark::where('client_id', $fileClientID)->value('color') == "gray") {
             $color = [208, 213, 221, $opacity];
-        } elseif  (Watermark::where('client_id', Auth::user()->client_id)->value('color') == "blue") {
+        } elseif  (Watermark::where('client_id', $fileClientID)->value('color') == "blue") {
             $color = [46, 144, 250, $opacity];
-        } elseif  (Watermark::where('client_id', Auth::user()->client_id)->value('color') == "orange") {
+        } elseif  (Watermark::where('client_id', $fileClientID)->value('color') == "orange") {
             $color = [253, 176, 34, $opacity];
-        } elseif  (Watermark::where('client_id', Auth::user()->client_id)->value('color') == "red") {
+        } elseif  (Watermark::where('client_id', $fileClientID)->value('color') == "red") {
             $color = [240, 68, 56, $opacity];
         } else {
             $color = [208, 213, 221, $opacity];
@@ -545,99 +552,100 @@ class DocumentController extends Controller
         imagedestroy($rotatedImage);
     }
 
-    public function ServeFile($file)
+    public function ServeFile($fileID)
     {
         try {
-            $fileID = base64_decode($file);
-            $filePath = UploadFile::where('basename', $fileID)->value('directory');
-            $fileDirectory = $filePath . '/' . $fileID;
-            $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
+            $file = base64_decode($fileID);
+            $projectID = UploadFile::where('basename', $file)->value('project_id');
+            $subprojectID = UploadFile::where('basename', $file)->value('subproject_id');
 
-            if (Watermark::where('client_id', Auth::user()->client_id)->value('display_view') == "1") {
-                if (str_starts_with($fileMimeType, 'application/pdf')) {
-                    $this->CreateWatermark($fileID);
-                    $this->WatermarkService->addPDFWatermark($fileID);
-    
-                    $filePath = 'temp/'. Auth::user()->user_id;
-                    $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
-                }  elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
-                    $this->CreateWatermark($fileID);
-                    $this->WatermarkService->addIMGWatermark($fileID);
-    
-                    $filePath = 'temp/'. Auth::user()->user_id;
-                    $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
-                }   
-            }
+            if((ClientUser::where('client_id', SubProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->value('client_id'))->where('user_id', Auth::user()->user_id)->value('role') == '0') || (AssignProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->where('user_id', Auth::user()->user_id)->value('deleted') == '0')) {
+                if(((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $file)->value('permission') == '1') || (is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $file)->value('permission'))))) {
+                    $filePath = UploadFile::where('basename', $file)->value('directory');
+                    $fileDirectory = $filePath . '/' . $file;
+                    $fileMimeType = UploadFile::where('basename', $file)->value('mime_type');
+                    $fileClientID = UploadFile::where('basename', $file)->value('client_id');
 
-            if (Storage::disk('local')->exists($filePath)) {
-                $fileContent = Storage::disk('local')->get($fileDirectory);
-                $mimeType = Storage::disk('local')->mimeType($fileDirectory);
+                    if (Watermark::where('client_id', $fileClientID)->value('display_view') == "1") {
+                        if (str_starts_with($fileMimeType, 'application/pdf')) {
+                            $this->CreateWatermark($file);
+                            $this->WatermarkService->addPDFWatermark($file);
+            
+                            $filePath = 'temp/'. Auth::user()->user_id;
+                            $fileDirectory = 'temp/'. Auth::user()->user_id;
+                        }  elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
+                            $this->CreateWatermark($file);
+                            $this->WatermarkService->addIMGWatermark($file);
+            
+                            $filePath = 'temp/'. Auth::user()->user_id;
+                            $fileDirectory = 'temp/'. Auth::user()->user_id;
+                        }   
+                    }
 
-                return response($fileContent, 200)
-                    ->header('Content-Type', $mimeType);
-            } else {
-                abort(404);
+                    if (Storage::disk('local')->exists($filePath)) {
+                        $fileContent = Storage::disk('local')->get($fileDirectory);
+                        $mimeType = Storage::disk('local')->mimeType($fileDirectory);
+
+                        return response($fileContent, 200)
+                            ->header('Content-Type', $mimeType);
+                    }
+                }
             }
         } catch (\Exception $e) {
-            $fileID = base64_decode($file);
-            $filePath = UploadFile::where('basename', $fileID)->value('directory');
-            $fileDirectory = $filePath . '/' . $fileID;
-
-            if (Storage::disk('local')->exists($filePath)) {
-                $fileContent = Storage::disk('local')->get($fileDirectory);
-                $mimeType = Storage::disk('local')->mimeType($fileDirectory);
-
-                return response($fileContent, 200)
-                    ->header('Content-Type', $mimeType);
-            } else {
-                abort(404);
-            }
-            //return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
-    public function DownloadFile($file) 
+    public function DownloadFile($fileID) 
     {
         try {
-            $fileID = base64_decode($file);
+            $file = base64_decode($fileID);
+            $projectID = UploadFile::where('basename', $file)->value('project_id');
+            $subprojectID = UploadFile::where('basename', $file)->value('subproject_id');
 
-           
-                $fileDirectory = UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID;
-                $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
-    
-                $fileIndex = '';
-                $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $fileID)->value('directory')), 0, 4));
-    
-                foreach(array_slice(explode('/', UploadFile::where('basename', $fileID)->value('directory')), 4) as $path) {
-                    $originPath .= '/' . $path;
-                    $fileIndex .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
-                }
-    
-                $fileIndex .= DB::table('upload_files')->where('basename', $fileID)->value('index');
-    
-                if (Watermark::where('client_id', Auth::user()->client_id)->value('display_download') == "1") {
-                    if (str_starts_with($fileMimeType, 'application/pdf')) {
-                        $this->CreateWatermark($fileID);
-                        $this->WatermarkService->addPDFWatermark($fileID);
-        
-                        $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
-        
-                    } elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
-                        $this->CreateWatermark($fileID);
-                        $this->WatermarkService->addIMGWatermark($fileID);
-        
-                        $fileDirectory = 'temp/'. Auth::user()->user_id . '/temp';
-                    } 
-                }
-                $desc = Auth::user()->name . " downloaded " . UploadFile::where('basename', $fileID)->value('name') . " (" . $fileID . ")";
-                \log::create(request()->all(), "success", $desc);
+            if((ClientUser::where('client_id', SubProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->value('client_id'))->where('user_id', Auth::user()->user_id)->value('role') == '0') || (AssignProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->where('user_id', Auth::user()->user_id)->value('deleted') == '0')) {
+                if(((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $file)->value('permission') == '1') || (is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $file)->value('permission'))))) {
+                    $fileDirectory = UploadFile::where('basename', $file)->value('directory') . '/' . $file;
+                    $fileMimeType = UploadFile::where('basename', $file)->value('mime_type');
+                    $fileClientID = UploadFile::where('basename', $file)->value('client_id');
 
-                return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
+                    $fileIndex = '';
+                    $originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 0, 4));
+                    foreach(array_slice(explode('/', UploadFile::where('basename', $file)->value('directory')), 4) as $path) {
+                        $originPath .= '/' . $path;
+                        $fileIndex .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+                    }
+                    $fileIndex .= DB::table('upload_files')->where('basename', $file)->value('index');
+        
+                    if (Watermark::where('client_id', $fileClientID)->value('display_download') == "1") {
+                        if (str_starts_with($fileMimeType, 'application/pdf')) {
+                            $this->CreateWatermark($file);
+                            $this->WatermarkService->addPDFWatermark($file);
             
-
+                            $fileDirectory = 'temp/'. Auth::user()->user_id;
+                        } elseif (($fileMimeType == 'image/jpeg') || ($fileMimeType == 'image/png') || ($fileMimeType == 'image/bmp')) {
+                            $this->CreateWatermark($file);
+                            $this->WatermarkService->addIMGWatermark($file);
+            
+                            $fileDirectory = 'temp/'. Auth::user()->user_id;
+                        } 
+                    }
+                    
+                    $desc = Auth::user()->name . " downloaded " . UploadFile::where('basename', $file)->value('name') . " (" . $file . ")";
+                    \log::create(request()->all(), "success", $desc);
+        
+                    return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $file)->value('name'));        
+                }
+            }
         } catch (\Exception $e) {
-            return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $fileID)->value('name'));
-            //return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            if((ClientUser::where('client_id', SubProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->value('client_id'))->where('user_id', Auth::user()->user_id)->value('role') == '0') || (AssignProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->where('user_id', Auth::user()->user_id)->value('deleted') == '0')) {
+                if(((Permission::where('user_id', Auth::user()->user_id)->where('fileid', $file)->value('permission') == '1') || (is_null(Permission::where('user_id', Auth::user()->user_id)->where('fileid', $file)->value('permission'))))) {
+                    $fileDirectory = UploadFile::where('basename', $file)->value('directory') . '/' . $file;
+            
+                    return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $file)->value('name'));
+                }
+            }
+            //  return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
@@ -1061,17 +1069,6 @@ class DocumentController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         } 
-    }
-
-    public function ActionTest() {
-        DocumentAction::create([
-            'project_id' => '123',
-            'subproject_id' => '456',
-            'user_id' => Auth::user()->user_id,
-            'status' => 1,
-            'action_type' => 1,
-            'items_basename' => '12345',
-        ]);
     }
 
     public function Cut(Request $request)

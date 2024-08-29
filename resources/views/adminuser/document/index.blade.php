@@ -82,7 +82,7 @@
     <div class="viewcontainer">
         <div class="box_helper">
             <div style="margin-left:5px;display:flex;">
-                @if($directorytype == 0)
+                @if(substr_count($origin, '/') > 3)
                     @if (!empty(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename')))
                         <a class="fol-fil" href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', substr($origin,0,strrpos($origin, '/')))->value('basename'))) }}">
                             <h4 style="color:#337ab7;">

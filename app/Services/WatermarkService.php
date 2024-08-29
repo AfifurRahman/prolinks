@@ -116,7 +116,7 @@ class WatermarkService extends Fpdi
     {
         $pdf = new WatermarkService();
         $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
-        $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
+        $outputPath = Storage::path('temp/' . Auth::user()->user_id);
         $pageCount = $pdf->setSourceFile($filePath);
         $watermarkPath = public_path(Auth::user()->user_id . ".png");
 
@@ -148,57 +148,57 @@ class WatermarkService extends Fpdi
         }
 
         $pdf->Output($outputPath, 'F');
+       
         unlink($watermarkPath);
     }
 
     public function addIMGWatermark($fileID) 
     {
-        try {
-            $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
-            $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
-            $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
-            $watermarkPath = public_path(Auth::user()->user_id . ".png");
+        $filePath = Storage::path(UploadFile::where('basename', $fileID)->value('directory') . '/' . $fileID);
+        $outputPath = Storage::path('temp/' . Auth::user()->user_id);
+        $fileMimeType = UploadFile::where('basename', $fileID)->value('mime_type');
+        $watermarkPath = public_path(Auth::user()->user_id . ".png");
 
-            $image1 = Image::make($filePath);
-            $image2 = Image::make($watermarkPath);
+        $image1 = Image::make($filePath);
+        $image2 = Image::make($watermarkPath);
 
-            $wmwidth = 0;
-            $widthscale = 0;
-            $wmheight = 0;
-            $heightscale = 0;
+        $wmwidth = 0;
+        $widthscale = 0;
+        $wmheight = 0;
+        $heightscale = 0;
 
-            while ($wmwidth < ($image1->width() - ($image1->width() * 0.1))) {
-                $wmwidth += $image2->width() * 0.001;
-                $widthscale += 1;
-            }
-
-            while ($wmheight < ($image1->height() - ($image1->height() * 0.1))) {
-                $wmheight += $image2->height() * 0.001;
-                $heightscale += 1;
-            }
-
-            if ($widthscale < $heightscale) {
-                $scale = $widthscale;
-            } else {
-                $scale = $heightscale;
-            }
-
-            $wmwidth = $image2->width() * (0.001 * $scale);
-            $wmheight = $image2->height() * (0.001 * $scale);
-
-            $image2->resize($wmwidth, $wmheight);
-
-            $mergedImage = Image::canvas($image1->width(), $image1->height());
-            $mergedImage->insert($image1, 'center');
-            $mergedImage->insert($image2, 'center');
-            $mergedImage->save($outputPath);
-
-            unlink($watermarkPath);
-        } catch (\Exception $e) {
-            $outputPath = Storage::path('temp/' . Auth::user()->user_id . '/temp');
-            $watermarkPath = public_path(Auth::user()->user_id . ".png");
-
-            unlink($watermarkPath);
+        while ($wmwidth < ($image1->width() - ($image1->width() * 0.1))) {
+            $wmwidth += $image2->width() * 0.001;
+            $widthscale += 1;
         }
+
+        while ($wmheight < ($image1->height() - ($image1->height() * 0.1))) {
+            $wmheight += $image2->height() * 0.001;
+            $heightscale += 1;
+        }
+
+        if ($widthscale < $heightscale) {
+            $scale = $widthscale;
+        } else {
+            $scale = $heightscale;
+        }
+
+        $wmwidth = $image2->width() * (0.001 * $scale);
+        $wmheight = $image2->height() * (0.001 * $scale);
+
+        $image2->resize($wmwidth, $wmheight);
+
+        $mergedImage = Image::canvas($image1->width(), $image1->height());
+        $mergedImage->insert($image1, 'center');
+        $mergedImage->insert($image2, 'center');
+
+        $outputDir = dirname($outputPath);
+        if (!is_dir($outputDir)) {
+            mkdir($outputDir, 0777, true);
+        }
+
+        $mergedImage->save($outputPath);
+
+        unlink($watermarkPath);
     }
 }
