@@ -50,7 +50,6 @@ class DocumentController extends Controller
                 $origin = 'uploads/'.\globals::get_client_id(). '/'. base64_decode($subproject);
                 $directorytype = 1; 
     
-    
                 $filesWithMetadata = collect(Storage::files($origin))->map(function ($file) {
                     return [
                         'path' => $file,
@@ -60,7 +59,6 @@ class DocumentController extends Controller
     
                 $files = $filesWithMetadata->sortBy('upload_date')->pluck('path')->toArray();
                 $folders = Storage::directories($origin);
-                
     
                 $listusers = ClientUser::orderBy('group_id', 'ASC')
                 ->where('client_id', \globals::get_client_id())
@@ -71,9 +69,11 @@ class DocumentController extends Controller
                 ->get();
     
                 return view('adminuser.document.index', compact('files','folders','origin','projectID','subprojectID','listusers'));    
+            } else {
+                return abort(404);
             }
             } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+                return abort(404);
         }
     }
 
@@ -396,9 +396,11 @@ class DocumentController extends Controller
                 ->get();
         
                 return view('adminuser.document.index', compact('files','folders','origin','projectID','subprojectID','listusers'));    
+            } else {
+                return abort(404);
             }
             } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+                return abort(404);
         }
     }
 
@@ -429,11 +431,14 @@ class DocumentController extends Controller
                     } else {
                         return view('adminuser.document.viewer.error', compact('file', 'link'));
                     }
+                } else {
+                    return abort(404);
                 }
+            } else {
+                return abort(404);
             }
-         
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            return abort(404);
         }
     }
 
@@ -592,7 +597,7 @@ class DocumentController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            return abort(404);
         }
     }
 
@@ -635,7 +640,11 @@ class DocumentController extends Controller
                     \log::create(request()->all(), "success", $desc);
         
                     return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $file)->value('name'));        
+                } else {
+                    return abort(404);
                 }
+            } else {
+                return abort(404);
             }
         } catch (\Exception $e) {
             if((ClientUser::where('client_id', SubProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->value('client_id'))->where('user_id', Auth::user()->user_id)->value('role') == '0') || (AssignProject::where('project_id', $projectID)->where('subproject_id', $subprojectID)->where('user_id', Auth::user()->user_id)->value('deleted') == '0')) {
@@ -643,7 +652,11 @@ class DocumentController extends Controller
                     $fileDirectory = UploadFile::where('basename', $file)->value('directory') . '/' . $file;
             
                     return response()->download(Storage::path($fileDirectory), $fileIndex . ' - ' . UploadFile::where('basename', $file)->value('name'));
+                } else {
+                    return abort(404);
                 }
+            } else {
+                return abort(404);
             }
             //  return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
