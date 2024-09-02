@@ -287,7 +287,10 @@ class ProjectController extends Controller
 			
 			if (!empty($uri) && $uri == "documents") {
 				return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)))->with('notification', $notification);
-			}else{
+			}else if(!empty($uri) && $uri == "discussion") {
+				return redirect(route('adminuser.documents.list', base64_encode($subProject->project_id.'/'.$subProject->subproject_id)))->with('notification', $notification);
+			}
+			else{
 				return back()->with('notification', $notification);
 			}
 
