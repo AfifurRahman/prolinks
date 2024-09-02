@@ -82,7 +82,7 @@
                 $subprojectID = isset($subprojectID) ? $subprojectID : "kosong";
             @endphp
             <ul style="margin-top:10px">
-                <li class="menu-title">MAIN MENU {{$subprojectID}}</li>
+                <li class="menu-title">MAIN MENU</li>
                 @if(Auth::user()->type == \globals::set_role_administrator())
                     <li>
                         <a href="/" class="waves-effect {{ $active_dashboard }}"><img src="{{ url('template/images/icon_menu/dashboard.png') }}" width="20" height="20"><span class="{{ $active_dashboard }}" style="font-size:13px;">&nbsp; Activities  </span></a>
@@ -117,5 +117,22 @@
 </div>
 
 @push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectElement = document.getElementById("main_project_id");
+        const defaultValue = "{{ $subprojectID }}";
+        
+        selectElement.value = defaultValue;
 
+        if (selectElement) {
+            // Check if the selected value is different from the default value
+            if (selectElement.value !== defaultValue) {
+                
+
+                // Submit the form only if the selected value was different
+                document.getElementById("app-change-project").submit();
+            }
+        }
+    });
+</script>
 @endpush
