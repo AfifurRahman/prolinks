@@ -78,8 +78,6 @@
                 if($uri == "setting"){
                     $active_setting = "active text-active";
                 }
-
-                $subprojectID = isset($subprojectID) ? $subprojectID : "empty";
             @endphp
             <ul style="margin-top:10px">
                 <li class="menu-title">MAIN MENU</li>
@@ -118,6 +116,16 @@
 
 @push('scripts')
 <script>
-  
+    @if(isset($subprojectID))
+        document.addEventListener("DOMContentLoaded", function() {
+            const selectElement = document.getElementById("main_project_id");
+            const defaultValue = "{{ $subprojectID }}";
+            
+            if (selectElement.value !== defaultValue) {
+                selectElement.value = defaultValue;
+                document.getElementById("app-change-project").submit();
+            }
+        });
+    @endif
 </script>
 @endpush
