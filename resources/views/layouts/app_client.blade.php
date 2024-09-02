@@ -156,6 +156,20 @@
             -webkit-box-shadow: none;
             box-shadow: none;
         }
+
+        .user-box-name {
+            color:#1D2939;
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .user-box-company{
+            color:#586474;
+        }
+
+        .user-cardbox{
+            margin-left:10px;
+        }
         
     </style>
     <script src="{{ url('template/js/modernizr.min.js') }}"></script>
@@ -236,6 +250,10 @@
                         <li class="dropdown user-box">
                             <a href="" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown" aria-expanded="true" style="display:flex;">
                                 {!! \globals::get_user_avatar(Auth::user()->user_id, Auth::user()->avatar_color) !!}
+                                <div class="user-cardbox">
+                                    <span class="user-box-name">{{Auth::user()->name}}</span><br>
+                                    <span class="user-box-company">{{DB::table('clients')->where('client_id', Auth::user()->client_id)->value('client_name')}}</span>
+                                </div>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right user-list notify-list">
                                 <li style="background-color:#f3f3f3;">

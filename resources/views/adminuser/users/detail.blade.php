@@ -31,7 +31,10 @@
     </style>
     <div class="header-detail">
         <div class="pull-left">
-            <h2 id="title" style="color:black;font-size:28px;">{{ !empty($clientuser->name) ? $clientuser->name : $clientuser->email_address }}</h2>
+            <div class="user-detail-header">
+                <a href="{{ route('adminuser.access-users.list', 'tab=user') }}"><i class="fa fa-arrow-left" style="font-size:18px;color:#586474;"></i></a>
+                <h2 id="title" class="user-detail-name">{{ !empty($clientuser->name) ? $clientuser->name : $clientuser->email_address }}</h2>
+            </div>
         </div>
         <div class="pull-right">
             <div class="dropdown" style="margin-top:10px; z-index:99;">
@@ -58,6 +61,7 @@
             </div>
         </div> <div style="clear:both;"></div>
     </div>
+    {!! \globals::get_user_avatar_big(!empty($clientuser->user_id) ? $clientuser->user_id : '', Auth::user()->avatar_color) !!}
     <div class="company-detail">
         <form action="{{ route('adminuser.access-users.edit', $clientuser->user_id) }}" method="POST">
             @csrf
@@ -103,10 +107,8 @@
             <tr>
                 <td width="150">Status</td>
                 <td>
-                    @if($clientuser->email_address == Auth::User()->email)
-                        <span class="active_status">You</span>
-                    @elseif($clientuser->status == 1)
-                        <span class="active_status">Active</span>
+                    @if($clientuser->status == 1)
+                        <span class="detail_active_status">Active</span>
                     @elseif($clientuser->status == 2)
                         <span class="disabled_status">Disabled</span>
                     @elseif($clientuser->status == 0)
@@ -115,34 +117,30 @@
                 </td>
             </tr>
             <tr>
-                <td>Name</td>
-                <td>{!! !empty($clientuser->name) ? $clientuser->name : '<span class="not-set">not set</span>' !!}</td>
-            </tr>
-            <tr>
                 <td>Email</td>
-                <td>{!! !empty($clientuser->email_address) ? $clientuser->email_address : '<span class="not-set">not set</span>' !!}</td>
+                <td class="user-details">{!! !empty($clientuser->email_address) ? $clientuser->email_address : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
                 <td>Company</td>
-                <td>{!! !empty($clientuser->company) ? $clientuser->company : '<span class="not-set">not set</span>' !!}</td>
+                <td class="user-details">{!! !empty($clientuser->company) ? $clientuser->company : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
                 <td>Job Title</td>
-                <td>{!! !empty($clientuser->job_title) ? $clientuser->job_title : '<span class="not-set">not set</span>' !!}</td>
+                <td class="user-details">{!! !empty($clientuser->job_title) ? $clientuser->job_title : '<span class="not-set">not set</span>' !!}</td>
             </tr>
             <tr>
                 <td>Last signed in</td>
-                <td>
-                    @if(is_null($clientuser->last_signed))
+                <td class="user-details">
+                    @if(is_null(DB::table('users')->where('user_id',$clientuser->user_id)->value('last_signed')))
                         -
                     @else
-                        {{ date('d M Y, H:i', strtotime($clientuser->last_signed)) }}
+                        {{ date('d M Y, H:i', strtotime(DB::table('users')->where('user_id',$clientuser->user_id)->value('last_signed'))) }}
                     @endif
                 </td>
             </tr>
             <tr>
                 <td>Invited By</td>
-                <td>
+                <td class="user-details">
                     {!! !empty($clientuser->RefCreatedName->name) ? $clientuser->RefCreatedName->name : '' !!}
                 </td>
             </tr>
@@ -211,7 +209,7 @@
             </tr>
             <tr>
                 <td width="150">Role</td>
-                <td>
+                <td class="user-details">
                     @if($clientuser->role == 0) 
                         Administrator
                     @elseif($clientuser->role == 1)
@@ -222,33 +220,35 @@
                 </td>
             </tr>
             <tr>
-                <td>Group</td>
-                <td>
-                    @if($clientuser->role == 0)
-                        <a class="btn btn-default">All</a>
-                    @else
-                        @php 
-                            $grups = DB::table('assign_user_group')->select('access_group.group_name')->join('access_group', 'assign_user_group.group_id', 'access_group.group_id')->where('assign_user_group.client_id', \globals::get_client_id())->where('assign_user_group.user_id', $clientuser->user_id)->get() 
-                        @endphp
-                        @foreach($grups as $grup)
-                            <a class="btn btn-default"><img src="{{ url('template/images/icon_menu/group.png') }}" width="20" height="20"> {{ $grup->group_name }}</a>
-                        @endforeach
-                    @endif
-                </td>
-            </tr>
-            <tr>
                 <td>Project</td>
                 <td>
+                    <div class="details-project-list">
                     @if($clientuser->role == 0)
-                        <a class="btn btn-default">All</a>
+                        <a class="user-details">All</a>
                     @else
                         @php
                             $projects = App\Models\AssignProject::where('user_id', $clientuser->user_id)->where('client_id', $clientuser->client_id)->get();
                         @endphp
                         @foreach($projects as $project)
                             <div style="margin-bottom:5px;">
-                                <a class="btn btn-default"><img src="{{ url('template/images/data-project.png') }}" width="20" height="20"> {{ $project->RefProject->project_name }} ( {{ $project->RefSubProject->subproject_name }} )</a>
+                                <a class="details-project-group">{{ $project->RefProject->project_name }} ( {{ $project->RefSubProject->subproject_name }} )</a>
                             </div>
+                        @endforeach
+                    @endif
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Group</td>
+                <td>
+                    @if($clientuser->role == 0)
+                        <a class="user-details">All</a>
+                    @else
+                        @php 
+                            $grups = DB::table('assign_user_group')->select('access_group.group_name')->join('access_group', 'assign_user_group.group_id', 'access_group.group_id')->where('assign_user_group.client_id', \globals::get_client_id())->where('assign_user_group.user_id', $clientuser->user_id)->get() 
+                        @endphp
+                        @foreach($grups as $grup)
+                            <a class="btn btn-default"><img src="{{ url('template/images/icon_menu/group.png') }}" width="20" height="20"> {{ $grup->group_name }}</a>
                         @endforeach
                     @endif
                 </td>

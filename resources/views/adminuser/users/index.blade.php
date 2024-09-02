@@ -15,9 +15,7 @@
     <link href="{{ url('clientuser/userindex.css') }}" rel="stylesheet" type="text/css" />
     <div id="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Users</h2>
-        <div>
-            <!-- <button id="create_group" onclick="document.getElementById('create_group_form').style.display='block'"><span style="color:#1570EF; font-weight:bold;">Create Group</span></button> -->
-            <!-- <button id="invite_user" onclick="document.getElementById('inviteuser_form').style.display='block'"><image id="addimg" src="{{ url('template/images/icon_menu/add.png') }}"></image>Invite User</button> -->
+        <div class="btn-helper">
             <a id="create_group" class="btn" href="#modal-create-group" data-toggle="modal"><span style="color:#1570EF; font-weight:bold;">Create Group</span></a>
             <a id="invite_user" class="btn" href="#modal-invite-users" data-toggle="modal"><img id="addimg" src="{{ url('template/images/icon_menu/add.png') }}" />Invite User</a>
         </div>
@@ -166,21 +164,23 @@
                                             <i class="fa fa-ellipsis-v"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-top pull-right">
+                                             <!-- if user not active -->
+                                             @if($user->status == 0)
+                                                <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Resend invitation email</a></li>
+                                            @endif
+
                                             @if($user->role == \globals::set_role_client())
                                                 <li><a href="#modal-move-group" data-toggle="modal" onclick="moveGroup('{{ $user->user_id }}')">Move to group</a></li>
                                             @endif
                                             <!-- 1 => enable 2 => disable -->
                                             @if($user->status == 1)
-                                                <li><a href="#modal-disabled-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.disable-user', base64_encode($user->id)) }}" onclick="getUrlDisableUser(this)">Disable User</a></li>
+                                                <li><a href="#modal-disabled-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.disable-user', base64_encode($user->id)) }}" onclick="getUrlDisableUser(this)">Disable access</a></li>
                                             @elseif($user->status == 2)
-                                                <li><a href="#modal-enable-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.enable-user', base64_encode($user->id)) }}" onclick="getUrlEnableUser(this)">Enable User</a></li>
+                                                <li><a href="#modal-enable-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.enable-user', base64_encode($user->id)) }}" onclick="getUrlEnableUser(this)">Enable access</a></li>
                                             @endif
                                             
-                                            <!-- if user not active -->
-                                            @if($user->status == 0)
-                                                <li><a href="{{ route('adminuser.access-users.resend-email', base64_encode($user->email_address)) }}"></i>Resend invitation email</a></li>
-                                            @endif
-                                            <li><a href="#modal-delete-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.delete-user', base64_encode($user->id)) }}" onclick="getUrlDeleteUser(this)" style="color:#D92D20;">Delete User</a></li>
+                                           
+                                            <li><a href="#modal-delete-user" data-toggle="modal" data-url="{{ route('adminuser.access-users.delete-user', base64_encode($user->id)) }}" onclick="getUrlDeleteUser(this)" style="color:#D92D20;">Delete</a></li>
                                         </ul>
                                     </div>
                                     

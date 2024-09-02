@@ -7,48 +7,46 @@
                     @php
                         $lastClient = "";
                     @endphp
-                    @if(in_array(\globals::set_role_collaborator(), \role::get_role_client()) OR in_array(\globals::set_role_client(), \role::get_role_client()))
-                        <div class="form-group">
-                            <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
-                            @if(count(\globals::get_project_sidebar()) > 0)
-                                @php
-                                    $projects = \globals::get_project_sidebar();
-                                    // Sort the projects by client_id first, then by project_name if needed
-                                    $sortedProjects = $projects->sortBy(function($project) {
-                                        return $project->client_id . $project->project_name;
-                                    });
-                                @endphp
+                    <div class="form-group">
+                        <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
+                        @if(count(\globals::get_project_sidebar()) > 0)
+                            @php
+                                $projects = \globals::get_project_sidebar();
+                                // Sort the projects by client_id first, then by project_name if needed
+                                $sortedProjects = $projects->sortBy(function($project) {
+                                    return $project->client_id . $project->project_name;
+                                });
+                            @endphp
 
-                                @if(count($sortedProjects) > 0)
-                                    @php $lastClient = null; @endphp
-                                    @foreach($sortedProjects as $mainProject)
-                                        @if(!empty($mainProject->RefAssignProject) && count($mainProject->RefAssignProject) > 0)
-                                            @if($lastClient !== $mainProject->client_id)
-                                                @if($lastClient !== null)
-                                                    </optgroup> <!-- Close the previous client's optgroup -->
-                                                @endif
-                                                <optgroup label="{{ DB::table('clients')->where('client_id', $mainProject->client_id)->value('client_name') }}">
-                                                @php $lastClient = $mainProject->client_id; @endphp
+                            @if(count($sortedProjects) > 0)
+                                @php $lastClient = null; @endphp
+                                @foreach($sortedProjects as $mainProject)
+                                    @if(!empty($mainProject->RefAssignProject) && count($mainProject->RefAssignProject) > 0)
+                                        @if($lastClient !== $mainProject->client_id)
+                                            @if($lastClient !== null)
+                                                </optgroup> <!-- Close the previous client's optgroup -->
                                             @endif
-
-                                            <optgroup label="&nbsp;&nbsp;&nbsp;&nbsp;{{ $mainProject->project_name }}">
-                                                @foreach($mainProject->RefAssignProject as $subsProj)
-                                                    <option value="{{ $subsProj->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $subsProj->subproject_id ? "selected":"" }} >&nbsp;&nbsp;{{ $subsProj->RefSubProject->subproject_name }}</option>
-                                                @endforeach
-                                            </optgroup>
+                                            <optgroup label="{{ DB::table('clients')->where('client_id', $mainProject->client_id)->value('client_name') }}">
+                                            @php $lastClient = $mainProject->client_id; @endphp
                                         @endif
-                                    @endforeach
 
-                                    @if($lastClient !== null)
-                                        </optgroup> <!-- Close the last client's optgroup -->
+                                        <optgroup label="&nbsp;&nbsp;&nbsp;&nbsp;{{ $mainProject->project_name }}">
+                                            @foreach($mainProject->RefAssignProject as $subsProj)
+                                                <option value="{{ $subsProj->subproject_id }}" {{ !empty(Auth::user()->session_project) && Auth::user()->session_project == $subsProj->subproject_id ? "selected":"" }} >&nbsp;&nbsp;{{ $subsProj->RefSubProject->subproject_name }}</option>
+                                            @endforeach
+                                        </optgroup>
                                     @endif
+                                @endforeach
+
+                                @if($lastClient !== null)
+                                    </optgroup> <!-- Close the last client's optgroup -->
                                 @endif
                             @endif
+                        @endif
 
 
-                            </select>
-                        </div>
-                    @endif
+                        </select>
+                    </div>
                 </div>
             </form>
             @php

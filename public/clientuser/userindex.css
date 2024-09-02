@@ -4,23 +4,39 @@
     margin-bottom:15px;
 }
 
+.user-detail-header {
+    display:flex;
+    margin-top:16px;
+    margin-bottom:8px;
+}
+
+.user-detail-name {
+    color:black;
+    font-size:28px;
+    margin-left:12px;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.company-detail {
+    margin-top: 12px;
+}
+
 #invite_user {
     color:#FFFFFF;
     border:none;
     border-radius:9px;
-    height:38px;
+    max-height:40px;
     background:#0072EE;
-    margin-top:10px;
-    padding:8px 19px 7px 14px;
-}
+}   
 
 #create_group {
     color:#000;
     border:none;
     border-radius:9px;
-    height:38px;
+    max-height:40px;
     background:#F5F5F5;
-    margin-top:10px;
     padding:8px 19px 7px 14px;
 }
 
@@ -114,6 +130,7 @@ table thead th:first-child {
 }
 
 #box_helper{
+    margin-top:18px;
     margin-bottom:10px;
     display:flex;
     width:100%;
@@ -239,6 +256,20 @@ table thead th:first-child {
     cursor: pointer;
 } */
 
+.details-project-group {
+    background: #EDF0F2;
+    color: #586474;
+    font-size:14px;
+    font-weight: 400;
+    padding:3px 8px 3px 8px;
+    margin-right:6px;
+    border-radius: 6px;
+}
+
+.details-project-list {
+    display:flex;
+}
+
 .invited_status{
     background: #EDF0F2;
     font-size:12px;
@@ -248,6 +279,19 @@ table thead th:first-child {
     border-radius:25px;
     display: inline-block;
     margin-bottom: 7px;
+}
+
+.user-details {
+    color:#1D2939;
+}
+
+.detail_active_status{
+    background: #12B76A;
+    font-size:13px;
+    font-weight:400;
+    color: #FFFFFF; 
+    padding:2px 10px 2px 10px;
+    border-radius:25px;
 }
 
 .active_status{
