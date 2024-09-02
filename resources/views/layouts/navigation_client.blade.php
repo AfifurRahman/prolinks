@@ -78,12 +78,14 @@
                 if($uri == "setting"){
                     $active_setting = "active text-active";
                 }
+
+                $subprojectID = isset($subprojectID) ? $subprojectID : "kosong";
             @endphp
             <ul style="margin-top:10px">
-                <li class="menu-title">MAIN MENU</li>
+                <li class="menu-title">MAIN MENU {{$subprojectID}}</li>
                 @if(Auth::user()->type == \globals::set_role_administrator())
                     <li>
-                        <a href="/" class="waves-effect {{ $active_dashboard }}"><img src="{{ url('template/images/icon_menu/dashboard.png') }}" width="20" height="20"><span class="{{ $active_dashboard }}" style="font-size:13px;">&nbsp; Activities </span></a>
+                        <a href="/" class="waves-effect {{ $active_dashboard }}"><img src="{{ url('template/images/icon_menu/dashboard.png') }}" width="20" height="20"><span class="{{ $active_dashboard }}" style="font-size:13px;">&nbsp; Activities  </span></a>
                     </li>
                     <li>
                         <a href="{{ route('adminuser.access-users.list', 'tab=user') }}" class="waves-effect {{ $active_users }}"><img src="{{ url('template/images/icon_menu/group.png') }}" width="20" height="20"><span class="{{ $active_users }}" style="font-size:13px;">&nbsp; Users </span></a>
@@ -113,3 +115,20 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const selectElement = document.getElementById("main_project_id");
+        const defaultValue = "{{ $subprojectID }}";
+
+        selectElement.value = defaultValue;
+
+        if (selectElement) {
+            if (selectElement.value !== defaultValue) {
+                document.getElementById("app-change-project").submit();
+            }
+        }
+    });
+</script>
+@endpush
