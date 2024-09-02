@@ -168,6 +168,8 @@
         }
 
         .user-cardbox{
+            margin-top:-3px;
+            margin-bottom:-4px;
             margin-left:10px;
         }
         
