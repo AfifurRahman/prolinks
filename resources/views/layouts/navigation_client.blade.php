@@ -117,18 +117,5 @@
 </div>
 
 @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const selectElement = document.getElementById("main_project_id");
-        const defaultValue = "{{ $subprojectID }}";
 
-        selectElement.value = defaultValue;
-
-        if (selectElement) {
-            if (selectElement.value !== defaultValue) {
-                document.getElementById("app-change-project").submit();
-            }
-        }
-    });
-</script>
 @endpush
