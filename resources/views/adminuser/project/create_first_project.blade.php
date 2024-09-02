@@ -71,44 +71,52 @@
 
 	<!-- Modal -->
 	<div id="modal-create-new-project" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" keyboard="false" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            	<div class="modal-header">
-                	<div class="custom-modal-header">
-                		<div style="float: left;">
-	                        <img src="{{ url('template/images/data-project.png') }}" width="24" height="24">
-	                    </div>
-	                    <div style="float: left; margin-left: 10px;">
-	                        <h4 class="modal-title" id="titleModal">
-	                        	Create First Project
-	                        </h4>
-	                    </div>
-	                </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="custom-modal-header">
+                    <div style="float: left;">
+                        <img src="{{ url('template/images/data-project.png') }}" width="24" height="24">
+                    </div>
+                    <div style="float: left; margin-left: 10px;">
+                        <h4 class="modal-title" id="titleModal">
+                            Create First Project
+                        </h4>
+                    </div>
+                    <div style="float: right;">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div style="clear: both;"></div>
                 </div>
-                <div class="modal-body">
-                    <div class="alert alert-icon alert-success">
-						<i class="mdi mdi-information"></i> For first step, please create your project
-					</div>
-					<form class="custom-form" action="{{ route('project.save-first-project') }}" method="POST">
-						@csrf
-						<div class="form-group">
-							<label>Project Name <span class="text-danger">*</span></label>
-							<input required type="text" name="project_name" id="project_name" class="form-control">
-						</div>
-						<div class="form-group">
-							<label>Project Desc </label>
-							<textarea name="project_desc" id="project_desc" class="form-control"></textarea>
-						</div>
-						<div class="pull-right">
-							<button type="submit" style="border-radius: 5px;" class="btn btn-primary">
-								Create Project
-							</button>
-						</div><div style="clear: both;"></div>			
-					</form>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-icon alert-success">
+                    <i class="mdi mdi-information"></i> For first step, please create your project
                 </div>
+                <form class="custom-form" action="{{ route('project.save-first-project') }}" method="POST">
+                    @csrf
+                    <div class="form-group">
+                        <label>Project Name <span class="text-danger">*</span></label>
+                        <input required type="text" name="project_name" id="project_name" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Desc </label>
+                        <textarea name="project_desc" id="project_desc" class="form-control"></textarea>
+                    </div>
+                    <div class="pull-right">
+                        <button type="submit" style="border-radius: 5px;" class="btn btn-primary">
+                            Create Project
+                        </button>
+                    </div>
+                    <div style="clear: both;"></div>         
+                </form>
             </div>
         </div>
     </div>
+</div>
+
 @stop
 
 @push('scripts')

@@ -79,10 +79,10 @@
                     $active_setting = "active text-active";
                 }
 
-                $subprojectID = isset($subprojectID) ? $subprojectID : "kosong";
+                $subprojectID = isset($subprojectID) ? $subprojectID : "empty";
             @endphp
             <ul style="margin-top:10px">
-                <li class="menu-title">MAIN MENU</li>
+                <li class="menu-title">MAIN MENU {{$subprojectID}}</li>
                 @if(Auth::user()->type == \globals::set_role_administrator())
                     <li>
                         <a href="/" class="waves-effect {{ $active_dashboard }}"><img src="{{ url('template/images/icon_menu/dashboard.png') }}" width="20" height="20"><span class="{{ $active_dashboard }}" style="font-size:13px;">&nbsp; Activities  </span></a>
@@ -118,6 +118,6 @@
 
 @push('scripts')
 <script>
- 
+  
 </script>
 @endpush
