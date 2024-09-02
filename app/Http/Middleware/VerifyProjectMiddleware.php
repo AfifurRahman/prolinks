@@ -19,7 +19,11 @@ class VerifyProjectMiddleware
     {
         if (Auth::user()->type == 0) {
             $models = Project::where('client_id', \globals::get_client_id())->get();
-           
+            if ($models->count() == 0) {
+            // if (false) {
+                /* jika admin client belum memiliki project sama sekali */
+                return redirect(route('create-new-project'));
+            }
         }
 
         return $next($request);
