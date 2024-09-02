@@ -188,7 +188,7 @@
                 </div>
             </div>
             
-            <div class="navbar navbar-default" role="navigation">
+            <div class="navbar navbar-default"role="navigation">
                 <div class="container">
                     <ul class="nav navbar-nav navbar-left">
                         <li>
@@ -203,9 +203,9 @@
                     </div>
 
                     <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            <a href="#" class="right-menu-item dropdown-toggle" data-toggle="dropdown">
-                                <i class="mdi mdi-bell"></i>
+                        <li style="margin-top:6px;margin-bottom:-6px;margin-right:6px;">
+                            <a href="#" class="right-menu-item dropdown-toggle" style="border-radius:0px; border: none !important;" data-toggle="dropdown">
+                                <i class="fa fa-regular fa-bell"></i>
                                 <span class="badge up bg-success">
                                     @if(!\role::check_user_disabled())
                                         {{ count(\log::get_notification()) }}
