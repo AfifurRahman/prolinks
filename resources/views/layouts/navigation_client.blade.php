@@ -8,7 +8,6 @@
                         $lastClient = "";
                     @endphp
                     <div class="form-group">
-                        <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
                         @if(count(\globals::get_project_sidebar()) > 0)
                             @php
                                 $projects = \globals::get_project_sidebar();
@@ -19,6 +18,7 @@
                             @endphp
 
                             @if(count($sortedProjects) > 0)
+                            <select name="main_project_id" id="main_project_id" class="form-control" style="background: transparent; border: solid 1px #CCC; border-radius:0px 5px 5px 0px;">
                                 @php $lastClient = null; @endphp
                                 @foreach($sortedProjects as $mainProject)
                                     @if(!empty($mainProject->RefAssignProject) && count($mainProject->RefAssignProject) > 0)

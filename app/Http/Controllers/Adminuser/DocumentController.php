@@ -1057,7 +1057,7 @@ class DocumentController extends Controller
                     foreach ($receiver_email as $key => $value) {
                         if($value->email != Auth::user()->email) {
                             if((User::where('user_id', $value->user_id)->value('status') == '1') && (!is_null(User::where('user_id', $value->user_id)->value('email_verified_at'))) ) {
-                                $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('client_id', $value->client_id)->where('user_id', $value->user_id)->where('clientuser_id', $value->clientuser_id)->value('is_upload_file');
+                                $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('user_id', $value->user_id)->value('is_upload_file');
                                 if (!empty($check_settings) && $check_settings == 1) {
                                     $details = [
                                         'receiver' => User::where('user_id',$value->user_id)->value('name'),
