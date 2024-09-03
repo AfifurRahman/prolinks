@@ -251,7 +251,7 @@ class DiscussionController extends Controller
                 if (!empty($value->RefUser->email) && $value->RefUser->email != Auth::user()->email) {
                     /* if user active */
                     if (!empty($value->RefUser->password_created) && $value->RefUser->password_created == 1) {
-                        $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('client_id', $value->client_id)->where('user_id', $value->user_id)->where('clientuser_id', $value->clientuser_id)->value('is_discussion');
+                        $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('user_id', $value->user_id)->value('is_discussion');
                         if (!empty($check_settings) && $check_settings == 1) {
                             $set_subject = "";
                             if(!empty($request->input('subject'))){
