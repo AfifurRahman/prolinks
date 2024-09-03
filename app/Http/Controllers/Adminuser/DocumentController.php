@@ -1038,8 +1038,7 @@ class DocumentController extends Controller
                 $emailFilesName = rtrim($emailFilesName,  ", ");
                 $logFilesName = rtrim($logFilesName, ', ');
 
-                $receiver_email = AssignProject::where('subproject_id', $projectID[3])->where('client_id', \globals::get_client_id())->get();
-                $receiver_admin = User::where('client_id', \globals::get_client_id())->where('type', '0')->where('status', '1')->get();
+                $receiver_email = AssignProject::where('subproject_id', $projectID[3])->get();
 
                 $desc = Auth::user()->name . " uploaded file " . $logFilesName;
                 \log::create(request()->all(), "success", $desc);
