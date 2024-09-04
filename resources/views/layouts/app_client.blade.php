@@ -203,9 +203,10 @@
                     </div>
 
                     <ul class="nav navbar-nav navbar-right">
-                        <li style="margin-top:6px;margin-bottom:-6px;margin-right:6px;">
-                            <a href="#" class="right-menu-item dropdown-toggle" style="border-radius:0px; border: none !important;" data-toggle="dropdown">
+                        <li style=" ">
+                            <a href="#" class="right-menu-item dropdown-toggle" style="border: none !important;" data-toggle="dropdown">
                                 <i class="fa fa-regular fa-bell"></i>
+                                @if(count(\log::get_notification()) > 0)
                                 <span class="badge up bg-success">
                                     @if(!\role::check_user_disabled())
                                         {{ count(\log::get_notification()) }}
@@ -213,6 +214,7 @@
                                         0
                                     @endif
                                 </span>
+                                @endif
                             </a>
 
                             <ul class="dropdown-menu dropdown-menu-right arrow-dropdown-menu arrow-menu-right dropdown-lg user-list notify-list">

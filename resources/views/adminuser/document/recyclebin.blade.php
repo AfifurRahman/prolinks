@@ -10,10 +10,11 @@
     </div>
 @endsection
 
-@include('adminuser.document.modal.permanent_delete')
-@include('adminuser.document.modal.restore')
+
 
 @section('content')
+    @include('adminuser.document.modal.permanent_delete')
+    @include('adminuser.document.modal.restore')
     <link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
 
     <div class="box_helper">
@@ -219,7 +220,7 @@
     @push('scripts')
     <script>
         function permanentDelete(itemID) {
-            document.getElementById('delete-file-modal').style.display='block';
+            document.getElementById('permanent-delete-modal').style.display='block';
 
             $('#deleteFileSubmit').on('click', function(e) {
                     e.preventDefault();
@@ -348,78 +349,11 @@
             }, 1000);
         }
 
-        function convertByte(size) {
-            if (size >= 1073741824) {
-                return (size / 1073741824).toFixed(2) + ' GB';
-            } else if (size >= 1048576) {
-                return (size / 1048576).toFixed(2) + ' MB';
-            } else if (size >= 1024) {
-                return (size / 1024).toFixed(2) + ' KB';
-            } else if (size >= 0) {
-                return size + ' bytes';
-            }
-        }
-
         function uncheckAll() {
             $('.checkbox').prop('checked', false);
             $(".headerBar").css("visibility", "visible");
             $(".checkToolBar").css("visibility", "collapse");
         }
-
-        function deleteSelections() {
-            filesChecked.forEach(deleteSelection);
-
-            function deleteSelection(item) {
-                var formData = new FormData();
-
-                formData.append('item', item);
-
-                fetch('{{ route("adminuser.documents.delete") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('delete-file-modal').style.display='none';
-                    showNotification(data.message);
-                });
-            }
-        }
-
-           
-        function deleteFolder(folder) {
-            document.getElementById('delete-folder-modal').style.display='block';
-
-            $('#deleteFolderSubmit').on('click', function(e) {
-                e.preventDefault();
-                var formData = new FormData();
-                
-                formData.append('item', folder);
-
-                fetch('{{ route("adminuser.documents.delete") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('delete-folder-modal').style.display='none';
-                    showNotification(data.message);
-                });
-            });
-        }
-
-        $("#permission-file-list-table").dataTable({
-            "bPaginate": false,
-            "bInfo": false,
-            "bSort": false,
-            "bAutoWidth": false,
-        });
     </script>
     @endpush
 @endsection

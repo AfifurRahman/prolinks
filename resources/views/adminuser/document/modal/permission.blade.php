@@ -1,5 +1,4 @@
 <style>
-
     .highlighted {
         background-color: white;
         color: #1570EF;
