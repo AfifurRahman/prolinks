@@ -200,7 +200,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('documents/zip/{folder}', 'App\Http\Controllers\Adminuser\DocumentController@DownloadFolder')->name('adminuser.documents.downloadfolder');
 			Route::get('documents/view/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ViewFile')->name('adminuser.documents.view');
 			Route::get('documents/serve/{file}', 'App\Http\Controllers\Adminuser\DocumentController@ServeFile')->name('adminuser.documents.serve');
-			Route::post('documents/delete/folder','App\Http\Controllers\Adminuser\DocumentController@Delete')->name('adminuser.documents.delete');
+			Route::get('documents/recyclebin/{subproject}', 'App\Http\Controllers\Adminuser\DocumentController@RecycleBin')->name('adminuser.documents.recyclebin');
+			Route::post('documents/delete/item','App\Http\Controllers\Adminuser\DocumentController@Delete')->name('adminuser.documents.delete');
+			Route::post('documents/restore/item','App\Http\Controllers\Adminuser\DocumentController@Restore')->name('adminuser.documents.restore');
+			Route::post('documents/permanentdelete/item','App\Http\Controllers\Adminuser\DocumentController@PermanentDelete')->name('adminuser.documents.permanentdelete');
 			Route::post('documents/select','App\Http\Controllers\Adminuser\DocumentController@DownloadFiles')->name('adminuser.documents.downloadfiles');
 			Route::post('documents/create/folder', 'App\Http\Controllers\Adminuser\DocumentController@CreateFolder')->name('adminuser.documents.createfolder');
 			Route::post('documents/rename/folder', 'App\Http\Controllers\Adminuser\DocumentController@RenameFolder')->name('adminuser.documents.renamefolder');

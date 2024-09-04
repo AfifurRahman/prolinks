@@ -77,6 +77,70 @@ class DocumentController extends Controller
         }
     }
 
+    public function RecycleBin($subproject) {
+        $files = UploadFile::where('subproject_id', $subproject)->where('status', '0')->get();
+        $folders = UploadFolder::where('subproject_id', $subproject)->where('status', '0')->get();
+        $origin = "";
+        $projectID = "";
+        $subprojectID = $subproject;
+        $listusers = "";
+        return view('adminuser.document.recyclebin', compact('files','folders','origin','projectID','subprojectID','listusers'));
+    }
+
+    public function PermanentDelete(Request $request) {
+        try {
+            if(Auth::user()->type == \globals::set_role_administrator()) {
+                $item = base64_decode($request->input('item'));
+
+                if (UploadFile::where('basename', $item)->exists()) {
+                    UploadFile::where('basename', $item)->update(['status' => 2]);
+                    $itemname = UploadFile::where('basename', $item)->value('name');                   
+                } elseif (UploadFolder::where('basename', $item)->exists()) {
+                    UploadFolder::where('basename', $item)->update(['status' => 2]);
+                    $FolderLocation = UploadFolder::where('basename', $item)->value('directory');
+                    $itemname = UploadFolder::where('basename', $item)->value('name');
+
+                    UploadFolder::where('parent', 'like', '%'. $FolderLocation .'%')->update(['status' => 0]);
+                    UploadFile::where('directory', 'like', '%'. $FolderLocation .'%')->update(['status' => 0]);
+                }
+                $log = Auth::user()->name . ' permanently deleted ' . $itemname;
+
+                return response()->json(['success' => true, 'message' => 'Successfully removed ' . $itemname . '.']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Your role is not allowed to remove file.']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function Restore(Request $request) {
+        try {
+            if(Auth::user()->type == \globals::set_role_administrator()) {
+                $item = base64_decode($request->input('item'));
+
+                if (UploadFile::where('basename', $item)->exists()) {
+                    UploadFile::where('basename', $item)->update(['status' => 1]);
+                    $itemname = UploadFile::where('basename', $item)->value('name');                   
+                } elseif (UploadFolder::where('basename', $item)->exists()) {
+                    UploadFolder::where('basename', $item)->update(['status' => 1]);
+                    $FolderLocation = UploadFolder::where('basename', $item)->value('directory');
+                    $itemname = UploadFolder::where('basename', $item)->value('name');
+
+                    UploadFolder::where('parent', 'like', '%'. $FolderLocation .'%')->update(['status' => 0]);
+                    UploadFile::where('directory', 'like', '%'. $FolderLocation .'%')->update(['status' => 0]);
+                }
+                $log = Auth::user()->name . ' restored ' . $itemname;
+
+                return response()->json(['success' => true, 'message' => 'Successfully restored ' . $itemname . '.']);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Your role is not allowed to remove file.']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
     public static function generateFileTree($directory)
     {
         try {

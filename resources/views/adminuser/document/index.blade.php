@@ -46,13 +46,16 @@
             @endif
         </h2>
         <div class="button_helper">
+            @if(Auth::user()->type == \globals::set_role_administrator())
+            <!--    <a class="permissions" href="{{ route('adminuser.documents.recyclebin', $subprojectID) }}">Recycle bin</a> -->
+            @endif
+
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
                 <button class="create-folder" onclick="createFolder()">Add folder</button>
             @endif
-            
+
             @if(Auth::user()->type == \globals::set_role_administrator())
-                <button data-target="#modal-add-permission" onclick="setPermission()" data-toggle="modal" class="permissions">Permission</button>
-                <!-- <button class="permissions" onclick="setPermission()">Permissions</button> -->
+                <button onclick="setPermission()" class="permissions">Permission</button>
             @endif
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
@@ -272,7 +275,7 @@
                                                         </a>
                                                     </li> -->
                                                     <li>
-                                                        <a style="color:red;" onclick="deleteFolder('{{ base64_encode($directory) }}')">
+                                                        <a style="color:red;" onclick="deleteFolder('{{ base64_encode(DB::table('upload_folders')->where('directory', $directory)->value('basename')) }}')">
                                                             <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                                             Delete
                                                         </a>

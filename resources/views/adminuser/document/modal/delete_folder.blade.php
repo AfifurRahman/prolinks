@@ -9,7 +9,7 @@
             </button>
         </div>
         <div class="modal-body">
-            <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue? You can't undo this action.</p>
+            <p class="modal-text">Deleting this folder will also delete all containing files and folders, are you sure you want to continue?</p>
             <div class="form-button">
                 <a onclick="document.getElementById('delete-folder-modal').style.display='none'" class="cancel-btn">Cancel</a>
                 <button class="delete-btn" id="deleteFolderSubmit">Delete</button>
