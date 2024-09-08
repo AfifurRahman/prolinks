@@ -22,8 +22,8 @@
             Recycle bin
         </h2>
         <div class="button_helper">
-            <a class="permissions" href="">Empty recycle bin</a>
-            <a class="permissions" href="">Restore all items</a>
+            <a class="permissions" onclick="permanentDeleteAll()">Empty recycle bin</a>
+            <a class="permissions" onclick="restoreItemsAll()">Restore all items</a>
         </div>
     </div>
 
@@ -39,15 +39,13 @@
     <div class="viewcontainer">
         <div class="box_helper">
             <div style="margin-left:5px;display:flex;">
-                <a href="##" onClick="history.go(-2); return false;">
+                <a href="{{ route('adminuser.documents.list', base64_encode($projectID . '/' . $subprojectID)) }}">
                     <h4 style="color:#337ab7;">
                         <i class="fa fa-arrow-left"></i>&nbsp; Back to subproject
                     </h4>
                 </a>
             </div>
-            <div class="searchbox">
-                    <img class="search_icon" src="{{ url('template/images/icon_menu/search.png') }}">
-                    <input type="text" name="name" class="searchbar" id="searchInput" placeholder="Search recycle bin...">
+            <div>
             </div>
         </div>
         
@@ -83,7 +81,7 @@
                     @foreach($folders as $folder)
                         <tr>
                             <td>
-                                <input type="checkbox" class="checkbox" id="folderCheckBox" data-role="folderCheckBox" value="{{ $folder->basename }}">
+                                <input type="checkbox" class="checkbox" id="itemCheckbox" data-role="folderCheckBox" value="{{ base64_encode($folder->basename)}}">
                             </td>
                             <td>
                                 @php
@@ -150,7 +148,7 @@
                     
                     @foreach($files as $file)
                         <tr>
-                            <td><input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ $file->basename }}" /></td>
+                            <td><input type="checkbox" class="checkbox" id="itemCheckbox" data-role="fileCheckBox" value="{{ base64_encode($file->basename) }}" /></td>
                             <td>
                                 @php
                                     $index = '';
@@ -222,8 +220,8 @@
         function permanentDelete(itemID) {
             document.getElementById('permanent-delete-modal').style.display='block';
 
-            $('#deleteFileSubmit').on('click', function(e) {
-                    e.preventDefault();
+            $('#deleteItemSubmit').on('click', function(e) {
+                e.preventDefault();
 
                 var formData = new FormData();
                 formData.append('item', itemID);
@@ -237,27 +235,85 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('delete-file-modal').style.display='none';
+                    document.getElementById('permanent-delete-modal').style.display='none';
                     showNotification(data.message);
                 });
             });
         }
 
         function restoreItem(itemID) {
-            var formData = new FormData();
-            formData.append('item', itemID);
+            document.getElementById('restore-item-modal').style.display='block';
 
-            fetch('{{ route("adminuser.documents.restore") }}', {
-                method : 'POST',
-                body : formData,
-                headers : {
-                    'X-CSRF-TOKEN' : '{{ csrf_token() }}'
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('delete-file-modal').style.display='none';
-                showNotification(data.message);
+            $('#restoreItemSubmit').on('click', function(e) {
+                e.preventDefault();
+
+                var formData = new FormData();
+                formData.append('item', itemID);
+
+                fetch('{{ route("adminuser.documents.restore") }}', {
+                    method : 'POST',
+                    body : formData,
+                    headers : {
+                        'X-CSRF-TOKEN' : '{{ csrf_token() }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('restore-item-modal').style.display='none';
+                    showNotification(data.message);
+                });
+            });
+        }
+
+        function permanentDeleteAll() {
+            document.getElementById('permanent-delete-modal').style.display='block';
+
+            $('#deleteItemSubmit').on('click', function(e) { 
+                e.preventDefault();
+                const items = document.querySelectorAll('table input[type="checkbox"]');
+
+                items.forEach(function(item) {
+                    if(item.id === "itemCheckbox") {
+                        var formData = new FormData();
+                        formData.append('item', item.value);
+
+                        fetch('{{ route("adminuser.documents.permanentdelete") }}', {
+                            method : 'POST',
+                            body : formData,
+                            headers : {
+                                'X-CSRF-TOKEN' : '{{ csrf_token() }}'
+                            },
+                        })
+                    };
+                });
+                document.getElementById('permanent-delete-modal').style.display='none';
+                showNotification("Successfully cleared recycle bin");
+            });
+        }
+
+        function restoreItemsAll() {
+            document.getElementById('restore-item-modal').style.display='block';
+
+            $('#restoreItemSubmit').on('click', function(e) { 
+                e.preventDefault();
+                const items = document.querySelectorAll('table input[type="checkbox"]');
+
+                items.forEach(function(item) {
+                    if(item.id === "itemCheckbox") {
+                        var formData = new FormData();
+                        formData.append('item', item.value);
+
+                        fetch('{{ route("adminuser.documents.restore") }}', {
+                            method : 'POST',
+                            body : formData,
+                            headers : {
+                                'X-CSRF-TOKEN' : '{{ csrf_token() }}'
+                            },
+                        })
+                    };
+                });
+                document.getElementById('restore-item-modal').style.display='none';
+                showNotification("Successfully restored all items");
             });
         }
 
@@ -312,16 +368,6 @@
                 });
             });
 
-            document.getElementById('searchInput').addEventListener('keypress', function(event) {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    var searchTerm = document.getElementById('searchInput').value.trim();
-                    if (searchTerm.length >= 3) {
-                        search();
-                    }
-                }
-            });
-
             $('.tableDocument').dataTable({
                 "bPaginate": false,
                 "bInfo": false,
@@ -332,11 +378,6 @@
 
             $('.tableDocument').css('visibility', 'visible');
         });
-
-        function search() {
-            var searchTerm = document.getElementById('searchInput').value;
-            window.location.href = "{{ route('adminuser.documents.search') }}?name=" + searchTerm + "&origin=" + "{{ base64_encode($origin) }}";
-        }
 
         function showNotification(message) {
             document.querySelector('.notificationtext').textContent = message;

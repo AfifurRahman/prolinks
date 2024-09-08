@@ -235,12 +235,23 @@
 			height: 70vh;
 		}
 
-	</style>
+		.helper-btn {
+			color:#0072EE;
+			border:1px solid #EDF0F2;
+			border-radius:9px;  
+			height:38px;
+			background:#FFFFFF;   
+			margin-top:10px;
+			margin-right:6px;
+			padding:8px 12px 7px 12px;
+		}
+			</style>
 	<div class="pull-left">
 		<h3 style="color:black;font-size:28px;">Project</h3>
 	</div>
 	<div class="pull-right" style="margin-bottom: 24px; margin-top:10px;">
-		<a href="#modal-add-subproject" data-toggle="modal" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;">Create Subproject</a>
+		<a class="helper-btn" href="{{ route('project.recycle-bin') }}">Recycle bin</a>
+		<a href="#modal-add-subproject" data-toggle="modal" class="helper-btn">Create Subproject</a>
 		<a href="#modal-add-project" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Project</a>
 	</div><div style="clear: both;"></div>
 
@@ -254,7 +265,6 @@
 	</div>
 	<div class="project_table">
 	@if(count($project) > 0)
-		
 			<table class="table table-hover custom-table">
 				<tbody>
 					@foreach($project as $key => $projects)
@@ -290,32 +300,34 @@
 							</td>
 						</tr>
 						@foreach($projects->RefSubProject as $subs)
-							<tr class="child-row-general child-row{{ $key }}" style="display: table-row;">
-								<td></td>
-								<td align="right">
-									<div class="image-project2">
-										<img src="{{ url('template/images/icon-projects1.png') }}">
-									</div>
-								</td>
-								<td>
-									<div class="title-subproject">
-										<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($subs->project_id.'/'.$subs->subproject_id)) }}">{{ $subs->subproject_name }}</a></h3>
-										<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->subproject_id)->sum('size')) }}</span>
-									</div>
-								</td>
-								<td align="right" style="vertical-align: middle;" width="100">
-									<div class="dropdown">
-										<button class="button_ico dropdown-toggle" data-toggle="dropdown">
-											<i class="fa fa-ellipsis-v"></i>
-										</button>
-										<ul class="dropdown-menu dropdown-menu-top pull-right">
-											<li><a href="#modal-add-subproject" data-toggle="modal" data-title="Edit Sub Project" data-query="{{ $subs }}" onclick="getDetailSubProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
-											<li><a href="#modal-permissions" data-toggle="modal"><i class="fa fa-lock"></i> Permissions</a></li>
-											<li><a href="{{ route('project.delete-sub-project', $subs->subproject_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
-										</ul>
-									</div>
-								</td>
-							</tr>
+							@if($subs->subproject_status == '1')
+								<tr class="child-row-general child-row{{ $key }}" style="display: table-row;">
+									<td></td>
+									<td align="right">
+										<div class="image-project2">
+											<img src="{{ url('template/images/icon-projects1.png') }}">
+										</div>
+									</td>
+									<td>
+										<div class="title-subproject">
+											<h3 style="color:#1D2939;"><a href="{{ route('adminuser.documents.list', base64_encode($subs->project_id.'/'.$subs->subproject_id)) }}">{{ $subs->subproject_name }}</a></h3>
+											<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('subproject_id', $subs->subproject_id)->sum('size')) }}</span>
+										</div>
+									</td>
+									<td align="right" style="vertical-align: middle;" width="100">
+										<div class="dropdown">
+											<button class="button_ico dropdown-toggle" data-toggle="dropdown">
+												<i class="fa fa-ellipsis-v"></i>
+											</button>
+											<ul class="dropdown-menu dropdown-menu-top pull-right">
+												<li><a href="#modal-add-subproject" data-toggle="modal" data-title="Edit Sub Project" data-query="{{ $subs }}" onclick="getDetailSubProject(this)"><i class="fa fa-edit"></i> Edit</a></li>
+												<li><a href="#modal-permissions" data-toggle="modal"><i class="fa fa-lock"></i> Permissions</a></li>
+												<li><a href="{{ route('project.delete-sub-project', $subs->subproject_id) }}" onclick="return confirm('are you sure delete this item ?')" class="text-danger"><i class="fa fa-trash"></i> Delete</a></li>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							@endif
 						@endforeach
 					@endforeach
 				</tbody>

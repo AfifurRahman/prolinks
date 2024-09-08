@@ -81,7 +81,7 @@ class DocumentController extends Controller
         $files = UploadFile::where('subproject_id', $subproject)->where('status', '0')->get();
         $folders = UploadFolder::where('subproject_id', $subproject)->where('status', '0')->get();
         $origin = "";
-        $projectID = "";
+        $projectID = Subproject::where('subproject_id', $subproject)->value('project_id');
         $subprojectID = $subproject;
         $listusers = "";
         return view('adminuser.document.recyclebin', compact('files','folders','origin','projectID','subprojectID','listusers'));

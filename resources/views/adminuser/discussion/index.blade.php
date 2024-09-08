@@ -125,14 +125,27 @@
             border:none;
             background:transparent;
             margin-right:10px;
-
         }
+
+        .helper-btn {
+			color:#0072EE;
+			border:1px solid #EDF0F2;
+			border-radius:9px;  
+			height:38px;
+			background:#FFFFFF;   
+			margin-top:10px;
+			margin-right:6px;
+			padding:8px 12px 7px 12px;
+		}
     </style>
 
     <div class="pull-left">
 		<h3 style="color:black;font-size:28px;">Questions and answers</h3>
 	</div>
 	<div class="pull-right" style="margin-bottom: 24px; margin-top:5px;">
+        @if(Auth::user()->type == \globals::set_role_administrator())
+            <a class="helper-btn" href="{{ route('discussion.recycle-bin') }}">Recycle bin</a>
+        @endif
         <a href="{{ route('discussion.export-questions') }}" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"> Export All</a>
         @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_client())
             <a href="#modal-import-questions" data-toggle="modal" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;">Import Questions</a>

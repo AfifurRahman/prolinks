@@ -39,6 +39,19 @@ class ProjectController extends Controller
 		return view('adminuser.project.detail_project');
 	}
 
+	public function recycle_bin() 
+	{
+		if (Auth::user()->type != \globals::set_role_administrator()) {
+            return abort(404);
+        }
+
+		$project = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->where('project_status', \globals::set_project_status_active())->orderBy('id', 'DESC')->get();
+		$company = Company::where('company_status', \globals::set_status_company_active())->get();
+		$parentProject = Project::where('client_id', \globals::get_client_id())->where('parent', 0)->where('project_status', \globals::set_project_status_active())->get();
+
+		return view('adminuser.project.recyclebin', compact('project', 'company', 'parentProject'));
+	}
+
 	public function save_project(Request $request)
 	{
 		$projectId = $request->input('id');
@@ -202,6 +215,7 @@ class ProjectController extends Controller
 			\DB::beginTransaction();
 
 			$deleted = Project::where('project_id', $id)->where('client_id', \globals::get_client_id())->delete();
+			
 			if ($deleted) {
 				$projname = Project::where('project_id', $id)->value('project_name');
 				$desc = Auth::user()->name." has been deleted project ".$projname;
@@ -227,7 +241,7 @@ class ProjectController extends Controller
 		try {
 			\DB::beginTransaction();
 
-			$deleted = SubProject::where('subproject_id', $id)->where('client_id', \globals::get_client_id())->delete();
+			$deleted = SubProject::where('subproject_id', $id)->where('client_id', \globals::get_client_id())->update(['subproject_status' => '0']);
 			if ($deleted) {
 				AssignProject::where('subproject_id', $id)->where('client_id', \globals::get_client_id())->delete();
 				$projname = SubProject::where('subproject_id', $id)->value('subproject_name');

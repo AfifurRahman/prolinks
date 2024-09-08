@@ -47,7 +47,7 @@
         </h2>
         <div class="button_helper">
             @if(Auth::user()->type == \globals::set_role_administrator())
-            <!--    <a class="permissions" href="{{ route('adminuser.documents.recyclebin', $subprojectID) }}">Recycle bin</a> -->
+                <a class="permissions" href="{{ route('adminuser.documents.recyclebin', $subprojectID) }}">Recycle bin</a>
             @endif
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())

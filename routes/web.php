@@ -218,7 +218,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::post('documents/permission/checkuser', 'App\Http\Controllers\Adminuser\DocumentController@CheckUserPermission')->name('adminuser.permission.checkuser');
 			Route::post('documents/permission/save', 'App\Http\Controllers\Adminuser\DocumentController@SavePermission')->name('adminuser.permission.save');
 			
-
 			/* Companies */
 			Route::get('/company/list', 'App\Http\Controllers\Adminuser\CompanyController@index')->name('company.list-company');
 			Route::get('/company/detail/{id}', 'App\Http\Controllers\Adminuser\CompanyController@detail_company')->name('company.detail-company');
@@ -229,6 +228,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
 			/* Project */
 			Route::get('/project/list-project', 'App\Http\Controllers\Adminuser\ProjectController@list_project')->name('project.list-project');
+			Route::get('/project/recycle-bin', 'App\Http\Controllers\Adminuser\ProjectController@recycle_bin')->name('project.recycle-bin');
 			Route::get('/project/detail-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@detail_project')->name('project.detail-project');
 			Route::post('/project/detail-role-users', 'App\Http\Controllers\Adminuser\ProjectController@detail_role_users')->name('project.detail-role-users');
 			Route::get('/project/create-project', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.create-project');
@@ -241,6 +241,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
 			/* Q & A */
 			Route::get('/discussion/list', 'App\Http\Controllers\Adminuser\DiscussionController@index')->name('discussion.list-discussion');
+			Route::get('/discussion/recycle-bin', 'App\Http\Controllers\Adminuser\DiscussionController@recycle_bin')->name('discussion.recycle-bin');
 			Route::get('/discussion/detail/{discussion_id}', 'App\Http\Controllers\Adminuser\DiscussionController@detail')->name('discussion.detail-discussion');
 			Route::post('/discussion/save', 'App\Http\Controllers\Adminuser\DiscussionController@save_discussion')->name('discussion.save-discussion');
 			Route::post('/discussion/save-comment', 'App\Http\Controllers\Adminuser\DiscussionController@save_comment')->name('comment.save-comment');

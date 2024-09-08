@@ -52,6 +52,12 @@ class DiscussionController extends Controller
         return view('adminuser.discussion.index', compact('all_questions', 'unanswered', 'answered', 'closed', 'project', 'file'));
     }
 
+    function recycle_bin() {
+        $all_questions = Discussion::orderBy('id', 'DESC')->where('client_id', \globals::get_client_id())->where('deleted', 1)->get();
+
+        return view('adminuser.discussion.recyclebin', compact('all_questions'));
+    }
+
     function detail($discussion_id){
         if (Auth::user()->type == \globals::set_role_administrator()) {
             $detail = Discussion::where('discussion_id', $discussion_id)->where('client_id', \globals::get_client_id())->where('deleted', 0)->firstOrFail();
