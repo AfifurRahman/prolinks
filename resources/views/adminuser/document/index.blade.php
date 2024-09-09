@@ -203,10 +203,14 @@
                             <th data-sortable="false" id="navigationdot">&nbsp;</th>
                         </tr>
                     </thead>
-
+                    @php
+                        $folderCount = 0;
+                        $fileCount = 0;
+                    @endphp
                     <tbody>
                         @foreach ($folders as $directory)
                             @if(DB::table('upload_folders')->where('name', basename($directory))->value('status') == 1)
+                                @php ++$folderCount @endphp
                                 <tr>
                                     <td>
                                         <input type="checkbox" class="checkbox" id="folderCheckBox" data-role="folderCheckBox" value="{{ base64_encode(DB::table('upload_folders')->where('parent', $origin)->where('name', basename($directory))->value('basename')) }}">
@@ -299,6 +303,7 @@
                             @if(Auth::user()->type == 1 || Auth::user()->type == 2)
                                 @if(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission') == '1' || is_null(DB::table('permissions')->where('user_id',Auth::user()->user_id)->where('fileid', basename($file))->value('permission')))
                                     @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                                        @php ++$fileCount @endphp
                                         <tr>
                                             <td><input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ base64_encode(basename($file)) }}" /></td>
                                             <td data-sort="{{DB::table('upload_files')->where('basename', basename($file))->value('index')}}">
@@ -383,6 +388,7 @@
                                 @endif
                             @elseif (Auth::user()->type == 0)
                                 @if(DB::table('upload_files')->where('basename', basename($file))->value('status') == 1)
+                                    @php ++$fileCount @endphp
                                     <tr>
                                         <td><input type="checkbox" class="checkbox" id="fileCheckBox" data-role="fileCheckBox" value="{{ base64_encode(basename($file)) }}"/></td>
                                         <td data-sort="{{DB::table('upload_files')->where('basename', basename($file))->value('index')}}">
@@ -471,7 +477,7 @@
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
             </div>
             @endif
-            <p>Showing <span id="tableCounter">0</span>.</p>
+            <p>Showing {{ $fileCount }} files and {{ $folderCount }} folders.</p>
             <input id="countFile" type="hidden" value="0">
         </div>
     </div>
@@ -483,10 +489,6 @@
         let permission = [];
         let filesPath = [];
         let filesChecked = [];
-
-        const fileCounts = document.querySelectorAll('[data-role="fileCheckBox"]');
-        const folderCounts = document.querySelectorAll('[data-role="folderCheckBox"]');
-        $('#tableCounter').text(fileCounts.length + " files and " + folderCounts.length + " folders");
 
         document.addEventListener('DOMContentLoaded', function() {
             const dragArea = document.getElementById('dragArea');
@@ -556,33 +558,33 @@
             });
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
-            dragArea.addEventListener('dragover', e => {
-                e.preventDefault();
-                dragArea.classList.add('highlight');
-            });
+                dragArea.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    dragArea.classList.add('highlight');
+                });
 
-            dragArea.addEventListener('dragleave', () => {
-                dragArea.classList.remove('highlight');
-            });
+                dragArea.addEventListener('dragleave', () => {
+                    dragArea.classList.remove('highlight');
+                });
 
-            dragArea.addEventListener('drop', e => {
-                e.preventDefault();
-                dragArea.classList.remove('highlight');
-            });
+                dragArea.addEventListener('drop', e => {
+                    e.preventDefault();
+                    dragArea.classList.remove('highlight');
+                });
 
-            tableDragArea.addEventListener('dragover', e => {
-                e.preventDefault();
-                tableDragArea.classList.add('highlight');
-            });
+                tableDragArea.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    tableDragArea.classList.add('highlight');
+                });
 
-            tableDragArea.addEventListener('dragleave', () => {
-                tableDragArea.classList.remove('highlight');
-            });
+                tableDragArea.addEventListener('dragleave', () => {
+                    tableDragArea.classList.remove('highlight');
+                });
 
-            tableDragArea.addEventListener('drop', e => {
-                e.preventDefault();
-                tableDragArea.classList.remove('highlight');
-            });
+                tableDragArea.addEventListener('drop', e => {
+                    e.preventDefault();
+                    tableDragArea.classList.remove('highlight');
+                });
             @endif
 
             document.getElementById('searchInput').addEventListener('keypress', function(event) {
@@ -615,7 +617,6 @@
         @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
             function handleDrop(event) {
                 event.preventDefault();
-
                 var items = event.dataTransfer.items;
 
                 for (var i = 0; i < items.length; i++) {
@@ -1020,13 +1021,6 @@
                     } 
                 });
             }
-
-            $("#permission-file-list-table").dataTable({
-                "bPaginate": false,
-                "bInfo": false,
-                "bSort": false,
-                "bAutoWidth": false,
-            });
         @endif
     </script>
     @endpush
