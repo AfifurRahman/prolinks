@@ -250,7 +250,7 @@
 		<h3 style="color:black;font-size:28px;">Project</h3>
 	</div>
 	<div class="pull-right" style="margin-bottom: 24px; margin-top:10px;">
-		<a class="helper-btn" href="{{ route('project.recycle-bin') }}">Recycle bin</a>
+		<a class="helper-btn" href="{{ route('project.recycle-bin') }}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;Recycle bin</a>
 		<a href="#modal-add-subproject" data-toggle="modal" class="helper-btn">Create Subproject</a>
 		<a href="#modal-add-project" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Project</a>
 	</div><div style="clear: both;"></div>

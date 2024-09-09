@@ -144,7 +144,7 @@
 	</div>
 	<div class="pull-right" style="margin-bottom: 24px; margin-top:5px;">
         @if(Auth::user()->type == \globals::set_role_administrator())
-            <a class="helper-btn" href="{{ route('discussion.recycle-bin') }}">Recycle bin</a>
+            <a class="helper-btn" href="{{ route('discussion.recycle-bin') }}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;Recycle bin</a>
         @endif
         <a href="{{ route('discussion.export-questions') }}" class="btn btn-md btn-default" style="border-radius: 9px; color:#1570EF; font-weight:bold;"> Export All</a>
         @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_client())

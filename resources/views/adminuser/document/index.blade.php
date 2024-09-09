@@ -42,12 +42,12 @@
             @if (empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
                 Content of Folder "{{DB::table('upload_folders')->where('directory', $origin)->value('displayname')}}"
             @else
-                Content of Project "{{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}"
+                Content of Subproject "{{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}"
             @endif
         </h2>
         <div class="button_helper">
             @if(Auth::user()->type == \globals::set_role_administrator())
-                <a class="permissions" href="{{ route('adminuser.documents.recyclebin', $subprojectID) }}">Recycle bin</a>
+                <a class="permissions" href="{{ route('adminuser.documents.recyclebin', $subprojectID) }}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;Recycle bin</a>
             @endif
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
@@ -66,16 +66,17 @@
 
     <div class="path-box">
         <div class="path">
-            <image class="path-icon" src="{{ url('template/images/icon_menu/briefcase.png') }}" />
             <div class="path-text">
-                {{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[3])->value('subproject_name') }}
+                Project
+                {{ DB::table('project')->where('project_id', $projectID)->value('project_name') }}  
+                <i class="fa fa-caret-right" style="margin-left:4px;margin-right:4px;font-size:14px;"></i>
+                <a href="{{ route('adminuser.documents.list', base64_encode($projectID. '/'. $subprojectID)) }}">{{ DB::table('sub_project')->where('subproject_id', $subprojectID)->value('subproject_name') }}</a>
                 @php $url = implode('/',array_slice(explode('/', $origin,),0,4)); @endphp
                 @if (count(explode('/', $origin)) > 4)
                     @foreach(array_slice(explode('/', $origin),4) as $path)
                         @php $url .= '/' . $path; @endphp
-                        &nbsp;>&nbsp;&nbsp;
+                        <i class="fa fa-caret-right" style="margin-left:4px;margin-right:4px;font-size:14px;"></i>
                         <a href="{{ route('adminuser.documents.openfolder', base64_encode(DB::table('upload_folders')->where('directory', $url)->value('basename')) ) }}">{{ DB::table('upload_folders')->where('directory', $url)->value('displayname')}}</a>
-                        &nbsp;
                     @endforeach
                 @endif
             </div>
@@ -93,7 +94,7 @@
                             </h4>
                         </a>
                     @else
-                        <a class="fol-fil" href="{{ route('adminuser.documents.list', base64_encode(DB::table('upload_folders')->where('directory', $origin)->value('project_id'). '/'. DB::table('upload_folders')->where('directory', $origin)->value('subproject_id'))) }}">
+                        <a class="fol-fil" href="{{ route('adminuser.documents.list', base64_encode($projectID. '/'. $subprojectID)) }}">
                             <h4 style="color:#337ab7;">
                                 <i class="fa fa-arrow-left"></i>&nbsp; Back to Project {{DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 2])->value('subproject_name')}}
                             </h4>
