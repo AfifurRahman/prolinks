@@ -29,6 +29,8 @@
     border-radius:9px;
     max-height:40px;
     background:#0072EE;
+    padding:10px 16px 10px 16px;
+    margin-left:8px;
 }   
 
 #create_group {
@@ -37,7 +39,7 @@
     border-radius:9px;
     max-height:40px;
     background:#F5F5F5;
-    padding:8px 19px 7px 14px;
+    padding:10px 16px 10px 16px;
 }
 
 #addimg{

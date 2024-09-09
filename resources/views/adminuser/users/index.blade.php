@@ -16,8 +16,8 @@
     <div id="box_helper">
         <h2 id="title" style="color:black;font-size:28px;">Users</h2>
         <div class="btn-helper">
-            <a id="create_group" class="btn" href="#modal-create-group" data-toggle="modal"><span style="color:#1570EF; font-weight:bold;">Create Group</span></a>
-            <a id="invite_user" class="btn" href="#modal-invite-users" data-toggle="modal"><img id="addimg" src="{{ url('template/images/icon_menu/add.png') }}" />Invite User</a>
+            <a id="create_group" href="#modal-create-group" data-toggle="modal"><span style="color:#1570EF; font-weight:bold;">Create Group</span></a>
+            <a id="invite_user" href="#modal-invite-users" data-toggle="modal">Invite User</a>
         </div>
     </div>
 

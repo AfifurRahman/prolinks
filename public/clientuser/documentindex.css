@@ -152,7 +152,7 @@ body {
     margin-right:4px;
 }
 
-.create-folder {
+.btn-helper {
     color:#0072EE;
     border:1px solid #EDF0F2;
     border-radius:9px;  
@@ -160,37 +160,17 @@ body {
     background:#FFFFFF;   
     margin-top:10px;
     margin-right:6px;
-    padding:8px 14px 7px 14px;
+    padding:10px 16px 10px 16px;
 }
 
-.permissions {
-    color:#0072EE;
-    border:1px solid #EDF0F2;
-    border-radius:9px;  
-    height:38px;
-    background:#FFFFFF;   
-    margin-top:10px;
-    margin-right:6px;
-    padding:8px 12px 7px 12px;
-}
-
-.export {
-    color:#586474;
-    border:none;
-    background:#FFFFFF;
-    margin-top:10px;
-    margin-right:6px;
-    padding:8px 19px 7px 14px;   
-}
-
-.upload {
+.alt-btn-helper {
     color:#FFFFFF;
     border:none;
     border-radius:9px;
     height:38px;
     background:#0072EE;
     margin-top:10px;
-    padding:8px 14px 7px 14px;
+    padding:10px 16px 10px 16px;
 }
 
 .upload-ico {

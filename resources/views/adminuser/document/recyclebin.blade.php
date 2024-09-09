@@ -22,8 +22,8 @@
             Recycle bin
         </h2>
         <div class="button_helper">
-            <a class="permissions" onclick="permanentDeleteAll()">Empty recycle bin</a>
-            <a class="permissions" onclick="restoreItemsAll()">Restore all items</a>
+            <a class="btn-helper" onclick="permanentDeleteAll()">Empty recycle bin</a>
+            <a class="alt-btn-helper" onclick="restoreItemsAll()">Restore all items</a>
         </div>
     </div>
 

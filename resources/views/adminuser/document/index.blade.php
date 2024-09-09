@@ -39,7 +39,7 @@
 
     <div class="box_helper">
         <h2 id="title" class="project-title">
-            @if (empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
+            @if(empty(DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name')))
                 Content of Folder "{{DB::table('upload_folders')->where('directory', $origin)->value('displayname')}}"
             @else
                 Content of Subproject "{{ DB::table('sub_project')->where('subproject_id', explode('/', $origin)[count(explode('/', $origin)) - 1])->value('subproject_name') }}"
@@ -47,19 +47,19 @@
         </h2>
         <div class="button_helper">
             @if(Auth::user()->type == \globals::set_role_administrator())
-                <a class="permissions" href="{{ route('adminuser.documents.recyclebin', $subprojectID) }}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;Recycle bin</a>
+                <a class="btn-helper" href="{{ route('adminuser.documents.recyclebin', $subprojectID) }}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;Recycle bin</a>
             @endif
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
-                <button class="create-folder" onclick="createFolder()">Add folder</button>
+                <a class="btn-helper" onclick="createFolder()">Add folder</a>
             @endif
 
             @if(Auth::user()->type == \globals::set_role_administrator())
-                <button onclick="setPermission()" class="permissions">Permission</button>
+                <a class="btn-helper" onclick="setPermission()">Permission</a>
             @endif
 
             @if(Auth::user()->type == \globals::set_role_collaborator() OR Auth::user()->type == \globals::set_role_administrator())
-                <button class="upload" onclick="document.getElementById('upload-modal').style.display='block'">Upload Files</button>
+                <a class="alt-btn-helper" onclick="document.getElementById('upload-modal').style.display='block'">Upload Files</a>
             @endif        
         </div>
     </div>

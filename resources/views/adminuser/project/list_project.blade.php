@@ -18,31 +18,21 @@
 	<style type="text/css">
 		.tableProjects td {
 			vertical-align: middle;
+			padding: 13px 0px 13px 10px;
+		    font-size:13.5px;
+		    color:black;
 		}
 
 		.tableProjects{
-		    border-collapse: separate;
-		    border:1px solid #F1F1F1;
+		    border-collapse: collapse;
 		    border-radius: 7px;
 		    width:100%
 		}
 
 		.tableProjects th {
 		    padding: 15px 0px 15px 10px;
-		    border-bottom:1px solid #F1F1F1;
 		    font-size:14px;
 		    font-weight:600;
-		}
-
-		.tableProjects td  {
-		    padding: 13px 0px 13px 10px;
-		    border-bottom:1px solid #F1F1F1;
-		    font-size:13.5px;
-		    color:black;
-		}
-
-		.tableProjects tbody tr:last-child td{
-		    border-bottom: none;
 		}
 
 		.tableProjects tbody tr:hover {
@@ -103,15 +93,18 @@
 
 	    .image-project {
 	    	border: solid 1px #EDF0F2;
-	    	width: 48px;
-	    	height: 48px;
+	    	width: 38px;
+	    	height: 38px;
 	    	border-radius: 8px;
 	    	position: relative;
+			background:#EDF0F2;
+			margin-left:12px;
+			margin-right:-6px;
 	    }
 
 	    .image-project img {
-	    	width: 32px;
-	    	height: 32px;
+	    	width: 24px;
+	    	height: 24px;
 	    	margin: 0;
 		  	position: absolute;
 		  	top: 50%;
@@ -145,14 +138,16 @@
 	    	letter-spacing: 0.5%;
 	    	color: #1D2939;
 	    	line-height: 0;
+			margin-bottom:6px;
+			margin-top:12px;
 	    }
 
 	    .title-project span {
 	    	font-weight: 400;
 	    	font-size: 12px;
-	    	line-height: 20px;
+	    	line-height: 18px;
 	    	letter-spacing: 0.5%;
-	    	color: #586474;
+	    	color: #1D2939;
 	    }
 
 		.title-subproject {
@@ -187,10 +182,7 @@
 		    padding:5px 10px 5px 10px;
 		    border-radius:25px;
 		}
-
-		.table thead > tr > th { border-top: none; }
-		.table thead > tr > th, .table tbody > tr > th, .table tfoot > tr > th, .table thead > tr > td, .table tbody > tr > td, .table tfoot > tr > td { border-bottom: 1px solid #ddd; }
-		
+	
 		.modal-content {
 	        padding: 0px !important;
 	    }
@@ -235,7 +227,7 @@
 			height: 70vh;
 		}
 
-		.helper-btn {
+		.btn-helper {
 			color:#0072EE;
 			border:1px solid #EDF0F2;
 			border-radius:9px;  
@@ -243,16 +235,40 @@
 			background:#FFFFFF;   
 			margin-top:10px;
 			margin-right:6px;
-			padding:8px 12px 7px 12px;
+			padding:10px 16px 10px 16px;
 		}
-			</style>
+
+		.alt-btn-helper {
+			color:#FFFFFF;
+			border:none;
+			border-radius:9px;
+			height:38px;
+			background:#0072EE;
+			margin-top:10px;
+			padding:10px 16px 10px 16px;
+		}
+
+		.title-text {
+			color:#1D2939;
+		}
+
+		.subproject-row {
+			display: table-row;
+			border-left: 4px solid #12B76A;
+		}
+
+		tr {
+			border: 2px solid #EDF0F2;
+		}
+
+	</style>
 	<div class="pull-left">
 		<h3 style="color:black;font-size:28px;">Project</h3>
 	</div>
 	<div class="pull-right" style="margin-bottom: 24px; margin-top:10px;">
-		<a class="helper-btn" href="{{ route('project.recycle-bin') }}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;Recycle bin</a>
-		<a href="#modal-add-subproject" data-toggle="modal" class="helper-btn">Create Subproject</a>
-		<a href="#modal-add-project" data-toggle="modal" class="btn btn-md btn-primary" style="border-radius: 9px;"><image src="{{ url('template/images/icon_menu/add.png') }}" width="24" height="24"> Create Project</a>
+		<a class="btn-helper" href="{{ route('project.recycle-bin') }}"><i class="fa fa-trash" aria-hidden="true"></i>&nbsp;&nbsp;Recycle bin</a>
+		<a href="#modal-add-subproject" data-toggle="modal" class="btn-helper">Add Subproject</a>
+		<a href="#modal-add-project" data-toggle="modal" class="alt-btn-helper">Create Project</a>
 	</div><div style="clear: both;"></div>
 
 	<div class="alert alert-icon alert-info alert-dismissible fade in" role="alert" style="background-color:#EFF8FF; border:solid 1px #EFF8FF; color:#1D2939;">
@@ -260,7 +276,7 @@
 				aria-label="Close">
 			<span aria-hidden="true">&times;</span>
 		</button>
-		<i class="mdi mdi-information"></i>
+		<i class="mdi mdi-information" style="color:#1570EF;"></i>
 		Add a subproject so start uploading files.
 	</div>
 	<div class="project_table">
@@ -268,12 +284,7 @@
 			<table class="table table-hover custom-table">
 				<tbody>
 					@foreach($project as $key => $projects)
-						<tr class="">
-							<td width="50" style="vertical-align: middle;" align="center">
-								@if(count($projects->RefSubProject) > 0)
-									<a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)"><span class="caret"></span></a>
-								@endif
-							</td>
+						<tr>
 							<td width="48">
 								<div class="image-project">
 									<img src="{{ url('template/images/icon-projects1.png') }}">
@@ -281,8 +292,8 @@
 							</td>
 							<td style="vertical-align: middle;">
 								<div class="title-project">
-									<h3><a href="javascript:void(0)" data-key="{{ $key }}" onclick="slideData(this)">{{ $projects->project_name }}</a></h3>
-									<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id)->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "- ".$projects->project_desc : '' }}</span>
+									<h3><a class="title-text" onclick="slideData(this)">{{ $projects->project_name }}</a></h3>
+									<span style="color:#1D2939;">{{ App\Helpers\GlobalHelper::formatBytes(DB::table('upload_files')->where('project_id', $projects->project_id)->sum('size')) }}</span> <span style="color:#586474;">{{ !empty($projects->project_desc) ? "· ".$projects->project_desc : '' }}</span>
 								</div>
 							</td>
 							<td align="right" style="vertical-align: middle;" width="100">
@@ -301,12 +312,8 @@
 						</tr>
 						@foreach($projects->RefSubProject as $subs)
 							@if($subs->subproject_status == '1')
-								<tr class="child-row-general child-row{{ $key }}" style="display: table-row;">
-									<td></td>
+								<tr class="subproject-row">
 									<td align="right">
-										<div class="image-project2">
-											<img src="{{ url('template/images/icon-projects1.png') }}">
-										</div>
 									</td>
 									<td>
 										<div class="title-subproject">

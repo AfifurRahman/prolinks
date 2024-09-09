@@ -10,7 +10,9 @@
     </div>
 @endsection
 
-
+@php
+    $index = 0;
+@endphp
 
 @section('content')
     <link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
@@ -20,8 +22,8 @@
             Recycle bin
         </h2>
         <div class="button_helper">
-            <a class="permissions" onclick="permanentDeleteAll()">Empty recycle bin</a>
-            <a class="permissions" onclick="restoreItemsAll()">Restore all items</a>
+            <a class="btn-helper" onclick="permanentDeleteAll()">Empty recycle bin</a>
+            <a class="alt-btn-helper" onclick="restoreItemsAll()">Restore all items</a>
         </div>
     </div>
 
@@ -51,8 +53,10 @@
             <table class="tableDocument">
                 <thead>
                     <tr class="headerBar">
+                        <th>Index</th>
                         <th>Subproject name</th>
                         <th>Deleted at</th>
+                        <th>Deleted by</th>
                         <th data-sortable="false" id="navigationdot"></th>
                     </tr>
                 </thead>
@@ -61,8 +65,10 @@
                         @foreach($projects->RefSubProject as $subs)
                             @if($subs->subproject_status == '0')
                                 <tr>
+                                    <td>{{ ++$index }}</td>
                                     <td>{{ $subs->subproject_name }}</td>
                                     <td>{!! date('d M Y H:i', strtotime($subs->updated_at)) !!}</td>
+                                    <td>Takanashi Hoshino</td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="button_ico dropdown-toggle" data-toggle="dropdown">
@@ -96,6 +102,7 @@
                     @endforeach
                 </tbody>
             </table>
+            <p style="margin-top:12px;">Showing {{ $index }} items.</p>
         </div>
     </div>
 

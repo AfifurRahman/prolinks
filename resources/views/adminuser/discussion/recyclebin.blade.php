@@ -10,7 +10,9 @@
     </div>
 @endsection
 
-
+@php
+    $itemcount = 0;
+@endphp
 
 @section('content')
     <link href="{{ url('clientuser/documentindex.css') }}" rel="stylesheet" type="text/css" />
@@ -20,8 +22,8 @@
             Recycle bin
         </h2>
         <div class="button_helper">
-            <a class="permissions" onclick="permanentDeleteAll()">Empty recycle bin</a>
-            <a class="permissions" onclick="restoreItemsAll()">Restore all items</a>
+            <a class="btn-helper" onclick="permanentDeleteAll()">Empty recycle bin</a>
+            <a class="alt-btn-helper" onclick="restoreItemsAll()">Restore all items</a>
         </div>
     </div>
 
@@ -51,14 +53,20 @@
             <table class="tableDocument">
                 <thead>
                     <tr class="headerBar">
+                        <th>Index</th>
                         <th>Discussion title</th>
                         <th>Deleted at</th>
+                        <th>Deleted by</th>
                         <th data-sortable="false" id="navigationdot"></th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach($all_questions as $key => $qna)
                     <tr>
+                        <td>
+                            {{ $loop->iteration }}
+                            @php $itemcount++ @endphp
+                        </td>
                         <td>
                             @if($qna->priority == \globals::set_qna_priority_high())
                                 <img src="{{ url('template/images/priority_high.png') }}" width="24" height="24" />
@@ -70,6 +78,9 @@
                             <a>{{ $qna->subject }}</a>
                         </td>
                         <td>{!! date('d M Y H:i', strtotime($qna->updated_at)) !!}</td>
+                        <td>{!! \globals::get_user_avatar_small($qna->user_id, DB::table('users')->where('user_id', $qna->user_id)->value('avatar_color')) !!}
+                            &nbsp;{{ DB::table('users')->where('user_id', $qna->user_id)->value('name') }}
+                        </td>
                         <td>
                             <div class="dropdown">
                                 <button class="button_ico dropdown-toggle" data-toggle="dropdown">
@@ -101,6 +112,7 @@
                 @endforeach
                 </tbody>
             </table>
+            <p style="margin-top:12px;">Showing <span id="tableCounter">{{ $itemcount }}</span> items.</p>
         </div>
     </div>
 
