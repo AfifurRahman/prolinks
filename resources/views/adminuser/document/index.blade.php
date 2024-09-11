@@ -746,6 +746,7 @@
 
             function clearFiles() {
                 files = [];
+                filesPath = [];
                 displayFileData(files);
             }
 
