@@ -1103,8 +1103,7 @@ class DocumentController extends Controller
 
                 $emailFilesName = rtrim($emailFilesName,  ", ");
                 $logFilesName = rtrim($logFilesName, ', ');
-
-                $receiver_email = AssignProject::where('subproject_id', $projectID[3])->get();
+                $subproject_id = $projectID[3];
 
                 $desc = Auth::user()->name . " uploaded file " . $logFilesName;
                 \log::create(request()->all(), "success", $desc);
@@ -1119,26 +1118,27 @@ class DocumentController extends Controller
                     $url = route('adminuser.documents.openfolder', base64_encode($link));
                 }
 
-                if(count($receiver_email) > 0) {
-                    foreach ($receiver_email as $key => $value) {
-                        if($value->email != Auth::user()->email) {
-                            if((User::where('user_id', $value->user_id)->value('status') == '1') && (!is_null(User::where('user_id', $value->user_id)->value('email_verified_at'))) ) {
-                                $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('user_id', $value->user_id)->value('is_upload_file');
-                                if (!empty($check_settings) && $check_settings == 1) {
-                                    $details = [
-                                        'receiver' => User::where('user_id',$value->user_id)->value('name'),
-                                        'project_name' => Project::where('project_id', $projectID[2])->value('project_name'),
-                                        'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
-                                        'file_name' => $emailFilesName,
-                                        'file_size' => GlobalHelper::formatBytes($emailTotalByte),
-                                        'url' => $url,
-                                    ];
-                                    \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
-                                }
+                $receiver_email = AssignProject::where('subproject_id', $subproject_id)->get();
+
+                foreach ($receiver_email as $key => $value) {
+                    if($value->email != Auth::user()->email) {
+                        if((User::where('user_id', $value->user_id)->value('status') == '1') && (!is_null(User::where('user_id', $value->user_id)->value('email_verified_at'))) ) {
+                            $check_settings = SettingEmailNotification::where('project_id', $value->project_id)->where('subproject_id', $value->subproject_id)->where('user_id', $value->user_id)->value('is_upload_file');
+                            if (!empty($check_settings) && $check_settings == 1) {
+                                $details = [
+                                    'receiver' => User::where('user_id',$value->user_id)->value('name'),
+                                    'project_name' => Project::where('project_id', $projectID[2])->value('project_name'),
+                                    'uploader' => Client::where('client_id', \globals::get_client_id())->value('client_name'),
+                                    'file_name' => $emailFilesName,
+                                    'file_size' => GlobalHelper::formatBytes($emailTotalByte),
+                                    'url' => $url,
+                                ];
+                                \Mail::to($value->email)->send(new \App\Mail\DocumentUploads($details));
                             }
                         }
                     }
                 }
+                
 
                 return response()->json(['success' => true, 'message' => "Successfully uploaded file and folder."]);
             } else {
