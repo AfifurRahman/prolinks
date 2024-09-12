@@ -26,7 +26,6 @@ use App\Models\Watermark;
 use App\Models\LogViewDocument;
 use App\Models\SettingEmailNotification;
 use App\Services\WatermarkService;
-
 use Auth;
 use ZipArchive;
 
@@ -104,6 +103,7 @@ class DocumentController extends Controller
                     UploadFile::where('directory', 'like', '%'. $FolderLocation .'%')->update(['status' => 0]);
                 }
                 $log = Auth::user()->name . ' permanently deleted ' . $itemname;
+                \log::create(request()->all(), "success", $log);
 
                 return response()->json(['success' => true, 'message' => 'Successfully removed ' . $itemname . '.']);
             } else {
@@ -132,6 +132,7 @@ class DocumentController extends Controller
                 }
                 $log = Auth::user()->name . ' restored ' . $itemname;
 
+                \log::create(request()->all(), "success", $log);
                 return response()->json(['success' => true, 'message' => 'Successfully restored ' . $itemname . '.']);
             } else {
                 return response()->json(['success' => false, 'message' => 'Your role is not allowed to remove file.']);
@@ -375,7 +376,7 @@ class DocumentController extends Controller
 
             return response()->json(['success' => true, 'message' => "Successfully updated the permission"]);
         } catch (\Exception $e) {
-            return response()->json(['success' => true, 'message' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
@@ -951,6 +952,7 @@ class DocumentController extends Controller
                     UploadFile::where('directory', 'like', '%'. $FolderLocation .'%')->update(['status' => 0]);
                 }
                 $log = Auth::user()->name . ' deleted ' . $itemname;
+                \log::create(request()->all(), "success", $log);
 
                 return response()->json(['success' => true, 'message' => 'Successfully removed ' . $itemname . '.']);
             } else {

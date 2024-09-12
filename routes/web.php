@@ -235,9 +235,12 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 			Route::get('/project/edit-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@create_project')->name('project.edit-project');
 			Route::post('/project/save-project', 'App\Http\Controllers\Adminuser\ProjectController@save_project')->name('project.save-project');
 			Route::post('/project/save-subproject', 'App\Http\Controllers\Adminuser\ProjectController@save_subproject')->name('project.save-subproject');
+			Route::get('/project/download/{id}', 'App\Http\Controllers\Adminuser\ProjectController@download_project')->name('project.download-project');
 			Route::get('/project/delete-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_project')->name('project.delete-project');
 			Route::get('/project/delete-sub-project/{id}', 'App\Http\Controllers\Adminuser\ProjectController@delete_sub_project')->name('project.delete-sub-project');
 			Route::post('/project/terminate-project', 'App\Http\Controllers\Adminuser\ProjectController@terminate_project')->name('project.terminate-project');
+			Route::post('/project/recover-subproject', 'App\Http\Controllers\Adminuser\ProjectController@recover_subproject')->name('project.recover-subproject');
+			Route::post('/project/permanent-delete-subproject', 'App\Http\Controllers\Adminuser\ProjectController@permanent_delete_subproject')->name('project.permanent-delete-subproject');
 
 			/* Q & A */
 			Route::get('/discussion/list', 'App\Http\Controllers\Adminuser\DiscussionController@index')->name('discussion.list-discussion');

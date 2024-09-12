@@ -22,7 +22,7 @@ class VerifyProjectMiddleware
             if ($models->count() == 0) {
             // if (false) {
                 /* jika admin client belum memiliki project sama sekali */
-                //return redirect(route('create-new-project'));
+                // return redirect(route('create-new-project'));
             }
         }
 

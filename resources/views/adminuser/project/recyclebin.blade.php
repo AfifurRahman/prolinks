@@ -22,15 +22,18 @@
             Recycle bin
         </h2>
         <div class="button_helper">
-            <a class="btn-helper" onclick="permanentDeleteAll()">Empty recycle bin</a>
-            <a class="alt-btn-helper" onclick="restoreItemsAll()">Restore all items</a>
+        <!--    <a class="btn-helper" onclick="permanentDeleteAll()">Empty recycle bin</a>
+            <a class="alt-btn-helper" onclick="restoreItemsAll()">Restore all items</a> -->
         </div>
     </div>
 
     <div class="path-box">
         <div class="path">
-            <image class="path-icon" src="{{ url('template/images/icon_menu/briefcase.png') }}" />
             <div class="path-text">
+                Project
+                <i class="fa fa-caret-right" style="margin-left:4px;margin-right:4px;font-size:14px;"></i>
+                Subproject
+                <i class="fa fa-caret-right" style="margin-left:4px;margin-right:4px;font-size:14px;"></i>
                 Recycle bin
             </div>
         </div>
@@ -68,7 +71,10 @@
                                     <td>{{ ++$index }}</td>
                                     <td>{{ $subs->subproject_name }}</td>
                                     <td>{!! date('d M Y H:i', strtotime($subs->updated_at)) !!}</td>
-                                    <td>Takanashi Hoshino</td>
+                                    <td>
+                                        {!! \globals::get_user_avatar_small(DB::table('users')->where('id', $subs->updated_by)->value('user_id'), DB::table('users')->where('id', $subs->updated_by)->value('avatar_color')) !!}
+                                        &nbsp;{{ !is_null(DB::table('users')->where('id', $subs->updated_by)->value('name')) ? DB::table('users')->where('id', $subs->updated_by)->value('name') : 'Unnamed User' }}    
+                                    </td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="button_ico dropdown-toggle" data-toggle="dropdown">
@@ -76,21 +82,15 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-top pull-right">
                                                 <li>
-                                                    <a onclick="">
+                                                    <a onclick="restoreSubproject('{{ $subs->subproject_id }}')">
                                                         <img class="dropdown-icon" src="{{ url('template/images/icon_menu/cut.png') }}">
                                                         Restore
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a style="color:red;" onclick="">
+                                                    <a style="color:red;" onclick="permanentDeleteSubproject('{{ $subs->subproject_id }}')">
                                                         <img class="dropdown-icon" src="{{ url('template/images/icon_menu/trash.png') }}">
                                                         Delete permanently
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a onclick="">
-                                                        <img class="dropdown-icon" src="{{ url('template/images/icon_menu/info.png') }}">
-                                                        Properties
                                                     </a>
                                                 </li>
                                             </ul>
@@ -108,6 +108,44 @@
 
     @push('scripts')
     <script>
+         function showNotification(message) {
+            document.querySelector('.notificationtext').textContent = message;
+            document.querySelector('.notificationlayer').style.display = 'block';
+            setTimeout(() => {
+                $('.notificationlayer').fadeOut();
+            }, 2000);
+            setTimeout(function() {
+                location.reload();
+            }, 1000);
+        }
+
+        function restoreSubproject(subproject) {
+            var formData = new FormData();
+            formData.append('subprojectID', subproject);
+
+            fetch('{{ route("project.recover-subproject") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN' : '{{ csrf_token() }}'
+                },
+            })
+            showNotification("Subproject recovered!");
+        }
+
+        function permanentDeleteSubproject(subproject) {
+            var formData = new FormData();
+            formData.append('subprojectID', subproject);
+
+            fetch('{{ route("project.permanent-delete-subproject") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN' : '{{ csrf_token() }}'
+                },
+            })
+            showNotification("Subproject permanently removed!");
+        }
      </script>
     @endpush
 @endsection

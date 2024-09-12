@@ -10,14 +10,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Models\User;
 use App\Models\Client;
-use App\Models\Project;
 use App\Models\ClientUser;
+use App\Models\Project;
+use App\Models\UploadFile;
+use App\Models\UploadFolder;
 use App\Models\Company;
+use Carbon\Carbon;
 use Session;
 use Auth;
+use ZipArchive;
 
 class ProjectController extends Controller
 {
@@ -193,7 +198,13 @@ class ProjectController extends Controller
 				$projname = Project::where('project_id', $project_id)->value('project_name');
 				$desc = Auth::user()->name." has been terminate project ".$projname." with reason ".$request->input('terminate_reason');
 				\log::create($request->all(), "success", $desc);
-				
+				$details = [
+					'project_name' => Project::where('project_id', $project_id)->value('project_name'),
+					'url' => route('project.download-project', $project_id),
+					'receiver' => Auth::user()->name,
+				];
+				\Mail::to(Auth::user()->email)->send(new \App\Mail\ClosingProject($details));
+
 				$notification = 'Project terminated';
 			}
 
@@ -207,6 +218,94 @@ class ProjectController extends Controller
 		}
 
 		return redirect(route('project.list-project'))->with('notification', $notification);
+	}
+
+	public function download_project($id) {
+		try {
+			$project_client_id = Project::where('project_id', $id)->value('client_id');
+
+			if ((Auth::user()->client_id == $project_client_id) && ((Project::where('project_id', $id)->value('user_id') == Auth::user()->user_id) || (ClientUser::where('user_id', Auth::user()->user_id)->where('client_id', $project_client_id)->value('role') == '0')) && Carbon::parse(Project::where('project_id', $id)->value('updated_at'))->greaterThanOrEqualTo(Carbon::now()->subDays(7))) {
+				$folderName = 'uploads/'. $project_client_id . '/' . $id;
+				$files = Storage::allFiles($folderName);
+				$tempZipFile = tempnam(sys_get_temp_dir(), 'folder_zip');
+				$zip = new ZipArchive();
+				$zip->open($tempZipFile, ZipArchive::CREATE);
+				$fileName = "";
+				$fileFolder = "";
+				$log = '';
+
+				foreach ($files as $file) {
+					$index = '';
+
+					$relativePath = substr($file, strlen($folderName) + 1);
+
+					$Path = explode('/', $relativePath);
+					array_pop($Path);
+					$Path = implode('/', $Path);
+
+					$basenameFile = explode('/', $relativePath);
+					$basenameFile = end($basenameFile);
+
+					if (UploadFile::where('basename', $basenameFile)->value('status') == '1') {
+						
+						$pathFile = UploadFile::where('basename', $basenameFile)->value('directory');
+
+						$originPath = implode('/', array_slice(explode('/', UploadFile::where('basename', $basenameFile)->value('directory')), 0, 4));
+						foreach(array_slice(explode('/', UploadFile::where('basename', $basenameFile)->value('directory')), 4) as $path) {
+							$originPath .= '/' . $path;
+							$index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+						}
+						
+						$index .= DB::table('upload_files')->where('basename', basename($basenameFile))->value('index');
+						$basenameFile = $index . ' - ' .UploadFile::where('basename', $basenameFile)->value('name');
+
+						if ($Path == "") {
+							$fixedPath = $basenameFile;
+						} else {
+							$FullPath = '';
+							$OriginFullPath = $folderName;
+
+							foreach(explode('/', $Path) as $paths) {
+								$index = '';
+								$OriginFullPath .= '/' . $paths;
+								$originPath = implode('/', array_slice(explode('/', UploadFolder::where('directory', $OriginFullPath)->value('parent')), 0, 4));
+
+								foreach(array_slice(explode('/', UploadFolder::where('directory', $OriginFullPath)->value('parent')), 4) as $path) {
+									$originPath .= '/' . $path;
+									
+									$index .= DB::table('upload_folders')->where('directory', $originPath)->where('name', $path)->value('index') . '.';
+								}
+
+								$index .= DB::table('upload_folders')->where('directory', $OriginFullPath)->value('index');
+								
+								$subfolderName = is_null(Subproject::where('subproject_id', $paths)->value('subproject_name')) ? $paths : Subproject::where('subproject_id', $paths)->value('subproject_name');
+								$Path = $index == "" ? 'Subproject '. $subfolderName : $index . ' - ' . $subfolderName;
+								$log .= $OriginFullPath;
+								$FullPath .= $Path . '/';
+							}
+							$fixedPath =  $FullPath . $basenameFile;
+						}  
+						
+						$zip->addFile(Storage::path($file), $fixedPath);
+					}
+				}
+
+				$zip->close();
+				
+				$destinationPath = 'downloads/'. Auth::user()->user_id . '/temp.zip'; 
+				Storage::put($destinationPath, file_get_contents($tempZipFile));
+
+				$desc = Auth::user()->name . " downloaded folder path ";
+				\log::create(request()->all(), "success", $desc);
+
+				return Storage::disk('local')->download($destinationPath, 'Project ' . Project::where('project_id',basename($folderName))->value('project_name') . '.zip');
+
+			} else {
+				return abort(404);
+			}
+		} catch (\Exception $e) {
+			return abort(404);
+		}
 	}
 
 	public function delete_project($id)
@@ -236,14 +335,59 @@ class ProjectController extends Controller
 		return back()->with('notification', $notification);
 	}
 
+	public function recover_subproject(Request $request) {
+		try {
+			$id = $request->input('subprojectID');
+
+			if (Auth::user()->type != \globals::set_role_administrator()) {
+				return abort(404);
+			} else {
+				SubProject::where('subproject_id', $id)->update(['subproject_status' => '1']);
+
+				$desc = Auth::user()->name." has recovered sub project ".$projname;
+				\log::create(request()->all(), "success", $desc);
+
+				$notification = "Subproject recovered!";
+			}
+		} catch (\Exception $e) {
+			\log::create(request()->all(), "error", $e->getMessage());
+			Alert::error('Error', $e->getMessage());
+			return back();
+		}
+	}
+
+	public function permanent_delete_subproject(Request $request) {
+		try {
+			$id = $request->input('subprojectID');
+
+			if (Auth::user()->type != \globals::set_role_administrator()) {
+				return abort(404);
+			} else {
+				SubProject::where('subproject_id', $id)->update(['subproject_status' => '2']);
+
+				$desc = Auth::user()->name." has recovered sub project ".$projname;
+				\log::create(request()->all(), "success", $desc);
+
+				$notification = "Subproject recovered!";
+			}
+		} catch (\Exception $e) {
+			\log::create(request()->all(), "error", $e->getMessage());
+			Alert::error('Error', $e->getMessage());
+			return back();
+		}
+	}
+
 	public function delete_sub_project($id)
 	{
 		try {
 			\DB::beginTransaction();
 
-			$deleted = SubProject::where('subproject_id', $id)->where('client_id', \globals::get_client_id())->update(['subproject_status' => '0']);
+			$deleted = SubProject::where('subproject_id', $id)->update([
+				'subproject_status' => '0', 
+				'updated_by' => Auth::user()->id,
+			]);
 			if ($deleted) {
-				AssignProject::where('subproject_id', $id)->where('client_id', \globals::get_client_id())->delete();
+				AssignProject::where('subproject_id', $id)->delete();
 				$projname = SubProject::where('subproject_id', $id)->value('subproject_name');
 				$desc = Auth::user()->name." has been deleted sub project ".$projname;
 				\log::create(request()->all(), "success", $desc);
